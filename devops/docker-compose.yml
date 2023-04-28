@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  # -------------------------------------------------------------------------------- #
+  # backend service with nestjs                                                      #
+  # -------------------------------------------------------------------------------- #
+  backend:
+    build:
+      context: ../backend
+    ports:
+      - 443:3000
+    restart: always
+    depends_on:
+      - postgresql
+    networks:
+      - transcendence_net
+
+  # -------------------------------------------------------------------------------- #
+  # postgresql database                                                              #
+  # -------------------------------------------------------------------------------- #
+  postgresql:
+    image: postgres:15.2-alpine3.17
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - transcendence_net
+
+# -------------------------------------------------------------------------------- #
+# networks                                                                         #
+# -------------------------------------------------------------------------------- #
+networks:
+  transcendence_net:
+
+# -------------------------------------------------------------------------------- #
+# volumes                                                                          #
+# -------------------------------------------------------------------------------- #
+volumes:
+  database:
+    driver: local
+    driver_opts:
+      type: none
+      device: ~/transcendence/database
+      o: bind
