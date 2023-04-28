@@ -3,30 +3,13 @@ Transcend with a ping-pong game ^_^
 
 ## Tech Stack
 ### [Backend](backend)
-#### - NestJS
-Backend framework base on Node.js and Express.  
-
-##### - Prisma
-ORM for Node.js & TypeScript
-
-#### - Postgresql
-Database.  
-
-#### - Redis
-Cache databse.  
-
-#### - Swagger
-API documentation tool
+NestJS(server), Prisma(ORM), Postgresql(DB), Redis(Cache DB), Sagger(API Doc) 
 
 ### [Frontend](frontend)
-#### - React
-You know...
+React(Framework/Library), Vite(Tooling)
 
-#### - Vite
-Frontend tooling(module management, TypeScript support...etc)
-
-### DevOps
-#### - Docker-compose 
+### [DevOps](devops)
+Docker-compose, Github(CI/CD)?
 
 ## Run the project
 `make`
