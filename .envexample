@@ -1,0 +1,5 @@
+POSTGRES_USER="username"
+POSTGRES_PASSWORD="userpassword"
+POSTGRES_DB="dbname"
+
+DATABASE_URL="postgresql://user:userpass@dbhost:5432/dbname?schema=public"

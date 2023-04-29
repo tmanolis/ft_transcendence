@@ -16,5 +16,9 @@ Docker-compose, Github(CI/CD)?
 `make build`
 `make stop`
 
-### Environment Variables
+## Environment Variables
+This project need a .env file to work. Here is an example: [.envexample](.envexample)
+
+## SSL
+Need genuine .key and .crt files in the backend directory to make https working. Or you might want to disable the "httpsOptions" and remove the file reading part in [main.ts](backend/src/main.ts).  
 

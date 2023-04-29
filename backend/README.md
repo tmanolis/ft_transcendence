@@ -9,6 +9,8 @@ Learn how to install, create new project, run service, test, use cli tool...etc.
 This is a good tuto video:[WDS - Learn Prisma In 60 Minutes](https://www.youtube.com/watch?v=RebA5J-rlwg)  
 And of course: [NestJS - DOCS - Prisma](https://docs.nestjs.com/recipes/prisma)  
 
+? do we always need to do the migration manualy on local server before dockerizing the project ?
+
 ## Postgresql
 Database.  
 
