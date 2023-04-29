@@ -1,8 +1,13 @@
 ## NestJS
-Backend framework base on Node.js and Express.  
+#### Backend framework base on Node.js and Express.  
+Learn how to install, create new project, run service, test, use cli tool...etc. on [NestJS - DOCS](https://docs.nestjs.com)   
+
+!! The module.ts file is the entry point of each module. The controller.ts does the routing and some config. The service.ts "provide" the services(functionalities).  !!
 
 ## Prisma
-ORM for Node.js & TypeScript
+#### ORM for Node.js & TypeScript
+This is a good tuto video:[WDS - Learn Prisma In 60 Minutes](https://www.youtube.com/watch?v=RebA5J-rlwg)  
+And of course: [NestJS - DOCS - Prisma](https://docs.nestjs.com/recipes/prisma)  
 
 ## Postgresql
 Database.  
@@ -11,48 +16,11 @@ Database.
 Cache databse.  
 
 ## Swagger
-API documentation tool
+#### API documentation tool
+Learn how to integrate swagger into NestJS here: [NestJS - DOCS - OpenAPI](https://docs.nestjs.com/openapi/introduction)
 
-# Development Process
-1. Setup the NestJS environment and create a new project
-`npm i -g @nestjs/cli`  
-`nest new transcendence`  
+## SSL certificate(optional)
+Aquire an SSL certificate from [ZeroSSL](https://zerossl.com). Follow the instruction on the site.  
+Copy the .crt and .key files into docker containers.  
+Use 'fs' package to read the file and add httpsOptions into main.ts.  
 
-Run the bootstraped app
-`npm run start`  
-`npm run start:dev`(this will watch for changes in files)  
-
-2. Remove example (unnecessary) files and create new module  
-Remove `app.controller.ts` and its test file `app.controller.spec.ts`  
-Also remove `app.service.ts` file  
-
-Generate a new moudle with `nest g module <module_name>`  
-Generate a controller for this module `nest g controller <module_name>`  
-!! The module.ts file is the entry point of each module. The controller.ts does the routing and some config. The service.ts "provide" the services(functionalities).  !!
-
----
-
-## Installation
-```bash
-$ npm install
-```
-
-## Running the app
-```bash
-# development
-$ npm run start
-# watch mode
-$ npm run start:dev
-# production mode
-$ npm run start:prod
-```
-
-## Test
-```bash
-# unit tests
-$ npm run test
-# e2e tests
-$ npm run test:e2e
-# test coverage
-$ npm run test:cov
-```

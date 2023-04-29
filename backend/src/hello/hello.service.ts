@@ -1,8 +1,42 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException } from '@nestjs/common';
+import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class HelloService {
-  getHello(): string {
-    return 'Hello World!';
+  constructor(private readonly prisma: PrismaService){}
+
+  async getHello(): Promise<string> {
+    const createUser = await this.prisma.user.create({
+        data: {
+          email: "test@email.com",
+	  name: "tester",
+        },
+    });
+
+    const findUser = await this.prisma.user.findUnique({
+        where: {
+          email: "test@email.com",
+        },
+    });
+    if (!findUser || !findUser.id) throw new HttpException('User not found.', 404);
+
+    const deleteUser = await this.prisma.user.delete({
+      where: {
+        email: 'test@email.com',
+      },
+    });
+    if (!deleteUser || !deleteUser.id) throw new HttpException('Nothing to delete', 404);
+
+    const game = await this.prisma.game.findMany( {
+      where: {
+        id: { not: 0 },
+      },
+    });
+
+    console.log("find U:", findUser);
+    console.log("game:" , game);
+    console.log("d user:" ,deleteUser);
+    return "OKKKKK!!!";
   }
+
 }
