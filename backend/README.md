@@ -21,6 +21,11 @@ Cache databse.
 #### API documentation tool
 Learn how to integrate swagger into NestJS here: [NestJS - DOCS - OpenAPI](https://docs.nestjs.com/openapi/introduction)
 
+## Websocket  
+Using "socket.io" library.  
+[NestJS - DOCS - Gateways](https://docs.nestjs.com/websockets/gateways)  
+`npx nest g gateway`  
+
 ## SSL certificate(optional)
 Aquire an SSL certificate from [ZeroSSL](https://zerossl.com). Follow the instruction on the site.  
 Copy the .crt and .key files into docker containers.  

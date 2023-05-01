@@ -1,6 +1,9 @@
+DB_DIR='./database'
+
 all:
+	rm -rf ./database
 	mkdir ./database
-	docker compose up --build -d
+	docker compose up --build
 
 down:
 	docker compose down
@@ -13,5 +16,3 @@ fclean:	down
 	rm -rf ./database
 
 .PHONY:	all down fclean
-
-
