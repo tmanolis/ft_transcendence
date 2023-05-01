@@ -132,3 +132,9 @@ dist
 # ssl cert/key
 *.crt
 *.key
+
+# database volume
+database/
+
+# vim .swp files
+.sw*

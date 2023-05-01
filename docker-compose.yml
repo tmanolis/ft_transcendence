@@ -6,12 +6,12 @@ services:
   # -------------------------------------------------------------------------------- #
   backend:
     build:
-      context: ../backend
+      context: ./backend
     container_name: backend
     env_file:
       - .env
     ports:
-      - 443:3000
+      - 3000:3000
     restart: always
     depends_on:
       - postgres
@@ -25,10 +25,8 @@ services:
     image: postgres:15.2-alpine3.17
     container_name: postgres
     restart: always
-    environment:
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - POSTGRES_DB=${POSTGRES_DB}
+    env_file:
+      - .env
     volumes:
       - database:/var/lib/postgresql/data
     ports:
@@ -47,8 +45,3 @@ networks:
 # -------------------------------------------------------------------------------- #
 volumes:
   database:
-    driver: local
-    driver_opts:
-      type: none
-      device: ~/transcendence/database
-      o: bind

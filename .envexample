@@ -1,5 +1,5 @@
-POSTGRES_USER="username"
-POSTGRES_PASSWORD="userpassword"
-POSTGRES_DB="dbname"
+POSTGRES_USER="{yourusername}"
+POSTGRES_PASSWORD="{youruserpassword}"
+POSTGRES_DB="{yourdbname}"
 
-DATABASE_URL="postgresql://user:userpass@dbhost:5432/dbname?schema=public"
+DATABASE_URL="postgresql://{yourusername:{youruserpassword}@{thecontainernameindockercompose}:5432/{yourdbname}?schema=public"
