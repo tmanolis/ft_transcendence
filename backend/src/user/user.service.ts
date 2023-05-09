@@ -11,12 +11,13 @@ export class UserService {
     const response = await this.prisma.user.create({
       data: {
         email: email,
-	userName: userName,
-	fourtyTwoLogin: string,
-	password: string,
-	ifFourtyTwoStudent: true,
+        userName: userName,
+        fourtyTwoLogin: fourtyTwoLogin,
+        password: password,
+        isFourtyTwoStudent: true,
       },
     })
+  return "42 user created!\n";
   }
 
   async createNormalUser(
@@ -26,13 +27,14 @@ export class UserService {
       data: {
         email: email,
 	userName: userName,
-	password: string,
+	password: password,
       },
     })
+    return "normal user created!";
   }
 
   async getUser(): Promise<string> {
-    
+    return "user";
   }
 
 }
