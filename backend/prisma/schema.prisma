@@ -11,14 +11,36 @@ datasource db {
 }
 
 model User {
-  id    String     @id @unique @default(uuid())
-  email String  @unique
-  name  String?
-  games Game[]
+  // basic info
+  id                         String    @id @unique @default(uuid())
+  email                      String    @unique
+  userName                   String    @unique
+  name                       String?
+  profilePicture             String?
+  fourtyTwoLogin             String?
+  isFourtyTwoStudent         Boolean   @default(false)
+
+  // auth info
+  password                   String
+  twoFAIsEnabled             Boolean   @default(false)
+
+  // friend info
+  friendRequestSentTo        String[]
+  friendRequestReceivedFrom  String[]
+  friendList                 String[]
+
+  // game info
+  gamesWon                   Game[]   @relation("winner")
+  gamesLost                  Game[]   @relation("loser")
+
+  isOnline                   Boolean  @default(false)
 }
 
 model Game {
-  id    Int     @id @default(autoincrement())
-  winner User	@relation(fields: [winnerId], references:[id])
-  winnerId String
+  id        Int      @id @default(autoincrement())
+  winner    User     @relation("winner", fields: [winnerId], references:[id])
+  winnerId  String
+  loser     User     @relation("loser", fields: [loserId], references:[id])
+  loserId   String
 }
+

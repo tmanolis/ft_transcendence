@@ -10,6 +10,8 @@ export class HelloService {
         data: {
           email: "test@email.com",
 	  name: "tester",
+	  userName: "test",
+	  password: "myPass",
         },
     });
 
