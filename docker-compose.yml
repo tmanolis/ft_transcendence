@@ -17,6 +17,9 @@ services:
       - postgres
     networks:
       - transcendence_net
+    volumes:
+      - ./backend:/backend
+      - /backend/node_modules
 
   # -------------------------------------------------------------------------------- #
   # postgresql database                                                              #
