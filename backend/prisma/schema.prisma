@@ -1,46 +1,86 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
 model User {
-  // basic info
-  id                         String    @id @unique @default(uuid())
-  email                      String    @unique
-  userName                   String    @unique
-  name                       String?
-  profilePicture             String?
-  fourtyTwoLogin             String?
-  isFourtyTwoStudent         Boolean   @default(false)
+  /// basic info
+  id        String  @id @unique @default(uuid())
+  createdAt DateTime @default(now())
+  email     String  @unique
+  userName  String  @unique
+  name      String?
+  avatar    String  @default("defaultAvatar.jpg")
+  is24Stud  Boolean @default(false)
+  role      Role    @default(USER)
+  status    Status  @default(ONLINE)
 
-  // auth info
-  password                   String
-  twoFAIsEnabled             Boolean   @default(false)
+  /// authentification
+  password String
+  twoFA    Boolean @default(false)
 
-  // friend info
-  friendRequestSentTo        String[]
-  friendRequestReceivedFrom  String[]
-  friendList                 String[]
+  /// community
+  friends     String[]
+  reqSent     String[]
+  reqReceived String[]
+  chats       Chat[]    @relation("ChatUsers")
 
-  // game info
-  gamesWon                   Game[]   @relation("winner")
-  gamesLost                  Game[]   @relation("loser")
+  /// statistics
+  nbGamesWon    Int
+  nbGamesLost   Int
+  ranking       Int
+  level         Int
+  achievements  String[]
 
-  isOnline                   Boolean  @default(false)
+  ///historics
+  // we can either use winner/loser or just games, tbd
+  games   Game[]  @relation("player")
+  winner  Game[]  @relation("winner")
+  loser   Game[]  @relation("loser")
 }
 
 model Game {
-  id        Int      @id @default(autoincrement())
-  winner    User     @relation("winner", fields: [winnerId], references:[id])
-  winnerId  String
-  loser     User     @relation("loser", fields: [loserId], references:[id])
-  loserId   String
+  gameId      Int       @id @default(autoincrement())
+  players     User[]    @relation("player")
+  winnerId    String
+  winner      User?     @relation("winner", fields: [winnerId], references: [id])
+  loserId     String
+  loser       User?     @relation("loser", fields: [loserId], references: [id]) 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
+model Chat {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  messages  Message[]
+  users     User[]    @relation("ChatUsers")
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  text        String
+  sendTime    DateTime  @default(now())
+  senderId    String
+  chat        Chat      @relation(fields: [chatId], references: [id])
+  chatId      Int
+  createdAt   DateTime  @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+  PLAYING
+}
