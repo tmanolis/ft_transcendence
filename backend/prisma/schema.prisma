@@ -12,31 +12,31 @@ generator client {
 
 model User {
   /// basic info
-  id        String  @id @unique @default(uuid())
-  createdAt DateTime @default(now())
-  email     String  @unique
-  userName  String  @unique
-  name      String?
-  avatar    String  @default("defaultAvatar.jpg")
-  is24Stud  Boolean @default(false)
-  role      Role    @default(USER)
-  status    Status  @default(ONLINE)
+  id        			String  @id @unique @default(uuid())
+  createdAt 			DateTime @default(now())
+  email     			String  @unique
+  userName  			String  @unique
+  avatar    		  	String  @default("defaultAvatar.jpg")
+  fourtyTwoLogin  		String?
+  isFourtyTwoStudent  	Boolean @default(false)
+  role      		  	Role    @default(USER)
+  status    		 	Status  @default(ONLINE)
 
   /// authentification
   password String
   twoFA    Boolean @default(false)
 
   /// community
-  friends     String[]
-  reqSent     String[]
-  reqReceived String[]
-  chats       Chat[]    @relation("ChatUsers")
+  friends     			String[]
+  frienRequestsSent 	String[]
+  friendReqestsReceived	String[]
+  chats       			Chat[]    @relation("ChatUsers")
 
   /// statistics
-  nbGamesWon    Int
-  nbGamesLost   Int
-  ranking       Int
-  level         Int
+  gamesWon    	Int?
+  gamesLost   	Int?
+  ranking       Int?
+  level         Int?
   achievements  String[]
 
   ///historics

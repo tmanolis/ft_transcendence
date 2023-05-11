@@ -26,8 +26,8 @@ export class UserService {
     const response = await this.prisma.user.create({
       data: {
         email: email,
-	userName: userName,
-	password: password,
+		userName: userName,
+		password: password,
       },
     })
     return "normal user created!";
