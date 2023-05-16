@@ -8,10 +8,9 @@ export class HelloService {
   async getHello(): Promise<string> {
     const createUser = await this.prisma.user.create({
         data: {
-          email: "test@email.com",
-	  name: "tester",
-	  userName: "test",
-	  password: "myPass",
+			email: "test@email.com",
+			userName: "test",
+			password: "myPass",
         },
     });
 
@@ -31,7 +30,7 @@ export class HelloService {
 
     const game = await this.prisma.game.findMany( {
       where: {
-        id: { not: 0 },
+        gameId: { not: 0 },
       },
     });
 
