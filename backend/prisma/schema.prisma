@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  /// basic info
+  id        			String  @id @unique @default(uuid())
+  createdAt 			DateTime @default(now())
+  email     			String  @unique
+  userName  			String  @unique
+  avatar    		  	String  @default("defaultAvatar.jpg")
+  fourtyTwoLogin  		String?
+  isFourtyTwoStudent  	Boolean @default(false)
+  role      		  	Role    @default(USER)
+  status    		 	Status  @default(ONLINE)
+
+  /// authentification
+  password String
+  twoFA    Boolean @default(false)
+
+  /// community
+  friends     			String[]
+  frienRequestsSent 	String[]
+  friendReqestsReceived	String[]
+  chats       			Chat[]    @relation("ChatUsers")
+
+  /// statistics
+  gamesWon    	Int?
+  gamesLost   	Int?
+  ranking       Int?
+  level         Int?
+  achievements  String[]
+
+  ///historics
+  // we can either use winner/loser or just games, tbd
+  games   Game[]  @relation("player")
+  winner  Game[]  @relation("winner")
+  loser   Game[]  @relation("loser")
+}
+
+model Game {
+  gameId      Int       @id @default(autoincrement())
+  players     User[]    @relation("player")
+  winnerId    String
+  winner      User?     @relation("winner", fields: [winnerId], references: [id])
+  loserId     String
+  loser       User?     @relation("loser", fields: [loserId], references: [id]) 
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Chat {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+  messages  Message[]
+  users     User[]    @relation("ChatUsers")
+}
+
+model Message {
+  id          Int       @id @default(autoincrement())
+  text        String
+  sendTime    DateTime  @default(now())
+  senderId    String
+  chat        Chat      @relation(fields: [chatId], references: [id])
+  chatId      Int
+  createdAt   DateTime  @default(now())
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+  PLAYING
+}

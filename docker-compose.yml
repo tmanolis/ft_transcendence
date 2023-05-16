@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+  # -------------------------------------------------------------------------------- #
+  # backend service with nestjs                                                      #
+  # -------------------------------------------------------------------------------- #
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    env_file:
+      - .env
+    ports:
+      - 3000:3000
+    restart: always
+    depends_on:
+      - postgres
+    networks:
+      - transcendence_net
+    volumes:
+      - ./backend:/backend
+      - /backend/node_modules
+
+  # -------------------------------------------------------------------------------- #
+  # postgresql database                                                              #
+  # -------------------------------------------------------------------------------- #
+  postgres:
+    image: postgres:15.2-alpine3.17
+    container_name: postgres
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    networks:
+      - transcendence_net
+
+# -------------------------------------------------------------------------------- #
+# networks                                                                         #
+# -------------------------------------------------------------------------------- #
+networks:
+  transcendence_net:
+
+# -------------------------------------------------------------------------------- #
+# volumes                                                                          #
+# -------------------------------------------------------------------------------- #
+volumes:
+  database:

@@ -1,0 +1,25 @@
+FROM node:18
+
+WORKDIR /backend
+
+COPY package*.json ./
+# copy the entire prisma directory including migrations
+COPY prisma ./prisma/
+
+RUN apt update && apt install -y vim
+
+# use ci insted of install
+RUN npm ci --verbose
+
+# uncomment this part if we want HTTPS function
+# COPY certificate.crt /etc/ssl/
+# COPY private.key /etc/ssl/
+
+# copy source code
+COPY . .
+
+# generate the prisma client
+RUN npx prisma generate
+
+# Start the server using the production build
+CMD npx prisma migrate deploy &&  npm run start:dev
