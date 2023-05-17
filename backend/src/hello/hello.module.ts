@@ -6,6 +6,6 @@ import { PrismaModule, PrismaService } from 'nestjs-prisma';
 @Module({
   imports: [PrismaModule],
   controllers: [HelloController],
-  providers: [HelloService, PrismaService]
+  providers: [HelloService, PrismaService],
 })
 export class HelloModule {}

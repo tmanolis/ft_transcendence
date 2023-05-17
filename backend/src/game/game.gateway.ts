@@ -1,13 +1,8 @@
-import {
-  SubscribeMessage,
-  WebSocketGateway,
-  MessageBody,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { SubscribeMessage, WebSocketGateway, MessageBody, WebSocketServer } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({ cors: true })
-export class ChatGateway {
+export class GameGateway {
   @WebSocketServer()
   server: Server;
 
@@ -21,11 +16,6 @@ export class ChatGateway {
     console.log(client.id);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(@MessageBody() body: any, client: any, payload: any) {
-    this.server.emit('onMessage', {
-      msg: 'hello',
-      content: body,
-    });
-  }
+
+
 }

@@ -34,3 +34,6 @@ Aquire an SSL certificate from [ZeroSSL](https://zerossl.com). Follow the instru
 Copy the .crt and .key files into docker containers.  
 Use 'fs' package to read the file and add httpsOptions into main.ts.  
 
+
+## Testing
+1. add dependencies into "imports", and "providers" in the ".spec.ts" file.  

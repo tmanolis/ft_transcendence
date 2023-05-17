@@ -4,10 +4,9 @@ import { AuthService } from './auth.service';
 import { HttpModule } from '@nestjs/axios';
 import { FourtyTwoStrategy } from './FourtyTwoStrategy';
 
-
 @Module({
   imports: [HttpModule],
   controllers: [AuthController],
-  providers: [AuthService, FourtyTwoStrategy]
+  providers: [AuthService, FourtyTwoStrategy],
 })
 export class AuthModule {}

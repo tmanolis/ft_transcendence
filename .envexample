@@ -1,0 +1,13 @@
+POSTGRES_USER="{name}"
+POSTGRES_PASSWORD="{name_pass}"
+POSTGRES_DB="{name_db}"
+
+DB_CONTAINER="{container_name}"
+
+DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_CONTAINER}:5432/${POSTGRES_DB}?schema=public"
+
+AUTH_URL="{42_auth_url}"
+TOKEN_URL="{42_token_url}"
+CLIENT_ID="{client_id}"
+CLIENT_SECRET="{client_secret}"
+

@@ -8,7 +8,7 @@ NestJS(server), Prisma(ORM), Postgresql(DB), Redis(Cache DB), Sagger(API Doc)
 ### [Frontend](frontend)
 React(Framework/Library), Vite(Tooling)
 
-### [DevOps](devops)
+### DevOps
 Docker-compose, Github(CI/CD)?
 
 ## Environment Variables
