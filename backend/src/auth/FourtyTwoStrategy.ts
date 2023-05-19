@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
   constructor(
     private readonly httpService: HttpService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {
     super({
       authorizationURL: config.get('AUTH_URL'),
@@ -19,7 +19,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
       clientID: config.get('CLIENT_ID'),
       clientSecret: config.get('CLIENT_SECRET'),
 
-      callbackURL: 'http://localhost:3000/hello',
+      callbackURL: 'http://localhost:3000/auth/fourtytwo/callback',
       scope: ['public'],
     });
   }
@@ -30,22 +30,25 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     profile: any,
     cb: any,
   ): Promise<any> {
+    const userData = (
+      await lastValueFrom(
+        this.httpService.get('https://api.intra.42.fr/v2/me', {
+          headers: { Authorization: 'Bearer ' + accessToken },
+        }),
+      )
+    ).data;
 
-    const userData = (await lastValueFrom(
-      this.httpService.get('https://api.intra.42.fr/v2/me', {
-        headers: { Authorization: 'Bearer ' + accessToken },
-      }),
-    )).data;
+    const { id, login, email, image } = userData;
+    console.log('user ID:', userData.id);
 
-    const { id, name, email } = profile;
-    console.log("acc token:", accessToken)
-    console.log(refreshToken)
-    console.log("user ID:" , userData.id);
-    console.log(typeof profile);
-    console.log("the profile!!!!:" ,profile);
-    console.log("profile ID:" , profile.id);
-    console.log("profile ID:" , id, name, email);
+    let user = {
+      id: id,
+      login: login,
+      email: email,
+      image: image.link,
+      accessToken: accessToken,
+    };
 
-    cb(null, profile)
+    cb(null, user);
   }
 }

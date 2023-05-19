@@ -3,10 +3,13 @@ import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService){}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createFourtyTwoUser(
-    email: string, userName: string, fourtyTwoLogin: string, password: string
+    email: string,
+    userName: string,
+    fourtyTwoLogin: string,
+    password: string,
   ): Promise<string> {
     const response = await this.prisma.user.create({
       data: {
@@ -16,25 +19,26 @@ export class UserService {
         password: password,
         isFourtyTwoStudent: true,
       },
-    })
-  return "42 user created!\n";
+    });
+    return '42 user created!\n';
   }
 
   async createNormalUser(
-    email: string, userName: string, password: string
+    email: string,
+    userName: string,
+    password: string,
   ): Promise<string> {
     const response = await this.prisma.user.create({
       data: {
         email: email,
-		userName: userName,
-		password: password,
+        userName: userName,
+        password: password,
       },
-    })
-    return "normal user created!";
+    });
+    return 'normal user created!';
   }
 
   async getUser(): Promise<string> {
-    return "user";
+    return 'user';
   }
-
 }
