@@ -38,15 +38,16 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
       )
     ).data;
 
-    const { id, login, email } = userData;
+    const { id, login, email, image } = userData;
     console.log('user ID:', userData.id);
 
     let user = {
       id: id,
       login: login,
       email: email,
+      image: image.link,
       accessToken: accessToken,
-    }
+    };
 
     cb(null, user);
   }

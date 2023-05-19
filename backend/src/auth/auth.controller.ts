@@ -4,7 +4,6 @@ import { FourtyTwoAuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
-
   @Get('fourtytwo/login')
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: 'Try logging in using 42 oauth' })
@@ -15,8 +14,8 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  async handle42Login(@Res() res:any, @Req() req:any) :Promise<string>{
-    console.log("req.user", req.user);
+  async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
+    console.log('req.user', req.user);
     res.cookie('access_token', req.user).redirect('/hello');
     return 'OK!';
   }

@@ -36,9 +36,9 @@ export class HelloService {
       },
     });
 
-    console.log('find U:', findUser);
-    console.log('game:', game);
-    console.log('d user:', deleteUser);
+    //console.log('find U:', findUser);
+    //console.log('game:', game);
+    //console.log('d user:', deleteUser);
     return 'OK!';
   }
 }

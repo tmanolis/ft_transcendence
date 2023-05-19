@@ -14,7 +14,7 @@ export class ChatGateway {
   async handleConnection(client: Socket, payload: any) {
     console.log('client auth: ', client.handshake.headers.authorization);
     console.log('client headers: ', client.handshake.headers);
-    if (client.handshake.headers.authorization != 'hello') {
+    if (!client.handshake.headers.authorization) {
       client.disconnect();
       console.log('cannot connect!!!');
     }
