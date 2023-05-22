@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
-import { FourtyTwoAuthGuard } from './auth.guard';
+import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 
 @Controller('auth')
 export class AuthController {
