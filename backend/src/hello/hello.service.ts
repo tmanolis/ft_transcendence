@@ -6,13 +6,14 @@ export class HelloService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getHello(): Promise<string> {
-    const createUser = await this.prisma.user.create({
-      data: {
-        email: 'test@email.com',
-        userName: 'test',
-        password: 'myPass',
-      },
-    });
+	return 'Ok';
+    // const createUser = await this.prisma.user.create({
+    //   data: {
+    //     email: 'test@email.com',
+    //     userName: 'test',
+    //     password: 'myPass',
+    //   },
+    // });
 
     const findUser = await this.prisma.user.findUnique({
       where: {

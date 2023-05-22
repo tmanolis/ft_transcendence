@@ -19,7 +19,6 @@ export class UserService {
         isFourtyTwoStudent: true,
       },
     });
-	console.log('user');
     return '42 user created!\n';
   }
 

@@ -7,6 +7,7 @@ import { ChatModule } from './chat/chat.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { GameGateway } from './game/game.gateway';
+import { AuthService } from './auth/auth.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { GameGateway } from './game/game.gateway';
     UserModule,
     AuthModule,
   ],
-  providers: [GameGateway],
+  providers: [GameGateway, AuthService],
 })
 export class AppModule {}
