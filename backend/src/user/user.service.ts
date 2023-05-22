@@ -14,12 +14,12 @@ export class UserService {
     const response = await this.prisma.user.create({
       data: {
         email: email,
-        userName: userName,
-        fourtyTwoLogin: fourtyTwoLogin,
+        userName: fourtyTwoLogin,
         password: password,
         isFourtyTwoStudent: true,
       },
     });
+	console.log('user');
     return '42 user created!\n';
   }
 
