@@ -1,7 +1,8 @@
-import { Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
+import { AuthDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -18,8 +19,6 @@ export class AuthController {
 	@ApiOkResponse({ description: '42 oauth callback url' })
 	@ApiUnauthorizedResponse({ description: 'Login failed.' })
 	async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
-		// res.cookie('access_token', req.user).redirect('/hello');
-		return this.authService.handle42Login(res, req);
-		// return 'OK!';
+		return this.authService.handle42Login(res, req.user);
 	}
 }

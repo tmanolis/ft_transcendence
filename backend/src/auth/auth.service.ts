@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { AuthDto } from './dto/auth.dto';
-import * as argon from 'argon2'
+import { AuthDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -9,14 +8,11 @@ export class AuthService {
 		private prisma: PrismaService,
 	) {}
 
-	async handle42Login(res: any, req: any): Promise<string> {
-		res.cookie('access_token', req.user).redirect('/hello');
-		
-		const hash = await argon.hash(req.user.accessToken);
-		
+	async handle42Login(res: any, dto: AuthDto): Promise<string> {	
+		// console.log(dto.id);	
 		const user = await this.prisma.user.findUnique({
 			where: {
-				id: req.user.id,
+				id: dto.id,
 			},
 		})
 		
@@ -24,22 +20,23 @@ export class AuthService {
 			try {
 				const user = await this.prisma.user.create({
 					data: {
-						id: req.user.id,
-						email: req.user.email,
-						userName: req.user.login,
-						avatar: req.user.image,
+						id: dto.id,
+						email: dto.email,
+						userName: dto.userName,
+						avatar: dto.image,
 						isFourtyTwoStudent: true,
-						hash,
+						hash: dto.hash,
 					}
 				})
 				console.log('new user', user);
-				return 'OK!';
 			}catch (error) {
 				throw error;  
 			}
+		} else {
+			user.hash = dto.hash;
+			console.log('existing user', user);
 		}
-		user.hash = hash;
-		console.log('existing user', user);
+		res.cookie('access_token', dto.hash).redirect('/hello');
 		return 'OK!';
 	  }
 }
