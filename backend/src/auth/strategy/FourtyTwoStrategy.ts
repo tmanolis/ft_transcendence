@@ -42,7 +42,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     console.log('user ID:', userData.id);
 
     let user = {
-      id: id,
+      id: id.toString(),
       login: login,
       email: email,
       image: image.link,

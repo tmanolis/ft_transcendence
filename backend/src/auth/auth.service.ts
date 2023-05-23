@@ -9,9 +9,6 @@ export class AuthService {
 		private prisma: PrismaService,
 	) {}
 
-	// async createUser(dto: AuthDto) {
-	// 	console.log('req.user', AuthDto);
-	// }
 	async handle42Login(res: any, req: any): Promise<string> {
 		res.cookie('access_token', req.user).redirect('/hello');
 		
@@ -35,11 +32,14 @@ export class AuthService {
 						hash,
 					}
 				})
+				console.log('new user', user);
+				return 'OK!';
 			}catch (error) {
-				throw error;
+				throw error;  
 			}
 		}
-		console.log(user);
+		user.hash = hash;
+		console.log('existing user', user);
 		return 'OK!';
 	  }
 }
