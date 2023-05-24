@@ -52,7 +52,8 @@ export class AuthService {
 		const secret = this.config.get('JWT_SECRET');
 
 		return this.jwt.signAsync(payload, {
-			expiresIn:	'15m',
+			// Uncomment next line as soon as refresh token is implemented:
+			// expiresIn:	'15m',
 			secret:	secret,
 		});
 	}
