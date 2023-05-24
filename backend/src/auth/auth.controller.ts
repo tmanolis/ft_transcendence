@@ -19,6 +19,7 @@ export class AuthController {
 	@ApiOkResponse({ description: '42 oauth callback url' })
 	@ApiUnauthorizedResponse({ description: 'Login failed.' })
 	async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
-		return this.authService.handle42Login(res, req.user);
+		this.authService.handle42Login(res, req.user);
+		return 'OK';
 	}
 }

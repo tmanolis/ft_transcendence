@@ -1,15 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { AuthDto } from './dto';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
 	constructor (
 		private prisma: PrismaService,
+		private jwt: JwtService,
+		private config: ConfigService,
 	) {}
 
-	async handle42Login(res: any, dto: AuthDto): Promise<string> {	
-		const user = await this.prisma.user.findUnique({
+	async handle42Login(res: any, dto: AuthDto){
+		let user = await this.prisma.user.findUnique({
 			where: {
 				id: dto.id,
 			},
@@ -17,7 +21,7 @@ export class AuthService {
 		
 		if (!user){
 			try {
-				const user = await this.prisma.user.create({
+				user = await this.prisma.user.create({
 					data: {
 						id: dto.id,
 						email: dto.email,
@@ -27,15 +31,27 @@ export class AuthService {
 						hash: dto.hash,
 					}
 				})
-				// console.log('new user', user);
 			}catch (error) {
 				throw error;  
 			}
 		} else {
 			user.hash = dto.hash;
-			// console.log('existing user', user);
 		}
-		res.cookie('access_token', dto.hash).redirect('/hello');
-		return 'OK!';
-	  }
+		const token = await this.signToken(user.id, user.email);
+		res.cookie('signToken', token).redirect('/hello');
+		console.log(token);
+	}
+
+	signToken(id: string, email: string): Promise<string>{
+		const payload = {
+			sub: id,
+			email,
+		}
+		const secret = this.config.get('JWT_SECRET');
+
+		return this.jwt.signAsync(payload, {
+			expiresIn:	'15m',
+			secret:	secret,
+		});
+	}
 }

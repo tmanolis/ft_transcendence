@@ -6,7 +6,7 @@ export class HelloService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getHello(): Promise<string> {
-	return 'Ok';
+	return '{abd:adf, kk:345}';
     // const createUser = await this.prisma.user.create({
     //   data: {
     //     email: 'test@email.com',
@@ -40,6 +40,6 @@ export class HelloService {
     //console.log('find U:', findUser);
     //console.log('game:', game);
     //console.log('d user:', deleteUser);
-    return 'OK!';
+    return '{';
   }
 }

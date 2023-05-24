@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { GameGateway } from './game/game.gateway';
 import { AuthService } from './auth/auth.service';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthService } from './auth/auth.service';
     ChatModule,
     UserModule,
     AuthModule,
+	JwtModule,
   ],
   providers: [GameGateway, AuthService],
 })

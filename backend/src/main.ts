@@ -24,7 +24,7 @@ async function bootstrap() {
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, swaggerDocument);
 
-  // adding validation pipes globally and using the whitelist option,
+  // adding validation pipes globally and using the whitelist option
   // as a security matter - any extra information that is injected
   // into the dto will be disregarded
   app.useGlobalPipes(new ValidationPipe({
