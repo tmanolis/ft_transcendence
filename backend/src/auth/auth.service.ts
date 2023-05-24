@@ -38,8 +38,10 @@ export class AuthService {
 			user.hash = dto.hash;
 		}
 		const token = await this.signToken(user.id, user.email);
-		res.cookie('signToken', token).redirect('/hello');
-		console.log(token);
+		res.cookie(
+			'signToken', token, 
+			'42accesToken', user.hash)
+			.redirect('/hello');
 	}
 
 	signToken(id: string, email: string): Promise<string>{
