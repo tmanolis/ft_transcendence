@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
 // import * as fs from 'fs';
 
 // SSL cert
@@ -22,6 +23,13 @@ async function bootstrap() {
     .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, swaggerDocument);
+
+  // adding validation pipes globally and using the whitelist option,
+  // as a security matter - any extra information that is injected
+  // into the dto will be disregarded
+  app.useGlobalPipes(new ValidationPipe({
+	whitelist: true,
+  }));
 
   await app.listen(3000);
 }

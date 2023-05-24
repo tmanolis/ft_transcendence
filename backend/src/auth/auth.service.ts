@@ -9,7 +9,6 @@ export class AuthService {
 	) {}
 
 	async handle42Login(res: any, dto: AuthDto): Promise<string> {	
-		// console.log(dto.id);	
 		const user = await this.prisma.user.findUnique({
 			where: {
 				id: dto.id,
@@ -28,13 +27,13 @@ export class AuthService {
 						hash: dto.hash,
 					}
 				})
-				console.log('new user', user);
+				// console.log('new user', user);
 			}catch (error) {
 				throw error;  
 			}
 		} else {
 			user.hash = dto.hash;
-			console.log('existing user', user);
+			// console.log('existing user', user);
 		}
 		res.cookie('access_token', dto.hash).redirect('/hello');
 		return 'OK!';

@@ -51,6 +51,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
 	const hash = await argon.hash(accessToken);
 	
 	const user = new AuthDto()
+	
 	user.id = userData.id.toString();
 	user.userName = userData.login;
 	user.email = userData.email;
