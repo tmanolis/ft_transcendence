@@ -30,6 +30,7 @@
     "@nestjs/platform-socket.io": "^9.4.0",
     "@nestjs/swagger": "^6.3.0",
     "@nestjs/websockets": "^9.4.0",
+    "@nestjsplus/cookies": "^1.1.1",
     "argon2": "^0.30.3",
     "axios": "^1.4.0",
     "class-transformer": "^0.5.1",

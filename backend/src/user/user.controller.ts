@@ -11,7 +11,9 @@ export class UserController {
 	@Get('me')
 	// GetUser custom decorator, because Request is error prone
 	// and like this we can return a prisma type user.
+	// @Header('Authorization', 'Bearer ${Cookie('signToken')}')
   	getMe(@GetUser() user: User) {
+		console.log("user in user controller", user)
 		return user;
   	};
 }
