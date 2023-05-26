@@ -1,7 +1,16 @@
 import { io } from 'socket.io-client';
+import Cookies from 'js-cookie';
 
 const URL = "http://localhost:3000";
 
-export const socket = io(URL, {
-  autoConnect: false
+let access_token = 0;
+if (Cookies.get('jwt')) {
+  access_token = Cookies.get('jwt');
+}
+
+export const gameSocket = io(`${URL}/game`, {
+  autoConnect: false,
+  extraHeaders: {
+    Authorization: access_token,
+  }
 });
