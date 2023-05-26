@@ -13,8 +13,9 @@ export class HelloService {
     private readonly prisma: PrismaService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: RedisCache,
   ) {}
-
   async getHello(): Promise<string> {
+    return '{abd:adf, kk:345}';
+    /*
     let cachedData = await this.cacheManager.get('heyhey');
     console.log(cachedData);
     await this.cacheManager.set('heyhey', 'room');
@@ -27,6 +28,14 @@ export class HelloService {
         password: 'myPass',
       },
     });
+    */
+    // const createUser = await this.prisma.user.create({
+    //   data: {
+    //     email: 'test@email.com',
+    //     userName: 'test',
+    //     password: 'myPass',
+    //   },
+    // });
 
     const findUser = await this.prisma.user.findUnique({
       where: {
@@ -53,6 +62,6 @@ export class HelloService {
     //console.log('find U:', findUser);
     //console.log('game:', game);
     //console.log('d user:', deleteUser);
-    return 'OK!';
+    return '{';
   }
 }

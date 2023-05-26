@@ -17,13 +17,12 @@ model User {
   email     			String  @unique
   userName  			String  @unique
   avatar    		  	String  @default("defaultAvatar.jpg")
-  fourtyTwoLogin  		String?
   isFourtyTwoStudent  	Boolean @default(false)
   role      		  	Role    @default(USER)
   status    		 	Status  @default(ONLINE)
 
   /// authentification
-  password String
+  hash 	   String
   twoFA    Boolean @default(false)
 
   /// community

@@ -6,6 +6,8 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 // for env
 import { ConfigService } from '@nestjs/config';
+import { AuthDto } from '../dto';
+import * as argon from 'argon2';
 
 @Injectable()
 export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
@@ -30,25 +32,30 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     profile: any,
     cb: any,
   ): Promise<any> {
-    const userData = (
-      await lastValueFrom(
-        this.httpService.get('https://api.intra.42.fr/v2/me', {
-          headers: { Authorization: 'Bearer ' + accessToken },
-        }),
-      )
-    ).data;
-
-    const { id, login, email, image } = userData;
+    let userData;
+    try {
+      userData = (
+        await lastValueFrom(
+          this.httpService.get('https://api.intra.42.fr/v2/me', {
+            headers: { Authorization: 'Bearer ' + accessToken },
+          }),
+        )
+      ).data;
+    } catch (error) {
+      throw error;
+    }
     console.log('user ID:', userData.id);
 
-    let user = {
-      id: id,
-      login: login,
-      email: email,
-      image: image.link,
-      accessToken: accessToken,
-    };
+    const hash = await argon.hash(accessToken);
 
-    cb(null, user);
+    const user = new AuthDto();
+
+    user.id = userData.id.toString();
+    user.userName = userData.login;
+    user.email = userData.email;
+    user.image = userData.image.link;
+    user.hash = hash;
+
+    return cb(null, user);
   }
 }

@@ -4,28 +4,43 @@ import {
   MessageBody,
   WebSocketServer,
   ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   WsResponse,
   WsException,
 } from '@nestjs/websockets';
+import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
+import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'nestjs-prisma';
 
 @WebSocketGateway({ cors: true, namespace: 'game' })
 export class GameGateway {
-  constructor(private readonly gameService: GameService) {}
+  constructor(
+    private readonly gameService: GameService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    private readonly prismaService: PrismaService,
+  ) {}
 
   @WebSocketServer()
   server: Server;
 
   async handleConnection(client: Socket, payload: any) {
-    const token = client.handshake.headers.authorization;
-    if (token === '0') {
+    const jwt = client.handshake.headers.authorization;
+    const user = this.jwtService.decode(jwt);
+    const userData = await this.prismaService.user.findUnique({
+      where: {
+        id: user.sub,
+      },
+    });
+    if (!userData) {
       client.disconnect();
+      return;
     }
-    this.gameService.createGame(client, token);
+    this.gameService.createGame(client, user.sub);
   }
-
-  async handleDisconnection(client: Socket, payload: any) {}
 
   leftPlayerPosition = { x: 0, y: 0 };
   rightPlayerPosition = { x: 580, y: 0 };
@@ -34,7 +49,6 @@ export class GameGateway {
   async handleFindGame(@ConnectedSocket() client: any) {
     const token = client.handshake.headers.authorization;
     const gameID = (await this.gameService.findGame(token)) || '';
-    console.log('gameID in handleFindGame:', gameID);
     this.gameService.joinGame(gameID, client.id);
     this.server.emit('foundGame', gameID);
   }
@@ -44,7 +58,6 @@ export class GameGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: any,
   ) {
-    console.log('movin!!');
     this.gameService.leftPlayerMove(this.server, body, client);
   }
 

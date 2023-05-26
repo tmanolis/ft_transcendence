@@ -1,7 +1,8 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { HelloService } from './hello.service';
-import { FourtyTwoAuthGuard } from '../auth/auth.guard';
+import { JwtGuard } from '../auth/guard/jwt.guard';
 
+@UseGuards(JwtGuard)
 @Controller('hello')
 export class HelloController {
   constructor(private readonly helloService: HelloService) {}
