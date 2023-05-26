@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, NestModule } from '@nestjs/common';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
