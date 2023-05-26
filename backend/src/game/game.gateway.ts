@@ -8,34 +8,44 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { GameService } from './game.service';
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({ cors: true, namespace: 'game' })
 export class GameGateway {
+  constructor(private readonly gameService: GameService) {}
+
   @WebSocketServer()
   server: Server;
 
   async handleConnection(client: Socket, payload: any) {
-    console.log('client auth: ', client.handshake.headers.authorization);
-    console.log('client headers: ', client.handshake.headers);
-    if (!client.handshake.headers.authorization) {
+    const token = client.handshake.headers.authorization;
+    if (token === '0') {
       client.disconnect();
-      console.log('cannot connect!!!');
     }
-    console.log(client.id);
+    this.gameService.createGame(client, token);
   }
+
+  async handleDisconnection(client: Socket, payload: any) {}
 
   leftPlayerPosition = { x: 0, y: 0 };
   rightPlayerPosition = { x: 580, y: 0 };
+
+  @SubscribeMessage('findGame')
+  async handleFindGame(@ConnectedSocket() client: any) {
+    const token = client.handshake.headers.authorization;
+    const gameID = (await this.gameService.findGame(token)) || '';
+    console.log('gameID in handleFindGame:', gameID);
+    this.gameService.joinGame(gameID, client.id);
+    this.server.emit('foundGame', gameID);
+  }
 
   @SubscribeMessage('leftPlayerMove')
   handleLeftPlayerMove(
     @MessageBody() body: any,
     @ConnectedSocket() client: any,
   ) {
-    if (body > 360) body = 360;
-    const newX = 0 + body * (2 / 9);
-    this.leftPlayerPosition = { x: newX, y: body };
-    this.server.emit('leftPlayerPosition', { x: newX, y: body });
+    console.log('movin!!');
+    this.gameService.leftPlayerMove(this.server, body, client);
   }
 
   @SubscribeMessage('rightPlayerMove')
@@ -43,15 +53,11 @@ export class GameGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: any,
   ) {
-    if (body > 360) body = 360;
-    const newX = 580 + body * (2 / 9);
-    this.rightPlayerPosition = { x: newX, y: body };
-    this.server.emit('rightPlayerPosition', { x: newX, y: body });
+    this.gameService.rightPlayerMove(this.server, body, client);
   }
 
   @SubscribeMessage('gameStart')
   handleGameStart(@MessageBody() body: any) {
-    console.log(body);
     let x = body.x;
     let y = body.y;
     let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
@@ -67,9 +73,7 @@ export class GameGateway {
     const gameInterval = setInterval(() => {
       x += direction.x;
       y += direction.y;
-      console.log(direction.x, direction.y);
       this.server.emit('ballPosition', { x: x, y: y });
-      console.log(this.leftPlayerPosition);
       if (y >= 345) {
         direction.x;
         direction.y *= -1;
@@ -87,7 +91,6 @@ export class GameGateway {
 
         direction.x *= -1;
       }
-      console.log('rightppos:', this.rightPlayerPosition);
       if (x >= this.rightPlayerPosition.x) {
         direction.x *= -1;
       }

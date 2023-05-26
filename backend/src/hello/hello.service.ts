@@ -1,11 +1,25 @@
-import { Injectable, HttpException } from '@nestjs/common';
+import {
+  Injectable,
+  HttpException,
+  CACHE_MANAGER,
+  Inject,
+} from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
+import { RedisCache } from 'cache-manager-redis-yet';
 
 @Injectable()
 export class HelloService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: RedisCache,
+  ) {}
 
   async getHello(): Promise<string> {
+    let cachedData = await this.cacheManager.get('heyhey');
+    console.log(cachedData);
+    await this.cacheManager.set('heyhey', 'room');
+    cachedData = await this.cacheManager.get('heyhey');
+    console.log(cachedData);
     const createUser = await this.prisma.user.create({
       data: {
         email: 'test@email.com',

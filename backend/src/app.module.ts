@@ -1,22 +1,33 @@
-import { Module } from '@nestjs/common';
+import { Module, CacheModule, CacheStore } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'nestjs-prisma';
+import { redisStore } from 'cache-manager-redis-yet';
 
 import { HelloModule } from './hello/hello.module';
 import { ChatModule } from './chat/chat.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { GameGateway } from './game/game.gateway';
+import { GameService } from './game/game.service';
 
 @Module({
   imports: [
-    HelloModule,
     PrismaModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
+    CacheModule.register({
+      isGlobal: true,
+      ttl: 1000 * 60 * 20, // ms, sec, min
+      useFactory: async () => ({
+        store: await redisStore({
+          url: 'redis://redis:6789',
+        }),
+      }),
+    }),
+    HelloModule,
     ChatModule,
     UserModule,
     AuthModule,
   ],
-  providers: [GameGateway],
+  providers: [GameGateway, GameService],
 })
 export class AppModule {}

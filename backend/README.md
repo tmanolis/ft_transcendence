@@ -26,6 +26,29 @@ Database.
 
 Cache databse.
 
+1. install `cache-manager @types/cache-manager`
+2. add CacheModule from '@nestjs/common' into imports array
+3. inject the CACHE_MANAGER into the service we want to use.
+   `constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache)`
+4. install `cache-manager-redis-store @types/
+5. Put the settings inside `CacheModule.register({})`.
+
+```
+isGlobal: true,
+store: redisStore,
+host: 'redis',
+port: 6379,
+```
+
+6. Add redis service into docker-compose
+
+- cache store type not assignable:
+  (https://github.com/dabroek/node-cache-manager-redis-store/issues/53)
+  solution:
+  https://github.com/dabroek/node-cache-manager-redis-store/issues/53#issuecomment-1473700342
+
+use "url" in store options.
+
 ## Swagger
 
 #### API documentation tool
