@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 // import * as fs from 'fs';
 
 // SSL cert
@@ -30,6 +31,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({
 	whitelist: true,
   }));
+
+  app.use(cookieParser());
 
   await app.listen(3000);
 }

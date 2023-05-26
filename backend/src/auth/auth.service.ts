@@ -39,7 +39,7 @@ export class AuthService {
 		}
 		const token = await this.signToken(user.id, user.email);
 		res.cookie(
-			'signToken', token, 
+			'jwt', token, 
 			'42accesToken', user.hash)
 			.redirect('/hello');
 	}
