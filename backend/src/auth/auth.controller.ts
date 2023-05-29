@@ -6,20 +6,22 @@ import { AuthDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
-	constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
-	@Get('fourtytwo/login')
-	@UseGuards(FourtyTwoAuthGuard)
-	@ApiOkResponse({ description: 'Try logging in using 42 oauth' })
-	@ApiUnauthorizedResponse({ description: 'Login failed.' })
-	handle42Oauth() {}
+  @Get('fourtytwo/login')
+  @UseGuards(FourtyTwoAuthGuard)
+  @ApiOkResponse({ description: 'Try logging in using 42 oauth' })
+  @ApiUnauthorizedResponse({ description: 'Login failed.' })
+  handle42Oauth(): void {
+    return;
+  }
 
-	@Get('fourtytwo/callback')
-	@UseGuards(FourtyTwoAuthGuard)
-	@ApiOkResponse({ description: '42 oauth callback url' })
-	@ApiUnauthorizedResponse({ description: 'Login failed.' })
-	async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
-		this.authService.handle42Login(res, req.user);
-		return 'OK';
-	}
+  @Get('fourtytwo/callback')
+  @UseGuards(FourtyTwoAuthGuard)
+  @ApiOkResponse({ description: '42 oauth callback url' })
+  @ApiUnauthorizedResponse({ description: 'Login failed.' })
+  async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
+    this.authService.handle42Login(res, req.user);
+    return 'OK';
+  }
 }
