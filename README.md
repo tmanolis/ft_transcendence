@@ -35,12 +35,14 @@ Need genuine .key and .crt files in the backend directory to make https working.
 
 3. `make`
 
-# Setup auto-linting and auto-formating before commit
+# Setup pre-commit auto-linting and auto-formating
 
 https://dev.to/ruppysuppy/automatically-format-your-code-on-git-commit-using-husky-eslint-prettier-in-9-minutes-45eg  
 
-### 1. `npm install --save-dev eslint prettier  @typescript-eslint/eslint-plugin eslint-plugin-prettier eslint-config-prettier lint-staged husky`
+### 1. install package needed
+`npm install --save-dev eslint prettier  @typescript-eslint/eslint-plugin eslint-plugin-prettier eslint-config-prettier lint-staged husky`
 No need to run `npx eslint --init` since the .eslintrc.js was created automaticly by nestjs and react-vite
+
 ### 2. configure lint-staged
 add following config into package.json:
 ```

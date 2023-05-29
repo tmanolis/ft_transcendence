@@ -20,13 +20,13 @@ import { JwtFromCookieMiddleware } from './auth/middleware';
     ChatModule,
     UserModule,
     AuthModule,
-	JwtModule,
+    JwtModule,
   ],
   providers: [GameGateway, AuthService],
   controllers: [UserController],
 })
 export class AppModule implements NestModule {
-	configure (consumer: MiddlewareConsumer) {
-		consumer.apply(JwtFromCookieMiddleware).forRoutes('*');
-	}
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtFromCookieMiddleware).forRoutes('*');
+  }
 }
