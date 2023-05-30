@@ -9,25 +9,26 @@ import {
   WsResponse,
   WsException,
 } from '@nestjs/websockets';
-import { ConfigService } from '@nestjs/config';
 import { Server, Socket } from 'socket.io';
 import { GameService } from './game.service';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from 'nestjs-prisma';
 
 @WebSocketGateway({ cors: true, namespace: 'game' })
 export class GameGateway {
-  constructor(
-    private readonly gameService: GameService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
-    private readonly prismaService: PrismaService,
-  ) {}
+  constructor(private readonly gameService: GameService) {}
 
   @WebSocketServer()
   server: Server;
 
   async handleConnection(client: Socket, payload: any) {
+    console.log(client.id, ' connected.');
+    await this.gameService.userConnect(client);
+  }
+
+  /******************************************************************************/
+  /* handle the disconnection                                                   */
+  /******************************************************************************/
+  async handleDisconnect(client: Socket, payload: any) {
+    console.log(client.id, ' disconnected.');
   }
 
   @SubscribeMessage('leftPlayerMove')
@@ -35,7 +36,7 @@ export class GameGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: any,
   ) {
-    this.gameService.playerMove(this.server, body, client, "left");
+    this.gameService.playerMove(this.server, body, client, 'left');
   }
 
   @SubscribeMessage('rightPlayerMove')
@@ -43,11 +44,9 @@ export class GameGateway {
     @MessageBody() body: any,
     @ConnectedSocket() client: any,
   ) {
-    this.gameService.playerMove(this.server, body, client, "right");
+    this.gameService.playerMove(this.server, body, client, 'right');
   }
 
   @SubscribeMessage('gameStart')
-  handleGameStart(@MessageBody() body: any) {
-  }
-
+  handleGameStart(@MessageBody() body: any) {}
 }

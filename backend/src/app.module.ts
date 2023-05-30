@@ -28,7 +28,7 @@ const cacheConfig = {
       url: 'redis://redis:6789',
     }),
   }),
-}
+};
 
 @Module({
   imports: [
@@ -44,7 +44,6 @@ const cacheConfig = {
   providers: [GameGateway, AuthService, GameService],
   controllers: [UserController],
 })
-
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtFromCookieMiddleware).forRoutes('*');

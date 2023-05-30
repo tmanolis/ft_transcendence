@@ -1,9 +1,11 @@
 The information stored into redis:
 
 "gameID(socketID string)": "gameData(object)"
-"userID(user token string)": "{gameID(stringID), side(left or right)} "
+"userID(user name string)": "{
+"game": {gameID(stringID), side(left or right)},
+"chat": {roomID(stringID), role(admin, participant, banned, blocked...)},
+}"
 "gameWaiting(string)": "gameID(socketID string)"
-
 
 userToken: gameID(socketID)
 
