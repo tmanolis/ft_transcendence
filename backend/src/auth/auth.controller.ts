@@ -12,7 +12,9 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: 'Try logging in using 42 oauth' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  handle42Oauth() {}
+  handle42Oauth(): void {
+    return;
+  }
 
   @Get('fourtytwo/callback')
   @UseGuards(FourtyTwoAuthGuard)

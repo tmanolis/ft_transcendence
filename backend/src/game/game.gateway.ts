@@ -46,7 +46,4 @@ export class GameGateway {
   ) {
     this.gameService.playerMove(this.server, body, client, 'right');
   }
-
-  @SubscribeMessage('gameStart')
-  handleGameStart(@MessageBody() body: any) {}
 }
