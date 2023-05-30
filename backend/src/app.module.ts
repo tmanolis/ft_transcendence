@@ -20,19 +20,21 @@ import { AuthService } from './auth/auth.service';
 import { UserController } from './user/user.controller';
 import { JwtFromCookieMiddleware } from './auth/middleware';
 
+const cacheConfig = {
+  isGlobal: true,
+  ttl: 1000 * 60 * 20, // ms, sec, min
+  useFactory: async () => ({
+    store: await redisStore({
+      url: 'redis://redis:6789',
+    }),
+  }),
+}
+
 @Module({
   imports: [
     PrismaModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
-    CacheModule.register({
-      isGlobal: true,
-      ttl: 1000 * 60 * 20, // ms, sec, min
-      useFactory: async () => ({
-        store: await redisStore({
-          url: 'redis://redis:6789',
-        }),
-      }),
-    }),
+    CacheModule.register(cacheConfig),
     HelloModule,
     ChatModule,
     UserModule,
@@ -42,6 +44,7 @@ import { JwtFromCookieMiddleware } from './auth/middleware';
   providers: [GameGateway, AuthService, GameService],
   controllers: [UserController],
 })
+
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(JwtFromCookieMiddleware).forRoutes('*');
