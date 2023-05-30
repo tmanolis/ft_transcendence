@@ -55,14 +55,14 @@ export class GameGateway {
     let x = body.x;
     let y = body.y;
     let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
-    let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
+    const randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
     if (randX < 3 && randX >= 0) {
       randX += 3;
     }
     if (randX > -3 && randX <= 0) {
       randX -= 3;
     }
-    let direction = { x: randX, y: randY };
+    const direction = { x: randX, y: randY };
 
     const gameInterval = setInterval(() => {
       x += direction.x;

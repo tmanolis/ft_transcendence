@@ -28,9 +28,11 @@ async function bootstrap() {
   // adding validation pipes globally and using the whitelist option
   // as a security matter - any extra information that is injected
   // into the dto will be disregarded
-  app.useGlobalPipes(new ValidationPipe({
-	whitelist: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
 
   app.use(cookieParser());
 

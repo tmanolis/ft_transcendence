@@ -6,7 +6,7 @@ export class HelloService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getHello(): Promise<string> {
-	return '{abd:adf, kk:345}';
+    return '{abd:adf, kk:345}';
     // const createUser = await this.prisma.user.create({
     //   data: {
     //     email: 'test@email.com',

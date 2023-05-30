@@ -9,10 +9,10 @@ import { JwtGuard } from 'src/auth/guard';
 // need validation.
 @UseGuards(JwtGuard)
 export class UserController {
-	@Get('me')
-	// GetUser custom decorator, because Request is error prone
-	// and like this we can return a prisma type user.
-  	getMe(@GetUser() user: User) {
-		return user;
-	};
+  @Get('me')
+  // GetUser custom decorator, because Request is error prone
+  // and like this we can return a prisma type user.
+  getMe(@GetUser() user: User) {
+    return user;
+  }
 }
