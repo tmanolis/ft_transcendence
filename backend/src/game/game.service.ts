@@ -5,7 +5,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { PrismaService } from 'nestjs-prisma';
+
 import { UserInGameDto, GameDataDto } from './dto';
+import { throttle } from '../utils/throttle';
 
 @Injectable()
 export class GameService {
@@ -19,7 +21,7 @@ export class GameService {
   /******************************************************************************/
   /* handle the connection                                                      */
   /******************************************************************************/
-  async userConnect(client: Socket) {
+  async userConnect(client: Socket, server: Server) {
     // try to get the user name (check if it's loged in)
     const userName = await this.getUserName(client);
     if (userName === '') {
@@ -28,11 +30,10 @@ export class GameService {
     }
     // check if user is in a game
     const gameID = await this.findUserInGame(userName);
-    console.log('game ID: ', gameID);
     if (gameID !== '') {
       this.joinGame(client.id, gameID, userName);
     }
-    await this.createGame(client, userName);
+    await this.createGame(client, userName, server);
   }
 
   async getUserName(client: Socket): Promise<string> {
@@ -61,7 +62,7 @@ export class GameService {
     return gameID;
   }
 
-  async createGame(client: Socket, userName: string) {
+  async createGame(client: Socket, userName: string, server: Server) {
     const gameData = new GameDataDto();
     const userInGame = new UserInGameDto();
 
@@ -69,11 +70,14 @@ export class GameService {
     gameData.gameSocketID = client.id;
     gameData.leftUser.userName = userName;
     gameData.leftUser.socketID = client.id;
+    gameData.leftUser.position.x = 360;
+    gameData.leftUser.position.y = 360;
 
     userInGame.gameID = client.id;
     userInGame.side = 'left';
     await this.cacheManager.set(userName, JSON.stringify(userInGame));
     await this.cacheManager.set(client.id, JSON.stringify(gameData));
+    server.emit('gameData', gameData);
     console.log(JSON.parse(await this.cacheManager.get(userName)));
     console.log(JSON.parse(await this.cacheManager.get(client.id)));
   }
@@ -121,12 +125,14 @@ export class GameService {
     return gameID;
   }
 
-  async playerMove(
-    server: Server,
-    @MessageBody() body: any,
-    client: Socket,
-    side: string,
-  ) {}
+  throttledPlayerMove = throttle(
+    async (server: Server, body: any, client: Socket, side: string) => {
+      console.log('event body: ', body);
+      console.log('client id: ', client.id);
+      console.log('player side: ', side);
+    },
+    1000 / 60,
+  );
 
   async gameLoop() {}
 }
