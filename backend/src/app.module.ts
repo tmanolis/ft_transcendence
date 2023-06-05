@@ -11,6 +11,7 @@ import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
 import { JwtFromCookieMiddleware } from './auth/middleware';
+import { EditModule } from './edit/edit.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtFromCookieMiddleware } from './auth/middleware';
     UserModule,
     AuthModule,
     JwtModule,
+    EditModule,
   ],
   providers: [GameGateway, AuthService],
   controllers: [UserController],

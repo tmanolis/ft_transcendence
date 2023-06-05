@@ -4,3 +4,6 @@ They have to be migrated in the container as follows:
 docker exec -it backend bash
 npx prisma migrate dev --name <name migration>
 exit
+
+To open Prisma Studio:
+npx prisma studio
