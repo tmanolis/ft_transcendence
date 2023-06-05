@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 import Cookies from 'js-cookie';
 
-const URL = "http://localhost:3000";
+const URL = "http://jas0nhuang.eu.org:3000";
 
 let access_token = 0;
 if (Cookies.get('jwt')) {

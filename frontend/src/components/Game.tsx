@@ -3,28 +3,24 @@ import { gameSocket } from './socket';
 import GameCanvas from './GameCanvas.tsx';
 
 let player = "";
+let gameID = "";
 
 gameSocket.connect();
 gameSocket.on("connect", async (info) => {
-  gameSocket.emit("findGame", null);
-  gameSocket.on("foundGame", async (gameID) => {
-    console.log("gameID: ", gameID)
-    if (gameID !== '') {
-      console.log("no gameID");
-      player = "rightPlayer";
-    } else {
-      console.log("has gameID");
+  gameSocket.on("gameData", async (gameData) => {
+    gameID = gameData.gameSocketID;
+    if (gameData.leftUser.socketID === gameSocket.id) {
       player = "leftPlayer";
-      gameSocket.emit("createGame", null);
+    } else {
+      player = "rightPlayer";
     }
   });
-  console.log(player);
 });
 
 const Game = () => {
-  const [lPlayerCoord, setLPlayerCoord] = useState({ x: 0, y: 0 });
-  const [rPlayerCoord, setRPlayerCoord] = useState({ x: 580, y: 0});
-  const [ballCoord, setBallCoord] = useState({x:360, y: 180});
+  const [lPlayerCoord, setLPlayerCoord] = useState({ x: 0, y: 200 });
+  const [rPlayerCoord, setRPlayerCoord] = useState({ x: 700, y: 200 });
+  const [ballCoord, setBallCoord] = useState({x:360, y: 240});
   const [gameRunning, setGameRunning] = useState(false);
 
   gameSocket.on("playerJoin", (socketID) => {
@@ -35,13 +31,13 @@ const Game = () => {
       console.log(player);
       const newY = event.clientY;
       if (Math.abs(rPlayerCoord.y - newY) > 2) {
-        gameSocket.emit(`${player}Move`, newY );
+        gameSocket.emit(`${player}Move`, {gameID: gameID, y: newY} );
       }
     }
 
     const handleMouseClick = () => {
       if (gameRunning == false) {
-        gameSocket.emit('gameStart', ballCoord);
+        gameSocket.emit('startGame', {gameID: gameID});
         setGameRunning(true);
       }
     }
@@ -54,16 +50,22 @@ const Game = () => {
     }
   }, [lPlayerCoord, rPlayerCoord, ballCoord ]);
 
-  gameSocket.on('leftPlayerPosition', (value) => {
-    setLPlayerCoord({x: value.x, y: value.y})
+  gameSocket.on('playerMove', (gameData) => {
+    if (player === "leftPlayer") {
+       setLPlayerCoord({
+         x: gameData.leftUser.position.x,
+         y: gameData.leftUser.position.y,
+       })
+    } else {
+       setRPlayerCoord({
+         x: gameData.leftUser.position.x,
+         y: gameData.leftUser.position.y,
+       })
+    }
   });
 
-  gameSocket.on('rightPlayerPosition', (value) => {
-    setRPlayerCoord({x: value.x, y: value.y})
-  });
-
-  gameSocket.on('ballPosition', (value) => {
-    setBallCoord({x: value.x, y: value.y})
+  gameSocket.on('refreshGame', (value) => {
+    setBallCoord({x: value.ballPosition.x, y: value.ballPosition.y})
   });
 
   gameSocket.on('gameStop', () => {
@@ -77,6 +79,7 @@ const Game = () => {
       lPlayerCoord={lPlayerCoord}
       rPlayerCoord={rPlayerCoord}
       ballCoord={ballCoord}
+      gameSocket={gameSocket}
     />
     </div>
   )

@@ -31,43 +31,48 @@ const drawQuadrilateral = (points, color, context) => {
   context.stroke();
 };
 
-const GameCanvas = ({lPlayerCoord, rPlayerCoord, ballCoord}) => {
+const GameCanvas = ({lPlayerCoord, rPlayerCoord, ballCoord, gameSocket}) => {
   const gameCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const width = 720;
+  const height = 480;
 
   useEffect(() => {
     const canvas = gameCanvasRef.current;
     if (!canvas) return;
     const context = canvas.getContext("2d");
     if (!context) return;
-    context.canvas.width = 720;
-    context.canvas.height = 360;
+    context.canvas.width = width;
+    context.canvas.height = height;
 
     // draw the field
     const fieldPoints = {
-      a: { x: 80, y: 5 },
-      b: { x: 640, y: 5 },
-      c: { x: 720, y: 360 },
-      d: { x: 5, y: 360 },
+      a: { x: 0, y: 0 },
+      b: { x: width, y: 0 },
+      c: { x: width, y: height },
+      d: { x: 0, y: height },
     };
     draw("quadrilateral", fieldPoints, "rgb(24, 35, 45)", context);
+    const offsetTop = context.canvas.offsetTop;
+    gameSocket.emit("canvasOffsetTop", offsetTop);
 
     // draw players
-    const lPlayerAngle = [20, 0];
-    const rPlayerAngle = [0, 20];
-
+    if (lPlayerCoord.y - offsetTop < 50) lPlayerCoord.y = 50 + offsetTop;
+    if (lPlayerCoord.y - offsetTop > 430) lPlayerCoord.y = 430 + offsetTop;
     const lPlayerPoints = {
-      a: { x: 80 + lPlayerAngle[0], y: lPlayerCoord.y },
-      b: { x: 90 + lPlayerAngle[0], y: lPlayerCoord.y },
-      c: { x: 90 + lPlayerAngle[1], y: lPlayerCoord.y + 110 },
-      d: { x: 80 + lPlayerAngle[1], y: lPlayerCoord.y + 110 },
+      a: { x: 20, y: lPlayerCoord.y - context.canvas.offsetTop - 50 },
+      b: { x: 30, y: lPlayerCoord.y - context.canvas.offsetTop - 50 },
+      c: { x: 30, y: lPlayerCoord.y + 110 - context.canvas.offsetTop - 50 },
+      d: { x: 20, y: lPlayerCoord.y + 110 - context.canvas.offsetTop - 50 },
     };
     draw("quadrilateral", lPlayerPoints, "rgb(224, 135, 245)", context);
 
+    if (rPlayerCoord.y - offsetTop < 50) rPlayerCoord.y = 50 + offsetTop;
+    if (rPlayerCoord.y - offsetTop > 430) rPlayerCoord.y = 430 + offsetTop;
     const rPlayerPoints = {
-      a: { x: rPlayerCoord.x + rPlayerAngle[0], y: rPlayerCoord.y },
-      b: { x: rPlayerCoord.x + 10 + rPlayerAngle[0], y: rPlayerCoord.y },
-      c: { x: rPlayerCoord.x + 10 + rPlayerAngle[1], y: rPlayerCoord.y + 110 },
-      d: { x: rPlayerCoord.x + rPlayerAngle[1], y: rPlayerCoord.y + 110 },
+      a: { x: rPlayerCoord.x ,     y: rPlayerCoord.y - 50 - context.canvas.offsetTop  },
+      b: { x: rPlayerCoord.x + 10, y: rPlayerCoord.y - 50 - context.canvas.offsetTop  },
+      c: { x: rPlayerCoord.x + 10, y: rPlayerCoord.y + 110 - 50 - context.canvas.offsetTop  },
+      d: { x: rPlayerCoord.x ,     y: rPlayerCoord.y + 110 - 50 - context.canvas.offsetTop  },
     };
     draw("quadrilateral", rPlayerPoints, "rgb(224, 135, 245)", context);
 
