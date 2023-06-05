@@ -21,7 +21,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
       clientID: config.get('CLIENT_ID'),
       clientSecret: config.get('CLIENT_SECRET'),
 
-      callbackURL: 'http://localhost:3000/auth/fourtytwo/callback',
+      callbackURL: config.get('CALLBACK_URL'),
       scope: ['public'],
     });
   }

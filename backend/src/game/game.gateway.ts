@@ -13,7 +13,17 @@ import { Server, Socket } from 'socket.io';
 
 import { GameService } from './game.service';
 
-@WebSocketGateway({ cors: true, namespace: 'game' })
+@WebSocketGateway({
+  cors: {
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://jas0nhuang.eu.org:3000",
+      "http://jas0nhuang.eu.org:5173",
+    ],
+  },
+  namespace: 'game'
+})
 export class GameGateway {
   constructor(private readonly gameService: GameService) {}
 
@@ -51,5 +61,20 @@ export class GameGateway {
     @ConnectedSocket() client: any,
   ) {
     this.gameService.throttledPlayerMove(this.server, body, client, 'right');
+  }
+
+  @SubscribeMessage('startGame')
+  handleStartGame(
+    @MessageBody() body: any,
+    @ConnectedSocket() client: any,
+  ) {
+    this.gameService.gameLoop(this.server, body, client);
+  }
+
+  @SubscribeMessage('canvasOffsetTop')
+  handleCanvasOffsetTop(
+    @MessageBody() body: number
+  ) {
+    this.gameService.setCanvasOffsetTop(body);
   }
 }

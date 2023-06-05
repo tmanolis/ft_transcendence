@@ -1,9 +1,9 @@
 import { IsString, IsInt } from 'class-validator';
 
 export class PositionDto {
-  constructor() {
-    x: -1;
-    y: -1;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
   }
 
   @IsInt()
@@ -19,7 +19,7 @@ export class UserInGameDto {
     this.socketID = '';
     this.gameID = '';
     this.side = '';
-    this.position = new PositionDto();
+    this.position = new PositionDto(0, 0);
   }
 
   @IsString()
@@ -44,7 +44,8 @@ export class GameDataDto {
     this.paused = false;
     this.leftUser = new UserInGameDto();
     this.rightUser = new UserInGameDto();
-    this.ballPosition = new PositionDto();
+    this.ballPosition = new PositionDto(360,360);
+    this.canvasOffsetTop = 0;
   }
 
   @IsString()
@@ -60,4 +61,7 @@ export class GameDataDto {
   rightUser: UserInGameDto;
 
   ballPosition: PositionDto;
+
+  @IsInt()
+  canvasOffsetTop: number;
 }

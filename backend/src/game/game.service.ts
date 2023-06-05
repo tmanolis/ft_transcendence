@@ -18,9 +18,9 @@ export class GameService {
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
-  /******************************************************************************/
-  /* handle the connection                                                      */
-  /******************************************************************************/
+  /****************************************************************************/
+  /* handle the connection                                                    */
+  /****************************************************************************/
   async userConnect(client: Socket, server: Server) {
     // try to get the user name (check if it's loged in)
     const userName = await this.getUserName(client);
@@ -70,7 +70,7 @@ export class GameService {
     gameData.gameSocketID = client.id;
     gameData.leftUser.userName = userName;
     gameData.leftUser.socketID = client.id;
-    gameData.leftUser.position.x = 360;
+    gameData.leftUser.position.x = 20;
     gameData.leftUser.position.y = 360;
 
     userInGame.gameID = client.id;
@@ -80,6 +80,9 @@ export class GameService {
     server.emit('gameData', gameData);
     console.log(JSON.parse(await this.cacheManager.get(userName)));
     console.log(JSON.parse(await this.cacheManager.get(client.id)));
+  }
+
+  async setCanvasOffsetTop(body:number) {
   }
 
   // join or re-join a game
@@ -125,14 +128,72 @@ export class GameService {
     return gameID;
   }
 
+  /****************************************************************************/
+  /* Gameplay								      */
+  /****************************************************************************/
+  async gameLoop(server: Server, body: any, client: Socket) {
+      let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
+      let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
+      if (randX < 3 && randX >= 0) {
+        randX += 3;
+      }
+      if (randX > -3 && randX <= 0) {
+        randX -= 3;
+      }
+      let direction = { x: randX, y: randY };
+
+    const gameInterval = setInterval(async () => {
+      const gameData: string = await this.cacheManager.get(body.gameID);
+      if (gameData) {
+        const gameDataJSON = JSON.parse(gameData);
+
+      let x = gameDataJSON.ballPosition.x;
+      let y = gameDataJSON.ballPosition.y;
+      if (y >= 480 || y <= 15) { direction.y *= -1; }
+      console.log(x, y);
+      console.log(gameDataJSON.leftUser);
+      if (x <= 20 && 
+	  y >= gameDataJSON.leftUser.position.y - 50 && 
+	  y <= gameDataJSON.leftUser.position.y + 50 ) {
+          direction.x *= -1;
+      } 
+
+      if (x > 710 || x < 10) {
+        clearInterval(gameInterval);
+	gameDataJSON.ballPosition.x = 360;
+	gameDataJSON.ballPosition.y = 360;
+        await this.cacheManager.del(body.gameID);
+        await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+        server.emit('gameStop', null);
+	return ;
+      }
+
+      x += direction.x;
+      y += direction.y;
+      gameDataJSON.ballPosition.x = x;
+      gameDataJSON.ballPosition.y = y;
+      server.emit('refreshGame', gameDataJSON);
+      await this.cacheManager.del(body.gameID);
+      await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+    }
+    }, 1000/30);
+  }
+
   throttledPlayerMove = throttle(
     async (server: Server, body: any, client: Socket, side: string) => {
-      console.log('event body: ', body);
-      console.log('client id: ', client.id);
-      console.log('player side: ', side);
+      const gameData: string = await this.cacheManager.get(body.gameID);
+      if (gameData) {
+	      const gameDataJSON = JSON.parse(gameData);
+	      server.emit('playerMove', gameDataJSON);
+	      if (side === "left") {
+		gameDataJSON.leftUser.position.y = body.y;
+	      } else {
+		gameDataJSON.rightUser.position.y = body.y;
+	      }
+	      await this.cacheManager.del(body.gameID);
+	      await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+      }
     },
-    1000 / 30,
+    1000 / 30
   );
-
-  async gameLoop() {}
 }
