@@ -20,13 +20,13 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
+  async handle42Login(@Res() res: any, @Req() req: any): Promise<void> {
     this.authService.fourtyTwoLogin(res, req.user);
   }
 
   @Post('local/signup')   
-  signup(@Body() dto: AuthDto) {
-    return this.authService.localSignup(dto);
+  signup(@Res() res: any, @Body() dto: AuthDto) {
+    return this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')

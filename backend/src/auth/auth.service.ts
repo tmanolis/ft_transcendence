@@ -43,7 +43,8 @@ export class AuthService {
     res.cookie('jwt', token, '42accesToken', user.hash).redirect('/hello');
   }
 
-  async localSignup(dto: AuthDto) {
+  async localSignup(res: any, dto: AuthDto) {
+    let token: string;
     try {
       const hash = await argon.hash(dto.hash);
       const user = await this.prisma.user.create({
@@ -53,6 +54,8 @@ export class AuthService {
           hash,
         },
       });
+      token = await this.signToken(user.id, user.email);
+      res.cookie('jwt', token).redirect('/hello');
     } catch (error) {
       if (
         error instanceof
@@ -65,8 +68,8 @@ export class AuthService {
         }
       }
       throw error;
-    }
-    return 'OK';
+    }    
+    return token;
   }
 
   async localLogin(dto: LoginDto) {

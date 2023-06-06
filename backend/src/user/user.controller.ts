@@ -1,9 +1,5 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
-<<<<<<< HEAD
-import { Request } from 'express';
-=======
->>>>>>> main
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
@@ -23,9 +19,8 @@ export class UserController {
   }
 
   @Patch('me/update') 
-  async edit(@GetUser() user: User, @Body() updateDto: UpdateDto) {
+  async edit(@GetUser() user: User, @Body() updateDto: Partial<UpdateDto>) {
     await this.userService.updateUser(user, updateDto);
-    console.log('updated');
     return user;
   }
 }

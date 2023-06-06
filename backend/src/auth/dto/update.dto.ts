@@ -1,5 +1,5 @@
 export class UpdateDto {
-  userName: string;
-  password: string;
-  avatar: string;
+  userName?: string;
+  hash?: string;
+  avatar?: string;
 }
