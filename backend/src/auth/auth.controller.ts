@@ -22,7 +22,6 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
   async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
     this.authService.fourtyTwoLogin(res, req.user);
-    return 'OK';
   }
 
   @Post('local/signup')   
