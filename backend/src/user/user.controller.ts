@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { UpdateDto } from 'src/auth/dto';
 
-@Controller('users')
+@Controller('user')
 // Guard is at control level, because all user-related actions
 // need validation.
 @UseGuards(JwtGuard)
