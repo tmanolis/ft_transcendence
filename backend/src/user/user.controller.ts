@@ -19,7 +19,7 @@ export class UserController {
   }
 
   @Patch('me/update') 
-  async edit(@GetUser() user: User, @Body() updateDto: Partial<UpdateDto>) {
+  async edit(@GetUser() user: User, @Body() updateDto: UpdateDto) {
     await this.userService.updateUser(user, updateDto);
     return user;
   }

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, UseGuards, Req, Res, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
 import { AuthDto, LoginDto } from './dto';
@@ -20,16 +20,21 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  async handle42Login(@Res() res: any, @Req() req: any): Promise<void> {
-    this.authService.fourtyTwoLogin(res, req.user);
+  async handle42Login(@Res() res: any, @Req() req: any, accessToken: string): Promise<void> {
+    this.authService.fourtyTwoLogin(res, req.user, accessToken);
   }
 
-  @Post('local/signup')   
+  @Post('local/signup') 
+  @ApiOperation({ description: 'create a local account' })
+  @ApiOkResponse({ description: 'Redirect to main page' })
+  @ApiUnauthorizedResponse({ description: 'Signup failed.' })
   signup(@Res() res: any, @Body() dto: AuthDto) {
     return this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
+  @ApiOkResponse({ description: 'Redirect to main page' })
+  @ApiUnauthorizedResponse({ description: 'Login failed.' })
   signin(@Body() dto: LoginDto) {
     return this.authService.localLogin(dto);
   }

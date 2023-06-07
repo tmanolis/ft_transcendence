@@ -14,7 +14,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async fourtyTwoLogin(res: any, dto: AuthDto) {
+  async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
     let user = await this.prisma.user.findUnique({
       where: {
         id: dto.id,
@@ -30,28 +30,26 @@ export class AuthService {
             userName: dto.userName,
             avatar: dto.image,
             isFourtyTwoStudent: true,
-            hash: dto.hash,
+            password: dto.password,
           },
         });
       } catch (error) {
         throw error;
       }
-    } else {
-      user.hash = dto.hash;
-    }
+    } 
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token, '42accesToken', user.hash).redirect('/hello');
+    res.cookie('jwt', token, '42accesToken', accessToken).redirect('/hello');
   }
 
   async localSignup(res: any, dto: AuthDto) {
     let token: string;
     try {
-      const hash = await argon.hash(dto.hash);
+      const hash = await argon.hash(dto.password);
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
           userName: dto.userName,
-          hash,
+          password: hash,
         },
       });
       token = await this.signToken(user.id, user.email);
@@ -81,7 +79,9 @@ export class AuthService {
     
     if (!user) throw new ForbiddenException('User not found');
 
-    const passwordMatches = await argon.verify(user.hash, dto.hash);
+    if (user.isFourtyTwoStudent) throw new ForbiddenException('Log in through OAuth only');
+
+    const passwordMatches = await argon.verify(user.password, dto.password);
 
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
