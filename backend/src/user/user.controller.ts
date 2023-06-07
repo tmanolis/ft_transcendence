@@ -4,6 +4,7 @@ import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { UpdateDto } from 'src/auth/dto';
+import { ApiBadRequestResponse, ApiOkResponse } from '@nestjs/swagger';
 
 @Controller('user')
 // Guard is at control level, because all user-related actions
@@ -19,6 +20,8 @@ export class UserController {
   }
 
   @Patch('me/update') 
+  @ApiOkResponse({ description: 'User info has been updated.' })
+  @ApiBadRequestResponse({ description: 'Update failed. Please try again!' })
   async edit(@GetUser() user: User, @Body() updateDto: UpdateDto) {
     await this.userService.updateUser(user, updateDto);
     return user;

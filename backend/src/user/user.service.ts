@@ -3,6 +3,7 @@ import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { UpdateDto } from 'src/auth/dto';
 import * as argon from 'argon2';
+import { ApiBadRequestResponse, ApiCreatedResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class UserService {

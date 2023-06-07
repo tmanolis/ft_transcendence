@@ -26,15 +26,15 @@ export class AuthController {
 
   @Post('local/signup') 
   @ApiOperation({ description: 'create a local account' })
-  @ApiOkResponse({ description: 'Redirect to main page' })
-  @ApiUnauthorizedResponse({ description: 'Signup failed.' })
+  @ApiOkResponse({ description: 'User has been created.' })
+  @ApiUnauthorizedResponse({ description: 'User could not be created. Please try again!' })
   signup(@Res() res: any, @Body() dto: AuthDto) {
     return this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
-  @ApiOkResponse({ description: 'Redirect to main page' })
-  @ApiUnauthorizedResponse({ description: 'Login failed.' })
+  @ApiOkResponse({ description: 'User is now online.' })
+  @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
   signin(@Body() dto: LoginDto) {
     return this.authService.localLogin(dto);
   }
