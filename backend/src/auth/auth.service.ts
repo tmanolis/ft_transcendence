@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { AuthDto } from './dto';
+import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import * as argon from 'argon2';
 
 @Injectable()
 export class AuthService {
@@ -12,7 +14,7 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async handle42Login(res: any, dto: AuthDto) {
+  async fourtyTwoLogin(res: any, dto: AuthDto) {
     let user = await this.prisma.user.findUnique({
       where: {
         id: dto.id,
@@ -41,6 +43,51 @@ export class AuthService {
     res.cookie('jwt', token, '42accesToken', user.hash).redirect('/hello');
   }
 
+  async localSignup(res: any, dto: AuthDto) {
+    let token: string;
+    try {
+      const hash = await argon.hash(dto.hash);
+      const user = await this.prisma.user.create({
+        data: {
+          email: dto.email,
+          userName: dto.userName,
+          hash,
+        },
+      });
+      token = await this.signToken(user.id, user.email);
+      res.cookie('jwt', token).redirect('/hello');
+    } catch (error) {
+      if (
+        error instanceof
+        PrismaClientKnownRequestError
+      ) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException(
+            'Credentials taken',
+          );
+        }
+      }
+      throw error;
+    }    
+    return token;
+  }
+
+  async localLogin(dto: LoginDto) {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    })
+    
+    if (!user) throw new ForbiddenException('User not found');
+
+    const passwordMatches = await argon.verify(user.hash, dto.hash);
+
+    if (!passwordMatches) throw new ForbiddenException('Password incorrect');
+
+    return 'OK';
+  }  
+
   signToken(id: string, email: string): Promise<string> {
     const payload = {
       sub: id,
@@ -49,9 +96,10 @@ export class AuthService {
     const secret = this.config.get('JWT_SECRET');
 
     return this.jwt.signAsync(payload, {
-      // Uncomment next line as soon as refresh token is implemented:
-      // expiresIn:	'15m',
+      expiresIn:	'90m',
       secret: secret,
     });
   }
+
+
 }

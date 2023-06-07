@@ -10,7 +10,8 @@ import { GameGateway } from './game/game.gateway';
 import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
-import { JwtFromCookieMiddleware } from './auth/middleware';
+// import { JwtFromCookieMiddleware } from './auth/middleware';
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
@@ -22,11 +23,7 @@ import { JwtFromCookieMiddleware } from './auth/middleware';
     AuthModule,
     JwtModule,
   ],
-  providers: [GameGateway, AuthService],
+  providers: [GameGateway, AuthService, UserService],
   controllers: [UserController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtFromCookieMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {} 
