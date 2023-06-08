@@ -9,7 +9,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async updateUser(user: User, dto: Partial<UpdateDto>) {
-    if (dto.hash){
+    if (dto.hash) {
       if (user.isFourtyTwoStudent)
         throw new ForbiddenException("Can't change 42 password");
       const hash = await argon.hash(dto.hash);

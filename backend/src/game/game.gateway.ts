@@ -16,17 +16,15 @@ import { Server, Socket } from 'socket.io';
 @WebSocketGateway({
   cors: {
     origin: [
-      "http://localhost:3000",
-      "http://localhost:5173",
-      "http://jas0nhuang.eu.org:3000",
-      "http://jas0nhuang.eu.org:5173",
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://jas0nhuang.eu.org:3000',
+      'http://jas0nhuang.eu.org:5173',
     ],
   },
-  namespace: 'game'
+  namespace: 'game',
 })
 export class GameGateway {
-  constructor(/*private readonly gameService: GameService*/) {}
-
   @WebSocketServer()
   server: Server;
 
@@ -64,17 +62,12 @@ export class GameGateway {
   }
 
   @SubscribeMessage('startGame')
-  handleStartGame(
-    @MessageBody() body: any,
-    @ConnectedSocket() client: any,
-  ) {
+  handleStartGame(@MessageBody() body: any, @ConnectedSocket() client: any) {
     // this.gameService.gameLoop(this.server, body, client);
   }
 
   @SubscribeMessage('canvasOffsetTop')
-  handleCanvasOffsetTop(
-    @MessageBody() body: number
-  ) {
+  handleCanvasOffsetTop(@MessageBody() body: number) {
     // this.gameService.setCanvasOffsetTop(body);
   }
 }
