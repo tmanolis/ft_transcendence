@@ -1,12 +1,14 @@
 import { Body, Controller, Get, UseGuards, Req, Res, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
 import { AuthDto, LoginDto } from './dto';
 
+@ApiTags('User')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService) {}
 
   @Get('fourtytwo/login')
   @UseGuards(FourtyTwoAuthGuard)

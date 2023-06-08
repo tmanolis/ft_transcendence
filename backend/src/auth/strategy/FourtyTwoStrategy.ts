@@ -44,7 +44,6 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     } catch (error) {
       throw error;
     }
-    console.log('user ID:', userData.id);
 
     const user = new AuthDto();
 
