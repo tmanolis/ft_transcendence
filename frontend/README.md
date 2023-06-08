@@ -9,3 +9,9 @@ Frontend tooling(module management, TypeScript support...etc)
 
 ## socket.io with React
 https://socket.io/how-to/use-with-react
+
+## React Router
+### version 6.12
+Still not very familar with the new "creatBrowserRouter" syntax.
+
+

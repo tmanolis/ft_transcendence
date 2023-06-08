@@ -55,6 +55,38 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+nav
+{
+  position: fixed;
+  top: 0px;
+  height: 40px;
+  line-height: 40px;
+}
+nav a
+{
+  margin: 10px;
+}
+
+footer
+{
+  position: fixed;
+  bottom: 0px;
+  height: 40px;
+  width: 100vw;
+  line-height: 40px;
+  margin: auto;
+  text-align: center;
+}
+footer a
+{
+  margin: 10px;
+}
+
+.mainDiv {
+  position:fixed;
+  top: 50px;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -67,3 +99,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
