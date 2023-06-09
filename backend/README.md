@@ -18,6 +18,8 @@ And of course: [NestJS - DOCS - Prisma](https://docs.nestjs.com/recipes/prisma)
 
 ? do we always need to do the migration manualy on local server before dockerizing the project ?
 
+Need to handle prisma error corectly with [PrismaClientExceptionFilter](https://nestjs-prisma.dev/docs/exception-filter/)
+
 ## Postgresql
 
 Database.

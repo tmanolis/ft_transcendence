@@ -18,7 +18,8 @@ import { GameGateway } from './game/game.gateway';
 import { GameService } from './game/game.service';
 import { AuthService } from './auth/auth.service';
 import { UserController } from './user/user.controller';
-import { JwtFromCookieMiddleware } from './auth/middleware';
+// import { JwtFromCookieMiddleware } from './auth/middleware';
+import { UserService } from './user/user.service';
 
 const cacheConfig = {
   isGlobal: true,
@@ -41,11 +42,7 @@ const cacheConfig = {
     AuthModule,
     JwtModule,
   ],
-  providers: [GameGateway, AuthService, GameService],
+  providers: [GameGateway, AuthService, UserService, GameService],
   controllers: [UserController],
 })
-export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(JwtFromCookieMiddleware).forRoutes('*');
-  }
-}
+export class AppModule {}

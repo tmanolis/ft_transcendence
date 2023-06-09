@@ -1,8 +1,16 @@
-import { Body, Controller, Get, UseGuards, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  Post,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
+import { AuthDto, LoginDto } from './dto';
 
 @Controller('auth')
 export class AuthController {
@@ -20,8 +28,17 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  async handle42Login(@Res() res: any, @Req() req: any): Promise<string> {
-    this.authService.handle42Login(res, req.user);
-    return 'OK';
+  async handle42Login(@Res() res: any, @Req() req: any): Promise<void> {
+    this.authService.fourtyTwoLogin(res, req.user);
+  }
+
+  @Post('local/signup')
+  signup(@Res() res: any, @Body() dto: AuthDto) {
+    return this.authService.localSignup(res, dto);
+  }
+
+  @Post('local/login')
+  signin(@Body() dto: LoginDto) {
+    return this.authService.localLogin(dto);
   }
 }

@@ -18,8 +18,7 @@ import { GameService } from './game.service';
     origin: [
       "http://localhost:3000",
       "http://localhost:5173",
-      "http://jas0nhuang.eu.org:3000",
-      "http://jas0nhuang.eu.org:5173",
+      "http://localhost",
     ],
   },
   namespace: 'game'
@@ -44,9 +43,9 @@ export class GameGateway {
     console.log(client.id, ' disconnected.');
   }
 
-  /*****************************************************************************/
-  /* player movements                                                          */
-  /*****************************************************************************/
+  /****************************************************************************/
+  /* player movements                                                         */
+  /****************************************************************************/
   @SubscribeMessage('leftPlayerMove')
   handleLeftPlayerMove(
     @MessageBody() body: any,
