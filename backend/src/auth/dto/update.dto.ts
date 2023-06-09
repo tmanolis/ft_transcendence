@@ -18,5 +18,5 @@ export class UpdateDto {
   })
   @IsString()
   @IsOptional()
-  avatar?: string;
+  avatar?: any;
 }

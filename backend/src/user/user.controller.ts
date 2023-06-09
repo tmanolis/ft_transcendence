@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Patch, Post, UploadedFile, UploadedFiles, UseFilters, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Res, Body, Controller, Get, Patch, Post, UseGuards, UseInterceptors, UploadedFile, UploadedFiles } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { UpdateDto } from 'src/auth/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('User')
 @Controller('user')
@@ -24,14 +24,13 @@ export class UserController {
   @Patch('me/update') 
   @ApiOkResponse({ description: 'User info has been updated.' })
   @ApiBadRequestResponse({ description: 'Update failed. Please try again!' })
-  async edit(@GetUser() user: User, @Body() updateDto: UpdateDto) {
+  @UseInterceptors(FilesInterceptor('avatar'))
+  async edit(@GetUser() user: User, @Body() updateDto: UpdateDto, @UploadedFiles() files: any[]) {
+    if (files && files.length > 0){
+      const avatarFile = files[0].buffer.toString('base64');
+      updateDto.avatar = avatarFile;
+    }
     await this.userService.updateUser(user, updateDto);
     return user;
-  }
-
-  @Post('avatar')
-  @UseInterceptors(FileInterceptor('avatar'))
-  uploadFile(@UploadedFiles() file) {
-      console.log('file log: ', file);
   }
 }
