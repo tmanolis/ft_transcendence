@@ -18,7 +18,7 @@ export class UserController {
   // GetUser custom decorator, because Request is error prone
   // and like this we can return a prisma type user.
   getMe(@GetUser() user: User) {
-    return user;
+    return UserService.excludePassword(user);
   }
 
   @Patch('me/update') 
@@ -31,6 +31,6 @@ export class UserController {
       updateDto.avatar = avatarFile;
     }
     await this.userService.updateUser(user, updateDto);
-    return user;
+    return UserService.excludePassword(user);
   }
 }

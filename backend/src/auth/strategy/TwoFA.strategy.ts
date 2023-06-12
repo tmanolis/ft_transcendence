@@ -4,10 +4,14 @@ import { PrismaService } from 'nestjs-prisma';
 import { Strategy } from 'passport-strategy';
 import { authenticator } from 'otplib';
 import { UserService } from 'src/user/user.service';
+import { AuthService } from '../auth.service';
 
 @Injectable()
 export class TwoFA extends PassportStrategy(Strategy, '2fa'){
-    constructor(private prisma: PrismaService) {
+    constructor(
+        private prisma: PrismaService,
+        private authService: AuthService,
+        ) {
         super ({
             usernameField: 'username',
             passwordField: 'password',
@@ -23,7 +27,7 @@ export class TwoFA extends PassportStrategy(Strategy, '2fa'){
             },
         });
         if (!user.twoFAActivated) {
-            return user;
+            return UserService.excludePassword(user);
         }
         const secret = user.twoFASecret;
         const isValid = authenticator.verify({token: code, secret})
