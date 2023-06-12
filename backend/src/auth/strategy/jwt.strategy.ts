@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'nestjs-prisma';
 import { Request } from 'express';
+import { UserService } from 'src/user/user.service';
 
 const ExtractJwtFromCookie = (req: Request) => {
   let token = null;
@@ -28,7 +29,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
         id: payload.sub,
       },
     });
-    delete user.password;
-    return user;
+    return UserService.excludePassword(user);
   }
 }

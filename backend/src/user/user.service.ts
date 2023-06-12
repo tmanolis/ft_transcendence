@@ -4,6 +4,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { UpdateDto } from 'src/auth/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
+import { Exclude } from 'class-transformer';
 import * as argon from 'argon2';
 
 @Injectable()
@@ -40,5 +41,9 @@ export class UserService {
     user.twoFASecret = secret;
     const otpauthUrl = authenticator.keyuri(user.email, 'PongStoryShort', secret);
     return otpauthUrl;
+  }
+
+  static excludePassword(user: any): any {
+    return Exclude() (user);
   }
 }
