@@ -5,12 +5,12 @@ export class UpdateDto {
   @ApiProperty({ description: 'New username (optional)', })
   @IsString()
   @IsOptional()
-  userName?: string;
+  userName: string;
 
   @ApiProperty({ description: 'New password (optional)', })
   @IsString()
   @IsOptional()
-  password?: string;
+  password: string;
 
   @ApiProperty({ 
     description: 'New avatar string (optional)', 
@@ -18,8 +18,8 @@ export class UpdateDto {
   })
   @IsString()
   @IsOptional()
-  avatar?: any;
+  avatar: any;
 
   @IsOptional()
-  twoFAActivated?: boolean;
+  twoFAActivated: boolean;
 }

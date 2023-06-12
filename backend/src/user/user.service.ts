@@ -11,7 +11,7 @@ import * as argon from 'argon2';
 export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async updateUser(user: User, dto: UpdateDto) {
+  async updateUser(user: User, dto: UpdateDto): Promise<string> {
     if (dto.password){
       if (user.isFourtyTwoStudent)
         throw new ForbiddenException("Can't change 42 password");
@@ -25,15 +25,15 @@ export class UserService {
       },
       data: dto,
     });
-
     if (user.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
-      console.log(toDataURL);
-      return toDataURL(otpauthUrl);
+      console.log(await toDataURL(otpauthUrl));
+      return await toDataURL(otpauthUrl);
     }
     else if (!user.twoFAActivated && user.twoFASecret) {
       user.twoFASecret = null;
     }
+    return 'OK';
   }
 
   async generate2FASecret(user: User): Promise<string> {
@@ -41,9 +41,5 @@ export class UserService {
     user.twoFASecret = secret;
     const otpauthUrl = authenticator.keyuri(user.email, 'PongStoryShort', secret);
     return otpauthUrl;
-  }
-
-  static excludePassword(user: any): any {
-    return Exclude() (user);
   }
 }

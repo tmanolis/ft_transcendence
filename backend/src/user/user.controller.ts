@@ -5,7 +5,7 @@ import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
 import { UpdateDto } from 'src/auth/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiTags('User')
 @Controller('user')
@@ -18,7 +18,7 @@ export class UserController {
   // GetUser custom decorator, because Request is error prone
   // and like this we can return a prisma type user.
   getMe(@GetUser() user: User) {
-    return UserService.excludePassword(user);
+    return user;  
   }
 
   @Patch('me/update') 
@@ -30,7 +30,8 @@ export class UserController {
       const avatarFile = files[0].buffer.toString('base64');
       updateDto.avatar = avatarFile;
     }
+    console.log(updateDto);
     await this.userService.updateUser(user, updateDto);
-    return UserService.excludePassword(user);
+    return user;
   }
 }

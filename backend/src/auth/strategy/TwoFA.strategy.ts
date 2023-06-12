@@ -27,13 +27,15 @@ export class TwoFA extends PassportStrategy(Strategy, '2fa'){
             },
         });
         if (!user.twoFAActivated) {
-            return UserService.excludePassword(user);
+            delete user.password;
+            return user;  
         }
         const secret = user.twoFASecret;
         const isValid = authenticator.verify({token: code, secret})
         if (!isValid) {
             throw new UnauthorizedException('Invalid TOTP code');
         }
-        return UserService.excludePassword(user);
+        delete user.password;
+        return user;  
     }
 }

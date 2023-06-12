@@ -59,18 +59,12 @@ export class AuthService {
       token = await this.signToken(user.id, user.email);
       res.cookie('jwt', token).redirect('/hello');
     } catch (error) {
-      if (
-        error instanceof
-        PrismaClientKnownRequestError
-      ) {
         if (error.code === 'P2002') {
           throw new ForbiddenException(
             'Credentials taken',
           );
         }
       }
-      throw error;
-    }    
     return token;
   }
 
@@ -89,16 +83,15 @@ export class AuthService {
 
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
-    if (user.twoFAActivated) {
-      const payload = {
-        username: user.userName,
-        code: dto.twoFACode,
-      }
-      return await this.twoFA.validate(payload);
-    }
-    else {
-      return UserService.excludePassword(user);
-    }
+    // if (user.twoFAActivated) {
+    //   const payload = {
+    //     username: user.userName,
+    //     code: dto.twoFACode,
+    //   }
+    //   return await this.twoFA.validate(payload);
+    // }
+    delete user.password;
+    return user;
   }  
 
   signToken(id: string, email: string): Promise<string> {

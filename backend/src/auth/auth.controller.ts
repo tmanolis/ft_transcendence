@@ -23,22 +23,22 @@ export class AuthController {
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
   async handle42Login(@Res() res: any, @Req() req: any, accessToken: string): Promise<void> {
-    this.authService.fourtyTwoLogin(res, req.user, accessToken);
+    await this.authService.fourtyTwoLogin(res, req.user, accessToken);
   }
 
   @Post('local/signup') 
   @ApiOperation({ description: 'create a local account' })
   @ApiOkResponse({ description: 'User has been created.' })
   @ApiUnauthorizedResponse({ description: 'User could not be created. Please try again!' })
-  signup(@Res() res: any, @Body() dto: AuthDto) {
-    return this.authService.localSignup(res, dto);
+  async signup(@Res() res: any, @Body() dto: AuthDto) {
+    return await this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
-  signin(@Body() dto: LoginDto) {
-    return this.authService.localLogin(dto);
+  async signin(@Body() dto: LoginDto) {
+    return await this.authService.localLogin(dto);
   }
 
 }
