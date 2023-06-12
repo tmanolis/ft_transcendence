@@ -19,4 +19,7 @@ export class UpdateDto {
   @IsString()
   @IsOptional()
   avatar?: any;
+
+  @IsOptional()
+  twoFAActivated?: boolean;
 }

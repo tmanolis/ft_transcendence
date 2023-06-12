@@ -23,7 +23,8 @@ model User {
 
   /// authentification
   password 	      String
-  twoFA           Boolean @default(false)
+  twoFAActivated  Boolean @default(false)
+  twoFASecret     String?
 
   /// community
   friends     			    String[]

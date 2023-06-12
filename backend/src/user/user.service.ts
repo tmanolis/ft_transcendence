@@ -1,9 +1,10 @@
-import { Injectable, HttpException, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { UpdateDto } from 'src/auth/dto';
+import { authenticator } from 'otplib';
+import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
-import { ApiBadRequestResponse, ApiCreatedResponse } from '@nestjs/swagger';
 
 @Injectable()
 export class UserService {
@@ -23,5 +24,21 @@ export class UserService {
       },
       data: dto,
     });
+
+    if (user.twoFAActivated && !user.twoFASecret) {
+      const otpauthUrl = await this.generate2FASecret(user);
+      console.log(toDataURL);
+      return toDataURL(otpauthUrl);
+    }
+    else if (!user.twoFAActivated && user.twoFASecret) {
+      user.twoFASecret = null;
+    }
+  }
+
+  async generate2FASecret(user: User): Promise<string> {
+    const secret = authenticator.generateSecret();
+    user.twoFASecret = secret;
+    const otpauthUrl = authenticator.keyuri(user.email, 'PongStoryShort', secret);
+    return otpauthUrl;
   }
 }

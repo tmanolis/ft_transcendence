@@ -17,6 +17,7 @@
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
-    "preserveWatchOutput": true
+    "preserveWatchOutput": true,
+    "moduleResolution": "node"
   }
 }
