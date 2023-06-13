@@ -10,7 +10,7 @@ import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-  private readonly twoFA: TwoFA;
+//   private readonly twoFA: TwoFA;
 
   constructor(
     private prisma: PrismaService,

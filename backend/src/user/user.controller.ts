@@ -21,17 +21,18 @@ export class UserController {
     return user;  
   }
 
-  @Patch('me/update') 
+  @Patch('update') 
   @ApiOkResponse({ description: 'Returns "OK" when user info has been updated. Returns base64 string of Google Authenticator QR-image when 2FA has been enabled.' })
   @ApiBadRequestResponse({ description: 'Update failed. Please try again!' })
   @UseInterceptors(FilesInterceptor('avatar'))
-  async edit(@GetUser() user: User, @Body() updateDto: UpdateDto, @UploadedFiles() files: any[]) {
+  async edit(
+	@GetUser() user: User, 
+	@Body() updateDto: UpdateDto, 
+	@UploadedFiles() files: any[]) {
     if (files && files.length > 0){
       const avatarFile = files[0].buffer.toString('base64');
       updateDto.avatar = avatarFile;
     }
-    console.log(updateDto);
-    await this.userService.updateUser(user, updateDto);
-    return user;
+    return await this.userService.updateUser(user, updateDto);
   }
 }

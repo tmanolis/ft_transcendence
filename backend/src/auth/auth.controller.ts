@@ -3,6 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
 import { AuthDto, LoginDto } from './dto';
+import { Request } from 'express';
 
 @ApiTags('User')
 @Controller('auth')
@@ -30,15 +31,15 @@ export class AuthController {
   @ApiOperation({ description: 'create a local account' })
   @ApiOkResponse({ description: 'User has been created.' })
   @ApiUnauthorizedResponse({ description: 'User could not be created. Please try again!' })
-  async signup(@Res() res: any, @Body() dto: AuthDto) {
-    return await this.authService.localSignup(res, dto);
+  signup(@Res() res: any, @Body() dto: AuthDto) {
+    return this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
-  async signin(@Body() dto: LoginDto) {
-    return await this.authService.localLogin(dto);
+  signin(@Body() dto: LoginDto) {
+    return this.authService.localLogin(dto);
   }
 
 }

@@ -4,7 +4,6 @@ import { PrismaService } from 'nestjs-prisma';
 import { UpdateDto } from 'src/auth/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
-import { Exclude } from 'class-transformer';
 import * as argon from 'argon2';
 
 @Injectable()
@@ -27,7 +26,6 @@ export class UserService {
     });
     if (user.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
-      console.log(await toDataURL(otpauthUrl));
       return await toDataURL(otpauthUrl);
     }
     else if (!user.twoFAActivated && user.twoFASecret) {
@@ -36,7 +34,7 @@ export class UserService {
     return 'OK';
   }
 
-  async generate2FASecret(user: User): Promise<string> {
+  private async generate2FASecret(user: User): Promise<string> {
     const secret = authenticator.generateSecret();
     user.twoFASecret = secret;
     const otpauthUrl = authenticator.keyuri(user.email, 'PongStoryShort', secret);
