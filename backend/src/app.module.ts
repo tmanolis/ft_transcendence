@@ -11,7 +11,7 @@ import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
-import { MulterModule } from '@nestjs/platform-express';
+import { TwoFA } from './auth/strategy';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { MulterModule } from '@nestjs/platform-express';
     AuthModule,
     JwtModule,
   ],
-  providers: [GameGateway, AuthService, UserService],
+  providers: [GameGateway, AuthService, UserService, TwoFA],
   controllers: [UserController],
 })
 export class AppModule {} 

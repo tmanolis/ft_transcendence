@@ -3,19 +3,16 @@ import { PrismaService } from 'nestjs-prisma';
 import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { TwoFA } from './strategy';
 import * as argon from 'argon2';
-import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
-//   private readonly twoFA: TwoFA;
-
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+	private twoFA: TwoFA,
   ) {}
 
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
@@ -83,13 +80,13 @@ export class AuthService {
 
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
-    // if (user.twoFAActivated) {
-    //   const payload = {
-    //     username: user.userName,
-    //     code: dto.twoFACode,
-    //   }
-    //   return await this.twoFA.validate(payload);
-    // }
+    if (user.twoFAActivated) {
+      const payload = {
+        username: user.userName,
+        code: dto.twoFACode,
+      }
+      return await this.twoFA.validate(payload);
+    }
     delete user.password;
     return user;
   }  
@@ -106,6 +103,4 @@ export class AuthService {
       secret: secret,
     });
   }
-
-
 }

@@ -24,11 +24,11 @@ export class UserService {
       },
       data: dto,
     });
-    if (user.twoFAActivated && !user.twoFASecret) {
+    if (dto.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
       return await toDataURL(otpauthUrl);
     }
-    else if (!user.twoFAActivated && user.twoFASecret) {
+    else if (!dto.twoFAActivated && user.twoFASecret) {
       user.twoFASecret = null;
     }
     return 'OK';
@@ -36,7 +36,14 @@ export class UserService {
 
   private async generate2FASecret(user: User): Promise<string> {
     const secret = authenticator.generateSecret();
-    user.twoFASecret = secret;
+	await this.prisma.user.update ({
+		where: {
+			id: user.id,
+		},
+		data: {
+			twoFASecret: secret,
+		},
+	})
     const otpauthUrl = authenticator.keyuri(user.email, 'PongStoryShort', secret);
     return otpauthUrl;
   }

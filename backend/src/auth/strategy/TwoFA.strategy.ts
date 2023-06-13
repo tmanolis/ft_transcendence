@@ -3,14 +3,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { PrismaService } from 'nestjs-prisma';
 import { Strategy } from 'passport-strategy';
 import { authenticator } from 'otplib';
-import { UserService } from 'src/user/user.service';
-import { AuthService } from '../auth.service';
 
 @Injectable()
 export class TwoFA extends PassportStrategy(Strategy, '2fa'){
     constructor(
         private prisma: PrismaService,
-        private authService: AuthService,
         ) {
         super ({
             usernameField: 'username',
@@ -18,23 +15,27 @@ export class TwoFA extends PassportStrategy(Strategy, '2fa'){
         });
     }
 
-    async validate(payload: any): Promise<any>{
-        const { username, code } = payload;
-
+    async validate(payload: {username: string, code: string}): Promise<any>{
         const user = await this.prisma.user.findUnique ({
             where: {
-                userName: username,
+                userName: payload.username,
             },
         });
-        if (!user.twoFAActivated) {
-            delete user.password;
-            return user;  
-        }
+
+		if (!user){
+			throw new UnauthorizedException('User not found');
+		}
+
         const secret = user.twoFASecret;
-        const isValid = authenticator.verify({token: code, secret})
+		console.log('secret: ', user.twoFASecret);
+        
+		const isValid = authenticator.verify({token: payload.code, secret})
+
         if (!isValid) {
+			console.log('wrong totp');
             throw new UnauthorizedException('Invalid TOTP code');
         }
+
         delete user.password;
         return user;  
     }

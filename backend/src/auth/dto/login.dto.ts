@@ -12,8 +12,8 @@ export class LoginDto {
   @IsString()
   password: string;
 
-//   @ApiProperty({ example: '123 456', })
-//   @IsOptional()
-//   @IsString()
-//   twoFACode: string;
+  @ApiProperty({ description: 'optional', example: '123456', })
+  @IsOptional()
+  @IsString()
+  twoFACode: string;
 }
