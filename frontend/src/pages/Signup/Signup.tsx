@@ -1,13 +1,14 @@
 import { useRef, useEffect, useState } from "react";
 
-const Login = () => {
+const Signup = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
+    const userName = event.target.username.value;
     const email = event.target.email.value;
     const password = event.target.password.value;
-    alert(`email: ${email}, hash: ${password}`);
+    alert(`username: ${userName}, email: ${email}, hash: ${password}`);
 
-    const formData = { email: email, hash: password };
+    const formData = { userName: userName, email: email, hash: password };
 
     var formBody = [];
     for (var property in formData) {
@@ -24,17 +25,20 @@ const Login = () => {
       body: formBody,
     };
 
-    const res = await fetch('http://localhost:3000/auth/local/login', requestOptions)
+    const res = await fetch('http://localhost:3000/auth/local/signup', requestOptions)
     console.log(res);
     const data = await res.json();
-
-
   }
 
   return (
     <>
       <div>
         <form onSubmit={handleSubmit}>
+          <br />
+          <label>Username
+            <input type="text" name="username" />
+          </label>
+          <br />
           <br />
           <label>Email
             <input type="text" name="email" />
@@ -48,13 +52,9 @@ const Login = () => {
           <br />
           <input type="submit" value="Login" />
         </form>
-        <button><a href="http://localhost:3000/auth/fourtytwo/login">Login with 42</a></button>
-        <div>Don't have an account?
-          <button><a href="http://localhost:5173/signup">Signup here</a></button>
-        </div>
       </div>
     </>
   )
 };
 
-export default Login;
+export default Signup;

@@ -1,6 +1,7 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import { gameSocket } from './socket';
 import GameCanvas from './GameCanvas.tsx';
+import { throttle } from '../utils/throttle';
 
 let player = "";
 let gameID = "";
@@ -17,6 +18,7 @@ gameSocket.on("connect", async (info) => {
   });
 });
 
+
 const Game = () => {
   const [lPlayerCoord, setLPlayerCoord] = useState({ x: 0, y: 200 });
   const [rPlayerCoord, setRPlayerCoord] = useState({ x: 700, y: 200 });
@@ -24,16 +26,15 @@ const Game = () => {
   const [gameRunning, setGameRunning] = useState(false);
 
   gameSocket.on("playerJoin", (socketID) => {
-  });
+    });
+  const throttledMouseMove = throttle((event: MouseEvent) => {
+    const newY = event.clientY;
+    if (Math.abs(rPlayerCoord.y - newY) > 2) {
+      gameSocket.emit(`${player}Move`, {gameID: gameID, y: newY} );
+    }
+  }, 1000 / 30);
 
   useEffect(() => {
-    const handleMouseMove = (event: MouseEvent) => {
-      console.log(player);
-      const newY = event.clientY;
-      if (Math.abs(rPlayerCoord.y - newY) > 2) {
-        gameSocket.emit(`${player}Move`, {gameID: gameID, y: newY} );
-      }
-    }
 
     const handleMouseClick = () => {
       if (gameRunning == false) {
@@ -42,10 +43,10 @@ const Game = () => {
       }
     }
     // add event listener
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", throttledMouseMove);
     window.addEventListener("click", handleMouseClick);
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mousemove", throttledMouseMove);
       window.removeEventListener("click", handleMouseClick);
     }
   }, [lPlayerCoord, rPlayerCoord, ballCoord ]);

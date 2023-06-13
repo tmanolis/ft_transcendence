@@ -10,6 +10,7 @@ import "./index.css";
 import RootRouter from "./Router/RootRouter"
 import Game from "./components/Game";
 import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 const router = createBrowserRouter([
   {
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
       {
         path: "/Login",
         element: <Login />,
+      },
+      {
+        path: "/Signup",
+        element: <Signup />,
       },
     ]
   },
