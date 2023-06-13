@@ -12,6 +12,7 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   const app = await NestFactory.create(
     AppModule,
+    // settings for https
     // , { httpsOptions: { key: keyFile, cert: certFile, } }
   );
 
@@ -35,6 +36,21 @@ async function bootstrap() {
   );
 
   app.use(cookieParser());
+
+  const cors = {
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://localhost',
+      '*',
+    ],
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    preflightContinue: false,
+    optionsSuccessStatus: 204,
+    credentials: true,
+    allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
+  };
+  app.enableCors(cors);
 
   await app.listen(3000);
 }

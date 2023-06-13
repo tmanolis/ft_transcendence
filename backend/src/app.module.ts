@@ -26,4 +26,4 @@ import { UserService } from './user/user.service';
   providers: [GameGateway, AuthService, UserService],
   controllers: [UserController],
 })
-export class AppModule {} 
+export class AppModule {}

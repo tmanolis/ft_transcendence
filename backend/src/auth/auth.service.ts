@@ -57,18 +57,13 @@ export class AuthService {
       token = await this.signToken(user.id, user.email);
       res.cookie('jwt', token).redirect('/hello');
     } catch (error) {
-      if (
-        error instanceof
-        PrismaClientKnownRequestError
-      ) {
+      if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          throw new ForbiddenException(
-            'Credentials taken',
-          );
+          throw new ForbiddenException('Credentials taken');
         }
       }
       throw error;
-    }    
+    }
     return token;
   }
 
@@ -77,8 +72,8 @@ export class AuthService {
       where: {
         email: dto.email,
       },
-    })
-    
+    });
+
     if (!user) throw new ForbiddenException('User not found');
 
     const passwordMatches = await argon.verify(user.hash, dto.hash);
@@ -86,7 +81,7 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     return 'OK';
-  }  
+  }
 
   signToken(id: string, email: string): Promise<string> {
     const payload = {
@@ -96,10 +91,8 @@ export class AuthService {
     const secret = this.config.get('JWT_SECRET');
 
     return this.jwt.signAsync(payload, {
-      expiresIn:	'90m',
+      expiresIn: '90m',
       secret: secret,
     });
   }
-
-
 }

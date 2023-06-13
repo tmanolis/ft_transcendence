@@ -1,4 +1,12 @@
-import { Body, Controller, Get, UseGuards, Req, Res, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  Post,
+} from '@nestjs/common';
 import { ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
@@ -24,7 +32,7 @@ export class AuthController {
     this.authService.fourtyTwoLogin(res, req.user);
   }
 
-  @Post('local/signup')   
+  @Post('local/signup')
   signup(@Res() res: any, @Body() dto: AuthDto) {
     return this.authService.localSignup(res, dto);
   }
@@ -33,5 +41,4 @@ export class AuthController {
   signin(@Body() dto: LoginDto) {
     return this.authService.localLogin(dto);
   }
-
 }
