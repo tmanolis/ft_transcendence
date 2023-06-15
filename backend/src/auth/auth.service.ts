@@ -12,7 +12,7 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
-	private twoFA: TwoFA,
+    private twoFA: TwoFA,
   ) {}
 
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
@@ -41,13 +41,12 @@ export class AuthService {
     const token = await this.signToken(user.id, user.email);
     res.cookie('jwt', token, '42accesToken', accessToken);
 
-	if (user.twoFAActivated) {
-		return {redirect: '/2fa-verify'};
-	}
-	else {
-		res.redirect('/hello');
-		return user;
-	}
+    if (user.twoFAActivated) {
+      return { redirect: '/2fa-verify' };
+    } else {
+      res.redirect('/hello');
+      return user;
+    }
   }
 
   async localSignup(res: any, dto: AuthDto) {
@@ -64,12 +63,10 @@ export class AuthService {
       token = await this.signToken(user.id, user.email);
       res.cookie('jwt', token).redirect('/hello');
     } catch (error) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException(
-            'Credentials taken',
-          );
-        }
+      if (error.code === 'P2002') {
+        throw new ForbiddenException('Credentials taken');
       }
+    }
     return token;
   }
 
@@ -78,23 +75,24 @@ export class AuthService {
       where: {
         email: dto.email,
       },
-    })
-    
+    });
+
     if (!user) throw new ForbiddenException('User not found');
 
-    if (user.isFourtyTwoStudent) throw new ForbiddenException('Log in through OAuth only');
+    if (user.isFourtyTwoStudent)
+      throw new ForbiddenException('Log in through OAuth only');
 
     const passwordMatches = await argon.verify(user.password, dto.password);
 
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-		return {redirect: '/2fa-verify'};
-	}
+      return { redirect: '/2fa-verify' };
+    }
 
     delete user.password;
     return user;
-  }  
+  }
 
   signToken(id: string, email: string): Promise<string> {
     const payload = {
@@ -104,7 +102,7 @@ export class AuthService {
     const secret = this.config.get('JWT_SECRET');
 
     return this.jwt.signAsync(payload, {
-      expiresIn:	'90m',
+      expiresIn: '90m',
       secret: secret,
     });
   }

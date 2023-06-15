@@ -9,10 +9,12 @@ import { JwtStrategy, TwoFA, FourtyTwoStrategy } from './strategy';
 @Module({
   imports: [HttpModule, PrismaModule, JwtModule.register({})],
   controllers: [AuthController],
-  providers: [AuthService, 
-              FourtyTwoStrategy, 
-              PrismaService, 
-              JwtStrategy,
-              TwoFA],
+  providers: [
+    AuthService,
+    FourtyTwoStrategy,
+    PrismaService,
+    JwtStrategy,
+    TwoFA,
+  ],
 })
 export class AuthModule {}

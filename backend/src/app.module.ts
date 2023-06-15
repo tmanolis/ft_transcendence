@@ -26,4 +26,4 @@ import { TwoFA } from './auth/strategy';
   providers: [GameGateway, AuthService, UserService, TwoFA],
   controllers: [UserController],
 })
-export class AppModule {} 
+export class AppModule {}

@@ -12,7 +12,7 @@ export class HelloController {
   }
 
   @Get('/error')
-  getError(@Query('error') error: string): Promise <string> {
-	return this.helloService.getError(error);
+  getError(@Query('error') error: string): Promise<string> {
+    return this.helloService.getError(error);
   }
 }

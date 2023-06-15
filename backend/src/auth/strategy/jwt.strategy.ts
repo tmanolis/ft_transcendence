@@ -12,7 +12,7 @@ const ExtractJwtFromCookie = (req: Request) => {
     token = req.cookies['jwt'];
   }
   return token;
-}
+};
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -30,6 +30,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       },
     });
     delete user.password;
-    return user;  
+    return user;
   }
 }

@@ -1,5 +1,18 @@
-import { Body, Controller, Get, UseGuards, Req, Res, Post } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  UseGuards,
+  Req,
+  Res,
+  Post,
+} from '@nestjs/common';
+import {
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
 import { AuthDto, LoginDto } from './dto';
@@ -11,9 +24,7 @@ import { User } from '@prisma/client';
 @ApiTags('User')
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-	private twoFA: TwoFA) {}
+  constructor(private authService: AuthService, private twoFA: TwoFA) {}
 
   @Get('fourtytwo/login')
   @UseGuards(FourtyTwoAuthGuard)
@@ -27,14 +38,20 @@ export class AuthController {
   @UseGuards(FourtyTwoAuthGuard)
   @ApiOkResponse({ description: '42 oauth callback url' })
   @ApiUnauthorizedResponse({ description: 'Login failed.' })
-  async handle42Login(@Res() res: any, @Req() req: any, accessToken: string): Promise<void> {
+  async handle42Login(
+    @Res() res: any,
+    @Req() req: any,
+    accessToken: string,
+  ): Promise<void> {
     await this.authService.fourtyTwoLogin(res, req.user, accessToken);
   }
 
-  @Post('local/signup') 
+  @Post('local/signup')
   @ApiOperation({ description: 'create a local account' })
   @ApiOkResponse({ description: 'User has been created.' })
-  @ApiUnauthorizedResponse({ description: 'User could not be created. Please try again!' })
+  @ApiUnauthorizedResponse({
+    description: 'User could not be created. Please try again!',
+  })
   signup(@Res() res: any, @Body() dto: AuthDto) {
     return this.authService.localSignup(res, dto);
   }
@@ -51,20 +68,23 @@ export class AuthController {
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: '2FA failed. Please try again!' })
   async twoFAVerify(
-	@Body() payload: {code: string}, 
-	@Res() res: any,
-	@GetUser() user: User,) {
-	try {
-		// ultimately here we should recuperate the returned user and
-		// redirect to the home page:
-		const validatedUser = await this.twoFA.validate(user.userName, payload.code);
-		if (validatedUser){
-			res.redirect('/hello')
-		}
-	} catch (error) {
-		const caughtError = error.message;
-		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-	}
+    @Body() payload: { code: string },
+    @Res() res: any,
+    @GetUser() user: User,
+  ) {
+    try {
+      // ultimately here we should recuperate the returned user and
+      // redirect to the home page:
+      const validatedUser = await this.twoFA.validate(
+        user.userName,
+        payload.code,
+      );
+      if (validatedUser) {
+        res.redirect('/hello');
+      }
+    } catch (error) {
+      const caughtError = error.message;
+      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+    }
   }
-
 }

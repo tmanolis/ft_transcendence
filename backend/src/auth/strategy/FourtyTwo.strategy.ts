@@ -67,7 +67,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
         return returnString;
       }
     } catch (error) {
-      throw new NotFoundException('Could not load profile picture.')
+      throw new NotFoundException('Could not load profile picture.');
     }
     return null;
   }

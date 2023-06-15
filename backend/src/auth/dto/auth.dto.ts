@@ -4,12 +4,12 @@ import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class AuthDto {
   id: string;
 
-  @ApiProperty({ example: 'Elise007', })
+  @ApiProperty({ example: 'Elise007' })
   @IsNotEmpty()
   @IsString()
   userName: string;
 
-  @ApiProperty({ example: 'example@site.com', })  
+  @ApiProperty({ example: 'example@site.com' })
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -21,7 +21,7 @@ export class AuthDto {
   @IsString()
   password: string;
 
-  @ApiProperty({ description: 'optional', example: '123456', })
+  @ApiProperty({ description: 'optional', example: '123456' })
   @IsOptional()
   @IsString()
   twoFACode: string;
