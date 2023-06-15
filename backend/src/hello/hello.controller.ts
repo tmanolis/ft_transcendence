@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { HelloService } from './hello.service';
 import { FourtyTwoAuthGuard } from '../auth/guard/FourtyTwo.guard';
 
@@ -9,5 +9,10 @@ export class HelloController {
   @Get()
   getHello(): Promise<string> {
     return this.helloService.getHello();
+  }
+
+  @Get('/error')
+  getError(@Query('error') error: string): Promise <string> {
+	return this.helloService.getError(error);
   }
 }

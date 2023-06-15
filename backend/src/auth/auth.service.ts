@@ -38,13 +38,6 @@ export class AuthService {
         throw error;
       }
     }
-    if (user.twoFAActivated) {
-		const payload = {
-		  username: user.userName,
-		  code: dto.twoFACode,
-		}
-		return await this.twoFA.validate(payload);
-	  }
     const token = await this.signToken(user.id, user.email);
     res.cookie('jwt', token, '42accesToken', accessToken).redirect('/hello');
   }
@@ -88,12 +81,9 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-      const payload = {
-        username: user.userName,
-        code: dto.twoFACode,
-      }
-      return await this.twoFA.validate(payload);
-    }
+		return {redirect: '/2fa-verify'};
+	}
+
     delete user.password;
     return user;
   }  

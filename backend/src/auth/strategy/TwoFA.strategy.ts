@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common'
 import { PassportStrategy } from '@nestjs/passport';
 import { PrismaService } from 'nestjs-prisma';
 import { Strategy } from 'passport-strategy';
@@ -15,24 +15,29 @@ export class TwoFA extends PassportStrategy(Strategy, '2fa'){
         });
     }
 
-    async validate(payload: {username: string, code: string}): Promise<any>{
+    async validate(username: string, code: string): Promise<any>{
         const user = await this.prisma.user.findUnique ({
             where: {
-                userName: payload.username,
+                userName: username,
             },
         });
 
 		if (!user){
+			console.log('error: user not found');
 			throw new UnauthorizedException('User not found');
 		}
 
         const secret = user.twoFASecret;
-		console.log('secret: ', user.twoFASecret);
-        
-		const isValid = authenticator.verify({token: payload.code, secret})
+
+		if (!secret) {
+			console.log('no secret');
+            throw new BadRequestException('2FA not activated');
+		}
+       
+		const isValid = authenticator.verify({token: code, secret})
 
         if (!isValid) {
-			console.log('wrong totp');
+			console.log('invalid TOTP');
             throw new UnauthorizedException('Invalid TOTP code');
         }
 
