@@ -48,7 +48,7 @@ export class UserService {
       'PongStoryShort',
       secret,
     );
-	// redirect to page with otpautUrl + route '/2fa-verify'
+    // redirect to page with otpautUrl + route '/2fa-verify'
     return otpauthUrl;
   }
 }

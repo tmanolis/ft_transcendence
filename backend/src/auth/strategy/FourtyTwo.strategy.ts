@@ -19,8 +19,7 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
       tokenURL: config.get('TOKEN_URL'),
       clientID: config.get('CLIENT_ID'),
       clientSecret: config.get('CLIENT_SECRET'),
-
-      callbackURL: 'http://localhost:3000/auth/fourtytwo/callback',
+      callbackURL: config.get('CALLBACK_URL'),
       scope: ['public'],
     });
   }
@@ -55,19 +54,19 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     return cb(null, user, accessToken);
   }
 
-//   async fetchImage(url: string): Promise<string> {
-//     try {
-//       const response = await axios.get(url, {
-//         responseType: 'arraybuffer',
-//       });
-//       if (response.status === 200) {
-//         const imageBuffer = Buffer.from(response.data, 'binary');
-//         const returnString = imageBuffer.toString('base64');
-//         return returnString;
-//       }
-//     } catch (error) {
-//       throw new NotFoundException('Could not load profile picture.');
-//     }
-//     return null;
-//   }
+  //   async fetchImage(url: string): Promise<string> {
+  //     try {
+  //       const response = await axios.get(url, {
+  //         responseType: 'arraybuffer',
+  //       });
+  //       if (response.status === 200) {
+  //         const imageBuffer = Buffer.from(response.data, 'binary');
+  //         const returnString = imageBuffer.toString('base64');
+  //         return returnString;
+  //       }
+  //     } catch (error) {
+  //       throw new NotFoundException('Could not load profile picture.');
+  //     }
+  //     return null;
+  //   }
 }

@@ -4,9 +4,7 @@ import { UserService } from './user.service';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
 
 @Module({
-  imports: [
-    PrismaModule,
-  ],
+  imports: [PrismaModule],
   controllers: [UserController],
   providers: [UserService, PrismaService],
 })
