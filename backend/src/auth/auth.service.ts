@@ -39,7 +39,15 @@ export class AuthService {
       }
     }
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token, '42accesToken', accessToken).redirect('/hello');
+    res.cookie('jwt', token, '42accesToken', accessToken);
+
+	if (user.twoFAActivated) {
+		return {redirect: '/2fa-verify'};
+	}
+	else {
+		res.redirect('/hello');
+		return user;
+	}
   }
 
   async localSignup(res: any, dto: AuthDto) {
