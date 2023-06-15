@@ -1,10 +1,11 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
 import * as argon from 'argon2';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +30,7 @@ export class AuthService {
             id: dto.id,
             email: dto.email,
             userName: dto.userName,
-            avatar: dto.image,
+            avatar: await this.fetchImage(dto.image),
             isFourtyTwoStudent: true,
             password: dto.password,
           },
@@ -105,5 +106,21 @@ export class AuthService {
       expiresIn: '90m',
       secret: secret,
     });
+  }
+
+  async fetchImage(url: string): Promise<string> {
+    try {
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+      });
+      if (response.status === 200) {
+        const imageBuffer = Buffer.from(response.data, 'binary');
+        const returnString = imageBuffer.toString('base64');
+        return returnString;
+      }
+    } catch (error) {
+      throw new NotFoundException('Could not load profile picture.');
+    }
+    return null;
   }
 }

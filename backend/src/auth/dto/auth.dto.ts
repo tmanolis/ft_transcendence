@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
 
 export class AuthDto {
   id: string;
@@ -19,6 +19,8 @@ export class AuthDto {
   @ApiProperty({ description: 'password', example: '12345' })
   @IsNotEmpty()
   @IsString()
+  @MinLength(8)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {message: 'password too weak. Need at least one uppercase letter, one lowercase letter and one digit.'})
   password: string;
 
   @ApiProperty({ description: 'optional', example: '123456' })
