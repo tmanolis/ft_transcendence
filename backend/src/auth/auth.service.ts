@@ -1,10 +1,15 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { TwoFA } from './strategy';
 import * as argon from 'argon2';
+import axios from 'axios';
 
 @Injectable()
 export class AuthService {
@@ -12,9 +17,10 @@ export class AuthService {
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
+    private twoFA: TwoFA,
   ) {}
 
-  async fourtyTwoLogin(res: any, dto: AuthDto) {
+  async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
     let user = await this.prisma.user.findUnique({
       where: {
         id: dto.id,
@@ -28,41 +34,43 @@ export class AuthService {
             id: dto.id,
             email: dto.email,
             userName: dto.userName,
-            avatar: dto.image,
+            avatar: await this.fetchImage(dto.image),
             isFourtyTwoStudent: true,
-            hash: dto.hash,
+            password: dto.password,
           },
         });
       } catch (error) {
         throw error;
       }
-    } else {
-      user.hash = dto.hash;
     }
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token, '42accesToken', user.hash).redirect('/hello');
+    res.cookie('jwt', token, '42accesToken', accessToken);
+
+    if (user.twoFAActivated) {
+      return { redirect: '/2fa-verify' };
+    } else {
+      res.redirect('/hello');
+      return user;
+    }
   }
 
   async localSignup(res: any, dto: AuthDto) {
     let token: string;
     try {
-      const hash = await argon.hash(dto.hash);
+      const hash = await argon.hash(dto.password);
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
           userName: dto.userName,
-          hash,
+          password: hash,
         },
       });
       token = await this.signToken(user.id, user.email);
       res.cookie('jwt', token).redirect('/hello');
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-        }
+      if (error.code === 'P2002') {
+        throw new ForbiddenException('Credentials taken');
       }
-      throw error;
     }
     return token;
   }
@@ -76,11 +84,19 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException('User not found');
 
-    const passwordMatches = await argon.verify(user.hash, dto.hash);
+    if (user.isFourtyTwoStudent)
+      throw new ForbiddenException('Log in through OAuth only');
+
+    const passwordMatches = await argon.verify(user.password, dto.password);
 
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
-    return 'OK';
+    if (user.twoFAActivated) {
+      return { redirect: '/2fa-verify' };
+    }
+
+    delete user.password;
+    return user;
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -94,5 +110,21 @@ export class AuthService {
       expiresIn: '90m',
       secret: secret,
     });
+  }
+
+  async fetchImage(url: string): Promise<string> {
+    try {
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
+      });
+      if (response.status === 200) {
+        const imageBuffer = Buffer.from(response.data, 'binary');
+        const returnString = imageBuffer.toString('base64');
+        return returnString;
+      }
+    } catch (error) {
+      throw new NotFoundException('Could not load profile picture.');
+    }
+    return null;
   }
 }

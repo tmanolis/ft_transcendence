@@ -10,8 +10,8 @@ import { GameGateway } from './game/game.gateway';
 import { AuthService } from './auth/auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
-// import { JwtFromCookieMiddleware } from './auth/middleware';
 import { UserService } from './user/user.service';
+import { TwoFA } from './auth/strategy';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { UserService } from './user/user.service';
     AuthModule,
     JwtModule,
   ],
-  providers: [GameGateway, AuthService, UserService],
+  providers: [GameGateway, AuthService, UserService, TwoFA],
   controllers: [UserController],
 })
 export class AppModule {}

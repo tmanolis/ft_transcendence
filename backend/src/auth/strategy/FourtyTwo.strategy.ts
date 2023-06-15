@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-oauth2';
 // axios and rxjs are used for direct api request
@@ -7,7 +7,6 @@ import { lastValueFrom } from 'rxjs';
 // for env
 import { ConfigService } from '@nestjs/config';
 import { AuthDto } from '../dto';
-import * as argon from 'argon2';
 
 @Injectable()
 export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
@@ -43,9 +42,6 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     } catch (error) {
       throw error;
     }
-    console.log('user ID:', userData.id);
-
-    const hash = await argon.hash(accessToken);
 
     const user = new AuthDto();
 
@@ -53,8 +49,24 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
     user.userName = userData.login;
     user.email = userData.email;
     user.image = userData.image.link;
-    user.hash = hash;
+    user.password = '';
 
-    return cb(null, user);
+    return cb(null, user, accessToken);
   }
+
+  //   async fetchImage(url: string): Promise<string> {
+  //     try {
+  //       const response = await axios.get(url, {
+  //         responseType: 'arraybuffer',
+  //       });
+  //       if (response.status === 200) {
+  //         const imageBuffer = Buffer.from(response.data, 'binary');
+  //         const returnString = imageBuffer.toString('base64');
+  //         return returnString;
+  //       }
+  //     } catch (error) {
+  //       throw new NotFoundException('Could not load profile picture.');
+  //     }
+  //     return null;
+  //   }
 }
