@@ -7,6 +7,11 @@ export class UpdateDto {
   @IsOptional()
   userName: string;
 
+  @ApiProperty({ description: 'Old password (required when updating password)' })
+  @IsString()
+  @IsOptional()
+  oldPassword: string;
+
   @ApiProperty({ description: 'New password (optional)' })
   @IsString()
   @IsOptional()

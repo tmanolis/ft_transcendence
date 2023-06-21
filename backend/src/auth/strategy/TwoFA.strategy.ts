@@ -25,25 +25,21 @@ export class TwoFA extends PassportStrategy(Strategy, '2fa') {
     });
 
     if (!user) {
-      console.log('error: user not found');
       throw new UnauthorizedException('User not found');
     }
 
     const secret = user.twoFASecret;
 
     if (!secret) {
-      console.log('no secret');
       throw new BadRequestException('2FA not activated');
     }
 
     const isValid = authenticator.verify({ token: code, secret });
 
     if (!isValid) {
-      console.log('invalid TOTP');
       throw new UnauthorizedException('Invalid TOTP code');
     }
 
-    delete user.password;
     return user;
   }
 }

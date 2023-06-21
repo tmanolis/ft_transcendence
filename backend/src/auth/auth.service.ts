@@ -95,7 +95,6 @@ export class AuthService {
       return { redirect: '/2fa-verify' };
     }
 
-    delete user.password;
     return user;
   }
 
