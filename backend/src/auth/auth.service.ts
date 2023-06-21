@@ -147,8 +147,12 @@ export class AuthService {
     return null;
   }
 
-  addTokenToBlacklist(token: string){
-    console.log('token', token);
+  async addTokenToBlacklist(token: string): Promise<void>{
+    await this.prisma.jwtBlacklist.create({
+      data: {
+        token,
+      }
+    })
   }
 
   async updateAfterLogin(user: User, res: any) {

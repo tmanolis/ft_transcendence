@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PrismaService } from 'nestjs-prisma';
 import { Request } from 'express';
-import { UserService } from 'src/user/user.service';
 
 const ExtractJwtFromCookie = (req: Request) => {
   let token = null;
@@ -18,17 +17,45 @@ const ExtractJwtFromCookie = (req: Request) => {
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(config: ConfigService, private prisma: PrismaService) {
     super({
-      jwtFromRequest: ExtractJwt.fromExtractors([ExtractJwtFromCookie]),
+      jwtFromRequest: ExtractJwtFromCookie,
       secretOrKey: config.get('JWT_SECRET'),
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: { sub: string; email: string }) {
+  async validate(req: Request,
+    payload: { sub: string; email: string }
+    ) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: payload.sub,
       },
     });
+
+    if (!user || user.status === 'OFFLINE') {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    const token = ExtractJwtFromCookie(req);
+    if (token) {
+      const tokenBlacklisted = await this.isTokenBlacklisted(token);
+      if (tokenBlacklisted) {
+        throw new UnauthorizedException('Invalid token');
+      }
+    } else {
+      throw new UnauthorizedException('No token found');
+    }
+
     return user;
+  }
+
+  async isTokenBlacklisted(token: string) {
+    const blacklistedToken = await this.prisma.jwtBlacklist.findUnique ({
+      where: {
+        token,
+      },
+    });
+
+    return blacklistedToken;
   }
 }
