@@ -8,6 +8,7 @@ import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
+import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import axios from 'axios';
 
@@ -72,10 +73,9 @@ export class AuthService {
         throw new ForbiddenException('Credentials taken');
       }
     }
-    return token;
   }
 
-  async localLogin(dto: LoginDto) {
+  async localLogin(dto: LoginDto, res: any) {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -94,8 +94,28 @@ export class AuthService {
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
     }
+    await this.updateAfterLogin(user, res)
+  }
 
-    return user;
+  async handleLogout(user: User, res: any, req: any) {
+    await this.prisma.user.update ({
+      where: {
+        id: user.id,
+      },
+      data: {
+        status: 'OFFLINE',
+      }
+    })
+
+    const token = req.cookies.jwt;
+    if (token){
+      this.addTokenToBlacklist(token);
+    }
+
+    res.clearCookie('jwt');
+
+    // here we should redirect to login page
+    res.send('Logout OK');
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -125,5 +145,23 @@ export class AuthService {
       throw new NotFoundException('Could not load profile picture.');
     }
     return null;
+  }
+
+  addTokenToBlacklist(token: string){
+    console.log('token', token);
+  }
+
+  async updateAfterLogin(user: User, res: any) {
+    await this.prisma.user.update ({
+      where: {
+        id: user.id,
+      },
+      data: {
+        status: 'ONLINE',
+      }
+    })    
+  
+    const token = await this.signToken(user.id, user.email);
+    res.cookie('jwt', token).redirect('/hello');
   }
 }

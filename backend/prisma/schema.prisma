@@ -46,6 +46,11 @@ model User {
   loser   Game[]  @relation("loser")
 }
 
+model Blacklist {
+  id        Int       @id @default(autoincrement())
+  jwtToken  String[]
+}
+
 model Game {
   gameId      Int       @id @default(autoincrement())
   players     User[]    @relation("player")
