@@ -48,6 +48,7 @@ model User {
 
 model jwtBlacklist {
   id     Int       @id @default(autoincrement())
+  userID String	   @unique @default(uuid())
   token  String    @unique
 }
 

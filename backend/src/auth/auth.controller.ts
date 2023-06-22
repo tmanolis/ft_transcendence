@@ -72,22 +72,11 @@ export class AuthController {
     @Res() res: any,
     @GetUser() user: User,
   ) {
-    try {
-      const validatedUser = await this.twoFA.validate(
-        user.userName,
-        payload.code,
-      );
-      if (validatedUser) {
-        this.authService.updateAfterLogin(user, res);
-      }
-    } catch (error) {
-      const caughtError = error.message;
-      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-    }
+	await this.authService.twoFAVerify(user, res, payload);
   }
 
   @UseGuards(JwtGuard)
-  @Post('logout')
+  @Get('logout')
   @ApiOkResponse({ description: 'User is now offline.' })
   @ApiUnauthorizedResponse({ description: 'Logout failed.' })
   async logout(

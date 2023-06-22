@@ -44,15 +44,13 @@ export class AuthService {
         throw error;
       }
     }
-    const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token, '42accesToken', accessToken);
+    // const token = await this.signToken(user.id, user.email);
+    res.cookie('42accesToken', accessToken);
 
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
-    } else {
-      res.redirect('/hello');
-      return user;
     }
+	await this.updateAfterLogin(user, res);
   }
 
   async localSignup(res: any, dto: AuthDto) {
@@ -94,7 +92,7 @@ export class AuthService {
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
     }
-    await this.updateAfterLogin(user, res)
+    await this.updateAfterLogin(user, res);
   }
 
   async handleLogout(user: User, res: any, req: any) {
@@ -107,15 +105,31 @@ export class AuthService {
       }
     })
 
-    const token = req.cookies.jwt;
+	const token = req.cookies.jwt;
     if (token){
-      this.addTokenToBlacklist(token);
+      this.addToBlacklist(user.id, token);
     }
 
     res.clearCookie('jwt');
 
     // here we should redirect to login page
     res.send('Logout OK');
+  }
+
+  async twoFAVerify(user: User, res: any, payload: any) {
+	console.log('checking 2fa');
+	try {
+		const validatedUser = await this.twoFA.validate(
+		  user.userName,
+		  payload.code,
+		);
+		if (validatedUser) {
+		  this.updateAfterLogin(user, res);
+		}
+	  } catch (error) {
+		const caughtError = error.message;
+		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+	  }
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -147,12 +161,12 @@ export class AuthService {
     return null;
   }
 
-  async addTokenToBlacklist(token: string): Promise<void>{
-    await this.prisma.jwtBlacklist.create({
-      data: {
-        token,
-      }
-    })
+  async addToBlacklist(userID: string, token: string): Promise<void>{
+	await this.prisma.jwtBlacklist.upsert({
+		where: { userID },
+		update: { token },
+		create: { token, userID },
+	  });
   }
 
   async updateAfterLogin(user: User, res: any) {

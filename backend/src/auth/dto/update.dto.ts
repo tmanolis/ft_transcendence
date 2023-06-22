@@ -28,7 +28,7 @@ export class UpdateDto {
   })
   @IsString()
   @IsOptional()
-  avatar: any;
+  avatar: string;
 
   @ApiProperty({ description: 'Toggle for activation 2FA (optional)' })
   @IsOptional()
