@@ -53,20 +53,4 @@ export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {
 
     return cb(null, user, accessToken);
   }
-
-  //   async fetchImage(url: string): Promise<string> {
-  //     try {
-  //       const response = await axios.get(url, {
-  //         responseType: 'arraybuffer',
-  //       });
-  //       if (response.status === 200) {
-  //         const imageBuffer = Buffer.from(response.data, 'binary');
-  //         const returnString = imageBuffer.toString('base64');
-  //         return returnString;
-  //       }
-  //     } catch (error) {
-  //       throw new NotFoundException('Could not load profile picture.');
-  //     }
-  //     return null;
-  //   }
 }

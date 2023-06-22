@@ -20,6 +20,24 @@ services:
     volumes:
       - ./backend:/backend
       - /backend/node_modules
+  
+  # -------------------------------------------------------------------------------- #
+  # frontend service with nestjs                                                     #
+  # -------------------------------------------------------------------------------- #
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    env_file:
+      - .env
+    ports:
+      - 8000:8000
+    restart: always
+    networks:
+      - transcendence_net
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
 
   # -------------------------------------------------------------------------------- #
   # postgresql database                                                              #
