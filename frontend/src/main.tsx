@@ -8,7 +8,10 @@ import {
 import "./index.css";
 
 import RootRouter from "./Router/RootRouter"
+
 import Game from "./components/Game";
+
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 
@@ -19,7 +22,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element: <h1>This is an Index page</h1>,
+        element: <Landing />,
       },
       {
         path: "/game",

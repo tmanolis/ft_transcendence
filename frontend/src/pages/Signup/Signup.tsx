@@ -8,7 +8,7 @@ const Signup = () => {
     const password = event.target.password.value;
     alert(`username: ${userName}, email: ${email}, hash: ${password}`);
 
-    const formData = { userName: userName, email: email, hash: password };
+    const formData = { userName: userName, email: email, password: password };
 
     var formBody = [];
     for (var property in formData) {

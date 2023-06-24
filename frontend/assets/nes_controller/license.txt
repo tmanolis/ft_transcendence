@@ -1,0 +1,11 @@
+Model Information:
+* title:	NES Controller
+* source:	https://sketchfab.com/3d-models/nes-controller-cb799f21731a4aa48271dd72949fc9fe
+* author:	Fabián Torres (https://sketchfab.com/fabienstone)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "NES Controller" (https://sketchfab.com/3d-models/nes-controller-cb799f21731a4aa48271dd72949fc9fe) by Fabián Torres (https://sketchfab.com/fabienstone) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

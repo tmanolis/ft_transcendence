@@ -1,0 +1,888 @@
+{
+  "accessors": [
+    {
+      "bufferView": 2,
+      "componentType": 5126,
+      "count": 392,
+      "max": [
+        0.6595457792282104,
+        0.28494173288345337,
+        0.0839092880487442
+      ],
+      "min": [
+        -0.6596232652664185,
+        -0.28623634576797485,
+        -0.08083748817443848
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 4704,
+      "componentType": 5126,
+      "count": 392,
+      "max": [
+        0.9999940991401672,
+        0.9999989867210388,
+        1.0
+      ],
+      "min": [
+        -0.999994158744812,
+        -0.999998927116394,
+        -1.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "componentType": 5126,
+      "count": 392,
+      "max": [
+        1.0,
+        0.999994158744812,
+        0.9992635846138,
+        1.0
+      ],
+      "min": [
+        -1.0,
+        -0.999994158744812,
+        -0.9992634654045105,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "componentType": 5126,
+      "count": 392,
+      "max": [
+        0.9937775731086731,
+        0.9886704087257385
+      ],
+      "min": [
+        0.19916148483753204,
+        0.005793680436909199
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "componentType": 5125,
+      "count": 1308,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 9408,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.05821526050567627,
+        0.05821526050567627,
+        0.010016560554504395
+      ],
+      "min": [
+        -0.05821526050567627,
+        -0.05821523070335388,
+        -0.013308897614479065
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 11328,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.9999465346336365,
+        0.9999465942382813,
+        0.9976527094841003
+      ],
+      "min": [
+        -0.9999465346336365,
+        -0.9999464750289917,
+        0.010343508794903755
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 6272,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.11476955562829971,
+        0.8178703784942627,
+        0.999435544013977,
+        1.0
+      ],
+      "min": [
+        -0.8895934224128723,
+        -0.15228405594825745,
+        -0.9987141489982605,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 3136,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.10299520194530487,
+        0.3655931055545807
+      ],
+      "min": [
+        0.020431682467460632,
+        0.2830166816711426
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 5232,
+      "componentType": 5125,
+      "count": 858,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 13248,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.05821526050567627,
+        0.058215245604515076,
+        0.010016560554504395
+      ],
+      "min": [
+        -0.05821523070335388,
+        -0.058215245604515076,
+        -0.013308897614479065
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 15168,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.9999465346336365,
+        0.9999465942382813,
+        0.9976527094841003
+      ],
+      "min": [
+        -0.9999465942382813,
+        -0.9999465346336365,
+        0.01034324150532484
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 8832,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.22422635555267334,
+        0.9379811882972717,
+        0.9999303221702576,
+        1.0
+      ],
+      "min": [
+        -0.7250382900238037,
+        -0.04956923797726631,
+        -0.999376118183136,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 4416,
+      "componentType": 5126,
+      "count": 160,
+      "max": [
+        0.1019047200679779,
+        0.47192493081092834
+      ],
+      "min": [
+        0.019924014806747437,
+        0.38900986313819885
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 8664,
+      "componentType": 5125,
+      "count": 858,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 17088,
+      "componentType": 5126,
+      "count": 168,
+      "max": [
+        0.11922487616539001,
+        0.11922594159841537,
+        0.010361820459365845
+      ],
+      "min": [
+        -0.11922585964202881,
+        -0.11923208832740784,
+        -0.012853771448135376
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 19104,
+      "componentType": 5126,
+      "count": 168,
+      "max": [
+        0.9915148019790649,
+        0.9915725588798523,
+        1.0
+      ],
+      "min": [
+        -0.9914857745170593,
+        -0.9914392828941345,
+        -0.0006307087605819106
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 11392,
+      "componentType": 5126,
+      "count": 168,
+      "max": [
+        0.13009127974510193,
+        0.9710791707038879,
+        0.999992847442627,
+        1.0
+      ],
+      "min": [
+        -0.973072350025177,
+        -0.14783541858196259,
+        -0.9999923706054688,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 5696,
+      "componentType": 5126,
+      "count": 168,
+      "max": [
+        0.18472927808761597,
+        0.18712657690048218
+      ],
+      "min": [
+        0.00931137427687645,
+        0.012443281710147858
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 12096,
+      "componentType": 5125,
+      "count": 858,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 21120,
+      "componentType": 5126,
+      "count": 260,
+      "max": [
+        0.14158974587917328,
+        0.02482500672340393,
+        0.01032114028930664
+      ],
+      "min": [
+        -0.14158973097801208,
+        -0.02482503652572632,
+        -0.015606656670570374
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 24240,
+      "componentType": 5126,
+      "count": 260,
+      "max": [
+        1.0,
+        0.997859001159668,
+        0.9792831540107727
+      ],
+      "min": [
+        -1.0,
+        -0.997859001159668,
+        0.0
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 14080,
+      "componentType": 5126,
+      "count": 260,
+      "max": [
+        0.6644862294197083,
+        0.9998610019683838,
+        0.9849801063537598,
+        1.0
+      ],
+      "min": [
+        -0.5608907341957092,
+        0.01129300519824028,
+        -0.984756588935852,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 7040,
+      "componentType": 5126,
+      "count": 260,
+      "max": [
+        0.18401935696601868,
+        0.4802195727825165
+      ],
+      "min": [
+        0.1245364397764206,
+        0.269953191280365
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 15528,
+      "componentType": 5125,
+      "count": 1392,
+      "type": "SCALAR"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 27360,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.02675969898700714,
+        0.3979698419570923,
+        0.0842835083603859
+      ],
+      "min": [
+        -0.02675953507423401,
+        -0.36830979585647583,
+        -0.057238683104515076
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 28608,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.9999990463256836,
+        0.23272311687469482,
+        0.9999769926071167
+      ],
+      "min": [
+        -0.9999996423721313,
+        -0.23523220419883728,
+        -0.9999752640724182
+      ],
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 18240,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.9999852776527405,
+        0.1552051156759262,
+        0.9999611377716064,
+        1.0
+      ],
+      "min": [
+        -0.9999858140945435,
+        -0.15521542727947235,
+        -0.9999957084655762,
+        1.0
+      ],
+      "type": "VEC4"
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 9120,
+      "componentType": 5126,
+      "count": 104,
+      "max": [
+        0.11707165092229843,
+        0.9861834049224854
+      ],
+      "min": [
+        0.013341493904590607,
+        0.5026019811630249
+      ],
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 0,
+      "byteOffset": 21096,
+      "componentType": 5125,
+      "count": 504,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "extras": {
+      "author": "Fabián Torres (https://sketchfab.com/fabienstone)",
+      "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+      "source": "https://sketchfab.com/3d-models/nes-controller-cb799f21731a4aa48271dd72949fc9fe",
+      "title": "NES Controller"
+    },
+    "generator": "Sketchfab-14.10.0",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteLength": 23112,
+      "name": "floatBufferViews",
+      "target": 34963
+    },
+    {
+      "buffer": 0,
+      "byteLength": 9952,
+      "byteOffset": 23112,
+      "byteStride": 8,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 29856,
+      "byteOffset": 33064,
+      "byteStride": 12,
+      "name": "floatBufferViews",
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteLength": 19904,
+      "byteOffset": 62920,
+      "byteStride": 16,
+      "name": "floatBufferViews",
+      "target": 34962
+    }
+  ],
+  "buffers": [
+    {
+      "byteLength": 82824,
+      "uri": "scene.bin"
+    }
+  ],
+  "images": [
+    {
+      "uri": "textures/backup_nes-controller_baseColor.png"
+    },
+    {
+      "uri": "textures/backup_nes-controller_metallicRoughness.png"
+    },
+    {
+      "uri": "textures/backup_nes-controller_normal.png"
+    }
+  ],
+  "materials": [
+    {
+      "alphaMode": "BLEND",
+      "doubleSided": true,
+      "name": "backup_nes-controller",
+      "normalTexture": {
+        "index": 2
+      },
+      "occlusionTexture": {
+        "index": 1
+      },
+      "pbrMetallicRoughness": {
+        "baseColorTexture": {
+          "index": 0
+        },
+        "metallicRoughnessTexture": {
+          "index": 1
+        }
+      }
+    }
+  ],
+  "meshes": [
+    {
+      "name": "controller_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 1,
+            "POSITION": 0,
+            "TANGENT": 2,
+            "TEXCOORD_0": 3
+          },
+          "indices": 4,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "button-b_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 6,
+            "POSITION": 5,
+            "TANGENT": 7,
+            "TEXCOORD_0": 8
+          },
+          "indices": 9,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "button-a_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 11,
+            "POSITION": 10,
+            "TANGENT": 12,
+            "TEXCOORD_0": 13
+          },
+          "indices": 14,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "button-cross_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 16,
+            "POSITION": 15,
+            "TANGENT": 17,
+            "TEXCOORD_0": 18
+          },
+          "indices": 19,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "buttons-select-start_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 21,
+            "POSITION": 20,
+            "TANGENT": 22,
+            "TEXCOORD_0": 23
+          },
+          "indices": 24,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    },
+    {
+      "name": "cable_low_backup_nes-controller_0",
+      "primitives": [
+        {
+          "attributes": {
+            "NORMAL": 26,
+            "POSITION": 25,
+            "TANGENT": 27,
+            "TEXCOORD_0": 28
+          },
+          "indices": 29,
+          "material": 0,
+          "mode": 4
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "children": [
+        1
+      ],
+      "matrix": [
+        1.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.220446049250313e-16,
+        -1.0,
+        0.0,
+        0.0,
+        1.0,
+        2.220446049250313e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "Sketchfab_model"
+    },
+    {
+      "children": [
+        2
+      ],
+      "matrix": [
+        0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.009999999776482582,
+        0.0,
+        0.0,
+        -0.009999999776482582,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "name": "nes-controller_low-30.fbx"
+    },
+    {
+      "children": [
+        3,
+        5,
+        7,
+        9,
+        11,
+        13
+      ],
+      "name": "RootNode"
+    },
+    {
+      "children": [
+        4
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        11.658012390136719,
+        3.6746270656585693,
+        6.03153133392334,
+        1.0
+      ],
+      "name": "controller_low"
+    },
+    {
+      "mesh": 0,
+      "name": "controller_low_backup_nes-controller_0"
+    },
+    {
+      "children": [
+        6
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        38.69171905517578,
+        5.785290718078613,
+        20.876005172729492,
+        1.0
+      ],
+      "name": "button-b_low"
+    },
+    {
+      "mesh": 1,
+      "name": "button-b_low_backup_nes-controller_0"
+    },
+    {
+      "children": [
+        8
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        55.77895736694336,
+        5.785290718078613,
+        20.876005172729492,
+        1.0
+      ],
+      "name": "button-a_low"
+    },
+    {
+      "mesh": 2,
+      "name": "button-a_low_backup_nes-controller_0"
+    },
+    {
+      "children": [
+        10
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        -30.792404174804688,
+        8.773470878601074,
+        15.140408515930176,
+        1.0
+      ],
+      "name": "button-cross_low"
+    },
+    {
+      "mesh": 3,
+      "name": "button-cross_low_backup_nes-controller_0"
+    },
+    {
+      "children": [
+        12
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        7.187017917633057,
+        5.68795108795166,
+        20.900976181030273,
+        1.0
+      ],
+      "name": "buttons-select-start_low"
+    },
+    {
+      "mesh": 4,
+      "name": "buttons-select-start_low_backup_nes-controller_0"
+    },
+    {
+      "children": [
+        14
+      ],
+      "matrix": [
+        100.0,
+        1.1102230246251562e-14,
+        2.9748336429330412e-15,
+        0.0,
+        -2.9748332927838835e-15,
+        49.99999747632171,
+        -86.60254183549014,
+        0.0,
+        -1.1102230340073742e-14,
+        86.60254183549014,
+        49.99999747632171,
+        0.0,
+        -17.005802154541016,
+        30.326274871826172,
+        -51.36000061035156,
+        1.0
+      ],
+      "name": "cable_low"
+    },
+    {
+      "mesh": 5,
+      "name": "cable_low_backup_nes-controller_0"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9729,
+      "minFilter": 9987,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Sketchfab_Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    },
+    {
+      "sampler": 0,
+      "source": 2
+    }
+  ]
+}

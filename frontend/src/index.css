@@ -16,7 +16,7 @@
 
 a {
   font-weight: 500;
-  color: #646cff;
+  color: #cdcdcd;
   text-decoration: inherit;
 }
 a:hover {
@@ -85,6 +85,8 @@ footer a
 .mainDiv {
   position:fixed;
   top: 50px;
+  width: 100vw;
+  height: 80vh;
 }
 
 @media (prefers-color-scheme: light) {
