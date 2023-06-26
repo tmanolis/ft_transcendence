@@ -11,18 +11,28 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async updateUser(user: User, dto: UpdateDto): Promise<string> {
-    if (dto.password) {
+    const { password, oldPassword, ...otherFields } = dto;
+
+    if (password) {
       if (user.isFourtyTwoStudent)
         throw new ForbiddenException("Can't change 42 password");
+
+      if (oldPassword === undefined)
+        throw new ForbiddenException("Old password is required");
+
+      const passwordMatches = await argon.verify(user.password, oldPassword);
+      if (!passwordMatches)
+        throw new ForbiddenException("Old password is incorrect");
+
       const hash = await argon.hash(dto.password);
-      dto.password = hash;
+      this.updatePassword(user, hash);
     }
 
     await this.prisma.user.update({
       where: {
         id: user.id,
       },
-      data: dto,
+      data: otherFields,
     });
     if (dto.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
@@ -31,6 +41,17 @@ export class UserService {
       user.twoFASecret = null;
     }
     return 'OK';
+  }
+
+  async updatePassword(user: User, hashNewPassword: string){
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        password: hashNewPassword,
+      }
+    });
   }
 
   private async generate2FASecret(user: User): Promise<string> {

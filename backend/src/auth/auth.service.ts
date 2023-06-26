@@ -8,6 +8,7 @@ import { AuthDto, LoginDto } from './dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
+import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import axios from 'axios';
 
@@ -43,15 +44,13 @@ export class AuthService {
         throw error;
       }
     }
-    const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token, '42accesToken', accessToken);
+    // const token = await this.signToken(user.id, user.email);
+    res.cookie('42accesToken', accessToken);
 
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
-    } else {
-      res.redirect('/hello');
-      return user;
     }
+	await this.updateAfterLogin(user, res);
   }
 
   async localSignup(res: any, dto: AuthDto) {
@@ -72,10 +71,9 @@ export class AuthService {
         throw new ForbiddenException('Credentials taken');
       }
     }
-    return token;
   }
 
-  async localLogin(dto: LoginDto) {
+  async localLogin(dto: LoginDto, res: any) {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -94,9 +92,44 @@ export class AuthService {
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
     }
+    await this.updateAfterLogin(user, res);
+  }
 
-    delete user.password;
-    return user;
+  async handleLogout(user: User, res: any, req: any) {
+    await this.prisma.user.update ({
+      where: {
+        id: user.id,
+      },
+      data: {
+        status: 'OFFLINE',
+      }
+    })
+
+	const token = req.cookies.jwt;
+    if (token){
+      this.addToBlacklist(user.id, token);
+    }
+
+    res.clearCookie('jwt');
+
+    // here we should redirect to login page
+    res.send('Logout OK');
+  }
+
+  async twoFAVerify(user: User, res: any, payload: any) {
+	console.log('checking 2fa');
+	try {
+		const validatedUser = await this.twoFA.validate(
+		  user.userName,
+		  payload.code,
+		);
+		if (validatedUser) {
+		  this.updateAfterLogin(user, res);
+		}
+	  } catch (error) {
+		const caughtError = error.message;
+		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+	  }
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -126,5 +159,27 @@ export class AuthService {
       throw new NotFoundException('Could not load profile picture.');
     }
     return null;
+  }
+
+  async addToBlacklist(userID: string, token: string): Promise<void>{
+	await this.prisma.jwtBlacklist.upsert({
+		where: { userID },
+		update: { token },
+		create: { token, userID },
+	  });
+  }
+
+  async updateAfterLogin(user: User, res: any) {
+    await this.prisma.user.update ({
+      where: {
+        id: user.id,
+      },
+      data: {
+        status: 'ONLINE',
+      }
+    })    
+  
+    const token = await this.signToken(user.id, user.email);
+    res.cookie('jwt', token).redirect('/hello');
   }
 }

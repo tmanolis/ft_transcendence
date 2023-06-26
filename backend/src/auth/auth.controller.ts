@@ -59,8 +59,8 @@ export class AuthController {
   @Post('local/login')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
-  signin(@Body() dto: LoginDto) {
-    return this.authService.localLogin(dto);
+  signin(@Body() dto: LoginDto, @Res() res: any) {
+    return this.authService.localLogin(dto, res);
   }
 
   @UseGuards(JwtGuard)
@@ -72,19 +72,17 @@ export class AuthController {
     @Res() res: any,
     @GetUser() user: User,
   ) {
-    try {
-      // ultimately here we should recuperate the returned user and
-      // redirect to the home page:
-      const validatedUser = await this.twoFA.validate(
-        user.userName,
-        payload.code,
-      );
-      if (validatedUser) {
-        res.redirect('/hello');
-      }
-    } catch (error) {
-      const caughtError = error.message;
-      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-    }
+	await this.authService.twoFAVerify(user, res, payload);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('logout')
+  @ApiOkResponse({ description: 'User is now offline.' })
+  @ApiUnauthorizedResponse({ description: 'Logout failed.' })
+  async logout(
+    @Req() req: any,
+    @Res() res: any,
+    @GetUser() user: User): Promise<void> {
+    await this.authService.handleLogout(user, res, req);
   }
 }
