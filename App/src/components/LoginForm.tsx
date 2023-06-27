@@ -8,7 +8,7 @@ export default function LoginForm() {
 		<StyledForm>
 			<h1>Connect</h1>
 			<Button>Sign up with 42</Button>
-			<p>―――――&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;OR&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;――――― </p>
+			<p>―――――&nbsp;&nbsp;OR&nbsp;&nbsp;――――― </p>
 			<Input placeholder="email"/>
 			<Input placeholder="password"/>
 			<Link>Don't have an account? Sign up here.&nbsp;&nbsp;</Link>
