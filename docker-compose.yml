@@ -21,22 +21,40 @@ services:
       - ./backend:/backend
       - /backend/node_modules
   
+  # # -------------------------------------------------------------------------------- #
+  # # frontend service with create-react-app                                           #
+  # # -------------------------------------------------------------------------------- #
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   container_name: frontend
+  #   env_file:
+  #     - .env
+  #   ports:
+  #     - 8000:8000
+  #   restart: always
+  #   networks:
+  #     - transcendence_net
+  #   volumes:
+  #     - ./frontend:/frontend
+  #     - /frontend/node_modules
+
   # -------------------------------------------------------------------------------- #
-  # frontend service with nestjs                                                     #
+  # frontend service with Vite-React                                                 #
   # -------------------------------------------------------------------------------- #
-  frontend:
+  app:
     build:
-      context: ./frontend
-    container_name: frontend
+      context: ./App
+    container_name: app
     env_file:
       - .env
     ports:
-      - 8000:8000
+      - 8080:8080
     restart: always
     networks:
       - transcendence_net
     volumes:
-      - ./frontend:/frontend
+      - ./App:/App
       - /frontend/node_modules
 
   # -------------------------------------------------------------------------------- #
