@@ -1,7 +1,13 @@
 import styled from 'styled-components';
 import React from 'react';
 
-const StyledLink = styled.button<{}>`
+export type LinkProps = {
+	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	children?: React.ReactNode;
+	disabled?: boolean;
+}
+
+const StyledLink = styled.button`
 	background: none;
 	color: #766e6e;
 	align-items: right;
@@ -10,10 +16,14 @@ const StyledLink = styled.button<{}>`
 	width: 100%;
 	border: none;
 	text-align: right;
+
+	&:hover {
+		background: black;
+	}
 `;
 
-const Link: React.FunctionComponent<{}> = (props) => {
-  return <StyledLink {...props} />;
+const Link: React.FC<LinkProps> = ({children}) => {
+  return <StyledLink>{children}</StyledLink>;
 };
 
 export default Link;

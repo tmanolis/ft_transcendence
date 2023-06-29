@@ -1,5 +1,11 @@
 import styled from 'styled-components';
-import React from 'react';
+import React, { ReactNode } from 'react';
+
+export type ButtonProps = {
+	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	children?: React.ReactNode;
+	disabled?: boolean;
+}
 
 const StyledButton = styled.button<{}>`
 	border: none;
@@ -12,8 +18,8 @@ const StyledButton = styled.button<{}>`
 	margin: 1.5rem auto;
 `;
 
-const Button: React.FunctionComponent<{}> = (props) => {
-  return <StyledButton {...props} />;
+const Button: React.FC<ButtonProps> = ({children}) => {
+  return <StyledButton>{children}</StyledButton>;
 };
 
 export default Button;
