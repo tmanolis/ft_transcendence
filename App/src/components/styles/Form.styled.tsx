@@ -17,9 +17,20 @@ export const StyledForm = styled.div`
 	color: black;
 	border: none;
 `
+const FormContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  height: 100vh;
+`;
 
 const Form: React.FC<FormProps> = ({children}) => {
-	return <StyledForm>{children}</StyledForm>;
+	return (
+		<FormContainer>
+			<StyledForm>{children}</StyledForm>;
+		</FormContainer>
+	)
 }
 
 export default Form;

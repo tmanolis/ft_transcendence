@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import React, { ReactNode } from 'react';
+import React from 'react';
 
 export type ButtonProps = {
 	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
