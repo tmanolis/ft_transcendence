@@ -1,18 +1,24 @@
-import Button from "./styles/Button.styled"
-import Form from "./styles/Form.styled"
-import Input from "./styles/Input.styled"
-import Link from "./styles/Link.styled"
+import Button from "./styles/Button.styled";
+import Form from "./styles/Form.styled";
+import Input from "./styles/Input.styled";
+import LinkButton from "./styles/LinkButton.styled";
 
-export default function LoginForm() {
+export type LoginFormProps = {
+	onLinkClick: () => void;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 	return (
 		<Form>
 			<h1>Connect</h1>
 			<Button>Sign up with 42</Button>
-			<p>―――――&nbsp;&nbsp;OR&nbsp;&nbsp;――――― </p>
+			<p>――――― OR ――――― </p>
 			<Input placeholder="email"/>
 			<Input placeholder="password"/>
-			<Link>Don't have an account? Sign up here.&nbsp;&nbsp;</Link>
+			<LinkButton onClick={onLinkClick}>Don't have an account? Sign up here.</LinkButton>
 			<Button>Log In</Button>
 		</Form>
 	)
 }
+
+export default LoginForm;

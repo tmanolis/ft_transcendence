@@ -1,13 +1,38 @@
+import React, { useState } from "react";
 import LoginForm from "../components/LoginForm";
-import AuthContainer from "../components/AuthContainer";
+import RegisterForm from "../components/RegisterForm"
+import styled from "styled-components";
+import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
 
-// const [currentForm, setCurrentForm] = useState<'login' | 'register'> ('login');
+type PageContainerProps = {
+	children?: React.ReactNode;
+}
+
+const PageContainer = styled.div<PageContainerProps>`
+  @font-face {
+		font-family: 'JetBrains Mono';
+    src: url(${JBRegular}) format('woff2');
+    font-weight: normal;
+    font-style: normal;
+  }	
+`
 
 const Authentification = () => {
+	const [switchRegister, setSwitchRegister] = useState(false);
+
+	const handleClick = () => {
+		console.log('link clicked');
+		setSwitchRegister(true);
+	}
+
 	return (
-        <AuthContainer>
-            <LoginForm />
-        </AuthContainer>
+		<PageContainer>
+			{switchRegister ? (
+				<RegisterForm /> 
+			) :(
+				<LoginForm onLinkClick={handleClick} />
+			)}
+		</PageContainer>
 	)
 }
 

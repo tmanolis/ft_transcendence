@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 export type LinkProps = {
-	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	onClick?: () => void;
 	children?: React.ReactNode;
 	disabled?: boolean;
 }
@@ -18,12 +18,18 @@ const StyledLink = styled.button`
 	text-align: right;
 
 	&:hover {
-		background: black;
+		text-decoration: underline;
 	}
 `;
 
-const Link: React.FC<LinkProps> = ({children}) => {
-  return <StyledLink>{children}</StyledLink>;
+const LinkButton: React.FC<LinkProps> = ({ onClick, children }) => {
+	const handleClick = () => {
+		if (onClick){
+			onClick();
+		}
+	}
+
+  return <StyledLink onClick={handleClick}>{children}</StyledLink>;
 };
 
-export default Link;
+export default LinkButton;
