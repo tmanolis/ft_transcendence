@@ -20,33 +20,31 @@ const StyledPopUp = styled.div`
 
 	display: flex;
 	flex-direction: column;
+	
+	font-family: 'JetBrains Mono';
+	font-style: normal;
+	font-weight: 500;
+	letter-spacing: 0.02em;
 
 	p {
-		font-family: 'JetBrains Mono';
-		font-style: normal;
-		font-weight: 500;
-		font-size: 12px;
 		line-height: 19px;
 		margin: 16px 16px 0;
 		display: flex;
 		align-items: center;
 		letter-spacing: 0.02em;
 		display: block;
-		color: #000000;
+		color: black;
+		font-size: 12px;
 	}
 
 	ul {
-		font-family: 'JetBrains Mono';
-		font-style: normal;
-		font-weight: 500;
-		font-size: 12px;
 		line-height: 160%;
 		margin: 4px 0px 0;
 		display: flex;
 		align-items: center;
-		letter-spacing: 0.02em;
 		display: block;
-		color: #000000;
+		color: black;
+		font-size: 12px;
 	}
 `
 const PopUp: React.FC<PopUpProps> = ({children}) => {

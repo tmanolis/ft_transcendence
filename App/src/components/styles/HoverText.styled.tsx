@@ -6,10 +6,9 @@ export type TextProps = {
 	children?: React.ReactNode;
 }
 
-const StyledHoverText = styled.p`
+const StyledHoverText = styled.div`
 	width: 360px;
-	height: 5px;
-	display: flex;
+	height: 12px;
 	align-items: center;
 
 	font-family: 'JetBrains Mono';
@@ -19,7 +18,10 @@ const StyledHoverText = styled.p`
 	line-height: 13px;
 	display: flex;
 
-	color: #929292;
+	p {
+		font-size: 10px;
+		color: #929292;
+	}
 `;
 
 const HoverText: React.FC<TextProps> = ({ children }) => {

@@ -11,7 +11,6 @@ export const StyledForm = styled.div`
 	flex-direction: column;
 	align-items: center;
 	width: 398px;
-	height: 521px;
 	border-radius: 8px;
 	background-color: rgba(255, 255, 255, 0.8);
 	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
@@ -27,7 +26,8 @@ export const StyledForm = styled.div`
 	};
 
 	p {
-		font-family: 'JetBrains Mono';
+		font-family: 'JetBrains Mono', monospace;
+		color: #000000;
 		font-style: normal;
 		font-weight: 400;
 		font-size: 16px;

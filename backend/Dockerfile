@@ -6,8 +6,6 @@ COPY package*.json ./
 # copy the entire prisma directory including migrations
 COPY prisma ./prisma/
 
-RUN apt update && apt install -y vim
-
 # use ci insted of install
 RUN npm ci --verbose
 
