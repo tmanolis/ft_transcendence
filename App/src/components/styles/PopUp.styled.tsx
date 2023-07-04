@@ -24,6 +24,7 @@ const StyledPopUp = styled.div`
 	font-family: 'JetBrains Mono';
 	font-style: normal;
 	font-weight: 500;
+	color: black;
 	letter-spacing: 0.02em;
 
 	p {

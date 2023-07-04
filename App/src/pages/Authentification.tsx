@@ -20,7 +20,7 @@ const PageContainer = styled.div<PageContainerProps>`
 const Authentification = () => {
 	const [switchRegister, setSwitchRegister] = useState(false);
 
-	const handleClick = () => {
+	const handleLink = () => {
 		console.log('link clicked');
 		setSwitchRegister(true);
 	}
@@ -30,7 +30,7 @@ const Authentification = () => {
 			{switchRegister ? (
 				<RegisterForm /> 
 			) :(
-				<LoginForm onLinkClick={handleClick} />
+				<LoginForm onLinkClick={handleLink} />
 			)}
 		</PageContainer>
 	)

@@ -3,9 +3,10 @@ import PSSBackground from "../../assets/PSSbackground.png"
 
 export type FormProps = {
 	children?: React.ReactNode;
+	onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }
 
-export const StyledForm = styled.div`
+export const StyledForm = styled.form`
 	display: flex;
 	place-items: center;
 	flex-direction: column;
@@ -46,10 +47,10 @@ const FormContainer = styled.div`
 `;
 
 
-const Form: React.FC<FormProps> = ({children}) => {
+const Form: React.FC<FormProps> = ({ onSubmit, children }) => {
 	return (
 		<FormContainer>
-			<StyledForm>{children}</StyledForm>;
+			<StyledForm onSubmit={onSubmit}>{children}</StyledForm>;
 		</FormContainer>
 	)
 }

@@ -17,11 +17,8 @@ const StyledHoverText = styled.div`
 	font-size: 10px;
 	line-height: 13px;
 	display: flex;
-
-	p {
-		font-size: 10px;
-		color: #929292;
-	}
+	font-size: 10px;
+	color: #929292;
 `;
 
 const HoverText: React.FC<TextProps> = ({ children }) => {

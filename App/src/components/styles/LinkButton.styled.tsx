@@ -16,6 +16,10 @@ const StyledLink = styled.button`
 	border: none;
 	text-align: right;
 
+	span {
+		margin-right: 10px;
+	}
+
 	&:hover {
 		text-decoration: underline;
 	}
@@ -28,7 +32,7 @@ const LinkButton: React.FC<LinkProps> = ({ onClick, children }) => {
 		}
 	}
 
-  return <StyledLink onClick={handleClick}>{children}</StyledLink>;
+  return <StyledLink onClick={handleClick}><span>{children}</span></StyledLink>;
 };
 
 export default LinkButton;
