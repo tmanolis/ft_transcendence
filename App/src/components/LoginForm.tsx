@@ -3,6 +3,7 @@ import Button from "./styles/Button.styled";
 import Form from "./styles/Form.styled";
 import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
+import axios, { AxiosError } from "axios";
 
 export type LoginFormProps = {
 	onLinkClick: () => void;
@@ -11,28 +12,66 @@ export type LoginFormProps = {
 const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 	const [email, setEmail] = useState('');
 	const [pass, setPass] = useState('');
+	const [loginError, setLoginError] = useState('');
 
-	const handleSubmit= (e: React.FormEvent, fourtytwo: boolean) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		if (fourtytwo){
-			console.log('42', email, pass);
-			// @GET /auth/fourtytwo/login
+
+		const loginDTO = {
+			email: email,
+			password: pass,
 		}
-		else{
-			console.log('local', email, pass);
-			// @POST /auth/local/login
+
+		try {
+			const response = await axios.post(
+				'http://localhost:3000/auth/local/login',
+				loginDTO
+			);
+			console.log('response other', response);
+			// Logging response for now, should redirect when React routing is implemented
+		} catch (error) {
+			handleLoginError(error as AxiosError);
+		}
+	}
+
+	const handleLoginError = (error: AxiosError) => {
+		if (error.response) {
+			const status = error.response.status;
+			if (status === 400) {
+				setLoginError("Invalid email or password format");
+			} else if (status === 403) {
+				setLoginError("User not found");
+			} else {
+				setLoginError("Login failed");
+			}
+		} else {
+			setLoginError("Network error occured");
+		}
+	}
+
+	const handleFourtyTwo = async (e: React.MouseEvent<HTMLButtonElement>) => {
+		e.preventDefault();
+		
+		// 42 login callback URI is not working - should fix that before finishing this method
+		try {
+			const response = await axios.get(
+				'http://localhost:3000/auth/fourtytwo/login'
+			);
+			console.log('response 42', response)
+		} catch (error) {
+			console.log('error 42', error);
 		}
 	}
 
 	return (
-		<Form>
+		<Form onSubmit={handleSubmit} loginError={loginError}>
 			<h1>Connect</h1>
-			<Button onClick={(e) => handleSubmit(e, true)}>Sign up with 42</Button>
+			<Button type="button" onClick={handleFourtyTwo}>Sign up with 42</Button>
 			<p>――――― OR ――――― </p>
 			<Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email"/>
-			<Input value={pass} onChange={(e) => setPass(e.target.value)} placeholder="password"/>
+			<Input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="password"/>
 			<LinkButton onClick={onLinkClick}>Don't have an account? Sign up here.</LinkButton>
-			<Button onClick={(e) => handleSubmit(e, false)}>Log In</Button>
+			<Button type="submit">Log In</Button>
 		</Form>
 	)
 }

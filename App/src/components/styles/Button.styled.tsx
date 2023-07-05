@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 
 export type ButtonProps = {
-	onClick?: (e: React.FormEvent) => void;
+	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 	children?: React.ReactNode;
 	disabled?: boolean;
 	type?: "button" | "submit" | "reset" | undefined;

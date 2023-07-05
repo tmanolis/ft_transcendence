@@ -17,7 +17,7 @@ const StyledLink = styled.button`
 	text-align: right;
 
 	span {
-		margin-right: 10px;
+		margin-right: 11px;
 	}
 
 	&:hover {

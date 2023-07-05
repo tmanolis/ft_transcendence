@@ -13,5 +13,5 @@ COPY . .
 # build the app
 RUN npm run build
 
-# Start the server using the production build
+# Starting frontend with vite
 CMD npm run dev

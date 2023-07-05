@@ -4,6 +4,7 @@ import PSSBackground from "../../assets/PSSbackground.png"
 export type FormProps = {
 	children?: React.ReactNode;
 	onSubmit?: React.FormEventHandler<HTMLFormElement>;
+	loginError?: string;
 }
 
 export const StyledForm = styled.form`
@@ -46,11 +47,28 @@ const FormContainer = styled.div`
   background-position: center;
 `;
 
+const ErrorMessage = styled.div`
+	&& {
+		color: red;
+		font-size: 12px;
+		text-align: left;
+		align-items: left;
+		font-family: 'JetBrains Mono', monospace;
+		font-style: normal;
+		font-weight: 400;
+		padding: 10px;
+		width: 360px;
+	};
+`;
 
-const Form: React.FC<FormProps> = ({ onSubmit, children }) => {
+
+const Form: React.FC<FormProps> = ({ onSubmit, loginError, children }) => {
 	return (
 		<FormContainer>
-			<StyledForm onSubmit={onSubmit}>{children}</StyledForm>;
+			<StyledForm onSubmit={onSubmit}>
+				{loginError && <ErrorMessage>* {loginError}</ErrorMessage>}
+				{children}
+			</StyledForm>;
 		</FormContainer>
 	)
 }
