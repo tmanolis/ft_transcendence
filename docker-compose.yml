@@ -22,6 +22,24 @@ services:
       - /backend/node_modules
 
   # -------------------------------------------------------------------------------- #
+  # frontend service with Vite-React                                                 #
+  # -------------------------------------------------------------------------------- #
+  app:
+    build:
+      context: ./App
+    container_name: app
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    restart: always
+    networks:
+      - transcendence_net
+    volumes:
+      - ./App:/App
+      - /frontend/node_modules
+
+  # -------------------------------------------------------------------------------- #
   # postgresql database                                                              #
   # -------------------------------------------------------------------------------- #
   postgres:

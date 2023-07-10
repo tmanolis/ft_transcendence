@@ -1,6 +1,5 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { HelloService } from './hello.service';
-import { FourtyTwoAuthGuard } from '../auth/guard/FourtyTwo.guard';
 
 @Controller('hello')
 export class HelloController {
