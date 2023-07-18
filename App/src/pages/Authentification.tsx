@@ -14,7 +14,7 @@ const PageContainer = styled.div<PageContainerProps>`
     src: url(${JBRegular}) format('woff2');
     font-weight: normal;
     font-style: normal;
-  }	
+  }
 `
 
 const Authentification = () => {

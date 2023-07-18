@@ -11,19 +11,24 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-// import { GameService } from './game.service';
-
 @WebSocketGateway({
-  cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://jas0nhuang.eu.org:3000',
-      'http://jas0nhuang.eu.org:5173',
-    ],
-  },
-  namespace: 'game',
+	// cors is already set up in main.ts, no need to do it again
+	// cors: {
+  //   origin: [
+  //     'http://localhost:3000',
+  //     'http://localhost:5173',
+	// 		'http://localhost:8080',
+  //     'http://jas0nhuang.eu.org:3000',
+  //     'http://jas0nhuang.eu.org:5173',
+  //   ],
+  // },
+
+	// Looked into namespaces and it seems that for simplicity reasons
+	// it would be ideal for our application to combine everything in 1
+	// gateway, in stead of adding separate namespaces.
+  // namespace: 'game'
 })
+
 export class GameGateway {
   @WebSocketServer()
   server: Server;

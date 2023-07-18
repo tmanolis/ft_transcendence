@@ -1,10 +1,12 @@
 
-import Authentification from "./pages/Authentification";
+// import Authentification from "./pages/Authentification";
+import Pong from "./pages/Pong"
 
 const App = () => {
 	return (
 		<>
-			<Authentification />
+			<Pong />
+			{/* <Authentification /> */}
 		</>
 	)
 }
