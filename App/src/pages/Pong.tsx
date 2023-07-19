@@ -39,11 +39,11 @@ const Pong = () => {
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === "w") {
-			socket.emit('movePaddle', { direction: 'up' });
-			setLeftPaddleY((prevY) => Math.max(prevY - 10, 0));
+			socket.emit('movePaddle', { direction: 'up', leftPaddleY, canvasHeight, paddleHeight });
+			// setLeftPaddleY((prevY) => Math.max(prevY - 10, 0));
 		} else if (event.key === "s") {
-			socket.emit('movePaddle', { direction: 'down' });
-			setLeftPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
+			socket.emit('movePaddle', { direction: 'down', leftPaddleY, canvasHeight, paddleHeight });
+			// setLeftPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
 		}
 		if (event.key === "ArrowUp") {
 			setRightPaddleY((prevY) => Math.max(prevY - 10, 0));
@@ -51,6 +51,18 @@ const Pong = () => {
 			setRightPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
 		}
 	}
+
+	useEffect(() => {
+		socket.on("updatePaddlePosition", ({ leftPaddle }) => {
+			setLeftPaddleY(leftPaddle);
+		});
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, []);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -83,12 +95,6 @@ const Pong = () => {
 				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
 			}
 		}
-
-		window.addEventListener("keydown", handleKeyDown);
-
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
 	
 	}, [leftPaddleY, rightPaddleY])
 

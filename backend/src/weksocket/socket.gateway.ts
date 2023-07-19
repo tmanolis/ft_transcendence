@@ -13,27 +13,24 @@ import { GameService } from "src/game/game.service";
   },
 })
 
-export class SocketGateway implements OnModuleInit {
+export class SocketGateway {
 
 	constructor(private readonly gameService: GameService) {}
 
 	@WebSocketServer()
 	server: Server;
 
-	onModuleInit() {
-		this.server.on('connection', (socket) => {
-		}) 
-	}
-
 	@SubscribeMessage('movePaddle')
 	handleMovePaddle(client: Socket, payload: any) {
-		const direction = payload.direction;
-
-		if (direction === 'up'){
-			this.gameService.movePaddleUp();
-		} else if (direction === 'down'){
-			this.gameService.movePaddleDown();
+		if (payload.direction === 'up'){
+			this.gameService.movePaddleUp(payload);
+		} else if (payload.direction === 'down'){
+			this.gameService.movePaddleDown(payload);
 		}
+
+		const leftPaddleY = this.gameService.getLeftPaddleY();
+
+		this.server.emit("updatePaddlePosition", {leftPaddleY});
 		
 	}
 }
