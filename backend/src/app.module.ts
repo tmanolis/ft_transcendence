@@ -9,7 +9,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { TwoFA } from './auth/strategy';
-import { GatewayModule } from './gateway/gateway.module';
+import { SocketModule } from './weksocket/socket.module';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { GatewayModule } from './gateway/gateway.module';
     UserModule,
     AuthModule,
     JwtModule,
-		GatewayModule,
+		SocketModule,
   ],
   providers: [AuthService, UserService, TwoFA],
   controllers: [UserController],
