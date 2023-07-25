@@ -1,27 +1,20 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable, forwardRef } from "@nestjs/common";
+import { SocketGateway } from "src/weksocket/socket.gateway";
 
 @Injectable()
 export class GameService {
-	private newPosition = 0;
+	constructor(
+		@Inject(forwardRef(() => SocketGateway))
+		private readonly socketGateway: SocketGateway
+	) {}
 
 	movePaddleUp (payload: any) {
-		console.log('blaaaaaa');
-		console.log('initial position up', payload.leftPaddleY);
-		this.newPosition = Math.max(payload.leftPaddleY - 10, 0);
-		console.log('new position down', payload.leftPaddleY);
-		console.log('up');
+		const newPosition = Math.max(payload.leftPaddleY - 10, 0);
+		return newPosition;
 	}
 
 	movePaddleDown (payload: any) {
-		console.log('initial position down', payload.leftPaddleY);
-		this.newPosition = Math.min(payload.leftPaddleY + 10, payload.canvasHeight - payload.paddleHeight)
-		console.log('new position down', payload.leftPaddleY);
-		console.log('down');
+		const newPosition = Math.min(payload.leftPaddleY + 10, payload.canvasHeight - payload.paddleHeight)
+		return newPosition
 	}
-
-	getLeftPaddleY(): number {
-		console.log('returning paddle position', this.newPosition);
-		return this.newPosition;
-	}
-
 }

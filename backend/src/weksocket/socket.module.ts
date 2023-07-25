@@ -1,9 +1,11 @@
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { SocketGateway } from "./socket.gateway";
-import { GameService } from "src/game/game.service";
+import { GameModule } from "src/game/game.module";
 
 @Module({
-	providers: [SocketGateway, GameService],
+	imports: [forwardRef(() => GameModule)],
+	providers: [SocketGateway],
+	exports: [SocketGateway],
 })
 
 export class SocketModule {}

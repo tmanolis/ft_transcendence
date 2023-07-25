@@ -10,6 +10,8 @@ import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { TwoFA } from './auth/strategy';
 import { SocketModule } from './weksocket/socket.module';
+import { GameModule } from './game/game.module';
+import { GameService } from './game/game.service';
 
 @Module({
   imports: [
@@ -20,8 +22,12 @@ import { SocketModule } from './weksocket/socket.module';
     AuthModule,
     JwtModule,
 		SocketModule,
+		GameModule,
   ],
-  providers: [AuthService, UserService, TwoFA],
+  providers: [
+		AuthService, 
+		UserService, 
+		TwoFA],
   controllers: [UserController],
 })
 export class AppModule {}
