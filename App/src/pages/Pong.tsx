@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 // import { Socket } from "socket.io-client/debug";
 
-
-
 const PageContainer = styled.div`
   @font-face {
 		font-family: 'JetBrains Mono';
@@ -35,8 +33,16 @@ const Pong = () => {
 
 	const paddleHeight = 75;
 	const paddleWidth = 10;
-	const [leftPaddleY, setLeftPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
-  const [rightPaddleY, setRightPaddleY] = useState(canvasHeight / 2 - paddleHeight / 2);
+	const [leftPaddleY, setLeftPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
+  const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
+
+	const [socket, setSocket] = useState<any>(null);
+
+	useEffect(() => {
+		const newSocket = io('http://localhost:3000');
+		setSocket(newSocket);
+		console.log('new connection:', newSocket.id);
+	}, [setSocket])
 
   // const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
 
@@ -54,13 +60,13 @@ const Pong = () => {
 	// 	};
 	// }, [socket]);
 
-	const socket = io('http://localhost:3000');
+	// const socket = io('http://localhost:3000');
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === "w") {
-			socket.emit('movePaddle', { direction: 'up', leftPaddleY, canvasHeight, paddleHeight });
+			socket?.emit('movePaddle', { direction: 'up', leftPaddleY, canvasHeight, paddleHeight });
 		} else if (event.key === "s") {
-			socket.emit('movePaddle', { direction: 'down', leftPaddleY, canvasHeight, paddleHeight });
+			socket?.emit('movePaddle', { direction: 'down', leftPaddleY, canvasHeight, paddleHeight });
 		}
 		if (event.key === "ArrowUp") {
 			setRightPaddleY((prevY) => Math.max(prevY - 10, 0));
