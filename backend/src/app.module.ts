@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserController } from './user/user.controller';
 import { UserService } from './user/user.service';
 import { TwoFA } from './auth/strategy';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TwoFA } from './auth/strategy';
     UserModule,
     AuthModule,
     JwtModule,
+    MessagesModule,
   ],
   providers: [GameGateway, AuthService, UserService, TwoFA],
   controllers: [UserController],
