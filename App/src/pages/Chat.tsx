@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
 import Button from "../components/styles/Button.styled";
-import { io } from 'socket.io-client';
-import { Socket } from "socket.io-client/debug";
+import { io, Socket } from 'socket.io-client';
 
 type PageContainerProps = {
   children?: React.ReactNode;
@@ -35,8 +34,7 @@ const MessagesContainer = styled.div`
 
 const Chat = () => {
   const socketRef = useRef<Socket | null>(null);
-  // const messagesRef = useRef<Array<string> | null>(null);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [messages, setMessages] = useState<{name: string, text: string}[]>([]);
 
   useEffect(() => {
     socketRef.current = io('http://localhost:3000');
@@ -48,15 +46,11 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
-    socketRef.current?.emit('findAllMessages', {}, (response: string[]) => {
-      // messagesRef.current = response;
+    socketRef.current?.emit('findAllMessages', {}, (response: { name: string, text: string}[]) => {
 			setMessages(response);
     });
   }, []);
 
-  // useEffect(() => {
-  //   socketRef.emit('findAllMessages');
-  // }, []);
 
   return (
     <PageContainer>
@@ -65,11 +59,8 @@ const Chat = () => {
 					{messages.map((message) => (
 							<div key={message.name}>
 								<p>{message.name}: {message.text}</p>
-								</div>
+							</div>
           ))}
-					{/* {messages.map((message) => (
-							<li key={message}>{message}</li>
-						))} */}
 				</MessagesContainer>	
 			</ChatContainer>
       <Button>Send</Button>
