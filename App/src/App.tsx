@@ -1,10 +1,10 @@
 
-import Authentification from "./pages/Authentification";
+import Chat from "./pages/Chat";
 
 const App = () => {
 	return (
 		<>
-			<Authentification />
+			<Chat />
 		</>
 	)
 }

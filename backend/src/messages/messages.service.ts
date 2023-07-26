@@ -25,6 +25,7 @@ export class MessagesService {
   }
 
   findAll() {
+		console.log(this.messages);
     return this.messages;
   }
 
