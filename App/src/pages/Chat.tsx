@@ -3,6 +3,7 @@ import styled from "styled-components";
 import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
 import Button from "../components/styles/Button.styled";
 import { io, Socket } from 'socket.io-client';
+import Input from "../components/styles/Input.styled";
 
 type PageContainerProps = {
   children?: React.ReactNode;
@@ -35,9 +36,19 @@ const MessagesContainer = styled.div`
 const Chat = () => {
   const socketRef = useRef<Socket | null>(null);
   const [messages, setMessages] = useState<{name: string, text: string}[]>([]);
+	const [messageText, setMessageText] = useState('');
 
   useEffect(() => {
     socketRef.current = io('http://localhost:3000');
+
+		socketRef.current?.emit('findAllMessages', {}, (response: { name: string, text: string}[]) => {
+			setMessages(response);
+    });
+
+		// Listen for 'message' event and add new messages
+    socketRef.current.on('message', (message: { name: string, text: string}) => {
+      setMessages((prevMessages) => [...prevMessages, message]);
+    });
 
     // Cleanup function: Disconnect socket when the component unmounts
     return () => {
@@ -45,11 +56,19 @@ const Chat = () => {
     };
   }, []);
 
-  useEffect(() => {
-    socketRef.current?.emit('findAllMessages', {}, (response: { name: string, text: string}[]) => {
-			setMessages(response);
+	const sendMessage = () => {
+    socketRef.current?.emit('createMessage', { text: messageText }, () => {
+      setMessageText('');
     });
-  }, []);
+
+	// let timeout;
+	// const emitTyping = () => {
+	// 	socketRef.current?.emit('typing', { isTyping: true});
+	// 	timeout = setTimeout(() => {
+	// 		socketRef.current?.emit('typing', { isTyping: false });
+	// 	}, 2000);
+	// }
+  };
 
 
   return (
@@ -61,52 +80,12 @@ const Chat = () => {
 								<p>{message.name}: {message.text}</p>
 							</div>
           ))}
-				</MessagesContainer>	
+				</MessagesContainer>
+				<Input onChange={(e) => setMessageText(e.target.value)} placeholder="Type your message..."></Input>
 			</ChatContainer>
-      <Button>Send</Button>
+      <Button onClick={sendMessage}>Send</Button>
     </PageContainer>
   );
 }
 
 export default Chat;
-
-
-
-// import React, { useEffect, useRef } from "react";
-// import styled from "styled-components";
-// import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
-// import Button from "../components/styles/Button.styled";
-// import { io } from 'socket.io-client';
-
-// type PageContainerProps = {
-// 	children?: React.ReactNode;
-// }
-
-// const PageContainer = styled.div<PageContainerProps>`
-//   @font-face {
-// 		font-family: 'JetBrains Mono';
-//     src: url(${JBRegular}) format('woff2');
-//     font-weight: normal;
-//     font-style: normal;
-//   }	
-// `
-// const Chat = () => {
-	
-// 	const socket = io('http://localhost:3000');
-
-// 	const messages = ref([]);
-
-// 	onBeforeMount(() => {
-// 		socket.emit('findAllMessages', {}, (response) => {
-// 			messages.value = response;
-// 		})
-// 	});
-
-// 	return (
-// 		<PageContainer>
-// 			<Button>Send</Button>
-// 		</PageContainer>
-// 	)
-// }
-
-// export default Chat;
