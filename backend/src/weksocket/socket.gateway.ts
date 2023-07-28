@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io'
 import { GameService } from "src/game/game.service";
 
 @WebSocketGateway({
-	cors: true
+	cors: true,
 })
 
 export class SocketGateway implements OnModuleInit {
@@ -14,7 +14,6 @@ export class SocketGateway implements OnModuleInit {
 		private readonly gameService: GameService
 	) {}
 
-	private leftPaddleY = 0;
 	private clients: Socket[] = []; 
 
 	@WebSocketServer()
@@ -22,25 +21,29 @@ export class SocketGateway implements OnModuleInit {
 
 	onModuleInit() {
 		this.server.on('connection', (socket) => {
+			console.log('Connected:');
 			console.log(socket.id);
-			console.log('Connected');
 
 			this.clients.push(socket);
 		})
 	}
 
-	handleConnection(client: Socket, ...args: any[]) {
-		console.log('client connected: ', client);
+	@SubscribeMessage('setCanvas')
+	handleSetCanvas(payload: any){
+		console.log('blub', payload);
+		// this.gameService.setCanvas(payload);
 	}
 
 	@SubscribeMessage('movePaddle')
-	handleMovePaddle(client: Socket, payload: any) {	
+	handleMovePaddle(payload: any) {
+		console.log('movepaddle payload', payload);
+		let updatedPaddle;
 		if (payload.direction === 'up'){
-			this.leftPaddleY = this.gameService.movePaddleUp(payload);
+			updatedPaddle = this.gameService.movePaddleUp(payload);
 		} else if (payload.direction === 'down'){
-			this.leftPaddleY = this.gameService.movePaddleDown(payload);
+			updatedPaddle = this.gameService.movePaddleDown(payload);
 		}
 
-		this.server.emit("updatePaddlePosition", { leftPaddleY: this.leftPaddleY });
+		this.server.emit("updatePaddlePosition", updatedPaddle);
 	}
 }

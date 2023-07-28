@@ -1,8 +1,7 @@
 import styled from "styled-components";
 import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
 import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
-// import { Socket } from "socket.io-client/debug";
+import { io, Socket } from "socket.io-client";
 
 const PageContainer = styled.div`
   @font-face {
@@ -35,57 +34,42 @@ const Pong = () => {
 	const paddleWidth = 10;
 	const [leftPaddleY, setLeftPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
   const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
+	const [ball, setBall] = useState<number>(0);
 
-	const [socket, setSocket] = useState<any>(null);
+	const socketRef = useRef<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io('http://localhost:3000');
-		setSocket(newSocket);
-		console.log('new connection:', newSocket.id);
-	}, [setSocket])
+		socketRef.current = io('http://localhost:3000');
+		
+		window.addEventListener("keydown", handleKeyDown);
 
-  // const [socket, setSocket] = useState<Socket<DefaultEventsMap, DefaultEventsMap> | null>(null);
+		socketRef.current.on('error', (error) => {
+			console.log("Websocket connection error: ", error);
+		})
 
-	// useEffect(() => {
-	// 	const newSocket = io('http://localhost:3000');
+		socketRef.current.on('updatePaddlePosition', (newPositionLPY: string) => {
+			console.log('incoming paddle position', newPositionLPY);
+			setLeftPaddleY(parseInt(newPositionLPY));
+		});
 
-	// 	if (socket) {
-	// 		socket.disconnect();
-	// 	}
-
-	// 	setSocket(newSocket);
-
-	// 	return () => {
-	// 		newSocket.disconnect();
-	// 	};
-	// }, [socket]);
-
-	// const socket = io('http://localhost:3000');
+		socketRef.current.on('updateBallPosition', ({ newPositionBall }) => {
+			setBall(newPositionBall);
+		});
+	}, []);
+	
 
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === "w") {
-			socket?.emit('movePaddle', { direction: 'up', leftPaddleY, canvasHeight, paddleHeight });
+			socketRef.current?.emit('movePaddle', { direction: 'up' });
 		} else if (event.key === "s") {
-			socket?.emit('movePaddle', { direction: 'down', leftPaddleY, canvasHeight, paddleHeight });
+			socketRef.current?.emit('movePaddle', { direction: 'down' });
 		}
 		if (event.key === "ArrowUp") {
 			setRightPaddleY((prevY) => Math.max(prevY - 10, 0));
 		} else if (event.key === "ArrowDown") {
 			setRightPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
 		}
-	}
-
-	useEffect(() => {
-		window.addEventListener("keydown", handleKeyDown);
-
-		socket.on("updatePaddlePosition", ({ leftPaddleY }) => {
-			setLeftPaddleY(leftPaddleY);
-		});
-
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
-	}, [ leftPaddleY ]);
+	};
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -119,7 +103,7 @@ const Pong = () => {
 			}
 		}
 	
-	}, [leftPaddleY, rightPaddleY])
+	}, [leftPaddleY, rightPaddleY, ball])
 
 
 	return (

@@ -8,9 +8,23 @@ export class GameService {
 		private readonly socketGateway: SocketGateway
 	) {}
 
+	private canvas: {
+		canvasHeight: number,
+		paddleHeight: number,
+	}
+
+	private leftPaddleY: number;
+
+	setCanvas ({canvasHeight, paddleHeight}: {canvasHeight: number, paddleHeight: number}) {
+		this.canvas.canvasHeight = canvasHeight;
+		this.canvas.paddleHeight = paddleHeight;
+		this.leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
+	}
+
 	movePaddleUp (payload: any) {
-		const newPosition = Math.max(payload.leftPaddleY - 10, 0);
-		return newPosition;
+		console.log(payload);
+		Math.max(this.leftPaddleY - 10, 0);
+		return this.leftPaddleY;
 	}
 
 	movePaddleDown (payload: any) {
