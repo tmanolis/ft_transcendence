@@ -9,11 +9,13 @@ export class GameService {
 	) {}
 
 	private canvas: {
-		canvasHeight: number,
-		paddleHeight: number,
-	}
-
-	private leftPaddleY: number;
+		canvasHeight: number;
+		paddleHeight: number;
+	  } = {
+		canvasHeight: 0,
+		paddleHeight: 0,
+	  };
+	private leftPaddleY: number = 0;
 
 	setCanvas ({canvasHeight, paddleHeight}: {canvasHeight: number, paddleHeight: number}) {
 		this.canvas.canvasHeight = canvasHeight;
@@ -21,14 +23,13 @@ export class GameService {
 		this.leftPaddleY = canvasHeight / 2 - paddleHeight / 2;
 	}
 
-	movePaddleUp (payload: any) {
-		console.log(payload);
-		Math.max(this.leftPaddleY - 10, 0);
+	movePaddleUp () {
+		this.leftPaddleY = Math.max(this.leftPaddleY - 10, 0);
 		return this.leftPaddleY;
 	}
 
-	movePaddleDown (payload: any) {
-		const newPosition = Math.min(payload.leftPaddleY + 10, payload.canvasHeight - payload.paddleHeight)
-		return newPosition
+	movePaddleDown () {
+		this.leftPaddleY = Math.min(this.leftPaddleY + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
+		return this.leftPaddleY;
 	}
 }

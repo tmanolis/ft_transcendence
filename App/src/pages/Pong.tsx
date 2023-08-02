@@ -50,13 +50,14 @@ const Pong = () => {
 		})
 
 		socketRef.current.on('updatePaddlePosition', (newPositionLPY: string) => {
-			console.log('incoming paddle position', newPositionLPY);
 			setLeftPaddleY(parseInt(newPositionLPY));
 		});
 
 		socketRef.current.on('updateBallPosition', (newPositionBall: string) => {
 			setBall(parseInt(newPositionBall));
 		});
+
+		socketRef.current.emit('setCanvas', {canvasHeight, paddleHeight, leftPaddleY});
 		
 		return () => {
 			socketRef.current?.disconnect();
@@ -68,7 +69,6 @@ const Pong = () => {
 	
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === "w") {
-			console.log('current socketRef: ', socketRef.current?.id);
 			socketRef.current?.emit('movePaddle', 'up');
 		} else if (event.key === "s") {
 			socketRef.current?.emit('movePaddle', 'down');
@@ -81,6 +81,7 @@ const Pong = () => {
 	};
 	
 	useEffect(() => {
+
 		window.addEventListener("keydown", handleKeyDown);
 
 		return () => {

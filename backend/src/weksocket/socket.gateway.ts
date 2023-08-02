@@ -14,7 +14,7 @@ export class SocketGateway implements OnGatewayConnection{
 		private readonly gameService: GameService
 	) {}
 
-	private clients: Socket[] = []; 
+	private clients: Socket[] = [];
 
 	@WebSocketServer()
 	server: Server;
@@ -30,22 +30,19 @@ export class SocketGateway implements OnGatewayConnection{
 	}
 
 	@SubscribeMessage('setCanvas')
-	handleSetCanvas(payload: any){
-		console.log('blub', payload);
-		// this.gameService.setCanvas(payload);
+	handleSetCanvas(client: Socket, payload: any){
+		this.gameService.setCanvas(payload);
 	}
 
 	@SubscribeMessage('movePaddle')
-	handleMovePaddle(payload: string) {
-		console.log(payload);
+	handleMovePaddle(client: Socket, payload: string) {
 		let updatedPaddle: number;
 		if (payload === 'up'){
-			updatedPaddle = this.gameService.movePaddleUp(payload);
+			updatedPaddle = this.gameService.movePaddleUp();
 		} else if (payload === 'down'){
-			updatedPaddle = this.gameService.movePaddleDown(payload);
+			updatedPaddle = this.gameService.movePaddleDown();
 		}
 
-		console.log('sending updated paddle position: ', updatedPaddle);
 		this.server.emit("updatePaddlePosition", updatedPaddle);
 	}
 }
