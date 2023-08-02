@@ -1,5 +1,5 @@
-import { Inject, OnModuleInit, forwardRef } from "@nestjs/common";
-import { SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
+import { Inject, forwardRef } from "@nestjs/common";
+import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io'
 import { GameService } from "src/game/game.service";
 
@@ -7,7 +7,7 @@ import { GameService } from "src/game/game.service";
 	cors: true,
 })
 
-export class SocketGateway implements OnModuleInit {
+export class SocketGateway implements OnGatewayConnection{
 
 	constructor(
 		@Inject(forwardRef(() => GameService))
@@ -19,13 +19,14 @@ export class SocketGateway implements OnModuleInit {
 	@WebSocketServer()
 	server: Server;
 
-	onModuleInit() {
-		this.server.on('connection', (socket) => {
-			console.log('Connected:');
-			console.log(socket.id);
+	handleConnection(client: Socket) {
+		console.log(`Client connected: ${client.id}`);
+		this.clients.push(client);		
+	}
 
-			this.clients.push(socket);
-		})
+	handleDisconnect(client: Socket) {
+		console.log(`Client disconnected: ${client.id}`);
+		this.clients = this.clients.filter((socket) => socket.id !== client.id);
 	}
 
 	@SubscribeMessage('setCanvas')
@@ -35,15 +36,16 @@ export class SocketGateway implements OnModuleInit {
 	}
 
 	@SubscribeMessage('movePaddle')
-	handleMovePaddle(payload: any) {
-		console.log('movepaddle payload', payload);
-		let updatedPaddle;
-		if (payload.direction === 'up'){
+	handleMovePaddle(payload: string) {
+		console.log(payload);
+		let updatedPaddle: number;
+		if (payload === 'up'){
 			updatedPaddle = this.gameService.movePaddleUp(payload);
-		} else if (payload.direction === 'down'){
+		} else if (payload === 'down'){
 			updatedPaddle = this.gameService.movePaddleDown(payload);
 		}
 
+		console.log('sending updated paddle position: ', updatedPaddle);
 		this.server.emit("updatePaddlePosition", updatedPaddle);
 	}
 }

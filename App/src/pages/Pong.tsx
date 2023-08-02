@@ -33,17 +33,19 @@ const Pong = () => {
 	const paddleHeight = 75;
 	const paddleWidth = 10;
 	const [leftPaddleY, setLeftPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
-  const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
+  	const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
 	const [ball, setBall] = useState<number>(0);
 
 	const socketRef = useRef<Socket | null>(null);
 
 	useEffect(() => {
 		socketRef.current = io('http://localhost:3000');
-		
-		window.addEventListener("keydown", handleKeyDown);
 
-		socketRef.current.on('error', (error) => {
+		socketRef.current.on('connect', () => {
+			console.log('connected: ', socketRef.current?.id);
+		})
+		
+		socketRef.current.on('error', (error: string) => {
 			console.log("Websocket connection error: ", error);
 		})
 
@@ -52,17 +54,24 @@ const Pong = () => {
 			setLeftPaddleY(parseInt(newPositionLPY));
 		});
 
-		socketRef.current.on('updateBallPosition', ({ newPositionBall }) => {
-			setBall(newPositionBall);
+		socketRef.current.on('updateBallPosition', (newPositionBall: string) => {
+			setBall(parseInt(newPositionBall));
 		});
+		
+		return () => {
+			socketRef.current?.disconnect();
+			socketRef.current?.off('error');
+			socketRef.current?.off('updatePaddlePosition');
+			socketRef.current?.off('updateBallPosition');
+		};
 	}, []);
 	
-
 	const handleKeyDown = (event: KeyboardEvent) => {
 		if (event.key === "w") {
-			socketRef.current?.emit('movePaddle', { direction: 'up' });
+			console.log('current socketRef: ', socketRef.current?.id);
+			socketRef.current?.emit('movePaddle', 'up');
 		} else if (event.key === "s") {
-			socketRef.current?.emit('movePaddle', { direction: 'down' });
+			socketRef.current?.emit('movePaddle', 'down');
 		}
 		if (event.key === "ArrowUp") {
 			setRightPaddleY((prevY) => Math.max(prevY - 10, 0));
@@ -70,6 +79,14 @@ const Pong = () => {
 			setRightPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
 		}
 	};
+	
+	useEffect(() => {
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, []);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
