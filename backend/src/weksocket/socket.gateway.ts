@@ -21,7 +21,8 @@ export class SocketGateway implements OnGatewayConnection{
 
 	handleConnection(client: Socket) {
 		console.log(`Client connected: ${client.id}`);
-		this.clients.push(client);		
+		this.clients.push(client);
+		this.gameService.joinOrCreateGame(client.id);
 	}
 
 	handleDisconnect(client: Socket) {
@@ -36,13 +37,6 @@ export class SocketGateway implements OnGatewayConnection{
 
 	@SubscribeMessage('movePaddle')
 	handleMovePaddle(client: Socket, payload: string) {
-		let updatedPaddle: number;
-		if (payload === 'up'){
-			updatedPaddle = this.gameService.movePaddleUp();
-		} else if (payload === 'down'){
-			updatedPaddle = this.gameService.movePaddleDown();
-		}
-
-		this.server.emit("updatePaddlePosition", updatedPaddle);
+		this.gameService.movePaddle(this.server, client, payload);
 	}
 }

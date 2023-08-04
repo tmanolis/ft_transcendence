@@ -49,8 +49,12 @@ const Pong = () => {
 			console.log("Websocket connection error: ", error);
 		})
 
-		socketRef.current.on('updatePaddlePosition', (newPositionLPY: string) => {
+		socketRef.current.on('updateLeftPaddle', (newPositionLPY: string) => {
 			setLeftPaddleY(parseInt(newPositionLPY));
+		});
+
+		socketRef.current.on('updateRightPaddle', (newPositionLPY: string) => {
+			setRightPaddleY(parseInt(newPositionLPY));
 		});
 
 		socketRef.current.on('updateBallPosition', (newPositionBall: string) => {
@@ -59,7 +63,10 @@ const Pong = () => {
 
 		socketRef.current.emit('setCanvas', {canvasHeight, paddleHeight, leftPaddleY});
 		
+		window.addEventListener("keydown", handleKeyDown);
+		
 		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
 			socketRef.current?.disconnect();
 			socketRef.current?.off('error');
 			socketRef.current?.off('updatePaddlePosition');
@@ -73,21 +80,7 @@ const Pong = () => {
 		} else if (event.key === "s") {
 			socketRef.current?.emit('movePaddle', 'down');
 		}
-		if (event.key === "ArrowUp") {
-			setRightPaddleY((prevY) => Math.max(prevY - 10, 0));
-		} else if (event.key === "ArrowDown") {
-			setRightPaddleY((prevY) => Math.min(prevY + 10, canvasHeight - paddleHeight));
-		}
 	};
-	
-	useEffect(() => {
-
-		window.addEventListener("keydown", handleKeyDown);
-
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		};
-	}, []);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -125,13 +118,11 @@ const Pong = () => {
 
 
 	return (
-		<>
 		<PageContainer>
 			<h1>Pong</h1>
 			<canvas ref={canvasRef} />
 			<p>Use the arrow keys to play the game</p>
 		</PageContainer>
-		</>
 	)
 }
 
