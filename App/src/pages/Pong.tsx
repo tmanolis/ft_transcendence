@@ -51,12 +51,12 @@ const Pong = () => {
 			console.log("Websocket connection error: ", error);
 		})
 
-		socketRef.current.on('updateLeftPaddle', (newPositionLPY: string) => {
-			setLeftPaddleY(parseInt(newPositionLPY));
+		socketRef.current.on('updateLeftPaddle', (newPosition: string) => {
+			setLeftPaddleY(parseInt(newPosition));
 		});
 
-		socketRef.current.on('updateRightPaddle', (newPositionLPY: string) => {
-			setRightPaddleY(parseInt(newPositionLPY));
+		socketRef.current.on('updateRightPaddle', (newPosition: string) => {
+			setRightPaddleY(parseInt(newPosition));
 		});
 
 		socketRef.current.on('endWaitingState', () => {
@@ -137,13 +137,13 @@ const Pong = () => {
 				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
 			}
 
-			if (isWaiting) {
+			if (context && isWaiting) {
 				context.font = "30px 'JetBrains Mono', monospace";
 				context.fillStyle = "white";
 				context.textAlign = "center";
 				context.textBaseline = "middle";
 				context.fillText("Waiting for another player...", canvas.width / 2, canvas.height / 2);
-			  } else if (countdown > 0) {
+			  } else if (context && countdown > 0) {
 				context.font = "90px 'JetBrains Mono', monospace";
 				context.fillStyle = "white";
 				context.textAlign = "center";
