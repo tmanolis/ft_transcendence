@@ -47,6 +47,7 @@ export class GameService {
 			this.players.push(newPlayer);
 			availableGame.rightPlayer = newPlayer;
 			availableGame.nbPlayers++;
+			this.socketGateway.startGame(availableGame.leftPlayer.socketID, availableGame.rightPlayer.socketID);
 		} else {
 			const newPlayer = new Player(client, this.gameIDcounter, this.startPaddle);
 			const newGame = new Game(this.gameIDcounter, 1, newPlayer, null);
@@ -74,11 +75,9 @@ export class GameService {
 			}
 			const currentGame = this.games.find((game) => (game.gameID === currentPlayer.gameID));
 			if (currentGame.leftPlayer === currentPlayer) {
-				server.to(currentGame.leftPlayer.socketID).emit('updateLeftPaddle', currentPlayer.paddlePosition);
-				server.to(currentGame.rightPlayer.socketID).emit('updateLeftPaddle', currentPlayer.paddlePosition);
-			} else {
-				server.to(currentGame.leftPlayer.socketID).emit('updateRightPaddle', currentPlayer.paddlePosition);
-				server.to(currentGame.rightPlayer.socketID).emit('updateRightPaddle', currentPlayer.paddlePosition);
+				this.socketGateway.emitPaddleMovesLeft(currentGame.leftPlayer.socketID, currentGame.rightPlayer.socketID, currentPlayer.paddlePosition);
+			} else if (currentGame.rightPlayer === currentPlayer) {
+				this.socketGateway.emitPaddleMovesRight(currentGame.leftPlayer.socketID, currentGame.rightPlayer.socketID, currentPlayer.paddlePosition);
 			}
 		}
 	}

@@ -39,4 +39,19 @@ export class SocketGateway implements OnGatewayConnection{
 	handleMovePaddle(client: Socket, payload: string) {
 		this.gameService.movePaddle(this.server, client, payload);
 	}
-}
+
+	emitPaddleMovesLeft(leftPlayerID: string, rightPlayerID: string, newPosition: number) {
+		this.server.to(leftPlayerID).emit('updateLeftPaddle', newPosition);
+		this.server.to(rightPlayerID).emit('updateLeftPaddle', newPosition);
+	}
+
+	emitPaddleMovesRight(leftPlayerID: string, rightPlayerID: string, newPosition: number) {
+		this.server.to(leftPlayerID).emit('updateRightPaddle', newPosition);
+		this.server.to(rightPlayerID).emit('updateRightPaddle', newPosition);
+	}	
+
+	startGame(leftPlayerID: string, rightPlayerID: string) {
+		this.server.to(leftPlayerID).emit('endWaitingState');
+		this.server.to(rightPlayerID).emit('endWaitingState');
+	}
+	}

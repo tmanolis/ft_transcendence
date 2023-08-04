@@ -35,6 +35,8 @@ const Pong = () => {
 	const [leftPaddleY, setLeftPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
   	const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
 	const [ball, setBall] = useState<number>(0);
+	const [isWaiting, setIsWaiting] = useState<boolean>(true);
+	const [countdown, setCountdown] = useState<number>(3);
 
 	const socketRef = useRef<Socket | null>(null);
 
@@ -57,16 +59,28 @@ const Pong = () => {
 			setRightPaddleY(parseInt(newPositionLPY));
 		});
 
+		socketRef.current.on('endWaitingState', () => {
+			console.log('waiting done');
+			setIsWaiting(false);
+			const interval = setInterval(() => {
+				setCountdown((prevCountdown: number) => {
+					if (prevCountdown <= 1) {
+						clearInterval(interval);
+						return 0;
+					} else {
+						return prevCountdown - 1;
+					}
+				})
+			}, 1000);
+		})
+
 		socketRef.current.on('updateBallPosition', (newPositionBall: string) => {
 			setBall(parseInt(newPositionBall));
 		});
 
 		socketRef.current.emit('setCanvas', {canvasHeight, paddleHeight, leftPaddleY});
-		
-		window.addEventListener("keydown", handleKeyDown);
-		
+			
 		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
 			socketRef.current?.disconnect();
 			socketRef.current?.off('error');
 			socketRef.current?.off('updatePaddlePosition');
@@ -74,13 +88,23 @@ const Pong = () => {
 		};
 	}, []);
 	
-	const handleKeyDown = (event: KeyboardEvent) => {
-		if (event.key === "w") {
-			socketRef.current?.emit('movePaddle', 'up');
-		} else if (event.key === "s") {
-			socketRef.current?.emit('movePaddle', 'down');
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (!isWaiting){
+				if (event.key === "ArrowUp") {
+					socketRef.current?.emit('movePaddle', 'up');
+				} else if (event.key === "ArrowDown") {
+					socketRef.current?.emit('movePaddle', 'down');
+				}
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
 		}
-	};
+	}, [isWaiting]);
 
 	useEffect(() => {
 		const canvas = canvasRef.current;
@@ -112,9 +136,23 @@ const Pong = () => {
 				context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
 				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
 			}
+
+			if (isWaiting) {
+				context.font = "30px 'JetBrains Mono', monospace";
+				context.fillStyle = "white";
+				context.textAlign = "center";
+				context.textBaseline = "middle";
+				context.fillText("Waiting for another player...", canvas.width / 2, canvas.height / 2);
+			  } else if (countdown > 0) {
+				context.font = "90px 'JetBrains Mono', monospace";
+				context.fillStyle = "white";
+				context.textAlign = "center";
+				context.textBaseline = "middle";
+				context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
+			  }
 		}
 	
-	}, [leftPaddleY, rightPaddleY, ball])
+	}, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown])
 
 
 	return (
