@@ -1,4 +1,4 @@
-import { Inject, forwardRef } from "@nestjs/common";
+import { Inject, UseGuards, forwardRef } from "@nestjs/common";
 import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
 import { Server, Socket } from 'socket.io'
 import { GameService } from "src/game/game.service";
@@ -20,7 +20,7 @@ export class SocketGateway implements OnGatewayConnection{
 	server: Server;
 
 	handleConnection(client: Socket) {
-		console.log(`Client connected: ${client.id}`);
+		// console.log(`Client ${user.userName}connected with socket ${client.id}`);
 		this.clients.push(client);
 		this.gameService.joinOrCreateGame(client.id);
 	}
@@ -37,7 +37,7 @@ export class SocketGateway implements OnGatewayConnection{
 
 	@SubscribeMessage('movePaddle')
 	handleMovePaddle(client: Socket, payload: string) {
-		this.gameService.movePaddle(this.server, client, payload);
+		this.gameService.movePaddle(client, payload);
 	}
 
 	emitPaddleMovesLeft(leftPlayerID: string, rightPlayerID: string, newPosition: number) {

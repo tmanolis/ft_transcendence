@@ -1,7 +1,9 @@
 import { Inject, Injectable, forwardRef } from "@nestjs/common";
-import { Server, Socket } from "socket.io";
+import { Socket } from "socket.io";
 import { SocketGateway } from "src/weksocket/socket.gateway";
 
+
+// this should all be stored in the cache:
 class Player {
 	constructor(
 		public socketID: string,
@@ -16,6 +18,7 @@ class Game {
 		public nbPlayers: number,
 		public leftPlayer: Player,
 		public rightPlayer: Player,
+		public score: Record<number, number>,
 	) {}
 }
 
@@ -50,7 +53,7 @@ export class GameService {
 			this.socketGateway.startGame(availableGame.leftPlayer.socketID, availableGame.rightPlayer.socketID);
 		} else {
 			const newPlayer = new Player(client, this.gameIDcounter, this.startPaddle);
-			const newGame = new Game(this.gameIDcounter, 1, newPlayer, null);
+			const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
 			this.gameIDcounter++;
 			this.games.push(newGame);
 			this.players.push(newPlayer);
@@ -63,7 +66,7 @@ export class GameService {
 		this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
 	}
 
-	movePaddle (server: Server, client: Socket, payload: string) {
+	movePaddle (client: Socket, payload: string) {
 		const currentPlayer = this.players.find((player) => (player.socketID === client.id));
 		if (!currentPlayer){
 			console.log('error');
@@ -75,9 +78,15 @@ export class GameService {
 			}
 			const currentGame = this.games.find((game) => (game.gameID === currentPlayer.gameID));
 			if (currentGame.leftPlayer === currentPlayer) {
-				this.socketGateway.emitPaddleMovesLeft(currentGame.leftPlayer.socketID, currentGame.rightPlayer.socketID, currentPlayer.paddlePosition);
+				this.socketGateway.emitPaddleMovesLeft(
+					currentGame.leftPlayer.socketID, 
+					currentGame.rightPlayer.socketID, 
+					currentPlayer.paddlePosition);
 			} else if (currentGame.rightPlayer === currentPlayer) {
-				this.socketGateway.emitPaddleMovesRight(currentGame.leftPlayer.socketID, currentGame.rightPlayer.socketID, currentPlayer.paddlePosition);
+				this.socketGateway.emitPaddleMovesRight(
+					currentGame.leftPlayer.socketID, 
+					currentGame.rightPlayer.socketID, 
+					currentPlayer.paddlePosition);
 			}
 		}
 	}

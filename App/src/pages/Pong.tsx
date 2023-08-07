@@ -37,6 +37,7 @@ const Pong = () => {
 	const [ball, setBall] = useState<number>(0);
 	const [isWaiting, setIsWaiting] = useState<boolean>(true);
 	const [countdown, setCountdown] = useState<number>(3);
+	const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
 
 	const socketRef = useRef<Socket | null>(null);
 
@@ -59,8 +60,11 @@ const Pong = () => {
 			setRightPaddleY(parseInt(newPosition));
 		});
 
+		socketRef.current.on('updateScore', (newScore: Record<number, number>) => {
+			setScore(newScore);
+		})
+
 		socketRef.current.on('endWaitingState', () => {
-			console.log('waiting done');
 			setIsWaiting(false);
 			const interval = setInterval(() => {
 				setCountdown((prevCountdown: number) => {
@@ -135,6 +139,14 @@ const Pong = () => {
 				context.fillStyle = 'white';
 				context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
 				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
+
+				// add score
+				context.font = "60px 'JetBrains Mono', monospace";
+				context.fillStyle = "white";
+				context.textAlign = "center";
+				context.textBaseline = "top";
+				context.fillText(score[0].toString(), canvas.width * 0.25, 20);
+				context.fillText(score[1].toString(), canvas.width * 0.75, 20);
 			}
 
 			if (context && isWaiting) {
@@ -152,8 +164,7 @@ const Pong = () => {
 			  }
 		}
 	
-	}, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown])
-
+	}, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown, score])
 
 	return (
 		<PageContainer>
