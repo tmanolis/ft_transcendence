@@ -5,6 +5,7 @@ import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
+// import fourtyTwoLogo from "../assets/42_logo";
 
 export type LoginFormProps = {
 	onLinkClick: () => void;
@@ -29,6 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 				'http://localhost:3000/auth/local/login',
 				loginDTO
 			);
+			console.log(response);
 			navigate("/pong");
 			console.log('response other', response);
 			// Logging response for now, should redirect when React routing is implemented

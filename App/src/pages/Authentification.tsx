@@ -10,7 +10,7 @@ type PageContainerProps = {
 
 const PageContainer = styled.div<PageContainerProps>`
   @font-face {
-		font-family: 'JetBrains Mono';
+	font-family: 'JetBrains Mono';
     src: url(${JBRegular}) format('woff2');
     font-weight: normal;
     font-style: normal;

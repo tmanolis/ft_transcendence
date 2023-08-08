@@ -73,7 +73,7 @@ export class AuthService {
     }
   }
 
-  async localLogin(dto: LoginDto, res: any) {
+  async localLogin(dto: LoginDto, res: any){
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
@@ -93,6 +93,7 @@ export class AuthService {
       return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
+    return user;
   }
 
   async handleLogout(user: User, res: any, req: any) {
@@ -111,13 +112,11 @@ export class AuthService {
     }
 
     res.clearCookie('jwt');
-
     // here we should redirect to login page
     res.send('Logout OK');
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
-	console.log('checking 2fa');
 	try {
 		const validatedUser = await this.twoFA.validate(
 		  user.userName,
@@ -127,8 +126,8 @@ export class AuthService {
 		  this.updateAfterLogin(user, res);
 		}
 	  } catch (error) {
-		const caughtError = error.message;
-		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+      const caughtError = error.message;
+      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
 	  }
   }
 

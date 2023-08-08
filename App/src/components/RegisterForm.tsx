@@ -28,6 +28,7 @@ export default function RegisterForm() {
 				'http://localhost:3000/auth/local/signup',
 				signupDTO
 			);
+			console.log(response);
 			navigate("/pong");
 		} catch (error) {
 			handleLoginError(error as AxiosError);
