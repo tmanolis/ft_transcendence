@@ -28,7 +28,19 @@ export class AuthService {
       },
     });
 
-    if (!user) {
+    let email = await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+    });
+
+    let userName = await this.prisma.user.findUnique({
+      where: {
+        userName: dto.userName,
+      },
+    });
+
+    if (!user && !email && !userName) {
       try {
         user = await this.prisma.user.create({
           data: {
@@ -41,11 +53,14 @@ export class AuthService {
           },
         });
       } catch (error) {
-        throw error;
+	      if (error.code === 'P2002') {
+		throw new ForbiddenException('Credentials taken');
+		throw error;
+	      }
       }
     }
     // const token = await this.signToken(user.id, user.email);
-    res.cookie('42accesToken', accessToken);
+    // res.cookie('42accesToken', accessToken);
 
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
@@ -180,6 +195,6 @@ export class AuthService {
     })    
   
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token).redirect('/hello');
+    res.cookie('jwt', token).redirect('http://localhost:8080');
   }
 }

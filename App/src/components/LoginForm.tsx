@@ -25,7 +25,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 		try {
 			const response = await axios.post(
 				'http://localhost:3000/auth/local/login',
-				loginDTO
+				loginDTO,
+				{ withCredentials: true }
 			);
 			console.log('response other', response);
 			// Logging response for now, should redirect when React routing is implemented
@@ -49,6 +50,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 		}
 	}
 
+/*
 	const handleFourtyTwo = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		
@@ -62,11 +64,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 			console.log('error 42', error);
 		}
 	}
+*/
 
 	return (
 		<Form onSubmit={handleSubmit} loginError={loginError}>
 			<h1>Connect</h1>
-			<Button type="button" onClick={handleFourtyTwo}>Sign up with 42</Button>
+			<Button type="button">
+				<a href="http://localhost:3000/auth/fourtytwo/login">Sign up with 42</a>
+			</Button>
+
 			<p>――――― OR ――――― </p>
 			<Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email"/>
 			<Input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="password"/>
