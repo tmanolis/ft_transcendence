@@ -72,7 +72,7 @@ export class AuthController {
     @Res() res: any,
     @GetUser() user: User,
   ) {
-	await this.authService.twoFAVerify(user, res, payload);
+  	await this.authService.twoFAVerify(user, res, payload);
   }
 
   @UseGuards(JwtGuard)
@@ -80,7 +80,7 @@ export class AuthController {
   @ApiOkResponse({ description: 'User is now offline.' })
   @ApiUnauthorizedResponse({ description: 'Logout failed.' })
   async logout(
-    @Req() req: any,
+    @Req() req: Request,
     @Res() res: any,
     @GetUser() user: User): Promise<void> {
     await this.authService.handleLogout(user, res, req);

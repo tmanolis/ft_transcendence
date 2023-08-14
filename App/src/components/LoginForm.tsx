@@ -1,9 +1,11 @@
-import React, {useState} from "react";
+import React, {useState } from "react";
 import Button from "./styles/Button.styled";
 import Form from "./styles/Form.styled";
 import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router";
+// import fourtyTwoLogo from "../assets/42_logo";
 
 export type LoginFormProps = {
 	onLinkClick: () => void;
@@ -13,6 +15,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 	const [email, setEmail] = useState('');
 	const [pass, setPass] = useState('');
 	const [loginError, setLoginError] = useState('');
+	const navigate = useNavigate();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -28,6 +31,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 				loginDTO,
 				{ withCredentials: true }
 			);
+			console.log(response);
+			navigate("/pong");
 			console.log('response other', response);
 			// Logging response for now, should redirect when React routing is implemented
 		} catch (error) {

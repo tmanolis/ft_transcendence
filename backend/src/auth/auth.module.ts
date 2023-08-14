@@ -7,7 +7,11 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy, TwoFA, FourtyTwoStrategy } from './strategy';
 
 @Module({
-  imports: [HttpModule, PrismaModule, JwtModule.register({})],
+  imports: [
+    HttpModule, 
+    PrismaModule, 
+    JwtModule.register({}),
+  ],
   controllers: [AuthController],
   providers: [
     AuthService,
