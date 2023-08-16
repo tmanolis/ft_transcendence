@@ -5,89 +5,157 @@ import { SocketGateway } from "src/weksocket/socket.gateway";
 
 // this should all be stored in the cache:
 class Player {
-	constructor(
-		public socketID: string,
-		public gameID: number,
-		public paddlePosition: number
-	) {}
+  constructor(
+    public socketID: string,
+    public gameID: number,
+    public paddlePosition: number
+  ) {}
 }
 
 class Game {
-	constructor (
-		public gameID: number,
-		public nbPlayers: number,
-		public leftPlayer: Player,
-		public rightPlayer: Player,
-		public score: Record<number, number>,
-	) {}
+  constructor (
+    public gameID: number,
+    public nbPlayers: number,
+    public leftPlayer: Player,
+    public rightPlayer: Player,
+    public score: Record<number, number>,
+  ) {}
 }
 
 @Injectable()
 export class GameService {
-	constructor(
-		@Inject(forwardRef(() => SocketGateway))
-		private readonly socketGateway: SocketGateway
-	) {}
+  constructor(
+    @Inject(forwardRef(() => SocketGateway))
+    private readonly socketGateway: SocketGateway
+  ) {}
 
-	// this should all be stored in the cache:
-	private canvas: {
-		canvasHeight: number,
-		paddleHeight: number,
-	} = {
-		canvasHeight: 0,
-		paddleHeight: 0,
-	};
-	
-	private players: Player[] = [];
-	private games: Game[] = [];
-	private startPaddle: number;
-	private gameIDcounter: number = 0;
+  // this should all be stored in the cache:
+  private canvas: {
+    canvasHeight: number,
+    paddleHeight: number,
+  } = {
+    canvasHeight: 0,
+    paddleHeight: 0,
+  };
+  
+  private players: Player[] = [];
+  private games: Game[] = [];
+  private startPaddle: number;
+  private gameIDcounter: number = 0;
 
-	joinOrCreateGame (client: string) {
-		const availableGame = this.games.find((game) => (game.nbPlayers === 1));
-		if (availableGame) {
-			const newPlayer = new Player(client, availableGame.gameID, this.startPaddle);
-			this.players.push(newPlayer);
-			availableGame.rightPlayer = newPlayer;
-			availableGame.nbPlayers++;
-			this.socketGateway.startGame(availableGame.leftPlayer.socketID, availableGame.rightPlayer.socketID);
-		} else {
-			const newPlayer = new Player(client, this.gameIDcounter, this.startPaddle);
-			const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
-			this.gameIDcounter++;
-			this.games.push(newGame);
-			this.players.push(newPlayer);
-		}
-	}
+  joinOrCreateGame (client: string) {
+    const availableGame = this.games.find((game) => (game.nbPlayers === 1));
+    if (availableGame) {
+      const newPlayer = new Player(client, availableGame.gameID, this.startPaddle);
+      this.players.push(newPlayer);
+      availableGame.rightPlayer = newPlayer;
+      availableGame.nbPlayers++;
+      this.socketGateway.startGame(availableGame.leftPlayer.socketID, availableGame.rightPlayer.socketID);
+    } else {
+      const newPlayer = new Player(client, this.gameIDcounter, this.startPaddle);
+      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
+      this.gameIDcounter++;
+      this.games.push(newGame);
+      this.players.push(newPlayer);
+    }
+  }
 
-	setCanvas ({canvasHeight, paddleHeight}: {canvasHeight: number, paddleHeight: number}) {
-		this.canvas.canvasHeight = canvasHeight;
-		this.canvas.paddleHeight = paddleHeight;
-		this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
-	}
+  setCanvas ({canvasHeight, paddleHeight}: {canvasHeight: number, paddleHeight: number}) {
+    this.canvas.canvasHeight = canvasHeight;
+    this.canvas.paddleHeight = paddleHeight;
+    this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
+  }
 
-	movePaddle (client: Socket, payload: string) {
-		const currentPlayer = this.players.find((player) => (player.socketID === client.id));
-		if (!currentPlayer){
-			console.log('error');
-		} else {
-			if (payload === 'up'){
-				currentPlayer.paddlePosition = Math.max(currentPlayer.paddlePosition - 10, 0);
-			} else if (payload === 'down'){
-				currentPlayer.paddlePosition = Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-			}
-			const currentGame = this.games.find((game) => (game.gameID === currentPlayer.gameID));
-			if (currentGame.leftPlayer === currentPlayer) {
-				this.socketGateway.emitPaddleMovesLeft(
-					currentGame.leftPlayer.socketID, 
-					currentGame.rightPlayer.socketID, 
-					currentPlayer.paddlePosition);
-			} else if (currentGame.rightPlayer === currentPlayer) {
-				this.socketGateway.emitPaddleMovesRight(
-					currentGame.leftPlayer.socketID, 
-					currentGame.rightPlayer.socketID, 
-					currentPlayer.paddlePosition);
-			}
-		}
-	}
+  movePaddle (client: Socket, payload: string) {
+    const currentPlayer = this.players.find((player) => (player.socketID === client.id));
+    if (!currentPlayer){
+      console.log('error');
+    } else {
+      if (payload === 'up'){
+        currentPlayer.paddlePosition = Math.max(currentPlayer.paddlePosition - 10, 0);
+      } else if (payload === 'down'){
+        currentPlayer.paddlePosition = Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
+      }
+      const currentGame = this.games.find((game) => (game.gameID === currentPlayer.gameID));
+      if (currentGame.leftPlayer === currentPlayer) {
+        this.socketGateway.emitPaddleMovesLeft(
+          currentGame.leftPlayer.socketID, 
+          currentGame.rightPlayer.socketID, 
+          currentPlayer.paddlePosition);
+      } else if (currentGame.rightPlayer === currentPlayer) {
+        this.socketGateway.emitPaddleMovesRight(
+          currentGame.leftPlayer.socketID, 
+          currentGame.rightPlayer.socketID, 
+          currentPlayer.paddlePosition);
+      }
+    }
+  }
+
+  async gameLoop(server: Server, body: any, client: Socket) {
+      let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
+      let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
+      if (randX < 3 && randX >= 0) {
+        randX += 3;
+      }
+      if (randX > -3 && randX <= 0) {
+        randX -= 3;
+      }
+      let direction = { x: randX, y: randY };
+
+    const gameInterval = setInterval(async () => {
+      const gameData: string = await this.cacheManager.get(body.gameID);
+      if (gameData) {
+        const gameDataJSON = JSON.parse(gameData);
+
+      let x = gameDataJSON.ballPosition.x;
+      let y = gameDataJSON.ballPosition.y;
+      if (y >= 480 || y <= 15) { direction.y *= -1; }
+      console.log(x, y);
+      console.log(gameDataJSON.leftUser);
+      if (x <= 20 && 
+	  y >= gameDataJSON.leftUser.position.y - 50 && 
+	  y <= gameDataJSON.leftUser.position.y + 50 ) {
+          direction.x *= -1;
+      } 
+
+      if (x > 710 || x < 10) {
+        clearInterval(gameInterval);
+	gameDataJSON.ballPosition.x = 360;
+	gameDataJSON.ballPosition.y = 360;
+        await this.cacheManager.del(body.gameID);
+        await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+        server.emit('gameStop', null);
+	return ;
+      }
+
+      x += direction.x;
+      y += direction.y;
+      gameDataJSON.ballPosition.x = x;
+      gameDataJSON.ballPosition.y = y;
+      server.emit('refreshGame', gameDataJSON);
+      await this.cacheManager.del(body.gameID);
+      await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+    }
+    }, 1000/30);
+  }
+
+  throttledPlayerMove = throttle(
+    async (server: Server, body: any, client: Socket, side: string) => {
+      const gameData: string = await this.cacheManager.get(body.gameID);
+      if (gameData) {
+	      const gameDataJSON = JSON.parse(gameData);
+	      server.emit('playerMove', gameDataJSON);
+	      if (side === "left") {
+		gameDataJSON.leftUser.position.y = body.y;
+	      } else {
+		gameDataJSON.rightUser.position.y = body.y;
+	      }
+	      await this.cacheManager.del(body.gameID);
+	      await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
+      }
+    },
+    1000 / 30
+  );
+
+
 }

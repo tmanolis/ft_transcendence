@@ -64,6 +64,10 @@ const Pong = () => {
 			setScore(newScore);
 		})
 
+    if (!isWaiting && countdown <= 1) {
+		  socketRef.current.emit('startGame');
+    }
+
 		socketRef.current.on('endWaitingState', () => {
 			setIsWaiting(false);
 			const interval = setInterval(() => {
@@ -139,6 +143,15 @@ const Pong = () => {
 				context.fillStyle = 'white';
 				context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
 				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
+
+				// draw the ball 
+				context.fillStyle = 'white';
+				context.fillRect(
+          canvasWidth / 2 - paddleWidth / 2,
+          canvasHeight / 2 - paddleWidth / 2, 
+          paddleWidth,
+          paddleWidth
+        );
 
 				// add score
 				context.font = "60px 'JetBrains Mono', monospace";

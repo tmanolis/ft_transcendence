@@ -47,6 +47,13 @@ export class SocketGateway implements OnGatewayConnection{
   /****************************************************************************/
   /* GAME                                                                     */
   /****************************************************************************/
+  @SubscribeMessage('startGame')
+  handleStartGame(client: Socket, payload: Object ): Object {
+    console.log(payload);
+    console.log("Let's go!");
+    return {"event": "start game", "socketID": client.id};
+  }
+
   @SubscribeMessage('movePaddle')
   handleMovePaddle(client: Socket, payload: Object ): Object {
     console.log(payload);
