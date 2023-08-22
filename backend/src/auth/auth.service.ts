@@ -22,27 +22,29 @@ export class AuthService {
   ) {}
 
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
-    let user = await this.prisma.user.findUnique({
-      where: {
-        id: dto.id,
-      },
-    });
-
-    let email = await this.prisma.user.findUnique({
+    const userByEmail = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
       },
     });
 
-    let userName = await this.prisma.user.findUnique({
+    const userByUserName = await this.prisma.user.findUnique({
       where: {
         userName: dto.userName,
       },
     });
 
-    if (!user && !email && !userName) {
+    // Maybe set up a "compound unique constraint" can avoid repeatetive requests.
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#unique-1
+
+    if (userByEmail && userByUserName) {
+      if (userByEmail.twoFAActivated) {
+        return { redirect: '/2fa-verify' };
+      }
+      await this.updateAfterLogin(userByEmail, res);
+    } else {
       try {
-        user = await this.prisma.user.create({
+        const user = await this.prisma.user.create({
           data: {
             id: dto.id,
             email: dto.email,
@@ -52,20 +54,13 @@ export class AuthService {
             password: dto.password,
           },
         });
+        await this.updateAfterLogin(user, res);
       } catch (error) {
-	      if (error.code === 'P2002') {
-		throw new ForbiddenException('Credentials taken');
-		throw error;
-	      }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
       }
     }
-    // const token = await this.signToken(user.id, user.email);
-    // res.cookie('42accesToken', accessToken);
-
-    if (user.twoFAActivated) {
-      return { redirect: '/2fa-verify' };
-    }
-	await this.updateAfterLogin(user, res);
   }
 
   async localSignup(res: any, dto: AuthDto) {
