@@ -15,7 +15,10 @@ const ExtractJwtFromCookie = (req: Request) => {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(config: ConfigService, private prisma: PrismaService) {
+  constructor(
+    config: ConfigService,
+    private prisma: PrismaService,
+  ) {
     super({
       jwtFromRequest: ExtractJwtFromCookie,
       secretOrKey: config.get('JWT_SECRET'),
@@ -23,9 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
   }
 
-  async validate(req: Request,
-    payload: { sub: string; email: string }
-    ) {
+  async validate(req: Request, payload: { sub: string; email: string }) {
     const user = await this.prisma.user.findUnique({
       where: {
         id: payload.sub,
@@ -50,7 +51,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async isTokenBlacklisted(token: string) {
-    const blacklistedToken = await this.prisma.jwtBlacklist.findUnique ({
+    const blacklistedToken = await this.prisma.jwtBlacklist.findUnique({
       where: {
         token,
       },

@@ -1,12 +1,11 @@
-
 import Authentification from "./pages/Authentification";
 
 const App = () => {
-	return (
-		<>
-			<Authentification />
-		</>
-	)
-}
+  return (
+    <>
+      <Authentification />
+    </>
+  );
+};
 
 export default App;

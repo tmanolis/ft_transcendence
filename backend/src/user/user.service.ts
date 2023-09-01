@@ -18,11 +18,11 @@ export class UserService {
         throw new ForbiddenException("Can't change 42 password");
 
       if (oldPassword === undefined)
-        throw new ForbiddenException("Old password is required");
+        throw new ForbiddenException('Old password is required');
 
       const passwordMatches = await argon.verify(user.password, oldPassword);
       if (!passwordMatches)
-        throw new ForbiddenException("Old password is incorrect");
+        throw new ForbiddenException('Old password is incorrect');
 
       const hash = await argon.hash(dto.password);
       this.updatePassword(user, hash);
@@ -43,14 +43,14 @@ export class UserService {
     return 'OK';
   }
 
-  async updatePassword(user: User, hashNewPassword: string){
+  async updatePassword(user: User, hashNewPassword: string) {
     await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
         password: hashNewPassword,
-      }
+      },
     });
   }
 

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import Button from "./styles/Button.styled";
 import Form from "./styles/Form.styled";
 import Input from "./styles/Input.styled";
@@ -6,51 +6,51 @@ import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 
 export type LoginFormProps = {
-	onLinkClick: () => void;
-}
+  onLinkClick: () => void;
+};
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
-	const [email, setEmail] = useState('');
-	const [pass, setPass] = useState('');
-	const [loginError, setLoginError] = useState('');
+  const [email, setEmail] = useState("");
+  const [pass, setPass] = useState("");
+  const [loginError, setLoginError] = useState("");
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-		const loginDTO = {
-			email: email,
-			password: pass,
-		}
+    const loginDTO = {
+      email: email,
+      password: pass,
+    };
 
-		try {
-			const response = await axios.post(
-				'http://localhost:3000/auth/local/login',
-				loginDTO,
-				{ withCredentials: true }
-			);
-			console.log('response other', response);
-			// Logging response for now, should redirect when React routing is implemented
-		} catch (error) {
-			handleLoginError(error as AxiosError);
-		}
-	}
+    try {
+      const response = await axios.post(
+        "http://localhost:3000/auth/local/login",
+        loginDTO,
+        { withCredentials: true },
+      );
+      console.log("response other", response);
+      // Logging response for now, should redirect when React routing is implemented
+    } catch (error) {
+      handleLoginError(error as AxiosError);
+    }
+  };
 
-	const handleLoginError = (error: AxiosError) => {
-		if (error.response) {
-			const status = error.response.status;
-			if (status === 400) {
-				setLoginError("Invalid email or password format");
-			} else if (status === 403) {
-				setLoginError("User not found");
-			} else {
-				setLoginError("Login failed");
-			}
-		} else {
-			setLoginError("Network error occured");
-		}
-	}
+  const handleLoginError = (error: AxiosError) => {
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 400) {
+        setLoginError("Invalid email or password format");
+      } else if (status === 403) {
+        setLoginError("User not found");
+      } else {
+        setLoginError("Login failed");
+      }
+    } else {
+      setLoginError("Network error occured");
+    }
+  };
 
-/*
+  /*
 	const handleFourtyTwo = async (e: React.MouseEvent<HTMLButtonElement>) => {
 		e.preventDefault();
 		
@@ -66,20 +66,31 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 	}
 */
 
-	return (
-		<Form onSubmit={handleSubmit} loginError={loginError}>
-			<h1>Connect</h1>
-			<Button type="button">
-				<a href="http://localhost:3000/auth/fourtytwo/login">Sign up with 42</a>
-			</Button>
+  return (
+    <Form onSubmit={handleSubmit} loginError={loginError}>
+      <h1>Connect</h1>
+      <Button type="button">
+        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with 42</a>
+      </Button>
 
-			<p>――――― OR ――――― </p>
-			<Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="email"/>
-			<Input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="password"/>
-			<LinkButton onClick={onLinkClick}>Don't have an account? Sign up here.</LinkButton>
-			<Button type="submit">Log In</Button>
-		</Form>
-	)
-}
+      <p>――――― OR ――――― </p>
+      <Input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="email"
+      />
+      <Input
+        type="password"
+        value={pass}
+        onChange={(e) => setPass(e.target.value)}
+        placeholder="password"
+      />
+      <LinkButton onClick={onLinkClick}>
+        Don't have an account? Sign up here.
+      </LinkButton>
+      <Button type="submit">Log In</Button>
+    </Form>
+  );
+};
 
 export default LoginForm;

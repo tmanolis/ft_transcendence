@@ -22,27 +22,16 @@ export class AuthService {
   ) {}
 
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
-    const userByEmail = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findFirst({
       where: {
-        email: dto.email,
-      },
-    });
-
-    const userByUserName = await this.prisma.user.findUnique({
-      where: {
-        userName: dto.userName,
+        OR: [{ email: dto.email }, { userName: dto.userName }],
       },
     });
 
     // Maybe set up a "compound unique constraint" can avoid repeatetive requests.
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#unique-1
 
-    if (userByEmail && userByUserName) {
-      if (userByEmail.twoFAActivated) {
-        return { redirect: '/2fa-verify' };
-      }
-      await this.updateAfterLogin(userByEmail, res);
-    } else {
+    if (!user) {
       try {
         const user = await this.prisma.user.create({
           data: {
@@ -54,13 +43,24 @@ export class AuthService {
             password: dto.password,
           },
         });
-        await this.updateAfterLogin(user, res);
+        return;
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
         }
+        return;
       }
     }
+
+    if (user.isFourtyTwoStudent === false) {
+      res.redirect('http://localhost:8080');
+      return;
+    }
+
+    if (user && user.isFourtyTwoStudent) {
+      return { redirect: '/2fa-verify' };
+    }
+    await this.updateAfterLogin(user, res);
   }
 
   async localSignup(res: any, dto: AuthDto) {
@@ -106,17 +106,17 @@ export class AuthService {
   }
 
   async handleLogout(user: User, res: any, req: any) {
-    await this.prisma.user.update ({
+    await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
         status: 'OFFLINE',
-      }
-    })
+      },
+    });
 
-	const token = req.cookies.jwt;
-    if (token){
+    const token = req.cookies.jwt;
+    if (token) {
       this.addToBlacklist(user.id, token);
     }
 
@@ -127,19 +127,19 @@ export class AuthService {
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
-	console.log('checking 2fa');
-	try {
-		const validatedUser = await this.twoFA.validate(
-		  user.userName,
-		  payload.code,
-		);
-		if (validatedUser) {
-		  this.updateAfterLogin(user, res);
-		}
-	  } catch (error) {
-		const caughtError = error.message;
-		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-	  }
+    console.log('checking 2fa');
+    try {
+      const validatedUser = await this.twoFA.validate(
+        user.userName,
+        payload.code,
+      );
+      if (validatedUser) {
+        this.updateAfterLogin(user, res);
+      }
+    } catch (error) {
+      const caughtError = error.message;
+      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+    }
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -171,24 +171,24 @@ export class AuthService {
     return null;
   }
 
-  async addToBlacklist(userID: string, token: string): Promise<void>{
-	await this.prisma.jwtBlacklist.upsert({
-		where: { userID },
-		update: { token },
-		create: { token, userID },
-	  });
+  async addToBlacklist(userID: string, token: string): Promise<void> {
+    await this.prisma.jwtBlacklist.upsert({
+      where: { userID },
+      update: { token },
+      create: { token, userID },
+    });
   }
 
   async updateAfterLogin(user: User, res: any) {
-    await this.prisma.user.update ({
+    await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
         status: 'ONLINE',
-      }
-    })    
-  
+      },
+    });
+
     const token = await this.signToken(user.id, user.email);
     res.cookie('jwt', token).redirect('http://localhost:8080');
   }

@@ -9,21 +9,18 @@ import {
   WsResponse,
   WsException,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io'
+import { Server, Socket } from 'socket.io';
 
-// Will implement latter 
+// Will implement latter
 // import { GameService } from './game/game.service';
 // import { ChatService } from './chat/chat.service';
 
 @WebSocketGateway({
   cors: {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:8080',
-    ],
-  }
+    origin: ['http://localhost:3000', 'http://localhost:8080'],
+  },
 })
-export class SocketGateway implements OnGatewayConnection{
+export class SocketGateway implements OnGatewayConnection {
   @WebSocketServer()
   server: Server;
 
@@ -39,7 +36,7 @@ export class SocketGateway implements OnGatewayConnection{
   async handleDisconnect(client: Socket) {
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
-  
+
   /****************************************************************************/
   /* listen/emit socket event                                                 */
   /****************************************************************************/
@@ -48,20 +45,19 @@ export class SocketGateway implements OnGatewayConnection{
   /* GAME                                                                     */
   /****************************************************************************/
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: Object ): Object {
+  handleMovePaddle(client: Socket, payload: Object): Object {
     console.log(payload);
-    console.log("Paddle movinnnnn!!!");
-    return {"event": "player paddle move", "socketID": client.id};
-
+    console.log('Paddle movinnnnn!!!');
+    return { event: 'player paddle move', socketID: client.id };
   }
 
   /****************************************************************************/
   /* CHAT                                                                     */
   /****************************************************************************/
   @SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object ): Object {
+  handleMessageReceived(client: Socket, payload: Object): Object {
     console.log(payload);
-    console.log("Message received!!!");
-    return {"event": "player message receivedt ", "socketID": client.id};
+    console.log('Message received!!!');
+    return { event: 'player message receivedt ', socketID: client.id };
   }
 }
