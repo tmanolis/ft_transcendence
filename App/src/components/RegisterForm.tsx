@@ -4,12 +4,14 @@ import Input from "./styles/Input.styled";
 import HoverText from "./styles/HoverText.styled";
 import { useState } from "react";
 import axios, { AxiosError } from "axios";
+import { useNavigate } from "react-router";
 
 export default function RegisterForm() {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loginError, setLoginError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,8 +27,8 @@ export default function RegisterForm() {
         "http://localhost:3000/auth/local/signup",
         signupDTO,
       );
-      console.log("response", response);
-      // Logging response for now, should redirect when React routing is implemented
+      console.log(response);
+      navigate("/pong");
     } catch (error) {
       handleLoginError(error as AxiosError);
     }

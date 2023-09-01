@@ -47,8 +47,8 @@ export class AuthService {
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
+          throw error;
         }
-        return;
       }
     }
 
@@ -103,6 +103,7 @@ export class AuthService {
       return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
+    return user;
   }
 
   async handleLogout(user: User, res: any, req: any) {
@@ -121,13 +122,11 @@ export class AuthService {
     }
 
     res.clearCookie('jwt');
-
     // here we should redirect to login page
     res.send('Logout OK');
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
-    console.log('checking 2fa');
     try {
       const validatedUser = await this.twoFA.validate(
         user.userName,

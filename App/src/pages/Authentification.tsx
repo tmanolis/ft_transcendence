@@ -18,10 +18,9 @@ const PageContainer = styled.div<PageContainerProps>`
 `;
 
 const Authentification = () => {
-  const [switchRegister, setSwitchRegister] = useState(false);
+  const [switchRegister, setSwitchRegister] = useState<boolean>(false);
 
   const handleLink = () => {
-    console.log("link clicked");
     setSwitchRegister(true);
   };
 

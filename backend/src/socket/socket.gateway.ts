@@ -10,9 +10,10 @@ import {
   WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 
+import { GameService } from '../game/game.service';
 // Will implement latter
-// import { GameService } from './game/game.service';
 // import { ChatService } from './chat/chat.service';
 
 @WebSocketGateway({
@@ -21,6 +22,10 @@ import { Server, Socket } from 'socket.io';
   },
 })
 export class SocketGateway implements OnGatewayConnection {
+  constructor(
+    private readonly gameService: GameService,
+    private readonly jwtService: JwtService,
+  ) {}
   @WebSocketServer()
   server: Server;
 
@@ -28,9 +33,14 @@ export class SocketGateway implements OnGatewayConnection {
   /* handle connection/disconnection                                          */
   /****************************************************************************/
   async handleConnection(client: Socket) {
+    const jwt = client.handshake.headers.authorization;
+    const jwtData = this.jwtService.decode(jwt);
+    console.log(jwtData);
     console.log(client.id, ' connected to generic socket. ^_^');
-    // Will implement latter
-    // await this.gameService.userConnect(client, this.server);
+    if (!jwtData) {
+      console.log(client.id, 'Forbiden connection.');
+      client.disconnect();
+    }
   }
 
   async handleDisconnect(client: Socket) {
@@ -38,14 +48,46 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   /****************************************************************************/
-  /* listen/emit socket event                                                 */
-  /****************************************************************************/
-
-  /****************************************************************************/
   /* GAME                                                                     */
   /****************************************************************************/
+  @SubscribeMessage('playGame')
+  handlePlayGame(client: Socket) {
+    console.log(client.id, ' try to play the game');
+    let players = this.gameService.joinOrCreateGame(client.id);
+    if (players === undefined) return;
+    if (players[0] !== undefined && players[1] !== undefined) {
+      console.log('game can start');
+      this.server.to(players[0]).emit('endWaitingState');
+      this.server.to(players[1]).emit('endWaitingState');
+    }
+    // maybe use the "join" method in socket.io?
+  }
+
+  @SubscribeMessage('startGame')
+  handleStartGame(client: Socket, payload: Object): Object {
+    // probably need "client/socket id" from both client and save it into the "gamedata" object.
+    console.log("Let's go!");
+    let gameData = { x: -99, y: -99 };
+    console.log(gameData);
+
+    // Move the GAME LOOP(gameInterval) here so all the event listener/emitter will stay in this gateway file
+    // gameInterval will call "gameLogic" 30 times per second.
+    const gameInterval = setInterval(async () => {
+      gameData = this.gameService.gameLogic(client, gameData);
+      this.server.to(client.id).emit('updateBall', gameData);
+      // also need to ubpdate the paddle for both sides.
+    }, 1000 / 30);
+
+    return { event: 'start game', socketID: client.id };
+  }
+
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: Object): Object {
+  handleMovePaddle(client: Socket, payload: string): Object {
+    const gameData = this.gameService.movePaddle(client, payload);
+    console.log(gameData);
+    this.server
+      .to(gameData.currentGame.rightPlayer.socketID)
+      .emit('updateRightPaddle', gameData.currentPlayer.paddlePosition);
     console.log(payload);
     console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
