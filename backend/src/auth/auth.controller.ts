@@ -24,7 +24,10 @@ import { User } from '@prisma/client';
 @ApiTags('User')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private twoFA: TwoFA) {}
+  constructor(
+    private authService: AuthService,
+    private twoFA: TwoFA,
+  ) {}
 
   @Get('fourtytwo/login')
   @UseGuards(FourtyTwoAuthGuard)
@@ -72,7 +75,7 @@ export class AuthController {
     @Res() res: any,
     @GetUser() user: User,
   ) {
-	await this.authService.twoFAVerify(user, res, payload);
+    await this.authService.twoFAVerify(user, res, payload);
   }
 
   @UseGuards(JwtGuard)
@@ -80,9 +83,10 @@ export class AuthController {
   @ApiOkResponse({ description: 'User is now offline.' })
   @ApiUnauthorizedResponse({ description: 'Logout failed.' })
   async logout(
-    @Req() req: any,
+    @Req() req: Request,
     @Res() res: any,
-    @GetUser() user: User): Promise<void> {
+    @GetUser() user: User,
+  ): Promise<void> {
     await this.authService.handleLogout(user, res, req);
   }
 }

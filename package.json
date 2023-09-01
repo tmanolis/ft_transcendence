@@ -25,5 +25,9 @@
       "eslint ./frontend --fix",
       "prettier --write ./frontend"
     ]
+  },
+  "dependencies": {
+    "@types/cache-manager": "^4.0.2",
+    "cache-manager": "^5.2.3"
   }
 }

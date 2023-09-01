@@ -53,10 +53,10 @@ export class AuthService {
           },
         });
       } catch (error) {
-	      if (error.code === 'P2002') {
-		throw new ForbiddenException('Credentials taken');
-		throw error;
-	      }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+          throw error;
+        }
       }
     }
     // const token = await this.signToken(user.id, user.email);
@@ -65,7 +65,7 @@ export class AuthService {
     if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
     }
-	await this.updateAfterLogin(user, res);
+    await this.updateAfterLogin(user, res);
   }
 
   async localSignup(res: any, dto: AuthDto) {
@@ -108,43 +108,42 @@ export class AuthService {
       return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
+    return user;
   }
 
   async handleLogout(user: User, res: any, req: any) {
-    await this.prisma.user.update ({
+    await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
         status: 'OFFLINE',
-      }
-    })
+      },
+    });
 
-	const token = req.cookies.jwt;
-    if (token){
+    const token = req.cookies.jwt;
+    if (token) {
       this.addToBlacklist(user.id, token);
     }
 
     res.clearCookie('jwt');
-
     // here we should redirect to login page
     res.send('Logout OK');
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
-	console.log('checking 2fa');
-	try {
-		const validatedUser = await this.twoFA.validate(
-		  user.userName,
-		  payload.code,
-		);
-		if (validatedUser) {
-		  this.updateAfterLogin(user, res);
-		}
-	  } catch (error) {
-		const caughtError = error.message;
-		res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-	  }
+    try {
+      const validatedUser = await this.twoFA.validate(
+        user.userName,
+        payload.code,
+      );
+      if (validatedUser) {
+        this.updateAfterLogin(user, res);
+      }
+    } catch (error) {
+      const caughtError = error.message;
+      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+    }
   }
 
   signToken(id: string, email: string): Promise<string> {
@@ -176,24 +175,24 @@ export class AuthService {
     return null;
   }
 
-  async addToBlacklist(userID: string, token: string): Promise<void>{
-	await this.prisma.jwtBlacklist.upsert({
-		where: { userID },
-		update: { token },
-		create: { token, userID },
-	  });
+  async addToBlacklist(userID: string, token: string): Promise<void> {
+    await this.prisma.jwtBlacklist.upsert({
+      where: { userID },
+      update: { token },
+      create: { token, userID },
+    });
   }
 
   async updateAfterLogin(user: User, res: any) {
-    await this.prisma.user.update ({
+    await this.prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
         status: 'ONLINE',
-      }
-    })    
-  
+      },
+    });
+
     const token = await this.signToken(user.id, user.email);
     res.cookie('jwt', token).redirect('http://localhost:8080');
   }
