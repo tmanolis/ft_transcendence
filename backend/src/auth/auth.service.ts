@@ -189,6 +189,10 @@ export class AuthService {
     });
 
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token).redirect('http://localhost:8080');
+    if (user.isFourtyTwoStudent) {
+      res.cookie('jwt', token).redirect('http://localhost:8080');
+    } else {
+      res.cookie('jwt', token).send({"status":"logged in"});
+    }
   }
 }

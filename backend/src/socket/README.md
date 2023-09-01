@@ -7,10 +7,9 @@
 
 - No frontend for now. Need Postman or other client for testing.
 
-## Event Listener (Clients -> Server)
 
-### GAME
-
+## GAME
+### Event Listener (Clients -> Server)
 - startGame
   User click on "play" button.  
   Will create a new game or join an existing game.
@@ -21,8 +20,12 @@
 
 - movePaddle
 
-### CHAT
+### Event Emitter (Server -> Clients)
+- gameLoop
+  30fps
 
+## CHAT
+### Event Listener (Clients -> Server)
 - startChat
 
 - inviteUserToChat
@@ -47,15 +50,7 @@
 
 - message
 
-## Event Emitter (Server -> Clients)
-
-### GAME
-
-- gameLoop
-  30fps
-
-### CHAT
-
+### Event Emitter (Server -> Clients)
 - messageBroadcast
 
 - userJoined
