@@ -1,38 +1,38 @@
 import React, { useState } from "react";
 import LoginForm from "../components/LoginForm";
-import RegisterForm from "../components/RegisterForm"
+import RegisterForm from "../components/RegisterForm";
 import styled from "styled-components";
-import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2';
+import JBRegular from "../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2";
 
 type PageContainerProps = {
-	children?: React.ReactNode;
-}
+  children?: React.ReactNode;
+};
 
 const PageContainer = styled.div<PageContainerProps>`
   @font-face {
-	font-family: 'JetBrains Mono';
-    src: url(${JBRegular}) format('woff2');
+    font-family: "JetBrains Mono";
+    src: url(${JBRegular}) format("woff2");
     font-weight: normal;
     font-style: normal;
   }
-`
+`;
 
 const Authentification = () => {
-	const [switchRegister, setSwitchRegister] = useState<boolean>(false);
+  const [switchRegister, setSwitchRegister] = useState<boolean>(false);
 
-	const handleLink = () => {
-		setSwitchRegister(true);
-	}
+  const handleLink = () => {
+    setSwitchRegister(true);
+  };
 
-	return (
-		<PageContainer>
-			{switchRegister ? (
-				<RegisterForm /> 
-			) :(
-				<LoginForm onLinkClick={handleLink} />
-			)}
-		</PageContainer>
-	)
-}
+  return (
+    <PageContainer>
+      {switchRegister ? (
+        <RegisterForm />
+      ) : (
+        <LoginForm onLinkClick={handleLink} />
+      )}
+    </PageContainer>
+  );
+};
 
 export default Authentification;

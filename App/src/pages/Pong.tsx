@@ -1,191 +1,240 @@
-import styled from "styled-components";
-import JBRegular from '../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2'
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import Cookies from "js-cookie";
 
-const PageContainer = styled.div`
-  @font-face {
-		font-family: 'JetBrains Mono';
-    src: url(${JBRegular}) format('woff2');
-    font-weight: normal;
-    font-style: normal;
-	}
-	
-	h1, p {
-		color: white;
-		font-family: 'JetBrains Mono', monospace;
-  }
-	
-	background: black;
-	align-items: center;
-	text-align: center;
-	justify-content: center;
-	flex-direction: column;
-	position: fixed;
-	width: 100%;
-`
+import PageContainer from "../components/styles/PageContainer.styled";
+
+// Connect to the socket from outside of the component
+// avoid reconnection when ever the states changed
+const access_token: string = Cookies.get("jwt")!;
+const socket: Socket = io("http://localhost:3000", {
+  extraHeaders: {
+    Authorization: access_token,
+  },
+});
+socket.connect();
+
+interface Position {
+  x: number;
+  y: number;
+}
 
 const Pong = () => {
-	const canvasRef = useRef<HTMLCanvasElement | null> (null);
-	const canvasWidth = 800;
-	const canvasHeight = 400;
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasWidth = 800;
+  const canvasHeight = 400;
 
-	const paddleHeight = 75;
-	const paddleWidth = 10;
-	const [leftPaddleY, setLeftPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
-  	const [rightPaddleY, setRightPaddleY] = useState<number>(canvasHeight / 2 - paddleHeight / 2);
-	const [ball, setBall] = useState<number>(0);
-	const [isWaiting, setIsWaiting] = useState<boolean>(true);
-	const [countdown, setCountdown] = useState<number>(3);
-	const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
+  const paddleHeight = 75;
+  const paddleWidth = 10;
+  const [leftPaddleY, setLeftPaddleY] = useState<number>(
+    canvasHeight / 2 - paddleHeight / 2,
+  );
+  const [rightPaddleY, setRightPaddleY] = useState<number>(
+    canvasHeight / 2 - paddleHeight / 2,
+  );
+  const [ball, setBall] = useState<Position>({ x: 0, y: 0 });
+  const [isLanding, setIsLanding] = useState<boolean>(true);
+  const [isWaiting, setIsWaiting] = useState<boolean>(true);
+  const [countdown, setCountdown] = useState<number>(3);
+  const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
 
-	const socketRef = useRef<Socket | null>(null);
+  useEffect(() => {
+    socket.on("connect", () => {
+      console.log("connected: ", socket?.id);
+    });
 
-	useEffect(() => {
-		socketRef.current = io('http://localhost:3000');
+    socket.on("disconnect", () => {
+      console.log("disconnected: ", socket?.id);
+    });
 
-		socketRef.current.on('connect', () => {
-			console.log('connected: ', socketRef.current?.id);
-		})
-		
-		socketRef.current.on('error', (error: string) => {
-			console.log("Websocket connection error: ", error);
-		})
+    socket.on("error", (error: string) => {
+      console.log("Websocket connection error: ", error);
+    });
 
-		socketRef.current.on('updateLeftPaddle', (newPosition: string) => {
-			setLeftPaddleY(parseInt(newPosition));
-		});
+    socket.on("updateLeftPaddle", (newPosition: string) => {
+      setLeftPaddleY(parseInt(newPosition));
+    });
 
-		socketRef.current.on('updateRightPaddle', (newPosition: string) => {
-			setRightPaddleY(parseInt(newPosition));
-		});
+    socket.on("updateRightPaddle", (newPosition: string) => {
+      setRightPaddleY(parseInt(newPosition));
+    });
 
-		socketRef.current.on('updateScore', (newScore: Record<number, number>) => {
-			setScore(newScore);
-		})
+    socket.on("updateBall", (newPosition: Position) => {
+      setBall(newPosition);
+    });
 
-    if (!isWaiting && countdown <= 1) {
-		  socketRef.current.emit('startGame');
+    socket.on("updateScore", (newScore: Record<number, number>) => {
+      setScore(newScore);
+    });
+
+    // still testing
+    socket.on("gameRunning", (gameState: Object) => {
+      console.log(gameState);
+    });
+
+    console.log(isWaiting, countdown);
+    if (!isWaiting && countdown < 1) {
+      console.log("game start!");
+      socket.emit("startGame");
     }
 
-		socketRef.current.on('endWaitingState', () => {
-			setIsWaiting(false);
-			const interval = setInterval(() => {
-				setCountdown((prevCountdown: number) => {
-					if (prevCountdown <= 1) {
-						clearInterval(interval);
-						return 0;
-					} else {
-						return prevCountdown - 1;
-					}
-				})
-			}, 1000);
-		})
+    socket.on("endWaitingState", () => {
+      setIsWaiting(false);
+      const interval = setInterval(() => {
+        setCountdown((prevCountdown: number) => {
+          if (prevCountdown <= 1) {
+            clearInterval(interval);
+            return 0;
+          } else {
+            return prevCountdown - 1;
+          }
+        });
+      }, 1000);
+    });
 
-		socketRef.current.on('updateBallPosition', (newPositionBall: string) => {
-			setBall(parseInt(newPositionBall));
-		});
+    socket.emit("setCanvas", { canvasHeight, paddleHeight, leftPaddleY });
 
-		socketRef.current.emit('setCanvas', {canvasHeight, paddleHeight, leftPaddleY});
-			
-		return () => {
-			socketRef.current?.disconnect();
-			socketRef.current?.off('error');
-			socketRef.current?.off('updatePaddlePosition');
-			socketRef.current?.off('updateBallPosition');
-		};
-	}, []);
-	
-	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (!isWaiting){
-				if (event.key === "ArrowUp") {
-					socketRef.current?.emit('movePaddle', 'up');
-				} else if (event.key === "ArrowDown") {
-					socketRef.current?.emit('movePaddle', 'down');
-				}
-			}
-		};
+    return () => {
+      socket?.off("error");
+      socket?.off("updatePaddlePosition");
+      socket?.off("updateBallPosition");
+    };
+  }, [isWaiting, countdown]);
 
-		window.addEventListener("keydown", handleKeyDown);
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      console.log(event.key);
+      if (!isWaiting) {
+        if (event.key === "ArrowUp") {
+          socket?.emit("movePaddle", "up");
+        } else if (event.key === "ArrowDown") {
+          socket?.emit("movePaddle", "down");
+        }
+      }
+    };
 
-		return () => {
-			window.removeEventListener('keydown', handleKeyDown);
-		}
-	}, [isWaiting]);
+    window.addEventListener("keydown", handleKeyDown);
 
-	useEffect(() => {
-		const canvas = canvasRef.current;
-		if (canvas) {
-			const context = canvas.getContext("2d");
-			if (context) {
-				canvas.width = canvasWidth;
-				canvas.height = canvasHeight;
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isWaiting]);
 
-				// make background canvas black
-				context.fillStyle = 'black';
-				context.fillRect(0, 0, canvas.width, canvas.height);
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      console.log(event.key);
+      if (isLanding) {
+        if (event.key === "Enter") {
+          console.log("enter pressed");
+          socket?.emit("playGame");
+          setIsLanding(false);
+        }
+      }
+    };
 
-				// draw a white border
-				context.strokeStyle = 'white';
-				context.lineWidth = 3;
-				context.setLineDash([]);
-				context.strokeRect(0, 0, canvas.width, canvas.height);
+    window.addEventListener("keydown", handleKeyDown);
 
-				// draw the dashed divider line
-				context.setLineDash([30, 15]);
-				context.beginPath();
-				context.moveTo(canvas.width / 2, 0);
-				context.lineTo(canvas.width / 2, canvas.height);
-				context.stroke();
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isLanding]);
 
-				// draw both paddles
-				context.fillStyle = 'white';
-				context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
-				context.fillRect(canvasWidth - paddleWidth - 40, rightPaddleY, paddleWidth, paddleHeight);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const context = canvas.getContext("2d");
+      if (context) {
+        canvas.width = canvasWidth;
+        canvas.height = canvasHeight;
 
-				// draw the ball 
-				context.fillStyle = 'white';
-				context.fillRect(
-          canvasWidth / 2 - paddleWidth / 2,
-          canvasHeight / 2 - paddleWidth / 2, 
+        // make background canvas black
+        context.fillStyle = "black";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        // draw a white border
+        context.strokeStyle = "white";
+        context.lineWidth = 3;
+        context.setLineDash([]);
+        context.strokeRect(0, 0, canvas.width, canvas.height);
+
+        // draw the dashed divider line
+        context.setLineDash([30, 15]);
+        context.beginPath();
+        context.moveTo(canvas.width / 2, 0);
+        context.lineTo(canvas.width / 2, canvas.height);
+        context.stroke();
+
+        // draw both paddles
+        context.fillStyle = "white";
+        context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
+        context.fillRect(
+          canvasWidth - paddleWidth - 40,
+          rightPaddleY,
           paddleWidth,
-          paddleWidth
+          paddleHeight,
         );
 
-				// add score
-				context.font = "60px 'JetBrains Mono', monospace";
-				context.fillStyle = "white";
-				context.textAlign = "center";
-				context.textBaseline = "top";
-				context.fillText(score[0].toString(), canvas.width * 0.25, 20);
-				context.fillText(score[1].toString(), canvas.width * 0.75, 20);
-			}
+        // draw the ball
+        if (!isWaiting && countdown < 1) {
+          context.fillStyle = "white";
+          context.fillRect(
+            ball.x - paddleWidth / 2,
+            ball.y / 2 - paddleWidth / 2,
+            paddleWidth,
+            paddleWidth,
+          );
+        }
 
-			if (context && isWaiting) {
-				context.font = "30px 'JetBrains Mono', monospace";
-				context.fillStyle = "white";
-				context.textAlign = "center";
-				context.textBaseline = "middle";
-				context.fillText("Waiting for another player...", canvas.width / 2, canvas.height / 2);
-			  } else if (context && countdown > 0) {
-				context.font = "90px 'JetBrains Mono', monospace";
-				context.fillStyle = "white";
-				context.textAlign = "center";
-				context.textBaseline = "middle";
-				context.fillText(countdown.toString(), canvas.width / 2, canvas.height / 2);
-			  }
-		}
-	
-	}, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown, score])
+        // add score
+        context.font = "60px 'JetBrains Mono', monospace";
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.textBaseline = "top";
+        context.fillText(score[0].toString(), canvas.width * 0.25, 20);
+        context.fillText(score[1].toString(), canvas.width * 0.75, 20);
+      }
 
-	return (
-		<PageContainer>
-			<h1>Pong</h1>
-			<canvas ref={canvasRef} />
-			<p>Use the arrow keys to play the game</p>
-		</PageContainer>
-	)
-}
+      if (context && isLanding) {
+        context.font = "30px 'JetBrains Mono', monospace";
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(
+          "Press Enter to start a game.",
+          canvas.width / 2,
+          canvas.height / 2,
+        );
+      } else if (context && isWaiting) {
+        context.font = "30px 'JetBrains Mono', monospace";
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(
+          "Waiting for another player...",
+          canvas.width / 2,
+          canvas.height / 2,
+        );
+      } else if (context && countdown > 0) {
+        context.font = "90px 'JetBrains Mono', monospace";
+        context.fillStyle = "white";
+        context.textAlign = "center";
+        context.textBaseline = "middle";
+        context.fillText(
+          countdown.toString(),
+          canvas.width / 2,
+          canvas.height / 2,
+        );
+      }
+    }
+  }, [leftPaddleY, rightPaddleY, ball, isWaiting, isLanding, countdown, score]);
+
+  return (
+    <PageContainer>
+      <h1>Pong</h1>
+      <canvas ref={canvasRef} />
+      <p>Use the arrow keys to play the game</p>
+    </PageContainer>
+  );
+};
 
 export default Pong;

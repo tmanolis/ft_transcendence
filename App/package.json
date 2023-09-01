@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/socket.io": "^3.0.2",
     "axios": "^1.4.0",
+    "js-cookie": "^3.0.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-jsx": "^1.0.0",
@@ -19,6 +21,7 @@
     "styled-components": "^6.0.0-rc.6"
   },
   "devDependencies": {
+    "@types/js-cookie": "^3.0.3",
     "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "@types/styled-components": "^5.1.26",

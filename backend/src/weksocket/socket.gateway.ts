@@ -1,57 +1,68 @@
-import { Inject, UseGuards, forwardRef } from "@nestjs/common";
-import { OnGatewayConnection, SubscribeMessage, WebSocketGateway, WebSocketServer } from "@nestjs/websockets";
-import { Server, Socket } from 'socket.io'
-import { GameService } from "src/game/game.service";
+import { Inject, UseGuards, forwardRef } from '@nestjs/common';
+import {
+  OnGatewayConnection,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { GameService } from 'src/game/game.service';
 
 @WebSocketGateway({
-	cors: true,
+  cors: true,
 })
+export class SocketGateway implements OnGatewayConnection {
+  constructor(
+    @Inject(forwardRef(() => GameService))
+    private readonly gameService: GameService,
+  ) {}
 
-export class SocketGateway implements OnGatewayConnection{
+  private clients: Socket[] = [];
 
-	constructor(
-		@Inject(forwardRef(() => GameService))
-		private readonly gameService: GameService
-	) {}
+  @WebSocketServer()
+  server: Server;
 
-	private clients: Socket[] = [];
+  handleConnection(client: Socket) {
+    // console.log(`Client ${user.userName}connected with socket ${client.id}`);
+    this.clients.push(client);
+    this.gameService.joinOrCreateGame(client.id);
+  }
 
-	@WebSocketServer()
-	server: Server;
+  handleDisconnect(client: Socket) {
+    console.log(`Client disconnected: ${client.id}`);
+    this.clients = this.clients.filter((socket) => socket.id !== client.id);
+  }
 
-	handleConnection(client: Socket) {
-		// console.log(`Client ${user.userName}connected with socket ${client.id}`);
-		this.clients.push(client);
-		this.gameService.joinOrCreateGame(client.id);
-	}
+  @SubscribeMessage('setCanvas')
+  handleSetCanvas(client: Socket, payload: any) {
+    this.gameService.setCanvas(payload);
+  }
 
-	handleDisconnect(client: Socket) {
-		console.log(`Client disconnected: ${client.id}`);
-		this.clients = this.clients.filter((socket) => socket.id !== client.id);
-	}
+  @SubscribeMessage('movePaddle')
+  handleMovePaddle(client: Socket, payload: string) {
+    this.gameService.movePaddle(client, payload);
+  }
 
-	@SubscribeMessage('setCanvas')
-	handleSetCanvas(client: Socket, payload: any){
-		this.gameService.setCanvas(payload);
-	}
+  emitPaddleMovesLeft(
+    leftPlayerID: string,
+    rightPlayerID: string,
+    newPosition: number,
+  ) {
+    this.server.to(leftPlayerID).emit('updateLeftPaddle', newPosition);
+    this.server.to(rightPlayerID).emit('updateLeftPaddle', newPosition);
+  }
 
-	@SubscribeMessage('movePaddle')
-	handleMovePaddle(client: Socket, payload: string) {
-		this.gameService.movePaddle(client, payload);
-	}
+  emitPaddleMovesRight(
+    leftPlayerID: string,
+    rightPlayerID: string,
+    newPosition: number,
+  ) {
+    this.server.to(leftPlayerID).emit('updateRightPaddle', newPosition);
+    this.server.to(rightPlayerID).emit('updateRightPaddle', newPosition);
+  }
 
-	emitPaddleMovesLeft(leftPlayerID: string, rightPlayerID: string, newPosition: number) {
-		this.server.to(leftPlayerID).emit('updateLeftPaddle', newPosition);
-		this.server.to(rightPlayerID).emit('updateLeftPaddle', newPosition);
-	}
-
-	emitPaddleMovesRight(leftPlayerID: string, rightPlayerID: string, newPosition: number) {
-		this.server.to(leftPlayerID).emit('updateRightPaddle', newPosition);
-		this.server.to(rightPlayerID).emit('updateRightPaddle', newPosition);
-	}	
-
-	startGame(leftPlayerID: string, rightPlayerID: string) {
-		this.server.to(leftPlayerID).emit('endWaitingState');
-		this.server.to(rightPlayerID).emit('endWaitingState');
-	}
-	}
+  startGame(leftPlayerID: string, rightPlayerID: string) {
+    this.server.to(leftPlayerID).emit('endWaitingState');
+    this.server.to(rightPlayerID).emit('endWaitingState');
+  }
+}
