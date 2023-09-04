@@ -63,6 +63,12 @@ export class SocketGateway implements OnGatewayConnection {
     // maybe use the "join" method in socket.io?
   }
 
+  @SubscribeMessage('setCanvas')
+  handleSetCanvas(client: Socket, payload: any) {
+    console.log(payload);
+    this.gameService.setCanvas(payload);
+  }
+
   @SubscribeMessage('startGame')
   handleStartGame(client: Socket, payload: Object): Object {
     // probably need "client/socket id" from both client and save it into the "gamedata" object.
@@ -82,11 +88,14 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: string): Object {
+  handleMovePaddle(client: Socket, payload: Object): Object {
     const gameData = this.gameService.movePaddle(client, payload);
-    console.log(gameData);
+    console.log('game Data to sent: ', gameData);
     this.server
       .to(gameData.currentGame.rightPlayer.socketID)
+      .emit('updateRightPaddle', gameData.currentPlayer.paddlePosition);
+    this.server
+      .to(gameData.currentGame.leftPlayer.socketID)
       .emit('updateRightPaddle', gameData.currentPlayer.paddlePosition);
     console.log(payload);
     console.log('Paddle movinnnnn!!!');

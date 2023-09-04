@@ -41,12 +41,15 @@ export class GameService {
 
   private players: Player[] = [];
   private games: Game[] = [];
-  private startPaddle: number;
+  private startPaddle: number = 165;
   private gameIDcounter: number = 0;
 
   joinOrCreateGame(client: string) {
+    console.log(this.games);
     const availableGame = this.games.find((game) => game.nbPlayers === 1);
+    console.log('the available game: ', availableGame);
     if (availableGame) {
+      console.log('canvas data: ', this.canvas);
       const newPlayer = new Player(
         client,
         availableGame.gameID,
@@ -60,6 +63,7 @@ export class GameService {
         availableGame.rightPlayer.socketID,
       ];
     } else {
+      console.log('canvas data: ', this.canvas);
       const newPlayer = new Player(
         client,
         this.gameIDcounter,
@@ -71,6 +75,8 @@ export class GameService {
       this.players.push(newPlayer);
     }
   }
+
+  initGame(client: string) {}
 
   setCanvas({
     canvasHeight,
@@ -84,7 +90,7 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  movePaddle(client: Socket, payload: string) {
+  movePaddle(client: Socket, payload: Object) {
     const currentPlayer = this.players.find(
       (player) => player.socketID === client.id,
     );
@@ -94,18 +100,22 @@ export class GameService {
     } else {
       if (!currentPlayer.paddlePosition) {
         console.log('no pad pos');
-        currentPlayer.paddlePosition = 50;
+        currentPlayer.paddlePosition = 165;
       }
       if (payload === 'up') {
-        currentPlayer.paddlePosition = Math.max(
-          currentPlayer.paddlePosition - 10,
-          0,
-        );
+        if (currentPlayer.paddlePosition - 10 >= 0) {
+          currentPlayer.paddlePosition = Math.max(
+            currentPlayer.paddlePosition - 10,
+            0,
+          );
+        }
       } else if (payload === 'down') {
-        console.log('position: ', currentPlayer.paddlePosition);
-        currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
-        // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-        console.log('position: ', currentPlayer.paddlePosition);
+        if (currentPlayer.paddlePosition + 10 < 325) {
+          console.log('position: ', currentPlayer.paddlePosition);
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
+          // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
+          console.log('position: ', currentPlayer.paddlePosition);
+        }
       }
       const currentGame = this.games.find(
         (game) => game.gameID === currentPlayer.gameID,
