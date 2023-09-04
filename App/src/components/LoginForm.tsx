@@ -77,7 +77,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with <img src={fourtyTwoLogo} alt="42 Logo" style={{ width: '15px', height: 'auto' }}/></a>
+        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with <img src={fourtyTwoLogo} alt="42 Logo" /></a>
       </Button>
 
       <p>――――― OR ――――― </p>
