@@ -52,12 +52,12 @@ export class AuthService {
       }
     }
 
-    if (user.isFourtyTwoStudent === false) {
+    if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');
       return;
     }
 
-    if (user && user.isFourtyTwoStudent) {
+    if (user.twoFAActivated) {
       return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
@@ -192,7 +192,7 @@ export class AuthService {
     if (user.isFourtyTwoStudent) {
       res.cookie('jwt', token).redirect('http://localhost:8080');
     } else {
-      res.cookie('jwt', token).send({"status":"logged in"});
+      res.cookie('jwt', token).send({ status: 'logged in' });
     }
   }
 }
