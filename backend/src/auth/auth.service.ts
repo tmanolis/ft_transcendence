@@ -22,27 +22,18 @@ export class AuthService {
   ) {}
 
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
-    let user = await this.prisma.user.findUnique({
+    let user = await this.prisma.user.findFirst({
       where: {
-        id: dto.id,
+        OR: [{ email: dto.email }, { userName: dto.userName }],
       },
     });
 
-    let email = await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
-    });
+    // Maybe set up a "compound unique constraint" can avoid repeatetive requests.
+    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#unique-1
 
-    let userName = await this.prisma.user.findUnique({
-      where: {
-        userName: dto.userName,
-      },
-    });
-
-    if (!user && !email && !userName) {
+    if (!user) {
       try {
-        user = await this.prisma.user.create({
+        const user = await this.prisma.user.create({
           data: {
             id: dto.id,
             email: dto.email,
@@ -52,6 +43,7 @@ export class AuthService {
             password: dto.password,
           },
         });
+        return;
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
@@ -59,10 +51,13 @@ export class AuthService {
         }
       }
     }
-    // const token = await this.signToken(user.id, user.email);
-    // res.cookie('42accesToken', accessToken);
 
-    if (user.twoFAActivated) {
+    if (user.isFourtyTwoStudent === false) {
+      res.redirect('http://localhost:8080');
+      return;
+    }
+
+    if (user && user.isFourtyTwoStudent) {
       return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
@@ -194,6 +189,10 @@ export class AuthService {
     });
 
     const token = await this.signToken(user.id, user.email);
-    res.cookie('jwt', token).redirect('http://localhost:8080');
+    if (user.isFourtyTwoStudent) {
+      res.cookie('jwt', token).redirect('http://localhost:8080');
+    } else {
+      res.cookie('jwt', token).send({"status":"logged in"});
+    }
   }
 }

@@ -15,6 +15,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loginError, setLoginError] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -31,6 +32,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
         loginDTO,
         { withCredentials: true },
       );
+
       console.log(response);
       navigate("/pong");
       console.log("response other", response);
