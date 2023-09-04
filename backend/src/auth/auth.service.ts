@@ -46,8 +46,7 @@ export class AuthService {
         return;
       } catch (error) {
         if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-          throw error;
+          throw new ForbiddenException('Credentials taken')
         }
       }
     }

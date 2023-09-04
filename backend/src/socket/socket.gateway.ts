@@ -16,6 +16,13 @@ import { GameService } from '../game/game.service';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
 
+class Client {
+  constructor(
+    public email: string,
+    public socketID: string,
+  ) {}
+}
+
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost:8080'],
@@ -28,22 +35,40 @@ export class SocketGateway implements OnGatewayConnection {
   ) {}
   @WebSocketServer()
   server: Server;
+  private clients: Client[] = [];
 
   /****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
   async handleConnection(client: Socket) {
     const jwt = client.handshake.headers.authorization;
-    const jwtData = this.jwtService.decode(jwt);
-    console.log(jwtData);
-    console.log(client.id, ' connected to generic socket. ^_^');
-    if (!jwtData) {
-      console.log(client.id, 'Forbiden connection.');
-      client.disconnect();
-    }
+		let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
+    
+		try{
+			jwtData = this.jwtService.decode(jwt);
+		} catch (error) {
+			console.log(client.id, 'Forbiden connection.');
+			client.disconnect();
+			return;
+		}
+		
+		if (typeof jwtData === 'object') {
+			const existingClient = this.clients.find((c) => c.email === jwtData.email);
+			if (existingClient){
+				existingClient.socketID = client.id;
+			} else {
+				const newClient = new Client(jwtData.sub, client.id);
+				this.clients.push(newClient);
+			}
+		} else {
+			console.log(client.id, 'JWT data is not an object:', jwtData);
+			client.disconnect();
+			return;
+		}
   }
 
   async handleDisconnect(client: Socket) {
+		this.clients = this.clients.filter((c) => c.socketID !== client.id);
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
 
