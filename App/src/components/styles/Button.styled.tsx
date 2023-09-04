@@ -30,8 +30,6 @@ const StyledButton = styled.button<{}>`
   }
 `;
 
-
-
 const Button: React.FC<ButtonProps> = ({ type, onClick, children }) => {
   return (
     <StyledButton type={type} onClick={onClick}>
