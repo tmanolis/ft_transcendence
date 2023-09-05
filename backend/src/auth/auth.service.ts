@@ -92,8 +92,6 @@ export class AuthService {
       },
     });
 
-		console.log('user', user);
-
     if (!user) throw new ForbiddenException('User not found');
 
     if (user.isFourtyTwoStudent)

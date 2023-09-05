@@ -48,9 +48,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       if (status === 400) {
         setLoginError("Invalid email or password format");
       } else if (status === 403) {
-				console.log(error.response);
-        setLoginError(error.response.data.message);
-      } else {
+				if (error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+					setLoginError((error.response.data as any).message);
+      }} else {
         setLoginError("Login failed");
       }
     } else {
