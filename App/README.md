@@ -121,6 +121,7 @@ With `display: flex;` on the container, the elements inside are arranged in Flex
   
   3. If there are multiple lines, you can specify how the lines should distribute themselves with `align-content`.
 
+Useful webiste : [Flexbox Froggy](https://flexboxfroggy.com/).
 
 ## CSS GRID:
 CSS Grids complement Flexbox and allow for the creation of more complex layouts than Flexbox, without requiring elements of the same size.
@@ -147,3 +148,5 @@ Your browser will understand that the elements are within the grid.
 + In addition to the usual units like `px, em, rem`, and `%, fr` units are even simpler and allow you to specify a fraction of the grid.
 
 + `gap` is used to space elements between each other.
+
+Useful webiste : [Grid Garden](https://codepip.com/games/grid-garden/#fr).
