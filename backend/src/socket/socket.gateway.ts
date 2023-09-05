@@ -52,23 +52,25 @@ export class SocketGateway implements OnGatewayConnection {
 			return;
 		}
 		
+		if (typeof jwtData !== 'object'){
+			console.log(client.id, 'JWT data is not an object:', jwtData);
+			client.disconnect();
+			return;		
+		}
+
 		if (typeof jwtData === 'object') {
 			const existingClient = this.clients.find((c) => c.email === jwtData.email);
 			if (existingClient){
 				existingClient.socketID = client.id;
+				console.log('updating existing client:', existingClient.email);
 			} else {
-				const newClient = new Client(jwtData.sub, client.id);
+				const newClient = new Client(jwtData.email, client.id);
 				this.clients.push(newClient);
-			}
-		} else {
-			console.log(client.id, 'JWT data is not an object:', jwtData);
-			client.disconnect();
-			return;
-		}
+				console.log('creating new client:', newClient.email);
+		}}
   }
 
   async handleDisconnect(client: Socket) {
-		this.clients = this.clients.filter((c) => c.socketID !== client.id);
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
 
