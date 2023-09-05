@@ -48,7 +48,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       if (status === 400) {
         setLoginError("Invalid email or password format");
       } else if (status === 403) {
-        setLoginError("User not found");
+				console.log(error.response);
+        setLoginError(error.response.data.message);
       } else {
         setLoginError("Login failed");
       }
