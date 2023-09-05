@@ -71,6 +71,7 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   async handleDisconnect(client: Socket) {
+		
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
 

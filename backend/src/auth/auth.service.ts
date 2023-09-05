@@ -24,7 +24,10 @@ export class AuthService {
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
     let user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: dto.email }, { userName: dto.userName }],
+        OR: [
+					{ email: dto.email }, 
+					{ userName: dto.userName }
+				],
       },
     });
 
@@ -88,6 +91,8 @@ export class AuthService {
         email: dto.email,
       },
     });
+
+		console.log('user', user);
 
     if (!user) throw new ForbiddenException('User not found');
 
@@ -189,7 +194,7 @@ export class AuthService {
 
     const token = await this.signToken(user.id, user.email);
     if (user.isFourtyTwoStudent) {
-      res.cookie('jwt', token).redirect('http://localhost:8080');
+      res.cookie('jwt', token).redirect('http://localhost:8080/pong');
     } else {
       res.cookie('jwt', token).send({ status: 'logged in' });
     }
