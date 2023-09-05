@@ -18,6 +18,7 @@ class Game {
     public leftPlayer: Player,
     public rightPlayer: Player,
     public score: Record<number, number>,
+    public ballPosition: Position,
   ) {}
 }
 
@@ -49,7 +50,6 @@ export class GameService {
     const availableGame = this.games.find((game) => game.nbPlayers === 1);
     console.log('the available game: ', availableGame);
     if (availableGame) {
-      console.log('canvas data: ', this.canvas);
       const newPlayer = new Player(
         client,
         availableGame.gameID,
@@ -63,13 +63,15 @@ export class GameService {
         availableGame.rightPlayer.socketID,
       ];
     } else {
-      console.log('canvas data: ', this.canvas);
       const newPlayer = new Player(
         client,
         this.gameIDcounter,
         this.startPaddle,
       );
-      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
+      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0], {
+        x: 165,
+        y: 165,
+      });
       this.gameIDcounter++;
       this.games.push(newGame);
       this.players.push(newPlayer);
@@ -124,14 +126,11 @@ export class GameService {
     }
   }
 
-  gameLogic(client: Socket, gameData: Position) {
-    if (gameData.x === -99 && gameData.y === -99) {
-      return { x: 50, y: 50 };
-    } else {
-      return { x: gameData.x + 3, y: gameData.y + 3 };
-    }
+  gameLogic(client: Socket, gameData: Game) {
+    return { x: gameData.ballPosition.x + 3, y: gameData.ballPosition.y + 3 };
   }
 
+  /*
   async gameLoop(body: any, client: Socket) {
     let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
     let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
@@ -186,4 +185,5 @@ export class GameService {
       }
     }, 1000 / 30);
   }
+  */
 }
