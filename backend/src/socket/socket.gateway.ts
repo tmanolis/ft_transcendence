@@ -15,6 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../game/game.service';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
+import { Game } from '../dto/game.dto';
 
 @WebSocketGateway({
   cors: {
@@ -73,15 +74,16 @@ export class SocketGateway implements OnGatewayConnection {
   handleStartGame(client: Socket, payload: Object): Object {
     // probably need "client/socket id" from both client and save it into the "gamedata" object.
     console.log("Let's go!");
-    let gameData = { x: -99, y: -99 };
-    console.log(gameData);
 
     // Move the GAME LOOP(gameInterval) here so all the event listener/emitter will stay in this gateway file
     // gameInterval will call "gameLogic" 30 times per second.
     const gameInterval = setInterval(async () => {
-      gameData = this.gameService.gameLogic(client, gameData);
-      this.server.to(client.id).emit('updateBall', gameData);
+      const gameData = this.gameService.gameLogic(client);
+      this.server.to(client.id).emit('updateGame', gameData);
       // also need to ubpdate the paddle for both sides.
+      if (gameData.status === 'ended') {
+        clearInterval(gameInterval);
+      }
     }, 1000 / 30);
 
     return { event: 'start game', socketID: client.id };

@@ -19,6 +19,8 @@ class Game {
     public rightPlayer: Player,
     public score: Record<number, number>,
     public ballPosition: Position,
+    public ballDirection: Position,
+    public status: String,
   ) {}
 }
 
@@ -46,7 +48,6 @@ export class GameService {
   private gameIDcounter: number = 0;
 
   joinOrCreateGame(client: string) {
-    console.log(this.games);
     const availableGame = this.games.find((game) => game.nbPlayers === 1);
     console.log('the available game: ', availableGame);
     if (availableGame) {
@@ -68,10 +69,22 @@ export class GameService {
         this.gameIDcounter,
         this.startPaddle,
       );
-      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0], {
-        x: 165,
-        y: 165,
-      });
+      const newGame = new Game(
+        this.gameIDcounter,
+        1,
+        newPlayer,
+        null,
+        [0, 0],
+        {
+          x: 400,
+          y: 400,
+        },
+        {
+          x: 3,
+          y: 3,
+        },
+        'playig',
+      );
       this.gameIDcounter++;
       this.games.push(newGame);
       this.players.push(newPlayer);
@@ -126,8 +139,28 @@ export class GameService {
     }
   }
 
-  gameLogic(client: Socket, gameData: Game) {
-    return { x: gameData.ballPosition.x + 3, y: gameData.ballPosition.y + 3 };
+  gameLogic(client: Socket) {
+    const currentPlayer = this.players.find(
+      (player) => player.socketID === client.id,
+    );
+    const currentGame = this.games.find(
+      (game) => game.gameID === currentPlayer.gameID,
+    );
+
+    if (currentGame.ballPosition.x < 0 || currentGame.ballPosition.x >= 770) {
+      currentGame.ballDirection.x *= -1;
+    }
+    if (currentGame.ballPosition.y < 0 || currentGame.ballPosition.y >= 798) {
+      currentGame.ballDirection.y *= -1;
+    }
+    currentGame.ballPosition.x += currentGame.ballDirection.x;
+    currentGame.ballPosition.y += currentGame.ballDirection.y;
+
+    console.log(currentGame);
+    if (currentGame.ballPosition.x > 800) {
+      currentGame.status = 'ended';
+    }
+    return currentGame;
   }
 
   /*
