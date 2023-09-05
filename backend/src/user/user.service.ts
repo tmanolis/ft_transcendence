@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { UpdateDto } from 'src/auth/dto';
+import { UpdateDto } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';

@@ -11,7 +11,7 @@ import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
-import { UpdateDto } from 'src/auth/dto';
+import { UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
