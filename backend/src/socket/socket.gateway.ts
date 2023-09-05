@@ -11,6 +11,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from 'nestjs-prisma';
 
 import { GameService } from '../game/game.service';
 // Will implement latter
@@ -32,6 +33,7 @@ export class SocketGateway implements OnGatewayConnection {
   constructor(
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
+		private prisma: PrismaService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -41,17 +43,17 @@ export class SocketGateway implements OnGatewayConnection {
   /* handle connection/disconnection                                          */
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    const jwt = client.handshake.headers.authorization;
+		const jwt = client.handshake.headers.authorization;
 		let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    
-		try{
-			jwtData = this.jwtService.decode(jwt);
-		} catch (error) {
-			console.log(client.id, 'Forbiden connection.');
+
+		if (jwt === 'undefined' || jwt === null){
+			console.log('No jwt, disconnecting');
 			client.disconnect();
 			return;
+		} else {
+			jwtData = this.jwtService.decode(jwt);
 		}
-		
+	
 		if (typeof jwtData !== 'object'){
 			console.log(client.id, 'JWT data is not an object:', jwtData);
 			client.disconnect();
@@ -71,7 +73,17 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   async handleDisconnect(client: Socket) {
-		
+		const existingClient = this.clients.find((c) => c.socketID === client.id);
+		if (existingClient){
+			const user = await this.prisma.user.findFirst({
+				where: {
+					email: existingClient.email,
+				},
+			});
+			if (user.status === 'OFFLINE'){
+				this.clients = this.clients.filter((c) => c.email !== existingClient.email);
+			}
+		}
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
 
