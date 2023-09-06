@@ -59,7 +59,7 @@ export class GameService {
 			const newGame = new Game(this.gameIDcounter, 2, player1, player2, [0,0]);
 			this.gameIDcounter++;
 			this.games.push(newGame);
-		}
+	}
 
   setCanvas({
     canvasHeight,

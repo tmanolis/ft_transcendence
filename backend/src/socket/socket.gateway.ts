@@ -114,53 +114,65 @@ export class SocketGateway implements OnGatewayConnection {
 		})
 
 		if (startGame){
-			// this.server.to(currentPlayer.socketID).emit('endWaitingState');
-
 			this.server.to(gameRoom).emit('endWaitingState');
 		}
   }
 
 	@SubscribeMessage('invitePlayer')
-	async handleInvite(client: Socket) {
-		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);
-    // COMMENTING CODE PARTLY, BECAUSE I DON'T KNOW HOW I WILL RECEIVE INVITED USER
-		
-		// const otherPlayer: Client = this.clients.find((c) => c.userName === client.invite);
+	async handleInvitePlayer(client: Socket, payload: { inviting: string }) {
+		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);	
+		const invitedPlayer: Client = this.clients.find((c) => c.userName === payload.inviting);
 
 		// check if player is found, and is available:
-		// if (!otherPlayer) {
-		// 	client.emit("errorGameInvite", {error: "Player not found"});
-		// 	return;
-		// } else {
-		// 	const user = await this.prisma.user.findUnique{
-		// 		where: {
-		// 			email: otherPlayer.email,
-		// 		},
-		// 	}
-		// 	if (user.status !== "ONLINE"){
-		// 		client.emit("errorGameInvite", {error: "Player not available"});
-		// 		return;
-		// 	}
-		// }
+		if (!invitedPlayer) {
+			this.server.to(client.id).emit("errorGameInvite", {error: "Player not found"});
+			return;
+		} 
 
-		// this.gameService.createGame(currentPlayer, otherPlayer);
-
-		// update status of both players to 'PLAYING'
-		await this.prisma.user.update({
+		const user = await this.prisma.user.findUnique({
 			where: {
-				email: currentPlayer.email,
-			}, data : {
-				status: 'PLAYING'
-			}
-		});
-		// await this.prisma.user.update({
-		// 	where: {
-		// 		email: otherPlayer.email,
-		// 	}, data : {
-		// 		status: 'PLAYING'
-		// 	}
-		// });
+				email: invitedPlayer.email,
+			},
+		})
+		if (user.status !== "ONLINE"){
+			this.server.to(client.id).emit("errorGameInvite", {error: "Player not available"});
+			return;
+		}
+		this.server.to(invitedPlayer.socketID).emit("gameInvite", {invitedBy: currentPlayer.userName});
+	}
 
+	@SubscribeMessage('respondToInvite')
+	async handleRespondToInvite(client: Socket, payload: { accept: boolean, invitedBy: string }) {
+		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);	
+		const invitingPlayer: Client = this.clients.find((c) => c.userName === payload.invitedBy);
+	
+		if (payload.accept) {
+			this.gameService.createGame(currentPlayer, invitingPlayer);
+			await this.prisma.user.updateMany({
+				where: {
+					email: {
+						in: [currentPlayer.email, invitingPlayer.email],
+					},
+				},
+				data: {
+					status: 'PLAYING',
+				},
+			});
+
+			const gameID = currentPlayer.gameID.toString();
+			client.join(gameID);
+			this.server.to(invitingPlayer.socketID).emit("Invitation accepted");		
+		} else {
+			this.server.to(invitingPlayer.socketID).emit("Invitation declined");
+		}
+	}
+
+	@SubscribeMessage('inviteAccepted')
+	handleInviteAccepted(client: Socket){
+		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);
+		const gameRoom = currentPlayer.gameID.toString()
+		client.join(gameRoom);
+		this.server.to(gameRoom).emit('endWaitingState');
 	}
 
   // @SubscribeMessage('startGame')
