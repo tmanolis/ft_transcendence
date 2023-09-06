@@ -20,6 +20,7 @@ class Game {
     public score: Record<number, number>,
     public ballPosition: Position,
     public ballDirection: Position,
+    public ballAngle: number,
     public status: String,
   ) {}
 }
@@ -80,9 +81,10 @@ export class GameService {
           y: 400,
         },
         {
-          x: 3,
-          y: 3,
+          x: 7,
+          y: 7,
         },
+        Math.random() * Math.PI * 2,
         'playig',
       );
       this.gameIDcounter++;
@@ -109,6 +111,9 @@ export class GameService {
     const currentPlayer = this.players.find(
       (player) => player.socketID === client.id,
     );
+
+    console.log(currentPlayer);
+
     if (!currentPlayer) {
       console.log('error');
       return;
@@ -118,20 +123,15 @@ export class GameService {
         currentPlayer.paddlePosition = 165;
       }
       if (payload === 'up') {
-        if (currentPlayer.paddlePosition - 10 >= 0) {
-          currentPlayer.paddlePosition = Math.max(
-            currentPlayer.paddlePosition - 10,
-            0,
-          );
+        if (currentPlayer.paddlePosition - 5 >= 0) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
         }
       } else if (payload === 'down') {
-        if (currentPlayer.paddlePosition + 10 < 325) {
-          console.log('position: ', currentPlayer.paddlePosition);
-          currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
-          // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-          console.log('position: ', currentPlayer.paddlePosition);
+        if (currentPlayer.paddlePosition + 5 < 325) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
         }
       }
+
       const currentGame = this.games.find(
         (game) => game.gameID === currentPlayer.gameID,
       );
@@ -147,19 +147,48 @@ export class GameService {
       (game) => game.gameID === currentPlayer.gameID,
     );
 
-    if (currentGame.ballPosition.x < 0 || currentGame.ballPosition.x >= 770) {
+    if (!currentGame) {
+      return ;
+    }
+
+    if (currentGame.ballPosition.x <= 55 && 
+      (currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition > 0) &&
+      (currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition < 75)) {
       currentGame.ballDirection.x *= -1;
     }
-    if (currentGame.ballPosition.y < 0 || currentGame.ballPosition.y >= 798) {
+
+    if (currentGame.ballPosition.x >= 745 && 
+      (currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition > 0) &&
+      (currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition < 75)) {
+      currentGame.ballDirection.x *= -1;
+    }
+
+    if (currentGame.ballPosition.y < 3 || currentGame.ballPosition.y >= 797) {
       currentGame.ballDirection.y *= -1;
     }
-    currentGame.ballPosition.x += currentGame.ballDirection.x;
-    currentGame.ballPosition.y += currentGame.ballDirection.y;
 
-    console.log(currentGame);
-    if (currentGame.ballPosition.x > 800) {
+    currentGame.ballPosition.x += Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+    currentGame.ballPosition.y += Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+
+    if (currentGame.ballPosition.x > 780 ) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (currentGame.ballPosition.x <= 20) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
+      console.log("end");
       currentGame.status = 'ended';
     }
+
     return currentGame;
   }
 

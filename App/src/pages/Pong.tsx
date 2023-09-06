@@ -65,6 +65,7 @@ const Pong = () => {
 
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
+      setScore({0: gameData.score[0], 1: gameData.score[1]});
     });
 
     socket.on("updateScore", (newScore: Record<number, number>) => {
