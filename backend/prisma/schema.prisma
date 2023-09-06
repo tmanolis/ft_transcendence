@@ -87,6 +87,7 @@ enum Role {
 
 enum Status {
   ONLINE
+	AWAY
   OFFLINE
   PLAYING
 }

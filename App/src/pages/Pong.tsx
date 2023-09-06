@@ -66,6 +66,7 @@ const Pong = () => {
     socket.on("updateScore", (newScore: Record<number, number>) => {
       setScore(newScore);
     });
+	
 
     // still testing
     socket.on("gameRunning", (gameState: Object) => {

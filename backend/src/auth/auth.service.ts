@@ -123,9 +123,7 @@ export class AuthService {
       this.addToBlacklist(user.id, token);
     }
 
-    res.clearCookie('jwt');
-    // here we should redirect to login page
-    res.send('Logout OK');
+    res.clearCookie('jwt').redirect('http://localhost:8080');
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {

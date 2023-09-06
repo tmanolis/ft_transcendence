@@ -4,20 +4,12 @@ import { Cache } from 'cache-manager';
 
 // this should all be stored in the cache:
 
-class Player {
-  constructor(
-    public socketID: string,
-    public gameID: number,
-    public paddlePosition: number,
-  ) {}
-}
-
 class Game {
   constructor(
     public gameID: number,
     public nbPlayers: number,
-    public leftPlayer: Player,
-    public rightPlayer: Player,
+    public leftPlayer: {email: string, socketID: string, userName: string},
+    public rightPlayer: {email: string, socketID: string, userName: string},
     public score: Record<number, number>,
   ) {}
 }
@@ -40,38 +32,34 @@ export class GameService {
     paddleHeight: 0,
   };
 
-  private players: Player[] = [];
   private games: Game[] = [];
   private startPaddle: number;
   private gameIDcounter: number = 0;
 
-  joinOrCreateGame(client: string) {
-    const availableGame = this.games.find((game) => game.nbPlayers === 1);
-    if (availableGame) {
-      const newPlayer = new Player(
-        client,
-        availableGame.gameID,
-        this.startPaddle,
-      );
-      this.players.push(newPlayer);
-      availableGame.rightPlayer = newPlayer;
-      availableGame.nbPlayers++;
-      return [
-        availableGame.leftPlayer.socketID,
-        availableGame.rightPlayer.socketID,
-      ];
-    } else {
-      const newPlayer = new Player(
-        client,
-        this.gameIDcounter,
-        this.startPaddle,
-      );
-      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
-      this.gameIDcounter++;
-      this.games.push(newGame);
-      this.players.push(newPlayer);
-    }
-  }
+	joinOrCreateGame(player: {email: string, socketID: string, userName: string, gameID: number}){
+		const availableGame = this.games.find((game) => game.nbPlayers === 1);
+		if (availableGame){
+			player.gameID = availableGame.gameID;
+			availableGame.rightPlayer = player;
+			availableGame.nbPlayers++;
+			return true;
+		} else {
+			player.gameID = this.gameIDcounter;
+			const newGame = new Game(this.gameIDcounter, 1, player, null, [0,0]);
+			this.gameIDcounter++;
+			this.games.push(newGame);
+			return false;
+		}
+	}
+
+	createGame(player1: {email: string, socketID: string, userName: string, gameID: number}, 
+		player2: {email: string, socketID: string, userName: string, gameID: number}) {
+			player1.gameID = this.gameIDcounter;
+			player2.gameID = this.gameIDcounter;
+			const newGame = new Game(this.gameIDcounter, 2, player1, player2, [0,0]);
+			this.gameIDcounter++;
+			this.games.push(newGame);
+		}
 
   setCanvas({
     canvasHeight,
@@ -85,35 +73,35 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  movePaddle(client: Socket, payload: string) {
-    const currentPlayer = this.players.find(
-      (player) => player.socketID === client.id,
-    );
-    if (!currentPlayer) {
-      console.log('error');
-      return;
-    } else {
-      if (!currentPlayer.paddlePosition) {
-        console.log('no pad pos');
-        currentPlayer.paddlePosition = 50;
-      }
-      if (payload === 'up') {
-        currentPlayer.paddlePosition = Math.max(
-          currentPlayer.paddlePosition - 10,
-          0,
-        );
-      } else if (payload === 'down') {
-        console.log('position: ', currentPlayer.paddlePosition);
-        currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
-        // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-        console.log('position: ', currentPlayer.paddlePosition);
-      }
-      const currentGame = this.games.find(
-        (game) => game.gameID === currentPlayer.gameID,
-      );
-      return { currentGame: currentGame, currentPlayer: currentPlayer };
-    }
-  }
+  // movePaddle(client: Socket, payload: string) {
+  //   const currentPlayer = this.players.find(
+  //     (player) => player.socketID === client.id,
+  //   );
+  //   if (!currentPlayer) {
+  //     console.log('error');
+  //     return;
+  //   } else {
+  //     if (!currentPlayer.paddlePosition) {
+  //       console.log('no pad pos');
+  //       currentPlayer.paddlePosition = 50;
+  //     }
+  //     if (payload === 'up') {
+  //       currentPlayer.paddlePosition = Math.max(
+  //         currentPlayer.paddlePosition - 10,
+  //         0,
+  //       );
+  //     } else if (payload === 'down') {
+  //       console.log('position: ', currentPlayer.paddlePosition);
+  //       currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
+  //       // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
+  //       console.log('position: ', currentPlayer.paddlePosition);
+  //     }
+  //     const currentGame = this.games.find(
+  //       (game) => game.gameID === currentPlayer.gameID,
+  //     );
+  //     return { currentGame: currentGame, currentPlayer: currentPlayer };
+  //   }
+  // }
 
   gameLogic(client: Socket, gameData: Position) {
     if (gameData.x === -99 && gameData.y === -99) {
