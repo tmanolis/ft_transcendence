@@ -1,10 +1,9 @@
-// this should all be stored in the cache:
 interface Position {
   x: number;
   y: number;
 }
 
-class Player {
+export class Player {
   constructor(
     public socketID: string,
     public gameID: number,
@@ -20,6 +19,8 @@ export class Game {
     public rightPlayer: Player,
     public score: Record<number, number>,
     public ballPosition: Position,
-    public status: string,
+    public ballDirection: Position,
+    public ballAngle: number,
+    public status: String,
   ) {}
 }
