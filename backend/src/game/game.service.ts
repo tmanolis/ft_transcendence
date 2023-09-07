@@ -123,18 +123,42 @@ export class GameService {
     );
 
     if (!currentGame) {
-      return ;
+      return;
     }
 
-    if (currentGame.ballPosition.x <= 55 && 
-      (currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition > 0) &&
-      (currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition < 75)) {
+    if (currentGame.ballPosition.x > 750) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (currentGame.ballPosition.x <= 50) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (
+      currentGame.ballPosition.x <= 55 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
       currentGame.ballDirection.x *= -1;
     }
 
-    if (currentGame.ballPosition.x >= 745 && 
-      (currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition > 0) &&
-      (currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition < 75)) {
+    if (
+      currentGame.ballPosition.x >= 745 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
       currentGame.ballDirection.x *= -1;
     }
 
@@ -142,32 +166,20 @@ export class GameService {
       currentGame.ballDirection.y *= -1;
     }
 
-    currentGame.ballPosition.x += Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
-    currentGame.ballPosition.y += Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
-
-    if (currentGame.ballPosition.x > 780 ) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[0] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
-    }
-
-    if (currentGame.ballPosition.x <= 20) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[1] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
-    }
+    currentGame.ballPosition.x +=
+      Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+    currentGame.ballPosition.y +=
+      Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
 
     if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
-      console.log("end");
+      console.log('end');
       currentGame.status = 'ended';
     }
 
     return currentGame;
   }
 
-/*
+  /*
   async getGameDataFromCache(gameID: string): Object {
     const gameData: string = await this.cacheManager.get(body.gameID);
     if (gameData) {
@@ -188,5 +200,4 @@ export class GameService {
     }
   }
 */
-
 }

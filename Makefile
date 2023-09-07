@@ -14,5 +14,6 @@ fclean:	down
 	docker network prune --force
 	docker volume prune --force
 	rm -rf ./database
+	docker volume rm $$(docker volume ls -q)
 
 .PHONY:	all down fclean

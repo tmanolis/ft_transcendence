@@ -92,13 +92,16 @@ export class SocketGateway implements OnGatewayConnection {
   @SubscribeMessage('movePaddle')
   handleMovePaddle(client: Socket, payload: Object): Object {
     const gameData = this.gameService.movePaddle(client, payload);
-    let updateSide = "";
+    let updateSide = '';
     console.log('game Data to sent: ', gameData);
 
-    if (gameData.currentGame.leftPlayer.socketID === gameData.currentPlayer.socketID) {
-      updateSide = "updateLeftPaddle";
+    if (
+      gameData.currentGame.leftPlayer.socketID ===
+      gameData.currentPlayer.socketID
+    ) {
+      updateSide = 'updateLeftPaddle';
     } else {
-      updateSide = "updateRightPaddle";
+      updateSide = 'updateRightPaddle';
     }
 
     this.server

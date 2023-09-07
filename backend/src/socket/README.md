@@ -16,39 +16,42 @@
 ## GAME
 
 ### Listen
-|function | event name | parameters |description|
-|---------|------------| -----------|-----------|
-|handleSetCanvas|setCanvas | client, payload||
-|handlePlayGame | playGame | client| User try to join or create a game|
-|handleStartGame| startGame| client, payload| the gameInterval starts |
-|handleMovePaddle| movePaddle| client, payload|
-||inviteUserToPlay||todo|
-||pauseGame||todo|
 
+| function         | event name       | parameters      | description                       |
+| ---------------- | ---------------- | --------------- | --------------------------------- |
+| handleSetCanvas  | setCanvas        | client, payload |                                   |
+| handlePlayGame   | playGame         | client          | User try to join or create a game |
+| handleStartGame  | startGame        | client, payload | the gameInterval starts           |
+| handleMovePaddle | movePaddle       | client, payload |
+|                  | inviteUserToPlay |                 | todo                              |
+|                  | pauseGame        |                 | todo                              |
 
 ### Emit
-| event name | body |description|
-|-----------|-----------|------------|
-|updateGame|gameData|inside "startGame", 30 fps|
+
+| event name | body     | description                |
+| ---------- | -------- | -------------------------- |
+| updateGame | gameData | inside "startGame", 30 fps |
 
 ## CHAT
 
 ### Listen
-|function | event name | parameters |description|
-|---------|------------| -----------|-----------|
-||startChat||todo|
-||inviteUserToChat||todo|
-||joinChanel||todo|
-||leaveChanel||todo|
-||kickUserFromChanel||todo, chanel admin|
-||banUserFromChanel||todo, chanel admin|
-||unBanUserFromChanel||todo, chanel admin|
-||muteUser||todo, filter|
-||unMuteUser||todo, filter|
-||message|messageBody|todo|
+
+| function | event name          | parameters  | description        |
+| -------- | ------------------- | ----------- | ------------------ |
+|          | startChat           |             | todo               |
+|          | inviteUserToChat    |             | todo               |
+|          | joinChanel          |             | todo               |
+|          | leaveChanel         |             | todo               |
+|          | kickUserFromChanel  |             | todo, chanel admin |
+|          | banUserFromChanel   |             | todo, chanel admin |
+|          | unBanUserFromChanel |             | todo, chanel admin |
+|          | muteUser            |             | todo, filter       |
+|          | unMuteUser          |             | todo, filter       |
+|          | message             | messageBody | todo               |
 
 ### Emit
-| event name | body |description|
-|-----------|-----------|------------|
-|messageBroadcast|messageBody, chanel/room ID|todo|
-|userJoined|userName, chanel/room ID|todo|
+
+| event name       | body                        | description |
+| ---------------- | --------------------------- | ----------- |
+| messageBroadcast | messageBody, chanel/room ID | todo        |
+| userJoined       | userName, chanel/room ID    | todo        |
