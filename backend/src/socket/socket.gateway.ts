@@ -14,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
 import { GameService } from '../game/game.service';
+import { Inject, CACHE_MANAGER } from '@nestjs/common';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
 
@@ -33,10 +34,11 @@ class Client {
 })
 export class SocketGateway implements OnGatewayConnection {
   constructor(
+		@Inject (CACHE_MANAGER)
+		private readonly cacheManager: Cache,
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
 		private prisma: PrismaService,
-		private readonly cacheManager: Cache,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -96,9 +98,12 @@ export class SocketGateway implements OnGatewayConnection {
 			if (user.status === 'OFFLINE'){
 				this.clients = this.clients.filter((c) => c.email !== existingClient.email);
 			} else if (user.status === 'WAITING'){
-				const pendingPlayer = JSON.parse(await this.cacheManager.get('pendingPlayer'));
-				if (user.email === pendingPlayer.email){
-					await this.cacheManager.del('pendingPlayer');
+				const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+				if (pendingPlayer){
+					const pendingPlayerObject: {email: string, socketID: string, userName: string, gameID: number} = JSON.parse(pendingPlayer);
+					if (user.email === pendingPlayerObject.email){
+						await this.cacheManager.del('pendingPlayer');
+				}
 				}
 			}
 		}

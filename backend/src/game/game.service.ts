@@ -61,7 +61,7 @@ export class GameService {
 		}
 
 		// Matching
-		if (!pendingPlayer){
+		if (!pendingPlayer && player){
 			player.gameID = this.gameIDcounter;
 			this.gameIDcounter++;
 			this.cacheManager.set('pendingPlayer', JSON.stringify(player));
