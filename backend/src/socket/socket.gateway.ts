@@ -12,7 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'nestjs-prisma';
-
+import { Cache } from 'cache-manager';
 import { GameService } from '../game/game.service';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
@@ -36,6 +36,7 @@ export class SocketGateway implements OnGatewayConnection {
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
 		private prisma: PrismaService,
+		private readonly cacheManager: Cache,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -59,7 +60,7 @@ export class SocketGateway implements OnGatewayConnection {
 		if (typeof jwtData !== 'object'){
 			console.log(client.id, 'JWT data is not an object:', jwtData);
 			client.disconnect();
-			return;		
+			return;
 		}
 
 		if (typeof jwtData === 'object') {
@@ -73,6 +74,11 @@ export class SocketGateway implements OnGatewayConnection {
 						email: jwtData.email,
 					}
 				})
+				if (!user){
+					client.emit('accountDeleted', { message: 'Your account has been deleted.' });
+					client.disconnect();
+					return;
+				}
 				const newClient = new Client(jwtData.email, client.id, user.userName, null);
 				this.clients.push(newClient);
 				console.log('creating new client:', newClient.email);
@@ -89,6 +95,11 @@ export class SocketGateway implements OnGatewayConnection {
 			});
 			if (user.status === 'OFFLINE'){
 				this.clients = this.clients.filter((c) => c.email !== existingClient.email);
+			} else if (user.status === 'WAITING'){
+				const pendingPlayer = JSON.parse(await this.cacheManager.get('pendingPlayer'));
+				if (user.email === pendingPlayer.email){
+					await this.cacheManager.del('pendingPlayer');
+				}
 			}
 		}
     console.log(client.id, ' disconnected from generic socket. 0.0');
@@ -100,20 +111,13 @@ export class SocketGateway implements OnGatewayConnection {
   @SubscribeMessage('playGame')
   async handlePlayGame(client: Socket) {
 		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);
-		const startGame: boolean = this.gameService.joinOrCreateGame(currentPlayer);
+		const startGame: [boolean, number] = await this.gameService.joinOrCreateGame(currentPlayer);
 		const gameRoom: string = currentPlayer.gameID.toString();
 
 		client.join(gameRoom);
-		
-		await this.prisma.user.update({
-			where: {
-				email: currentPlayer.email,
-			}, data : {
-				status: 'PLAYING'
-			}
-		})
 
-		if (startGame){
+		// check if already playing before entering game
+		if (startGame[0]){
 			this.server.to(gameRoom).emit('endWaitingState');
 		}
   }
@@ -138,6 +142,9 @@ export class SocketGateway implements OnGatewayConnection {
 			this.server.to(client.id).emit("errorGameInvite", {error: "Player not available"});
 			return;
 		}
+		this.gameService.createInvitedGame(currentPlayer, invitedPlayer);
+		const gameID = currentPlayer.gameID.toString();
+		client.join(gameID);
 		this.server.to(invitedPlayer.socketID).emit("gameInvite", {invitedBy: currentPlayer.userName});
 	}
 
@@ -145,35 +152,17 @@ export class SocketGateway implements OnGatewayConnection {
 	async handleRespondToInvite(client: Socket, payload: { accept: boolean, invitedBy: string }) {
 		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);	
 		const invitingPlayer: Client = this.clients.find((c) => c.userName === payload.invitedBy);
-	
-		if (payload.accept) {
-			this.gameService.createGame(currentPlayer, invitingPlayer);
-			await this.prisma.user.updateMany({
-				where: {
-					email: {
-						in: [currentPlayer.email, invitingPlayer.email],
-					},
-				},
-				data: {
-					status: 'PLAYING',
-				},
-			});
+		const gameID = currentPlayer.gameID.toString();
 
-			const gameID = currentPlayer.gameID.toString();
+		if (payload.accept) {
 			client.join(gameID);
 			this.server.to(invitingPlayer.socketID).emit("Invitation accepted");		
 		} else {
 			this.server.to(invitingPlayer.socketID).emit("Invitation declined");
+			this.gameService.deleteGame(currentPlayer.gameID)
 		}
 	}
 
-	@SubscribeMessage('inviteAccepted')
-	handleInviteAccepted(client: Socket){
-		const currentPlayer: Client = this.clients.find((c) => c.socketID === client.id);
-		const gameRoom = currentPlayer.gameID.toString()
-		client.join(gameRoom);
-		this.server.to(gameRoom).emit('endWaitingState');
-	}
 
   // @SubscribeMessage('startGame')
   // handleStartGame(client: Socket, payload: Object): Object {

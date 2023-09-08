@@ -90,4 +90,5 @@ enum Status {
 	AWAY
   OFFLINE
   PLAYING
+	WAITING
 }
