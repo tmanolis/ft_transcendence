@@ -7,55 +7,51 @@
 
 - No frontend for now. Need Postman or other client for testing.
 
+## General
+
+- handleConnection
+
+- handleDisconnection
+
 ## GAME
 
-### Event Listener (Clients -> Server)
+### Listen
 
-- startGame
-  User click on "play" button.  
-  Will create a new game or join an existing game.
+| function         | event name       | parameters      | description                       |
+| ---------------- | ---------------- | --------------- | --------------------------------- |
+| handleSetCanvas  | setCanvas        | client, payload |                                   |
+| handlePlayGame   | playGame         | client          | User try to join or create a game |
+| handleStartGame  | startGame        | client, payload | the gameInterval starts           |
+| handleMovePaddle | movePaddle       | client, payload |
+|                  | inviteUserToPlay |                 | todo                              |
+|                  | pauseGame        |                 | todo                              |
 
-- pauseGame
+### Emit
 
-- inviteUserToPlay
-
-- movePaddle
-
-### Event Emitter (Server -> Clients)
-
-- gameLoop
-  30fps
+| event name | body     | description                |
+| ---------- | -------- | -------------------------- |
+| updateGame | gameData | inside "startGame", 30 fps |
 
 ## CHAT
 
-### Event Listener (Clients -> Server)
+### Listen
 
-- startChat
+| function | event name          | parameters  | description        |
+| -------- | ------------------- | ----------- | ------------------ |
+|          | startChat           |             | todo               |
+|          | inviteUserToChat    |             | todo               |
+|          | joinChanel          |             | todo               |
+|          | leaveChanel         |             | todo               |
+|          | kickUserFromChanel  |             | todo, chanel admin |
+|          | banUserFromChanel   |             | todo, chanel admin |
+|          | unBanUserFromChanel |             | todo, chanel admin |
+|          | muteUser            |             | todo, filter       |
+|          | unMuteUser          |             | todo, filter       |
+|          | message             | messageBody | todo               |
 
-- inviteUserToChat
+### Emit
 
-- joinChanel
-
-- leaveChanel
-
-- kickUserFromChanel
-  Admin of chanel.
-
-- banUserFromChanel
-  Admin of chanel.
-
-- unBanUserFromChanel
-  Admin of chanel.
-
-- muteUser
-  For only the user who sent the request.
-
-- unMuteUser
-
-- message
-
-### Event Emitter (Server -> Clients)
-
-- messageBroadcast
-
-- userJoined
+| event name       | body                        | description |
+| ---------------- | --------------------------- | ----------- |
+| messageBroadcast | messageBody, chanel/room ID | todo        |
+| userJoined       | userName, chanel/room ID    | todo        |

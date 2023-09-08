@@ -2,29 +2,8 @@ import { Inject, Injectable, forwardRef, CACHE_MANAGER } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 
-// this should all be stored in the cache:
-class Player {
-  constructor(
-    public socketID: string,
-    public gameID: number,
-    public paddlePosition: number,
-  ) {}
-}
-
-class Game {
-  constructor(
-    public gameID: number,
-    public nbPlayers: number,
-    public leftPlayer: Player,
-    public rightPlayer: Player,
-    public score: Record<number, number>,
-  ) {}
-}
-
-interface Position {
-  x: number;
-  y: number;
-}
+import { Game } from '../dto/game.dto';
+import { Player } from '../dto/game.dto';
 
 @Injectable()
 export class GameService {
@@ -41,11 +20,12 @@ export class GameService {
 
   private players: Player[] = [];
   private games: Game[] = [];
-  private startPaddle: number;
+  private startPaddle: number = 165;
   private gameIDcounter: number = 0;
 
   joinOrCreateGame(client: string) {
     const availableGame = this.games.find((game) => game.nbPlayers === 1);
+    console.log('the available game: ', availableGame);
     if (availableGame) {
       const newPlayer = new Player(
         client,
@@ -65,12 +45,30 @@ export class GameService {
         this.gameIDcounter,
         this.startPaddle,
       );
-      const newGame = new Game(this.gameIDcounter, 1, newPlayer, null, [0, 0]);
+      const newGame = new Game(
+        this.gameIDcounter,
+        1,
+        newPlayer,
+        null,
+        [0, 0],
+        {
+          x: 400,
+          y: 400,
+        },
+        {
+          x: 7,
+          y: 7,
+        },
+        Math.random() * Math.PI * 2,
+        'playig',
+      );
       this.gameIDcounter++;
       this.games.push(newGame);
       this.players.push(newPlayer);
     }
   }
+
+  initGame(client: string) {}
 
   setCanvas({
     canvasHeight,
@@ -84,29 +82,31 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  movePaddle(client: Socket, payload: string) {
+  movePaddle(client: Socket, payload: Object) {
     const currentPlayer = this.players.find(
       (player) => player.socketID === client.id,
     );
+
+    console.log(currentPlayer);
+
     if (!currentPlayer) {
       console.log('error');
       return;
     } else {
       if (!currentPlayer.paddlePosition) {
         console.log('no pad pos');
-        currentPlayer.paddlePosition = 50;
+        currentPlayer.paddlePosition = 165;
       }
       if (payload === 'up') {
-        currentPlayer.paddlePosition = Math.max(
-          currentPlayer.paddlePosition - 10,
-          0,
-        );
+        if (currentPlayer.paddlePosition - 5 >= 0) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
+        }
       } else if (payload === 'down') {
-        console.log('position: ', currentPlayer.paddlePosition);
-        currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
-        // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-        console.log('position: ', currentPlayer.paddlePosition);
+        if (currentPlayer.paddlePosition + 5 < 325) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
+        }
       }
+
       const currentGame = this.games.find(
         (game) => game.gameID === currentPlayer.gameID,
       );
@@ -114,66 +114,90 @@ export class GameService {
     }
   }
 
-  gameLogic(client: Socket, gameData: Position) {
-    if (gameData.x === -99 && gameData.y === -99) {
-      return { x: 50, y: 50 };
-    } else {
-      return { x: gameData.x + 3, y: gameData.y + 3 };
+  gameLogic(client: Socket) {
+    const currentPlayer = this.players.find(
+      (player) => player.socketID === client.id,
+    );
+    const currentGame = this.games.find(
+      (game) => game.gameID === currentPlayer.gameID,
+    );
+
+    if (!currentGame) {
+      return;
     }
+
+    if (currentGame.ballPosition.x > 750) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (currentGame.ballPosition.x <= 50) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
+
+    if (
+      currentGame.ballPosition.x <= 55 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
+      currentGame.ballDirection.x *= -1;
+    }
+
+    if (
+      currentGame.ballPosition.x >= 745 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
+      currentGame.ballDirection.x *= -1;
+    }
+
+    if (currentGame.ballPosition.y < 3 || currentGame.ballPosition.y >= 797) {
+      currentGame.ballDirection.y *= -1;
+    }
+
+    currentGame.ballPosition.x +=
+      Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+    currentGame.ballPosition.y +=
+      Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+
+    if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
+      console.log('end');
+      currentGame.status = 'ended';
+    }
+
+    return currentGame;
   }
 
-  async gameLoop(body: any, client: Socket) {
-    let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
-    let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
-    if (randX < 3 && randX >= 0) {
-      randX += 3;
+  /*
+  async getGameDataFromCache(gameID: string): Object {
+    const gameData: string = await this.cacheManager.get(body.gameID);
+    if (gameData) {
+      const gameDataJSON = JSON.parse(gameData);
+      return gameDataJSON;
     }
-    if (randX > -3 && randX <= 0) {
-      randX -= 3;
-    }
-    let direction = { x: randX, y: randY };
-
-    const gameInterval = setInterval(async () => {
-      //      console.log("interval called!!");
-      const gameData: string = await this.cacheManager.get(body.gameID);
-      console.log(gameData);
-      return { x: 1, y: 2 };
-      if (gameData) {
-        const gameDataJSON = JSON.parse(gameData);
-
-        let x = gameDataJSON.ballPosition.x;
-        let y = gameDataJSON.ballPosition.y;
-        if (y >= 480 || y <= 15) {
-          direction.y *= -1;
-        }
-        console.log(x, y);
-        console.log(gameDataJSON.leftUser);
-        if (
-          x <= 20 &&
-          y >= gameDataJSON.leftUser.position.y - 50 &&
-          y <= gameDataJSON.leftUser.position.y + 50
-        ) {
-          direction.x *= -1;
-        }
-
-        if (x > 710 || x < 10) {
-          clearInterval(gameInterval);
-          gameDataJSON.ballPosition.x = 360;
-          gameDataJSON.ballPosition.y = 360;
-          await this.cacheManager.del(body.gameID);
-          await this.cacheManager.set(
-            body.gameID,
-            JSON.stringify(gameDataJSON),
-          );
-        }
-
-        x += direction.x;
-        y += direction.y;
-        gameDataJSON.ballPosition.x = x;
-        gameDataJSON.ballPosition.y = y;
-        await this.cacheManager.del(body.gameID);
-        await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
-      }
-    }, 1000 / 30);
+    return null;
   }
+
+  async setGameDataToCache(gameID: string, newGameData: Object): void {
+    const gameData: string = await this.cacheManager.get(body.gameID);
+    if (gameData) {
+      await this.cacheManager.del(body.gameID);
+      await this.cacheManager.set(
+        body.gameID,
+        JSON.stringify(gameDataJSON),
+      );
+    }
+  }
+*/
 }

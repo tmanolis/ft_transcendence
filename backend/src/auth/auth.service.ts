@@ -47,10 +47,12 @@ export class AuthService {
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
-          throw error;
         }
       }
     }
+
+    console.log(user);
+    console.log('in 42 login');
 
     if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');

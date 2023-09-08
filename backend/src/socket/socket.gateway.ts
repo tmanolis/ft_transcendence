@@ -15,6 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { GameService } from '../game/game.service';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
+import { Game } from '../dto/game.dto';
 
 @WebSocketGateway({
   cors: {
@@ -63,31 +64,52 @@ export class SocketGateway implements OnGatewayConnection {
     // maybe use the "join" method in socket.io?
   }
 
+  @SubscribeMessage('setCanvas')
+  handleSetCanvas(client: Socket, payload: any) {
+    console.log(payload);
+    this.gameService.setCanvas(payload);
+  }
+
   @SubscribeMessage('startGame')
   handleStartGame(client: Socket, payload: Object): Object {
     // probably need "client/socket id" from both client and save it into the "gamedata" object.
     console.log("Let's go!");
-    let gameData = { x: -99, y: -99 };
-    console.log(gameData);
 
     // Move the GAME LOOP(gameInterval) here so all the event listener/emitter will stay in this gateway file
     // gameInterval will call "gameLogic" 30 times per second.
     const gameInterval = setInterval(async () => {
-      gameData = this.gameService.gameLogic(client, gameData);
-      this.server.to(client.id).emit('updateBall', gameData);
+      const gameData = this.gameService.gameLogic(client);
+      this.server.to(client.id).emit('updateGame', gameData);
       // also need to ubpdate the paddle for both sides.
+      if (gameData.status === 'ended') {
+        clearInterval(gameInterval);
+      }
     }, 1000 / 30);
 
     return { event: 'start game', socketID: client.id };
   }
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: string): Object {
+  handleMovePaddle(client: Socket, payload: Object): Object {
     const gameData = this.gameService.movePaddle(client, payload);
-    console.log(gameData);
+    let updateSide = '';
+    console.log('game Data to sent: ', gameData);
+
+    if (
+      gameData.currentGame.leftPlayer.socketID ===
+      gameData.currentPlayer.socketID
+    ) {
+      updateSide = 'updateLeftPaddle';
+    } else {
+      updateSide = 'updateRightPaddle';
+    }
+
     this.server
       .to(gameData.currentGame.rightPlayer.socketID)
-      .emit('updateRightPaddle', gameData.currentPlayer.paddlePosition);
+      .emit(updateSide, gameData.currentPlayer.paddlePosition);
+    this.server
+      .to(gameData.currentGame.leftPlayer.socketID)
+      .emit(updateSide, gameData.currentPlayer.paddlePosition);
     console.log(payload);
     console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
