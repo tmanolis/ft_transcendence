@@ -11,11 +11,26 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
-
+import { PrismaService } from 'nestjs-prisma';
+import { Cache } from 'cache-manager';
 import { GameService } from '../game/game.service';
+import { Inject, CACHE_MANAGER } from '@nestjs/common';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
 import { Game } from '../dto/game.dto';
+import { Player } from '../dto/game.dto';
+
+// changed this to Player class in game.dto
+/*
+class Client {
+  constructor(
+    public email: string,
+    public socketID: string,
+    public userName: string,
+    public gameID: number,
+  ) {}
+}
+*/
 
 @WebSocketGateway({
   cors: {
@@ -24,54 +39,107 @@ import { Game } from '../dto/game.dto';
 })
 export class SocketGateway implements OnGatewayConnection {
   constructor(
+    @Inject (CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
+    private prisma: PrismaService,
   ) {}
   @WebSocketServer()
   server: Server;
+  private clients: Player[] = [];
 
   /****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
   async handleConnection(client: Socket) {
     const jwt = client.handshake.headers.authorization;
-    const jwtData = this.jwtService.decode(jwt);
-    console.log(jwtData);
-    console.log(client.id, ' connected to generic socket. ^_^');
-    if (!jwtData) {
-      console.log(client.id, 'Forbiden connection.');
+    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
+
+    if (jwt === 'undefined' || jwt === null){
+      console.log('No jwt, disconnecting');
       client.disconnect();
+      return;
+    } else {
+      jwtData = this.jwtService.decode(jwt);
     }
+  
+    if (typeof jwtData !== 'object'){
+      console.log(client.id, 'JWT data is not an object:', jwtData);
+      client.disconnect();
+      return;
+    }
+
+    if (typeof jwtData === 'object') {
+      const existingClient:Player = this.clients.find((c) => c.email === jwtData.email);
+      if (existingClient){
+        existingClient.socketID = client.id;
+        console.log('updating existing client:', existingClient.email);
+      } else {
+        const user = await this.prisma.user.findUnique({
+          where: {
+            email: jwtData.email,
+          }
+        })
+        if (!user){
+          client.emit('accountDeleted', { message: 'Your account has been deleted.' });
+          client.disconnect();
+          return;
+        }
+        const newPlayer = new Player(null, jwtData.email, client.id, user.userName, 0);
+        this.clients.push(newPlayer);
+        console.log('creating new client/player:', newPlayer.email);
+    }}
   }
 
   async handleDisconnect(client: Socket) {
+    const existingClient = this.clients.find((c) => c.socketID === client.id);
+    if (existingClient){
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: existingClient.email,
+        },
+      });
+      if (user.status === 'OFFLINE'){
+        this.clients = this.clients.filter((c) => c.email !== existingClient.email);
+      } else if (user.status === 'WAITING'){
+        const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+        if (pendingPlayer){
+          const pendingPlayerObject: {email: string, socketID: string, userName: string, gameID: number} = JSON.parse(pendingPlayer);
+          if (user.email === pendingPlayerObject.email){
+            await this.cacheManager.del('pendingPlayer');
+        }
+        }
+      }
+    }
     console.log(client.id, ' disconnected from generic socket. 0.0');
   }
 
   /****************************************************************************/
   /* GAME                                                                     */
   /****************************************************************************/
-  @SubscribeMessage('playGame')
-  handlePlayGame(client: Socket) {
-    console.log(client.id, ' try to play the game');
-    let players = this.gameService.joinOrCreateGame(client.id);
-    if (players === undefined) return;
-    if (players[0] !== undefined && players[1] !== undefined) {
-      console.log('game can start');
-      this.server.to(players[0]).emit('endWaitingState');
-      this.server.to(players[1]).emit('endWaitingState');
-    }
-    // maybe use the "join" method in socket.io?
-  }
-
   @SubscribeMessage('setCanvas')
   handleSetCanvas(client: Socket, payload: any) {
     console.log(payload);
     this.gameService.setCanvas(payload);
   }
 
+  @SubscribeMessage('playGame')
+  async handlePlayGame(client: Socket) {
+    const currentPlayer: Player = this.clients.find((c) => c.socketID === client.id);
+    const startGame: [boolean, number] = await this.gameService.joinOrCreateGame(currentPlayer);
+    const gameRoom: string = currentPlayer.gameID.toString();
+
+    client.join(gameRoom);
+
+    // check if already playing before entering game
+    if (startGame[0]){
+      this.server.to(gameRoom).emit('endWaitingState');
+    }
+  }
+
   @SubscribeMessage('startGame')
-  handleStartGame(client: Socket, payload: Object): Object {
+  async handleStartGame(client: Socket, payload: Object): Promise<Object> {
     // probably need "client/socket id" from both client and save it into the "gamedata" object.
     console.log("Let's go!");
 
@@ -85,20 +153,64 @@ export class SocketGateway implements OnGatewayConnection {
         clearInterval(gameInterval);
       }
     }, 1000 / 30);
-
+    
     return { event: 'start game', socketID: client.id };
+  }
+
+  @SubscribeMessage('invitePlayer')
+  async handleInvitePlayer(client: Socket, payload: { inviting: string }) {
+    const currentPlayer: Player = this.clients.find((c) => c.socketID === client.id);  
+    const invitedPlayer: Player = this.clients.find((c) => c.userName === payload.inviting);
+
+    // check if player is found, and is available:
+    if (!invitedPlayer) {
+      this.server.to(client.id).emit("errorGameInvite", {error: "Player not found"});
+      return;
+    } 
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: invitedPlayer.email,
+      },
+    })
+    if (user.status !== "ONLINE"){
+      this.server.to(client.id).emit("errorGameInvite", {error: "Player not available"});
+      return;
+    }
+    this.gameService.createInvitedGame(currentPlayer, invitedPlayer);
+    const gameID = currentPlayer.gameID.toString();
+    client.join(gameID);
+    this.server.to(invitedPlayer.socketID).emit("gameInvite", {invitedBy: currentPlayer.userName});
+  }
+
+  @SubscribeMessage('respondToInvite')
+  async handleRespondToInvite(client: Socket, payload: { accept: boolean, invitedBy: string }) {
+    const currentPlayer: Player = this.clients.find((c) => c.socketID === client.id);  
+    const invitingPlayer: Player = this.clients.find((c) => c.userName === payload.invitedBy);
+    const gameID = currentPlayer.gameID.toString();
+
+    if (payload.accept) {
+      client.join(gameID);
+      this.server.to(invitingPlayer.socketID).emit("Invitation accepted");    
+    } else {
+      this.server.to(invitingPlayer.socketID).emit("Invitation declined");
+      this.gameService.deleteGame(currentPlayer.gameID)
+    }
   }
 
   @SubscribeMessage('movePaddle')
   handleMovePaddle(client: Socket, payload: Object): Object {
     const gameData = this.gameService.movePaddle(client, payload);
-    let updateSide = "";
+    let updateSide = '';
     console.log('game Data to sent: ', gameData);
 
-    if (gameData.currentGame.leftPlayer.socketID === gameData.currentPlayer.socketID) {
-      updateSide = "updateLeftPaddle";
+    if (
+      gameData.currentGame.leftPlayer.socketID ===
+      gameData.currentPlayer.socketID
+    ) {
+      updateSide = 'updateLeftPaddle';
     } else {
-      updateSide = "updateRightPaddle";
+      updateSide = 'updateRightPaddle';
     }
 
     this.server

@@ -5,7 +5,7 @@ import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
-// import fourtyTwoLogo from "../assets/42_logo";
+import fourtyTwoLogo from "../assets/42_logo.png"
 
 export type LoginFormProps = {
   onLinkClick: () => void;
@@ -48,8 +48,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       if (status === 400) {
         setLoginError("Invalid email or password format");
       } else if (status === 403) {
-        setLoginError("User not found");
-      } else {
+				if (error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
+					setLoginError((error.response.data as any).message);
+      }} else {
         setLoginError("Login failed");
       }
     } else {
@@ -77,7 +78,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with 42</a>
+        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with <img src={fourtyTwoLogo} alt="42 Logo" /></a>
       </Button>
 
       <p>――――― OR ――――― </p>

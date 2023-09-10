@@ -5,8 +5,10 @@ interface Position {
 
 export class Player {
   constructor(
-    public socketID: string,
     public gameID: number,
+    public email: string,
+    public socketID: string,
+    public userName: string,
     public paddlePosition: number,
   ) {}
 }
