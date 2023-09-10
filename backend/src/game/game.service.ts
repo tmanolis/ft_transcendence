@@ -3,30 +3,15 @@ import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { PrismaService } from 'nestjs-prisma';
 
-// this should all be stored in the cache:
-
-class Game {
-  constructor(
-    public gameID: number,
-    public nbPlayers: number,
-    public leftPlayer: {email: string, socketID: string, userName: string},
-    public rightPlayer: {email: string, socketID: string, userName: string},
-    public score: Record<number, number>,
-
-  ) {}
-}
-
-interface Position {
-  x: number;
-  y: number;
-}
+import { Game } from '../dto/game.dto';
+import { Player } from '../dto/game.dto';
 
 @Injectable()
 export class GameService {
   constructor(
-		@Inject(CACHE_MANAGER) 
-		private readonly cacheManager: Cache,
-		private prisma: PrismaService,
+    @Inject(CACHE_MANAGER) 
+    private readonly cacheManager: Cache,
+    private prisma: PrismaService,
 ) {}
 
   // this should all be stored in the cache:
@@ -39,81 +24,102 @@ export class GameService {
   };
 
   private games: Game[] = [];
-  private startPaddle: number;
+  private startPaddle: number = 165;
   private gameIDcounter: number = 0;
 
-	async joinOrCreateGame(
-		player: {email: string, socketID: string, userName: string, gameID: number}): Promise<[boolean, number]>{
-		let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-		
-		// Check if pending player is still waiting to start a game
-		if (pendingPlayer){
-			const otherPlayer = JSON.parse(pendingPlayer);
-			const user = await this.prisma.user.findUnique({
-				where: {
-					email: otherPlayer.email,
-				}
-			})
-			if (user.status !== 'WAITING'){
-				this.cacheManager.del('pendingPlayer');
-				pendingPlayer = undefined;
-			}
-		}
+  async joinOrCreateGame(
+    player: Player): Promise<[boolean, number]>{
+    let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+    
+    // Check if pending player is still waiting to start a game
+    if (pendingPlayer){
+      const otherPlayer = JSON.parse(pendingPlayer);
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: otherPlayer.email,
+        }
+      })
+      if (user.status !== 'WAITING'){
+        this.cacheManager.del('pendingPlayer');
+        pendingPlayer = undefined;
+      }
+    }
 
-		// Matching
-		if (!pendingPlayer && player){
-			player.gameID = this.gameIDcounter;
-			this.gameIDcounter++;
-			this.cacheManager.set('pendingPlayer', JSON.stringify(player));
-			await this.prisma.user.update({
-				where: {
-					email: player.email,
-				}, data: {
-					status: 'WAITING',
-				}
-			})
-			return [false, player.gameID];
-		} else {
-			this.cacheManager.del('pendingPlayer');
-			const otherPlayer = JSON.parse(pendingPlayer);
-			player.gameID = otherPlayer.gameID;
-			this.createGame(otherPlayer, player);
-			return [true, otherPlayer.gameID];
-		}
-	}
+    // Matching
+    if (!pendingPlayer && player){
+      player.gameID = this.gameIDcounter;
+      this.gameIDcounter++;
+      this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+      await this.prisma.user.update({
+        where: {
+          email: player.email,
+        }, data: {
+          status: 'WAITING',
+        }
+      })
+      return [false, player.gameID];
+    } else {
+      const otherPlayer = JSON.parse(pendingPlayer);
+      this.cacheManager.del('pendingPlayer');
+      player.gameID = otherPlayer.gameID;
+      // check if player is the same as pendingPlayer
+      if (otherPlayer.userName === player.userName) {
+        this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+        return [false, player.gameID];
+      }
+      this.createGame(otherPlayer, player);
+      return [true, otherPlayer.gameID];
+    }
+  }
 
-	createInvitedGame(player1: {email: string, socketID: string, userName: string, gameID: number}, 
-		player2: {email: string, socketID: string, userName: string, gameID: number}){
-			const gameID = this.gameIDcounter;
-			this.gameIDcounter++;
-			player1.gameID = gameID;
-			player2.gameID = gameID;
-			this.createGame(player1, player2);
-	}
+  createInvitedGame(player1: Player, 
+    player2: Player){
+      const gameID = this.gameIDcounter;
+      this.gameIDcounter++;
+      player1.gameID = gameID;
+      player2.gameID = gameID;
+      this.createGame(player1, player2);
+  }
 
-	async createGame(player1: {email: string, socketID: string, userName: string, gameID: number}, 
-		player2: {email: string, socketID: string, userName: string, gameID: number}) {
-			const newGame = new Game(player1.gameID, 2, player1, player2, [0,0]);
-			await this.prisma.user.updateMany({
-				where: {
-					email: {
-						in: [newGame.leftPlayer.email, newGame.rightPlayer.email],
-					},}, data : {
-					status: 'PLAYING',
-				},
-			})
-			this.games.push(newGame);
-	}
+  async createGame(player1: Player, 
+    player2: Player) {
+      const newGame = new Game(
+        player1.gameID,
+        2,
+        player1,
+        player2,
+        [0, 0],
+        {
+          x: 400,
+          y: 400,
+        },
+        {
+          x: 7,
+          y: 7,
+        },
+        Math.random() * Math.PI * 2,
+        'playig',
+      );
+      await this.prisma.user.updateMany({
+        where: {
+          email: {
+            in: [newGame.leftPlayer.email, newGame.rightPlayer.email],
+          },}, data : {
+          status: 'PLAYING',
+        },
+      })
+      this.games.push(newGame);
+  }
 
-	endGame(){
-		// change status players to ONLINE
-		// save game data to prisma both players
-		// delete game from game array
-	}
+  endGame(){
+    // change status players to ONLINE
+    // save game data to prisma both players
+    // delete game from game array
+  }
 
-	deleteGame(gameID: number){
+  deleteGame(gameID: number){
 
-	}
+  }
 
   setCanvas({
     canvasHeight,
@@ -127,96 +133,101 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  // movePaddle(client: Socket, payload: string) {
-  //   const currentPlayer = this.players.find(
-  //     (player) => player.socketID === client.id,
-  //   );
-  //   if (!currentPlayer) {
-  //     console.log('error');
-  //     return;
-  //   } else {
-  //     if (!currentPlayer.paddlePosition) {
-  //       console.log('no pad pos');
-  //       currentPlayer.paddlePosition = 50;
-  //     }
-  //     if (payload === 'up') {
-  //       currentPlayer.paddlePosition = Math.max(
-  //         currentPlayer.paddlePosition - 10,
-  //         0,
-  //       );
-  //     } else if (payload === 'down') {
-  //       console.log('position: ', currentPlayer.paddlePosition);
-  //       currentPlayer.paddlePosition = currentPlayer.paddlePosition + 10;
-  //       // Math.min(currentPlayer.paddlePosition + 10, this.canvas.canvasHeight - this.canvas.paddleHeight)
-  //       console.log('position: ', currentPlayer.paddlePosition);
-  //     }
-  //     const currentGame = this.games.find(
-  //       (game) => game.gameID === currentPlayer.gameID,
-  //     );
-  //     return { currentGame: currentGame, currentPlayer: currentPlayer };
-  //   }
-  // }
+  movePaddle(client: Socket, payload: Object) {
+    const currentGame = this.games.find(
+      (game) => game.leftPlayer.socketID === client.id || game.rightPlayer.socketID === client.id
+    );
 
-  gameLogic(client: Socket, gameData: Position) {
-    if (gameData.x === -99 && gameData.y === -99) {
-      return { x: 50, y: 50 };
+    const currentPlayer = (currentGame.leftPlayer.socketID === client.id) ? currentGame.leftPlayer : currentGame.rightPlayer;
+
+    console.log(currentPlayer);
+
+    if (!currentPlayer) {
+      console.log('error');
+      return;
     } else {
-      return { x: gameData.x + 3, y: gameData.y + 3 };
+      if (!currentPlayer.paddlePosition) {
+        console.log('no pad pos');
+        currentPlayer.paddlePosition = 165;
+      }
+      if (payload === 'up') {
+        if (currentPlayer.paddlePosition - 5 >= 0) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
+        }
+      } else if (payload === 'down') {
+        if (currentPlayer.paddlePosition + 5 < 325) {
+          currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
+        }
+      }
+
+      const currentGame = this.games.find(
+        (game) => game.gameID === currentPlayer.gameID,
+      );
+      return { currentGame: currentGame, currentPlayer: currentPlayer };
     }
   }
 
-  async gameLoop(body: any, client: Socket) {
-    let randX = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
-    let randY = Math.floor(Math.floor((Math.random() - 0.5) * 100) * 0.1);
-    if (randX < 3 && randX >= 0) {
-      randX += 3;
+  gameLogic(client: Socket) : Game{
+    const currentGame = this.games.find(
+      (game) => game.leftPlayer.socketID === client.id || game.rightPlayer.socketID === client.id
+    );
+
+    if (!currentGame) {
+      return null;
     }
-    if (randX > -3 && randX <= 0) {
-      randX -= 3;
+    const currentPlayer = (currentGame.leftPlayer.socketID === client.id) ? currentGame.leftPlayer : currentGame.rightPlayer;
+
+
+    if (currentGame.ballPosition.x > 750) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
     }
-    let direction = { x: randX, y: randY };
 
-    const gameInterval = setInterval(async () => {
-      //      console.log("interval called!!");
-      const gameData: string = await this.cacheManager.get(body.gameID);
-      console.log(gameData);
-      return { x: 1, y: 2 };
-      if (gameData) {
-        const gameDataJSON = JSON.parse(gameData);
+    if (currentGame.ballPosition.x <= 50) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    }
 
-        let x = gameDataJSON.ballPosition.x;
-        let y = gameDataJSON.ballPosition.y;
-        if (y >= 480 || y <= 15) {
-          direction.y *= -1;
-        }
-        console.log(x, y);
-        console.log(gameDataJSON.leftUser);
-        if (
-          x <= 20 &&
-          y >= gameDataJSON.leftUser.position.y - 50 &&
-          y <= gameDataJSON.leftUser.position.y + 50
-        ) {
-          direction.x *= -1;
-        }
+    if (
+      currentGame.ballPosition.x <= 55 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
+      currentGame.ballDirection.x *= -1;
+    }
 
-        if (x > 710 || x < 10) {
-          clearInterval(gameInterval);
-          gameDataJSON.ballPosition.x = 360;
-          gameDataJSON.ballPosition.y = 360;
-          await this.cacheManager.del(body.gameID);
-          await this.cacheManager.set(
-            body.gameID,
-            JSON.stringify(gameDataJSON),
-          );
-        }
+    if (
+      currentGame.ballPosition.x >= 745 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        0 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        75
+    ) {
+      console.log(currentGame.ballPosition);
+      currentGame.ballDirection.x *= -1;
+    }
 
-        x += direction.x;
-        y += direction.y;
-        gameDataJSON.ballPosition.x = x;
-        gameDataJSON.ballPosition.y = y;
-        await this.cacheManager.del(body.gameID);
-        await this.cacheManager.set(body.gameID, JSON.stringify(gameDataJSON));
-      }
-    }, 1000 / 30);
+    if (currentGame.ballPosition.y < 3 || currentGame.ballPosition.y >= 797) {
+      currentGame.ballDirection.y *= -1;
+    }
+
+    currentGame.ballPosition.x +=
+      Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+    currentGame.ballPosition.y +=
+      Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+
+    if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
+      console.log('end');
+      currentGame.status = 'ended';
+    }
+
+    return currentGame;
   }
 }

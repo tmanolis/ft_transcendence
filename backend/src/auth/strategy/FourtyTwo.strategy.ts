@@ -6,7 +6,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 // for env
 import { ConfigService } from '@nestjs/config';
-import { AuthDto } from '../dto';
+import { AuthDto } from '../../dto';
 
 @Injectable()
 export class FourtyTwoStrategy extends PassportStrategy(Strategy, '42') {

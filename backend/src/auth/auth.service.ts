@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { AuthDto, LoginDto } from './dto';
+import { AuthDto, LoginDto } from '../dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
@@ -49,10 +49,13 @@ export class AuthService {
         return;
       } catch (error) {
         if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken')
+          throw new ForbiddenException('Credentials taken');
         }
       }
     }
+
+    console.log(user);
+    console.log('in 42 login');
 
     if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');
