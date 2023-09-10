@@ -1,8 +1,9 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { GameService } from './game.service';
+import { PrismaService } from 'nestjs-prisma';
 
 @Module({
-  providers: [GameService],
+  providers: [GameService, PrismaService],
   exports: [GameService],
 })
 export class GameModule {}

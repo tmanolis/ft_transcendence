@@ -17,6 +17,17 @@ const StyledButton = styled.button<{}>`
   font-family: "JetBrains Mono", monospace;
   width: 200px;
   margin: 1.5rem auto;
+
+  a {
+    text-decoration: none;
+    color: white;
+  }
+
+  img {
+    width: 20px;
+    height: auto;
+    margin-right: 10px;
+  }
 `;
 
 const Button: React.FC<ButtonProps> = ({ type, onClick, children }) => {
