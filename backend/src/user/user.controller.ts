@@ -22,6 +22,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 @UseGuards(JwtGuard)
 export class UserController {
   constructor(private userService: UserService) {}
+
+  // get "me" (own user profile)
   @Get('me')
   // GetUser custom decorator, because Request is error prone
   // and like this we can return a prisma type user.
@@ -29,6 +31,7 @@ export class UserController {
     return user;
   }
 
+  // update user data
   @Patch('update')
   @ApiOkResponse({
     description:
@@ -46,5 +49,15 @@ export class UserController {
       updateDto.avatar = avatarFile;
     }
     return await this.userService.updateUser(user, updateDto);
+  }
+
+  // get all active user on the server
+  @Get('allUsers')
+  @ApiOkResponse({
+    description:
+      'Returns all users public data',
+  })
+  async getAllUsers() {
+    return await this.userService.getAllUsers();
   }
 }
