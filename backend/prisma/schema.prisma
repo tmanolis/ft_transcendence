@@ -90,7 +90,7 @@ enum Status {
 enum Achievement {
 	WINNER
 	FRIEND
-	STUD42
-	FIVE
+	TWOFA
+	JOIN
 	FIRST
 }
