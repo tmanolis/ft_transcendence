@@ -17,8 +17,7 @@ import { GameService } from '../game/game.service';
 import { Inject, CACHE_MANAGER } from '@nestjs/common';
 // Will implement latter
 // import { ChatService } from './chat/chat.service';
-import { Game } from '../dto/game.dto';
-import { Player } from '../dto/game.dto';
+import { Game, Player } from '../dto/game.dto';
 
 @WebSocketGateway({
   cors: {
@@ -95,7 +94,7 @@ export class SocketGateway implements OnGatewayConnection {
       } else if (user.status === 'WAITING'){
         const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
         if (pendingPlayer){
-          const pendingPlayerObject: {email: string, socketID: string, userName: string, gameID: number} = JSON.parse(pendingPlayer);
+          const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
           if (user.email === pendingPlayerObject.email){
             await this.cacheManager.del('pendingPlayer');
        		}
@@ -118,8 +117,8 @@ export class SocketGateway implements OnGatewayConnection {
     this.gameService.setCanvas(payload);
   }
 
-  @SubscribeMessage('playGame')
-  async handlePlayGame(client: Socket) {
+  @SubscribeMessage('findGame')
+  async handleFindGame(client: Socket) {
     const currentPlayer: Player = this.clients.find((c) => c.socketID === client.id);
     const startGame: [boolean, number] = await this.gameService.joinOrCreateGame(currentPlayer);
     const gameRoom: string = currentPlayer.gameID.toString();
@@ -185,12 +184,12 @@ export class SocketGateway implements OnGatewayConnection {
 		console.log('player before emit', currentPlayer);
     const gameID = currentPlayer.gameID.toString();
     client.join(gameID);
-    this.server.to(invitedPlayer.socketID).emit("gameInvite", {invitedBy: currentPlayer.userName});
+    this.server.to(invitedPlayer.socketID).emit("gameInvite", {invitedBy: currentPlayer.userName, gameID: gameID});
   }
 
   @SubscribeMessage('respondToInvite')
   async handleRespondToInvite(client: Socket, payload: string) {
-		const response: { accept: boolean, invitedBy: string } = JSON.parse(payload);
+		const response: { accept: boolean, invitedBy: string, gameID: number } = JSON.parse(payload);
     const currentPlayer: Player = this.clients.find((c) => c.socketID === client.id);  
     const invitingPlayer: Player = this.clients.find((c) => c.userName === response.invitedBy);
 
@@ -209,16 +208,14 @@ export class SocketGateway implements OnGatewayConnection {
 			return;
 		};
 
-		const gameID = invitingPlayer.gameID.toString();
-		if (!gameID){client.id
-			this.server.to(currentPlayer.socketID).emit("errorGameInvite", {error: "Game has been deleted"});
-			return;		
-		}
-
     if (response.accept) {
-      client.join(gameID);
-			this.gameService.joinGameAndLaunch(currentPlayer, invitingPlayer.gameID);
-      this.server.to(invitingPlayer.socketID).emit("invitationAccepted");
+      client.join(response.gameID.toString());
+			const gameStarted = this.gameService.joinGameAndLaunch(currentPlayer, response.gameID);
+			if (gameStarted){
+				this.server.to(invitingPlayer.socketID).emit("invitationAccepted");
+			} else {
+				this.server.to(currentPlayer.socketID).emit("errorGameInvite", {error: "Game has been deleted"});
+			}
     } else {
       this.server.to(invitingPlayer.socketID).emit("invitationDeclined");
       this.gameService.deleteGame(currentPlayer.gameID)

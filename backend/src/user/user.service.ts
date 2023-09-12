@@ -82,7 +82,6 @@ export class UserService {
         gamesWon: true,
         gamesLost: true,
         ranking: true,
-        level: true,
       },
     });
     return allUserData;
