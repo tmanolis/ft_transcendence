@@ -1,14 +1,13 @@
 import React from "react";
 import { styled } from "styled-components";
 
-export type MenuNavProps = {
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+export type LandingProps = {
   children?: React.ReactNode;
   disabled?: boolean;
   type?: "button" | "submit" | "reset" | undefined;
 }
 
-const StyledMenuNavBut = styled.button<{}>`
+const StyledLandingButton = styled.button<{}>`
   width: 90px;
   height: 90px;
   display: flex;
@@ -17,9 +16,9 @@ const StyledMenuNavBut = styled.button<{}>`
   border: 5px solid #E3DCDC;
   background: rgba(217, 217, 217, 0.00);
   justify-content: center;
-  align-items: center; /* Center the content vertically and horizontally */
+  align-items: center;
 
-  a {
+  a,link {
     color: #FFF;
     text-align: center;
     font-family: JetBrains Mono;
@@ -37,14 +36,13 @@ const StyledMenuNavBut = styled.button<{}>`
     justify-content: center;
     align-items: center;
   }
-  }
 `;
-const MenuNavBut: React.FC<MenuNavProps> = ({ children }) => {
+const LandingButton: React.FC<LandingProps> = ({ children }) => {
   return (
-    <StyledMenuNavBut>
-      <a href="#">./</a>
-    </StyledMenuNavBut>
+    <StyledLandingButton>
+      {children}
+    </StyledLandingButton>
   );
 };
 
-export default MenuNavBut;
+export default LandingButton;

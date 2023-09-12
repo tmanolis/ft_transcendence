@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import MenuNavButton from "../components/MenuNavButton";
+import LandingButton from "../components/LandingButton";
 
 const Landing = () => {
     return (
-        <MenuNavButton />
+        <LandingButton />
     );
 }
     
