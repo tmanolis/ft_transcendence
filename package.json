@@ -28,6 +28,8 @@
   },
   "dependencies": {
     "@types/cache-manager": "^4.0.2",
-    "cache-manager": "^5.2.3"
+    "cache-manager": "^5.2.3",
+    "react-router-dom": "^6.15.0",
+    "styled-components": "^6.0.7"
   }
 }
