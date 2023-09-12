@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import styled from "styled-components";
 import LandingButton from "../components/LandingButton";
+import MenuBar from "../components/MenuBar";
 
 const Leaderboard = () => {
     return (
-        <LandingButton />
+        <>
+            <LandingButton />
+            <MenuBar />
+        </>
     );
 }
-    
 
 export default Leaderboard;

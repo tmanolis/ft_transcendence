@@ -18,7 +18,7 @@ const StyledLandingButton = styled.button<{}>`
   justify-content: center;
   align-items: center;
 
-  a,link {
+  a {
     color: #FFF;
     text-align: center;
     font-family: JetBrains Mono;

@@ -1,5 +1,3 @@
-import React, { useState } from "react";
-import styled from "styled-components";
 import LandingButton from "../components/LandingButton";
 
 const Landing = () => {
@@ -7,6 +5,5 @@ const Landing = () => {
         <LandingButton />
     );
 }
-    
 
 export default Landing;

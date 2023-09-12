@@ -8,9 +8,9 @@ const linkStyle = {
 
 export default function LandingButton() {
     return (
-        <Link as="a" to="/menu" style={linkStyle}>
+        <Link to="/menu" style={linkStyle}>
             <PSSButton>
-                <a href="#">./</a>
+                <a href="#">. /</a>
             </PSSButton>
         </Link>
     );
