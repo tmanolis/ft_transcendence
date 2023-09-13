@@ -1,13 +1,8 @@
 import {
   SubscribeMessage,
   WebSocketGateway,
-  MessageBody,
   WebSocketServer,
-  ConnectedSocket,
   OnGatewayConnection,
-  OnGatewayDisconnect,
-  WsResponse,
-  WsException,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
@@ -15,17 +10,16 @@ import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
 import { GameService } from '../game/game.service';
 import { Inject, CACHE_MANAGER } from '@nestjs/common';
-// Will implement latter
-// import { ChatService } from './chat/chat.service';
-import { Game } from '../dto/game.dto';
 import { Player } from '../dto/game.dto';
 
 @WebSocketGateway({
   cors: {
     origin: ['http://localhost:3000', 'http://localhost:8080'],
   },
+	namespace: 'game',
 })
-export class SocketGateway implements OnGatewayConnection {
+
+export class GameGateway implements OnGatewayConnection {
   constructor(
     @Inject (CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -249,114 +243,5 @@ export class SocketGateway implements OnGatewayConnection {
     console.log(payload);
     console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
-  }
-
-  /****************************************************************************/
-  /* CHAT                                                                     */
-  /****************************************************************************/
-
-	/*
-	To do:
-	- Create message dto
-	- Split chat/game/notifications in different namespaces
-	- Think of a naming convention for DM's (maybe: username1-username2)
-	- Reconnect to rooms if socketID refreshes
-	- Move respective reconnection issues to gameService/chatService
-	- Implement a message queue?
-
-	Functions: 
-	(**** only if it's easy and we have time for it)
-
-	onMessage(room, message) 
-	- listens for messages from users
-
-	findAllMessages(room): Promise <array>
-	- returns message history
-
-	createMessage()
-	- checks if user has the right permissions to send this message
-	- emits message to other user(s)
-	- saves message in history
-	- emits a notification to other user(s)?
-
-	****isTyping()
-	- lets other room/DM-users know that someone is typing
-
-	DM functions:
-
-		createDMRoom(user2DM)
-		- creates a room with naming convention
-		- sends some kind of invite to the other user?
-
-		joinDMRoom(room? otherUser?)
-		- make sure user belongs in this DM-room
-		- join user to the room
-
-		closeDMRoom(room)
-		- unjoin both users from room
-
-		blockUser(user2Bblocked)
-		- mutes future messages from user2Bblocked
-
-		unblockUser(user2Bunblocked)
-		- unmutes future messages from user2Bunblocked
-
-		listActiveDMs()
-		- creates endpoint for active DM's and history?
-
-	Channel functions: 
-	
-		createChannel(room)
-		- creates a channel, either for DM's or channels
-		- sets creator as channel owner and administrator
-		- sets channel to either public, private or password protected
-		- if password protected, sets password
-	
-		joinChannel(room)
-		- checks if channel exists
-		- joins channel
-		- emits a message that user has joined the channel
-
-		closeChannel(room)
-		- check is user is administrator
-		- emit a message that channel will be closed?
-		- unjoin all users from room  
-
-		setPassword()
-		- checks if user is administrator
-		- creates a password
-	
-		addAdministrator(user2Badmin)
-		- checks if user is administrator themselves
-		- gives the user2Badmin permissions
-
-		addAdministrator(admin)
-		- checks if user is administrator themselves
-		- checks if admin is not the channel owner (creator)
-		- if not, takes away admin's permissions
-
-		banUser(user2Bbanned)
-		- checks if user is administrator
-		- kicks user2Bbanned from channel
-		- puts user2Bbanned on a blacklist 
-
-		muteUser(user2Bmutes)
-		- checks if user is administrator
-		- ignored the messages of user2Bmutes for a certain time period
-
-		kickUser(user2Bkicked)
-		- checks if user is administrator
-		- removes user2Bkicked from the channel
-
-		listUsers()
-		- returns a list of users in the room
-
-	*/
-
-  @SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object): Object {
-    console.log(payload);
-    console.log('Message received!!!');
-    return { event: 'player message receivedt ', socketID: client.id };
   }
 }
