@@ -4,8 +4,8 @@ const Play = () => {
     return (
         <>
             <Landing />
-       </>
+        </>
     );
 }
-    
+
 export default Play;
