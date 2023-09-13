@@ -1,20 +1,13 @@
-import { useState } from "react";
-import PSSButton from "./styles/LandingButton.styled";
-import MenuBar from "./MenuBar"; // Import the NavBarIcon component
+import PSSButton, {LandingProps} from "./styles/LandingButton.styled";
 
-export default function LandingButton() {
-  const [IsShown, setIsShown] = useState(false);
-
-  const handleButtonClick = () => {
-    setIsShown((prevState) => !prevState);
-  };
-
+const LandingButton: React.FC<LandingProps> = ({ navBar, onClick }) => {
   return (
-    <>
-        <PSSButton onClick={handleButtonClick}>
+    <div>
+      <PSSButton onClick={onClick} navBar={navBar}>
         <h1>. /</h1>
-        </PSSButton>
-        {IsShown && <MenuBar />}
-    </>
+      </PSSButton>
+    </div>
   );
-}
+};
+
+export default LandingButton;

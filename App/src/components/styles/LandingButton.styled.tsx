@@ -4,6 +4,7 @@ import { styled } from "styled-components";
 export type LandingProps = {
   children?: React.ReactNode;
   onClick: () => void;
+  navBar: boolean;
 }
 
 const StyledLandingButton = styled.button<{}>`
@@ -36,9 +37,9 @@ const StyledLandingButton = styled.button<{}>`
     align-items: center;
   }
 `;
-const LandingButton: React.FC<LandingProps> = ({ onClick, children }) => {
+const LandingButton: React.FC<LandingProps> = ({ onClick, children, isShown }) => {
   return (
-    <StyledLandingButton onClick={onClick}>
+    <StyledLandingButton onClick={onClick} navBar={isShown}>
       {children}
     </StyledLandingButton>
   );

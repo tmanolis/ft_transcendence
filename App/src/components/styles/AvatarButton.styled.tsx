@@ -8,10 +8,10 @@ export type AvatarProps = {
 
 const StyledAvatar = styled.div`
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 40px;
-  height: 40px;
+  top: 15px;
+  right: 15px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
