@@ -1,13 +1,9 @@
-import LandingButton from "../components/LandingButton";
-import MenuBar from "../components/MenuBar";
-import AvatarButton from "../components/AvatarButton";
+import Landing from "../pages/Landing";
 
 const Play = () => {
     return (
         <>
-            <LandingButton />
-            <AvatarButton />
-            <MenuBar />
+            <Landing />
        </>
     );
 }

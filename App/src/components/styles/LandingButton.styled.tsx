@@ -3,8 +3,7 @@ import { styled } from "styled-components";
 
 export type LandingProps = {
   children?: React.ReactNode;
-  disabled?: boolean;
-  type?: "button" | "submit" | "reset" | undefined;
+  onClick: () => void;
 }
 
 const StyledLandingButton = styled.button<{}>`
@@ -18,7 +17,7 @@ const StyledLandingButton = styled.button<{}>`
   justify-content: center;
   align-items: center;
 
-  a {
+  h1 {
     color: #FFF;
     text-align: center;
     font-family: JetBrains Mono;
@@ -37,9 +36,9 @@ const StyledLandingButton = styled.button<{}>`
     align-items: center;
   }
 `;
-const LandingButton: React.FC<LandingProps> = ({ children }) => {
+const LandingButton: React.FC<LandingProps> = ({ onClick, children }) => {
   return (
-    <StyledLandingButton>
+    <StyledLandingButton onClick={onClick}>
       {children}
     </StyledLandingButton>
   );

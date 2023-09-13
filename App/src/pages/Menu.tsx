@@ -1,15 +1,11 @@
-import AvatarButton from "../components/AvatarButton";
-import LandingButton from "../components/LandingButton";
-import MenuBar from "../components/MenuBar";
+import Landing from "../pages/Landing";
 
 const Menu = () => {
     return (
         <>
-            <LandingButton />
-            <AvatarButton />
-            <MenuBar />
-        </>
+            <Landing />
+       </>
     );
 }
-
+    
 export default Menu;

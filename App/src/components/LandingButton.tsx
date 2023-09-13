@@ -1,17 +1,20 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
 import PSSButton from "./styles/LandingButton.styled";
-
-const linkStyle = {
-    textDecoration: "none", // Remove text-decoration for the Link
-  };
+import MenuBar from "./MenuBar"; // Import the NavBarIcon component
 
 export default function LandingButton() {
-    return (
-        <Link to="/menu" style={linkStyle}>
-            <PSSButton>
-                <a href="#">. /</a>
-            </PSSButton>
-        </Link>
-    );
+  const [IsShown, setIsShown] = useState(false);
+
+  const handleButtonClick = () => {
+    setIsShown((prevState) => !prevState);
+  };
+
+  return (
+    <>
+        <PSSButton onClick={handleButtonClick}>
+        <h1>. /</h1>
+        </PSSButton>
+        {IsShown && <MenuBar />}
+    </>
+  );
 }
