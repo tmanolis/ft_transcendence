@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
 import Pong from "./pages/Pong";
 import Landing from "./pages/Landing";
-import Menu from "./pages/Menu";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
@@ -19,7 +18,6 @@ const App = () => {
         <Routes>
           <Route path="/auth" element={React.createElement(Authentification)} />
           <Route path="/" element={React.createElement(Landing)} />
-          <Route path="/menu" element={React.createElement(Menu)} />
           <Route path="/leaderboard" element={React.createElement(Leaderboard)} />
           <Route path="/settings" element={React.createElement(Settings)} />
           <Route path="/profile" element={React.createElement(Profile)} />

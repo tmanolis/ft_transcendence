@@ -37,9 +37,10 @@ const StyledLandingButton = styled.button<{}>`
     align-items: center;
   }
 `;
-const LandingButton: React.FC<LandingProps> = ({ onClick, children, isShown }) => {
+
+const LandingButton: React.FC<LandingProps> = ({ onClick, children }) => {
   return (
-    <StyledLandingButton onClick={onClick} navBar={isShown}>
+    <StyledLandingButton onClick={onClick}>
       {children}
     </StyledLandingButton>
   );
