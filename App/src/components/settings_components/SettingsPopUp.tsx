@@ -1,6 +1,6 @@
 import React from "react";
 import EditInfosForm from "./EditInfosForm";
-// import EditAvatar from "./EditAvatar";
+import EditAvatar from "./EditAvatar";
 
 const SettingsPopUp: React.FC = () => {
 
@@ -8,9 +8,8 @@ const SettingsPopUp: React.FC = () => {
 		<div className="Settings">
 			<h2>Settings</h2>
 			<h3>Manage your informations and security</h3>
-			{/* <EditAvatar /> */}
+			<EditAvatar />
 			<EditInfosForm />
-			<h1>LOL</h1>
 		</div>
 	);
 };
