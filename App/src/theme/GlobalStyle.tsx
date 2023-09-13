@@ -5,6 +5,7 @@ import JBRegular from "../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBra
  
 const GlobalStyle = createGlobalStyle`
   body {
+    padding-top: 20px;
     background: url(${backgroundImg}), lightgray 50% / cover no-repeat;
     background-size: cover;
     position: relative;

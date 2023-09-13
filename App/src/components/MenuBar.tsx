@@ -6,16 +6,16 @@ type NavButtonProps = {
     to: string;
     iconSrc: string;
     alt: string;
-  };
+};
 
 const NavButton: React.FC<NavButtonProps> = ({ to, iconSrc, alt }) => {
-return (
-    <Link to={to}>
-    <div>
-        <img src={iconSrc} alt={alt} />
-    </div>
-    </Link>
-);
+    return (
+        <Link to={to}>
+            <div>
+                <img src={iconSrc} alt={alt} />
+            </div>
+        </Link>
+    );
 };
 
 const MenuBar: React.FC = () => {

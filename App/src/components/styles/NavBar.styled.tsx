@@ -17,6 +17,9 @@ const Container = styled.div`
 
 const StyledNavBar = styled.div`
   display: flex;
+  margin-top: 100px;
+  height: 450px;
+  width: 80px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -24,7 +27,7 @@ const StyledNavBar = styled.div`
   flex-shrink: 0;
 
   background-image: url(${NavBarSVG});
-  background-size: cover;
+  background-size: fit;
 `;
 
 const NavBar: React.FC<NavProps> = ({ children }) => {
