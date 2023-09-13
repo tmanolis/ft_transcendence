@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import NavBarSVG from "../../../public/icon/NavBar.svg"; // Import the SVG image
+import NavBarSVG from "../../../../public/icon/NavBar.svg"; // Import the SVG image
 
 export type NavProps = {
   children?: React.ReactNode;

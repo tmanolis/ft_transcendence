@@ -1,7 +1,7 @@
 import { useState } from "react";
-import AvatarButton from "../components/AvatarButton";
-import LandingButton from "../components/LandingButton";
-import MenuBar from "../components/MenuBar";
+import AvatarButton from "../components/landing_components/AvatarButton";
+import LandingButton from "../components/landing_components/LandingButton";
+import MenuBar from "../components/landing_components/MenuBar";
 
 const Landing: React.FC = () => {
     const [isShown, setIsShown] = useState(false);
