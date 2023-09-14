@@ -13,34 +13,18 @@ const userImageSrc = "../../public/icon/Avatar.svg";
 
 const BASE_URL = "http://localhost:3000";
 
-// async function getUser() {
-
-// 	const response = await fetch(`http://localhost:3000/user/me`);
-// 	const data = await response.json()
-// 							   .then( (data) => { return data;})
-// 							   .catch((error) => { console.error(error)});
-// 	const users = data;
-
-// 	console.log("users, ", users);
-// 	return users;
-// }
-
 const getUser = async () => {
-	const response = await axios.get(`http://localhost:3000/user/me`, { withCredentials: true })
+	const response = await axios.get(`${BASE_URL}/user/me`, { withCredentials: true })
 	return response.data;
-}	
+}
 
 const EditAvatar: React.FC = () => {
 
 	const [username, setUsername] = useState<string>("");
 
 	useEffect( () => {
-		getUser().then(data => {
-			console.log(data);
-			setUsername(data.userName);
-		});
-	
-		// console.log(" user: user", user);
+		getUser().then(data => {setUsername(data.userName);})
+		.catch(error => {console.log(error)});
 	
 	}, [username]);
 
