@@ -3,8 +3,8 @@ import styled from "styled-components";
 import axios from "axios";
 
 const AvatarImage = styled.img`
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   object-fit: cover;
 `;
@@ -33,12 +33,12 @@ const EditAvatar: React.FC = () => {
 	}, [username]);
 
 	return (
-		<>
+		<div>
 		{/* <AvatarImage src={avatarPath} alt="User Avatar" /> */}
 		<AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
 		<span>{username}</span>
 		<button>Edit Avatar</button>
-		</>
+		</div>
 	);
 };
 
