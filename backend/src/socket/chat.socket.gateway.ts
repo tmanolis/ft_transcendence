@@ -6,7 +6,7 @@ import {
 import { JwtService } from "@nestjs/jwt";
 import { Socket } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
-import { ChatUser } from "src/dto";
+import { ChatUser, messageDTO } from "src/dto";
 
 @WebSocketGateway({
   cors: {
@@ -34,13 +34,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			return;
     }
 
-    // jwtData = this.jwtService.decode(jwt);
-		// const user = await this.chatService.newConnection(jwtData.email, client.id);
-		// if (!user){
-		// 	client.emit('accountDeleted', { message: 'Your account has been deleted.' });
-		// 	client.disconnect();
-		// 	return;
-		// }
+    jwtData = this.jwtService.decode(jwt);
+		const user = await this.chatService.newConnection(jwtData.email, client.id);
+		if (!user){
+			client.emit('accountDeleted', { message: 'Your account has been deleted.' });
+			client.disconnect();
+			return;
+		}
 	}
 
 	handleDisconnect(client: Socket) {
@@ -53,7 +53,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
 	
 	@SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object): Object {
+  	handleMessageReceived(client: Socket, payload: messageDTO): Object {
+		// first thoughts: the room should be included in the message
+		// but do we make a difference betweens DM's and channels? 
+		// And the dto should be protected.
 
 		console.log('text: ', payload);
     console.log('Message received!!!');

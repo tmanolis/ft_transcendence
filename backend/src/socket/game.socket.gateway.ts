@@ -23,8 +23,8 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 export class GameGateway implements OnGatewayConnection {
   constructor(
-    // @Inject (CACHE_MANAGER)
-    // private readonly cacheManager: Cache,
+    @Inject (CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
     private prisma: PrismaService,
@@ -89,12 +89,11 @@ export class GameGateway implements OnGatewayConnection {
         this.clients = this.clients.filter((c) => c.email !== existingClient.email);
 				return ;
       } else if (user.status === 'WAITING'){
-        // const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-				const pendingPlayer = 'lalala';
+        const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
         if (pendingPlayer){
           const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
           if (user.email === pendingPlayerObject.email){
-            // await this.cacheManager.del('pendingPlayer');
+            await this.cacheManager.del('pendingPlayer');
        		}
       	}} else if (user.status === 'PLAYING') {
 					// wait 30 seconds, or game is lost??

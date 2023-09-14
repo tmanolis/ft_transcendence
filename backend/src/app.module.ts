@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-// import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from 'nestjs-prisma';
 import { redisStore } from 'cache-manager-redis-yet';
@@ -15,22 +15,22 @@ import { SocketModule } from './socket/socket.module';
 import { GameModule } from './game/game.module';
 import { GameService } from './game/game.service';
 
-// const cacheConfig = {
-//   isGlobal: true,
-//   ttl: 1000 * 60 * 20, // ms, sec, min
-//   useFactory: async () => ({
-//     store: await redisStore({
-//       url: 'redis://redis:6789',
-//     }),
-//   }),
-// };
+const cacheConfig = {
+  isGlobal: true,
+  ttl: 1000 * 60 * 20, // ms, sec, min
+  useFactory: async () => ({
+    store: await redisStore({
+      url: 'redis://redis:6789',
+    }),
+  }),
+};
 
 @Module({
   imports: [
     HelloModule,
     PrismaModule.forRoot(),
     ConfigModule.forRoot({ isGlobal: true }),
-    // CacheModule.register(cacheConfig),
+    CacheModule.register(cacheConfig),
     UserModule,
     AuthModule,
     JwtModule,
