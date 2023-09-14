@@ -27,11 +27,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
 	/****************************************************************************/
-  /* handle connection/disconnection                                          */
-  /****************************************************************************/
-
-
-	/****************************************************************************/
   /* chat													                                            */
   /****************************************************************************/
 	
@@ -69,26 +64,41 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	Functions: 
 	(**** only if it's easy and we have time for it)
 
-	onMessage(room, message) 
-	- listens for messages from users
+	General functions:
 
-	findAllMessages(room): Promise <array>
-	- returns message history
+		findAllMessages(room): Promise <array>
+		- returns message history from prisma/Redis?
 
-	createMessage()
-	- checks if user has the right permissions to send this message
-	- emits message to other user(s)
-	- saves message in history
-	- emits a notification to other user(s)?
+		createMessage(room, message)
+		- creates message in prisma
+		- creates message in Redis?
 
-	****isTyping()
-	- lets other room/DM-users know that someone is typing
+		sendMessage(room, message)
+		- emits message to room
+
+		****isTyping()
+		- lets other room/DM-users know that someone is typing
 
 	DM functions:
 
+		onDM(room, message) 
+		- checks if no block is active
+		- checks if room exists, 
+			if not -> createDMroom(user2DM)
+		- createMessage(room, message)
+		- sendMessage(room, message)
+
+		sendDM(user2DM, message)
+		- checks if no block is active
+		- checks if room exists, if not -> createDMroom(user2DM)
+		- emits DM to room
+
+		receiveDM(message)
+	
 		createDMRoom(user2DM)
 		- creates a room with naming convention
-		- sends some kind of invite to the other user?
+		- creates room in prisma
+		- stores room info in Redis
 
 		joinDMRoom(room? otherUser?)
 		- make sure user belongs in this DM-room
@@ -106,7 +116,13 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		listActiveDMs()
 		- creates endpoint for active DM's and history?
 
-	Channel functions: 
+	Channel functions:
+
+		onChannelMessage(room, message)
+		- checks if channel exists
+		- checks if user is in channel
+		- checks if user is not blocked, muted or banned
+		- emits message to channel
 	
 		createChannel(room)
 		- creates a channel, either for DM's or channels

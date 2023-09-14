@@ -30,7 +30,7 @@ model User {
   friends     			    String[]
   frienRequestsSent 	  String[]
   friendReqestsReceived	String[]
-  chats       			    Chat[]    @relation("ChatUsers")
+  rooms       			    RoomUser[]	@relation("userRoom")
 
   /// statistics
   gamesWon    	Int?
@@ -63,21 +63,28 @@ model Game {
   updatedAt   DateTime  @updatedAt
 }
 
-model Chat {
-  id        Int       @id @default(autoincrement())
-  createdAt DateTime  @default(now())
-  messages  Message[]
-  users     User[]    @relation("ChatUsers")
+model Room {
+  id        String   			@id @unique @default(uuid())
+  createdAt DateTime  		@default(now())
+  messages  Message[]			@relation("message")
+  users     RoomUser[]		@relation("roomUser")
+}
+
+model RoomUser {
+	id				String		@id @unique @default(uuid())
+	user			User			@relation("userRoom", fields: [roomID], references: [id])
+	userID		String
+	room			Room			@relation("roomUser", fields: [userID], references: [id])
+	roomID		String
 }
 
 model Message {
   id          Int       @id @default(autoincrement())
   text        String
-  sendTime    DateTime  @default(now())
-  senderId    String
-  chat        Chat      @relation(fields: [chatId], references: [id])
-  chatId      Int
-  createdAt   DateTime  @default(now())
+  sendtime    DateTime  @default(now())
+  sender    	String		// this is the username
+  room        Room      @relation("message", fields: [roomID], references: [id])
+  roomID      String
 }
 
 enum Role {
