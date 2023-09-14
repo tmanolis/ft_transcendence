@@ -27,7 +27,6 @@ const EditAvatar: React.FC = () => {
 		getUser()
 		.then(data => {
 			setUsername(data.userName);
-			console.log(data); 
 			setAvatarPath(data.avatar);})
 		.catch(error => {console.log(error)});
 	
@@ -35,7 +34,8 @@ const EditAvatar: React.FC = () => {
 
 	return (
 		<>
-		<AvatarImage src={avatarPath} alt="User Avatar" />
+		{/* <AvatarImage src={avatarPath} alt="User Avatar" /> */}
+		<AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
 		<span>{username}</span>
 		<button>Edit Avatar</button>
 		</>
