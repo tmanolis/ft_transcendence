@@ -132,7 +132,7 @@ const Pong = () => {
       if (isLanding) {
         if (event.key === "Enter") {
           console.log("enter pressed");
-          socket?.emit("playGame");
+          socket?.emit("findGame");
           setIsLanding(false);
         }
       }

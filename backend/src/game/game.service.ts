@@ -2,9 +2,9 @@ import { Inject, Injectable, forwardRef, CACHE_MANAGER } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { PrismaService } from 'nestjs-prisma';
-
-import { Game } from '../dto/game.dto';
+import { Game, GameStatus } from '../dto/game.dto';
 import { Player } from '../dto/game.dto';
+import { User, Game as prismaGame } from '@prisma/client';
 
 @Injectable()
 export class GameService {
@@ -87,7 +87,7 @@ export class GameService {
 			1,
 			player,
 			null,
-			[0, 0],
+			[10, 10],
 			{
 				x: 400,
 				y: 400,
@@ -97,7 +97,7 @@ export class GameService {
 				y: 7,
 			},
 			Math.random() * Math.PI * 2,
-			'playing',
+			GameStatus.Waiting,
 		);
 		player.gameID = gameID;
 		await this.prisma.user.update({
@@ -111,7 +111,7 @@ export class GameService {
 		console.log('game created with id', gameID);
 	}
 
-	async joinGameAndLaunch(player: Player, gameID: number) {
+	async joinGameAndLaunch(player: Player, gameID: number) : Promise<boolean> {
 		const game = this.games.find((game) => game.gameID === gameID);
 		if (game){
 			player.gameID = gameID;
@@ -124,9 +124,10 @@ export class GameService {
 					status: 'PLAYING',
 				},
 			})
-			console.log('starting game', gameID);
+			game.status = GameStatus.Playing;
+			return true;
 		} else {
-			console.log('game not found with id', gameID);
+			return false;
 		}
 	}
 
@@ -134,41 +135,9 @@ export class GameService {
   /* GAME END                                                                 */
   /****************************************************************************/
 
-  async endGame(gameID: number){
-		const game = this.games.find((game) => game.gameID === gameID);
-		
-		const leftPlayer = await this.prisma.user.findUnique({
-			where: {
-				email: game.leftPlayer.email
-			}
-		})
-		const rightPlayer = await this.prisma.user.findUnique({
-			where: {
-				email: game.rightPlayer.email
-			}
-		})
-
-		const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
-		const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
-
-		await this.prisma.game.create({
-			data: {
-					players: {
-							connect: [
-									{ email: leftPlayer.email },
-									{ email: rightPlayer.email }
-							]
-					},
-					winner: {
-							connect: { id: winner.id }
-					},
-					loser: {
-							connect: { id: loser.id }
-					}
-			}
-		})
-
-		this.deleteGame(gameID);
+  endGame(game: Game){
+		this.saveGameStats(game);
+		this.deleteGame(game.gameID);
   }
 
   async deleteGame(gameID: number){
@@ -285,9 +254,65 @@ export class GameService {
 
     if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
       console.log('end');
-      currentGame.status = 'ended';
+      currentGame.status = GameStatus.Ended;
+			this.endGame(currentGame);
     }
 
     return currentGame;
   }
+
+  /****************************************************************************/
+  /* GAME STATS                                                               */
+  /****************************************************************************/	
+
+	async saveGameStats(game: Game){
+		const leftPlayer = await this.prisma.user.findUnique({
+			where: {
+				email: game.leftPlayer.email
+			}, include: {
+				games: {},
+			}
+		})
+		const rightPlayer = await this.prisma.user.findUnique({
+			where: {
+				email: game.leftPlayer.email
+			}, include: {
+				games: {},
+			}
+		})
+
+
+		const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
+		const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+
+		const dbGame = await this.prisma.game.create({
+			data: {
+					players: {
+							connect: [
+									{ email: leftPlayer.email },
+									{ email: rightPlayer.email }
+							]
+					},
+					winnerId: winner.id,
+					loserId: loser.id,
+			}
+		})
+
+		this.updatePlayerStats(leftPlayer, dbGame);
+		this.updatePlayerStats(rightPlayer, dbGame);
+	}
+
+	async updatePlayerStats(player: User, game: prismaGame){
+		if (player.id === game.winnerId){
+			player.gamesWon++;
+			if (player.gamesWon === 1){
+				if (!player.achievements.includes('WINNER')){
+					player.achievements.push('WINNER');
+					// emit notification achievement? 
+				}
+			}
+		} else {
+			player.gamesLost++;
+		}
+	}
 }

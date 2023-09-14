@@ -36,14 +36,10 @@ model User {
   gamesWon    	Int?
   gamesLost   	Int?
   ranking       Int?
-  level         Int?
-  achievements  String[]
+  achievements  Achievement[] @unique
 
   ///historics
-  // we can either use winner/loser or just games, tbd
   games   Game[]  @relation("player")
-  winner  Game[]  @relation("winner")
-  loser   Game[]  @relation("loser")
 }
 
 model jwtBlacklist {
@@ -56,9 +52,7 @@ model Game {
   gameId      Int       @id @default(autoincrement())
   players     User[]    @relation("player")
   winnerId    String
-  winner      User?     @relation("winner", fields: [winnerId], references: [id])
   loserId     String
-  loser       User?     @relation("loser", fields: [loserId], references: [id]) 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -98,4 +92,12 @@ enum Status {
   OFFLINE
   PLAYING
 	WAITING
+}
+
+enum Achievement {
+	WINNER
+	FRIEND
+	TWOFA
+	JOIN
+	FIRST
 }
