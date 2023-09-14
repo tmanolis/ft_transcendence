@@ -1,6 +1,6 @@
 import React from "react";
 
-const CheckBoxSettings: React.FC = () => {
+const CheckBox2FA: React.FC = () => {
 
 	return (
 		<>
@@ -11,4 +11,4 @@ const CheckBoxSettings: React.FC = () => {
 	);
 };
 
-export default CheckBoxSettings
+export default CheckBox2FA
