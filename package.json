@@ -27,6 +27,7 @@
     ]
   },
   "dependencies": {
+    "@nestjs/cache-manager": "^2.1.0",
     "@types/cache-manager": "^4.0.2",
     "cache-manager": "^5.2.3"
   }

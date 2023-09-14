@@ -8,11 +8,11 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
+
 import { GameService } from '../game/game.service';
-import { Inject, CACHE_MANAGER } from '@nestjs/common';
-// Will implement latter
-// import { ChatService } from './chat/chat.service';
-import { Game, Player } from '../dto/game.dto';
+import { Inject } from '@nestjs/common';
+import { Player } from '../dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @WebSocketGateway({
   cors: {
@@ -23,8 +23,8 @@ import { Game, Player } from '../dto/game.dto';
 
 export class GameGateway implements OnGatewayConnection {
   constructor(
-    @Inject (CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    // @Inject (CACHE_MANAGER)
+    // private readonly cacheManager: Cache,
     private readonly gameService: GameService,
     private readonly jwtService: JwtService,
     private prisma: PrismaService,
@@ -54,7 +54,7 @@ export class GameGateway implements OnGatewayConnection {
 			return;
     }
 
-		const existingClient:Player = this.clients.find((c) => c.email === jwtData.email);
+		const existingClient: Player = this.clients.find((c) => c.email === jwtData.email);
 		if (existingClient){
 			existingClient.socketID = client.id;
 			console.log('updating existing client:', existingClient.email);
@@ -89,11 +89,12 @@ export class GameGateway implements OnGatewayConnection {
         this.clients = this.clients.filter((c) => c.email !== existingClient.email);
 				return ;
       } else if (user.status === 'WAITING'){
-        const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+        // const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+				const pendingPlayer = 'lalala';
         if (pendingPlayer){
           const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
           if (user.email === pendingPlayerObject.email){
-            await this.cacheManager.del('pendingPlayer');
+            // await this.cacheManager.del('pendingPlayer');
        		}
       	}} else if (user.status === 'PLAYING') {
 					// wait 30 seconds, or game is lost??

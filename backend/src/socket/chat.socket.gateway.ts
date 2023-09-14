@@ -1,6 +1,12 @@
-import { OnGatewayConnection, OnGatewayDisconnect, SubscribeMessage, WebSocketGateway } from "@nestjs/websockets";
+import { 
+	OnGatewayConnection, 
+	OnGatewayDisconnect, 
+	SubscribeMessage, 
+	WebSocketGateway } from "@nestjs/websockets";
+import { JwtService } from "@nestjs/jwt";
 import { Socket } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
+import { ChatUser } from "src/dto";
 
 @WebSocketGateway({
   cors: {
@@ -12,13 +18,29 @@ import { ChatService } from "src/chat/chat.service";
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly chatService: ChatService,
-	) {}
+		private readonly jwtService: JwtService,
+	) {	}
 
 	/****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
-	handleConnection(client: Socket) {
-		// connect logic chat
+	async handleConnection(client: Socket) {
+		const jwt = client.handshake.headers.authorization;
+    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
+
+		if (jwt === 'undefined' || jwt === null){
+      console.log('No jwt, disconnecting');
+      client.disconnect();
+			return;
+    }
+
+    // jwtData = this.jwtService.decode(jwt);
+		// const user = await this.chatService.newConnection(jwtData.email, client.id);
+		// if (!user){
+		// 	client.emit('accountDeleted', { message: 'Your account has been deleted.' });
+		// 	client.disconnect();
+		// 	return;
+		// }
 	}
 
 	handleDisconnect(client: Socket) {
@@ -32,7 +54,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	
 	@SubscribeMessage('message')
   handleMessageReceived(client: Socket, payload: Object): Object {
-    console.log(payload);
+
+		console.log('text: ', payload);
     console.log('Message received!!!');
     return { event: 'player message receivedt ', socketID: client.id };
   }
