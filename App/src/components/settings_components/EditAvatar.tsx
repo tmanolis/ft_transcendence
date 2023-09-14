@@ -9,7 +9,7 @@ const AvatarImage = styled.img`
   object-fit: cover;
 `;
 
-const userImageSrc = "../../public/img/defaultAvatar.jpg";
+// const userImageSrc = "../../public/img/defaultAvatar.jpg";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -21,16 +21,21 @@ const getUser = async () => {
 const EditAvatar: React.FC = () => {
 
 	const [username, setUsername] = useState<string>("");
+	const [avatarPath, setAvatarPath] = useState<string>("");
 
 	useEffect( () => {
-		getUser().then(data => {setUsername(data.userName);})
+		getUser()
+		.then(data => {
+			setUsername(data.userName);
+			console.log(data); 
+			setAvatarPath(data.avatar);})
 		.catch(error => {console.log(error)});
 	
 	}, [username]);
 
 	return (
 		<>
-		<AvatarImage src={userImageSrc} alt="User Avatar" />
+		<AvatarImage src={avatarPath} alt="User Avatar" />
 		<span>{username}</span>
 		<button>Edit Avatar</button>
 		</>
@@ -38,3 +43,4 @@ const EditAvatar: React.FC = () => {
 };
 
 export default EditAvatar
+
