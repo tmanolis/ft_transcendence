@@ -73,7 +73,7 @@ export class UserService {
     return otpauthUrl;
   }
 
-  async getAllUsers() : Promise<Object> {
+  async getAllUsers(): Promise<Object> {
     const allUserData = await this.prisma.user.findMany({
       select: {
         userName: true,

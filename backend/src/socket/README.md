@@ -55,4 +55,3 @@
 | ---------------- | --------------------------- | ----------- |
 | messageBroadcast | messageBody, chanel/room ID | todo        |
 | userJoined       | userName, chanel/room ID    | todo        |
-

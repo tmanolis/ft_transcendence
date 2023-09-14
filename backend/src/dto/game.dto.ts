@@ -5,7 +5,7 @@ interface Position {
 
 export class Player {
   constructor(
-    public gameID: number,
+    public gameID: string,
     public email: string,
     public socketID: string,
     public userName: string,
@@ -15,7 +15,7 @@ export class Player {
 
 export class Game {
   constructor(
-    public gameID: number,
+    public gameID: string,
     public nbPlayers: number,
     public leftPlayer: Player,
     public rightPlayer: Player,
@@ -23,6 +23,6 @@ export class Game {
     public ballPosition: Position,
     public ballDirection: Position,
     public ballAngle: number,
-    public status: String,
+    public status: string,
   ) {}
 }

@@ -1,4 +1,5 @@
-import { Inject, Injectable, forwardRef, CACHE_MANAGER } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { PrismaService } from 'nestjs-prisma';
@@ -9,10 +10,10 @@ import { Player } from '../dto/game.dto';
 @Injectable()
 export class GameService {
   constructor(
-    @Inject(CACHE_MANAGER) 
+    @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private prisma: PrismaService,
-) {}
+  ) {}
 
   // this should all be stored in the cache:
   private canvas: {
@@ -25,13 +26,12 @@ export class GameService {
 
   private games: Game[] = [];
   private startPaddle: number = 165;
-  private gameIDcounter: number = 0;
 
   /****************************************************************************/
   /* GAME INIT                                                                */
   /****************************************************************************/
 
-	setCanvas({
+  setCanvas({
     canvasHeight,
     paddleHeight,
   }: {
@@ -43,164 +43,175 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  async joinOrCreateGame(
-    player: Player): Promise<[boolean, number]>{
+  async joinOrCreateGame(player: Player): Promise<[boolean, string]> {
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    
+
     // Check if pending player exists, is available and is not current player
-    if (pendingPlayer){
+    if (pendingPlayer) {
       const otherPlayer = JSON.parse(pendingPlayer);
       const user = await this.prisma.user.findUnique({
         where: {
           email: otherPlayer.email,
-        }
-      })
-      if (user.status !== 'WAITING'){
+        },
+      });
+      if (user.status !== 'WAITING') {
         this.cacheManager.del('pendingPlayer');
         pendingPlayer = undefined;
       }
-			if (otherPlayer.userName === player.userName){
-				this.cacheManager.set('pendingPlayer', JSON.stringify(player));
-				return [false, player.gameID];
-			}
+      if (otherPlayer.userName === player.userName) {
+        this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+        return [false, player.gameID];
+      }
     }
 
     // Matching
-    if (!pendingPlayer && player){
-			this.createWaitingGame(player);
+    if (!pendingPlayer && player) {
+      this.createWaitingGame(player);
       this.cacheManager.set('pendingPlayer', JSON.stringify(player));
       return [false, player.gameID];
     } else {
       const otherPlayer = JSON.parse(pendingPlayer);
       this.cacheManager.del('pendingPlayer');
       const gameID = otherPlayer.gameID;
-			this.joinGameAndLaunch(player, gameID);
+      this.joinGameAndLaunch(player, gameID);
       return [true, otherPlayer.gameID];
     }
   }
 
-	async createWaitingGame(player: Player){
-		const gameID = this.gameIDcounter;
-		this.gameIDcounter++;
-		const newGame = new Game(
-			gameID,
-			1,
-			player,
-			null,
-			[0, 0],
-			{
-				x: 400,
-				y: 400,
-			},
-			{
-				x: 7,
-				y: 7,
-			},
-			Math.random() * Math.PI * 2,
-			'playing',
-		);
-		player.gameID = gameID;
-		await this.prisma.user.update({
-			where: {
-				email: player.email
-			}, data : {
-				status: 'WAITING',
-			},
-		})
-		this.games.push(newGame);
-		console.log('game created with id', gameID);
-	}
+  async createWaitingGame(player: Player) {
+    const gameID = player.socketID;
+    const newGame = new Game(
+      gameID,
+      1,
+      player,
+      null,
+      [0, 0],
+      {
+        x: 400,
+        y: 400,
+      },
+      {
+        x: 7,
+        y: 7,
+      },
+      Math.random() * Math.PI * 2,
+      'playing',
+    );
+    player.gameID = gameID;
+    console.log('player in service: ', player);
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: player.email,
+        },
+        data: {
+          status: 'WAITING',
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    this.games.push(newGame);
+    console.log('game created with id', gameID);
+  }
 
-	async joinGameAndLaunch(player: Player, gameID: number) {
-		const game = this.games.find((game) => game.gameID === gameID);
-		if (game){
-			player.gameID = gameID;
-			game.rightPlayer = player;
-			await this.prisma.user.updateMany({
-				where: {
-					email: {
-						in: [game.leftPlayer.email, game.rightPlayer.email],
-					},}, data : {
-					status: 'PLAYING',
-				},
-			})
-			console.log('starting game', gameID);
-		} else {
-			console.log('game not found with id', gameID);
-		}
-	}
+  async joinGameAndLaunch(player: Player, gameID: string) {
+    const game = this.games.find((game) => game.gameID === gameID);
+    console.log('join and launch', game);
+    if (game) {
+      player.gameID = gameID;
+      this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
+      game.rightPlayer = player;
+      await this.prisma.user.updateMany({
+        where: {
+          email: {
+            in: [game.leftPlayer.email, game.rightPlayer.email],
+          },
+        },
+        data: {
+          status: 'PLAYING',
+        },
+      });
+      console.log(game);
+      console.log('starting game', gameID);
+    } else {
+      console.log('game not found with id', gameID);
+    }
+  }
 
   /****************************************************************************/
   /* GAME END                                                                 */
   /****************************************************************************/
 
-  async endGame(gameID: number){
-		const game = this.games.find((game) => game.gameID === gameID);
-		
-		const leftPlayer = await this.prisma.user.findUnique({
-			where: {
-				email: game.leftPlayer.email
-			}
-		})
-		const rightPlayer = await this.prisma.user.findUnique({
-			where: {
-				email: game.rightPlayer.email
-			}
-		})
+  async endGame(gameID: string) {
+    const game = this.games.find((game) => game.gameID === gameID);
 
-		const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
-		const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    const leftPlayer = await this.prisma.user.findUnique({
+      where: {
+        email: game.leftPlayer.email,
+      },
+    });
+    const rightPlayer = await this.prisma.user.findUnique({
+      where: {
+        email: game.rightPlayer.email,
+      },
+    });
 
-		await this.prisma.game.create({
-			data: {
-					players: {
-							connect: [
-									{ email: leftPlayer.email },
-									{ email: rightPlayer.email }
-							]
-					},
-					winner: {
-							connect: { id: winner.id }
-					},
-					loser: {
-							connect: { id: loser.id }
-					}
-			}
-		})
+    const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
+    const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
 
-		this.deleteGame(gameID);
+    await this.prisma.game.create({
+      data: {
+        players: {
+          connect: [{ email: leftPlayer.email }, { email: rightPlayer.email }],
+        },
+        winner: {
+          connect: { id: winner.id },
+        },
+        loser: {
+          connect: { id: loser.id },
+        },
+      },
+    });
+
+    this.deleteGame(gameID);
   }
 
-  async deleteGame(gameID: number){
-		const game = this.games.find((game) => game.gameID === gameID);
+  async deleteGame(gameID: string) {
+    const game = this.games.find((game) => game.gameID === gameID);
 
-		game.leftPlayer.gameID = null;
-		game.rightPlayer.gameID = null;
+    game.leftPlayer.gameID = null;
+    game.rightPlayer.gameID = null;
 
-		await this.prisma.user.updateMany({
-			where: {
-				email: {
-					in: [game.leftPlayer.email, game.rightPlayer.email],
-				},}, data : {
-				status: 'ONLINE',
-			},
-		})
-		
-		this.games = this.games.filter((g) => g.gameID !== gameID);
+    await this.prisma.user.updateMany({
+      where: {
+        email: {
+          in: [game.leftPlayer.email, game.rightPlayer.email],
+        },
+      },
+      data: {
+        status: 'ONLINE',
+      },
+    });
+
+    this.games = this.games.filter((g) => g.gameID !== gameID);
   }
 
   /****************************************************************************/
   /* GAMEPLAY                                                                 */
-  /****************************************************************************/	
+  /****************************************************************************/
 
   movePaddle(client: Socket, payload: Object) {
     const currentGame = this.games.find(
-      (game) => game.leftPlayer.socketID === client.id || game.rightPlayer.socketID === client.id
+      (game) =>
+        game.leftPlayer.socketID === client.id ||
+        game.rightPlayer.socketID === client.id,
     );
 
-    const currentPlayer = (currentGame.leftPlayer.socketID === client.id) ? currentGame.leftPlayer : currentGame.rightPlayer;
-
-    console.log(currentPlayer);
+    const currentPlayer =
+      currentGame.leftPlayer.socketID === client.id
+        ? currentGame.leftPlayer
+        : currentGame.rightPlayer;
 
     if (!currentPlayer) {
       console.log('error');
@@ -227,16 +238,20 @@ export class GameService {
     }
   }
 
-  gameLogic(client: Socket) : Game{
+  gameLogic(client: Socket): Game {
     const currentGame = this.games.find(
-      (game) => game.leftPlayer.socketID === client.id || game.rightPlayer.socketID === client.id
+      (game) =>
+        game.leftPlayer.socketID === client.id ||
+        game.rightPlayer.socketID === client.id,
     );
 
     if (!currentGame) {
       return null;
     }
-    const currentPlayer = (currentGame.leftPlayer.socketID === client.id) ? currentGame.leftPlayer : currentGame.rightPlayer;
-
+    const currentPlayer =
+      currentGame.leftPlayer.socketID === client.id
+        ? currentGame.leftPlayer
+        : currentGame.rightPlayer;
 
     if (currentGame.ballPosition.x > 750) {
       currentGame.ballPosition.x = 400;

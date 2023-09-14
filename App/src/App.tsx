@@ -9,7 +9,7 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/" element={React.createElement(Authentification)} />
-				<Route path="/hello" element={React.createElement(Hello)} />
+        <Route path="/hello" element={React.createElement(Hello)} />
         <Route path="/pong" element={React.createElement(Pong)} />
       </Routes>
     </Router>
