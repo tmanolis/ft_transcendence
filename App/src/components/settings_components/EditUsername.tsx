@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import ConfirmButton from "./styles/ConfirmButton.styled";
 
 interface FormEvent extends React.FormEvent<HTMLFormElement> {}
 
@@ -21,7 +22,8 @@ const EditUsername: React.FC = () => {
 				type ="text" id="new_nickname" 
 				placeholder="new nickname"
 			/>
-			<button type="submit" className="basic_btn">Confirm</button>
+			<button className="basic_btn">Confirm</button>
+			{/* <ConfirmButton type="submit">Confirm</ConfirmButton> */}
 		</form>
 		</>
 	);
