@@ -9,7 +9,7 @@ const AvatarImage = styled.img`
   object-fit: cover;
 `;
 
-const userImageSrc = "../../public/icon/Avatar.svg";
+const userImageSrc = "../../public/img/defaultAvatar.jpg";
 
 const BASE_URL = "http://localhost:3000";
 
