@@ -1,13 +1,14 @@
 import React, { useState } from "react";
-import axios, { AxiosError } from "axios";
-import ConfirmButton from "./styles/ConfirmButton.styled";
+import axios from "axios";
+// import axios, { AxiosError } from "axios";
+// import ConfirmButton from "./styles/ConfirmButton.styled";
 
-interface FormEvent extends React.FormEvent<HTMLFormElement> {}
+// interface FormEvent extends React.FormEvent<HTMLFormElement> {}
 
 const EditUsername: React.FC = () => {
 
 	const [newUsername, setnewUsername] = useState("");
-	const [loginError, setLoginError] = useState("");
+	// const [loginError, setLoginError] = useState("");
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
