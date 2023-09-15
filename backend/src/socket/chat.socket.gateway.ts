@@ -1,4 +1,6 @@
 import { 
+	ConnectedSocket,
+	MessageBody,
 	OnGatewayConnection, 
 	OnGatewayDisconnect, 
 	SubscribeMessage, 
@@ -7,6 +9,7 @@ import { JwtService } from "@nestjs/jwt";
 import { Socket } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
 import { ChatUser, messageDTO } from "src/dto";
+import { SocketUser } from "src/decorator/socket-user.decorator";
 
 @WebSocketGateway({
   cors: {
@@ -24,27 +27,36 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	/****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
-	async handleConnection(client: Socket) {
-		const jwt = client.handshake.headers.authorization;
-    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-
-		if (jwt === 'undefined' || jwt === null){
-      console.log('No jwt, disconnecting');
-      client.disconnect();
-			return;
-    }
-
-    jwtData = this.jwtService.decode(jwt);
-		const user = await this.chatService.newConnection(jwtData.email, client.id);
+	async handleConnection(@ConnectedSocket() client: Socket) {
+    const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+		const user: ChatUser = await this.chatService.newConnection(jwtData.email, client.id);
 		if (!user){
-			client.emit('accountDeleted', { message: 'Your account has been deleted.' });
+			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted.' });
 			client.disconnect();
 			return;
 		}
 	}
 
-	handleDisconnect(client: Socket) {
-		// disconnect logic chat
+	async handleDisconnect(@ConnectedSocket() client: Socket) {
+    const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+
+		const user: ChatUser = await this.chatService.disconnect(jwtData.email);
+		if (!user){
+			client.emit('accessDenied', { message: 'Authentification failed, please log in again.' });
+		}
+		console.log(client.id, ' disconnected from generic socket. 0.0');
+	}
+
+	verifyJWT(client: Socket){
+		const jwt = client.handshake.headers.authorization;
+
+		if (jwt === 'undefined' || jwt === null){
+			client.emit('accessDenied', { message: 'Authentification failed, please log in again.' });
+      client.disconnect();
+			return;
+    } else {
+			return (this.jwtService.decode(jwt));
+		}
 	}
 
 
@@ -53,15 +65,30 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
 	
 	@SubscribeMessage('message')
-  	handleMessageReceived(client: Socket, payload: messageDTO): Object {
+  async handleMessageReceived(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() message: messageDTO,
+	){
+		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
+		const params = client.handshake.query;
+		const room: string = Array.isArray(params.room) ? params.room[0] : params.room;
+		const ok: boolean = this.chatService.createMessage(user, room, message);
+
+		if (ok){
+			// emit message to room
+		} else {
+			// emit error message
+		}
+		
 		// first thoughts: the room should be included in the message
 		// but do we make a difference betweens DM's and channels? 
 		// And the dto should be protected.
-
-		console.log('text: ', payload);
-    console.log('Message received!!!');
-    return { event: 'player message receivedt ', socketID: client.id };
+		console.log('message: ', message);
+		console.log('params: ', params)
+    return { event: 'user message received', socketID: client.id };
   }
+
 
 
 	/****************************************************************************/

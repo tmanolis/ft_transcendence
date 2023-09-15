@@ -4,6 +4,11 @@ export class messageDTO {
 	text: string;
 }
 
+export class roomDTO {
+	name: string;
+	otherUser: string;
+}
+
 export class ChatUser {
 	constructor(
 		public email: string,
@@ -16,6 +21,16 @@ export class ChatUser {
 export class ChatRoom {
 	constructor(
 		public roomID: string,
+		public status: Status,
 		public members: ChatUser[],
+		public creator: string,
+		public administrators: string[],
+		public muted: string[],
 	) {}
+}
+
+enum Status {
+	"public",
+	"private",
+	"protected",
 }

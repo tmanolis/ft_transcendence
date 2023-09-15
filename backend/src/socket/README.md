@@ -32,9 +32,10 @@
 
 ### Emit
 
-| event name | body     | description                |
-| ---------- | -------- | -------------------------- |
-| updateGame | gameData | inside "startGame", 30 fps |
+| event name 		| body     | description                |
+| ---------- 		| -------- | -------------------------- |
+| updateGame 		| gameData | inside "startGame", 30 fps |
+| accessDenied 	| reason	 | after connect/disconnect		|
 
 ## CHAT
 
