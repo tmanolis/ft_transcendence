@@ -15,11 +15,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
+import { Player, GameStatus } from '../dto/game.dto';
 
 import { GameService } from '../game/game.service';
-
-import { Game } from '../dto/game.dto';
-import { Player } from '../dto/game.dto';
 
 @WebSocketGateway({
   cors: {
@@ -121,8 +119,8 @@ export class SocketGateway implements OnGatewayConnection {
     const existingPlayer: string = await this.cacheManager.get(
       `game${playerEmail}`,
     );
-    const existingPlayerObject: Player = JSON.parse(existingPlayer);
     if (!existingPlayer) return;
+    const existingPlayerObject: Player = JSON.parse(existingPlayer);
 
     // find the user in database
     const user = await this.prisma.user.findUnique({
@@ -139,8 +137,7 @@ export class SocketGateway implements OnGatewayConnection {
       this.cacheManager.del(`game${existingPlayerObject.email}`);
       return;
     } else if (user.status === 'WAITING') {
-      const pendingPlayer: string =
-        await this.cacheManager.get('pendingPlayer');
+      const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
       if (!pendingPlayer) return;
       // check if pendingPlayer(in cache) is the waiting player(in database)
       const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
@@ -165,8 +162,8 @@ export class SocketGateway implements OnGatewayConnection {
     this.gameService.setCanvas(payload);
   }
 
-  @SubscribeMessage('playGame')
-  async handlePlayGame(client: Socket) {
+  @SubscribeMessage('findGame')
+  async handleFindGame(client: Socket) {
     const currentPlayerEmail: string = await this.cacheManager.get(client.id);
     const currentPlayer: string = await this.cacheManager.get(
       `game${currentPlayerEmail}`,
@@ -205,7 +202,12 @@ export class SocketGateway implements OnGatewayConnection {
       const gameData = this.gameService.gameLogic(client);
       this.server.to(gameRoom).emit('updateGame', gameData);
       // also need to ubpdate the paddle for both sides.
-      if (gameData.status === 'ended') {
+      console.log(gameData);
+      if (!gameData) {
+        clearInterval(gameInterval);
+        return;
+      }
+      if (gameData.status === GameStatus.Ended) {
         clearInterval(gameInterval);
       }
     }, 1000 / 30);
@@ -284,19 +286,14 @@ export class SocketGateway implements OnGatewayConnection {
       return;
     }
 
-    const gameID = invitingPlayer.gameID.toString();
-    if (!gameID) {
-      client.id;
-      this.server
-        .to(currentPlayer.socketID)
-        .emit('errorGameInvite', { error: 'Game has been deleted' });
-      return;
-    }
-
     if (response.accept) {
-      client.join(gameID);
-      this.gameService.joinGameAndLaunch(currentPlayer, invitingPlayer.gameID);
-      this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
+      client.join(response.gameID.toString());
+			const gameStarted = this.gameService.joinGameAndLaunch(currentPlayer, response.gameID);
+			if (gameStarted){
+				this.server.to(invitingPlayer.socketID).emit("invitationAccepted");
+			} else {
+				this.server.to(currentPlayer.socketID).emit("errorGameInvite", {error: "Game has been deleted"});
+			}
     } else {
       this.server.to(invitingPlayer.socketID).emit('invitationDeclined');
       this.gameService.deleteGame(currentPlayer.gameID);
@@ -305,7 +302,7 @@ export class SocketGateway implements OnGatewayConnection {
   */
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: Object): Object {
+  handleMovePaddle(client: Socket, payload: {key: string, gameID: string}): object {
     const gameData = this.gameService.movePaddle(client, payload);
     let updateSide = '';
     console.log('game Data to sent: ', gameData);

@@ -36,6 +36,10 @@ export class UserService {
     });
     if (dto.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
+			if (!user.achievements.includes('TWOFA')){
+				user.achievements.push('TWOFA');
+				// emit notification achievement?
+			}
       return await toDataURL(otpauthUrl);
     } else if (!dto.twoFAActivated && user.twoFASecret) {
       user.twoFASecret = null;
@@ -82,7 +86,6 @@ export class UserService {
         gamesWon: true,
         gamesLost: true,
         ranking: true,
-        level: true,
       },
     });
     return allUserData;

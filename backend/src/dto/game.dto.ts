@@ -1,3 +1,10 @@
+export enum GameStatus {
+	Playing = 'playing',
+	Pause = 'pause',
+	Ended = 'ended',
+	Waiting = 'waiting',
+}
+
 interface Position {
   x: number;
   y: number;
@@ -23,6 +30,6 @@ export class Game {
     public ballPosition: Position,
     public ballDirection: Position,
     public ballAngle: number,
-    public status: string,
+    public status: GameStatus,
   ) {}
 }

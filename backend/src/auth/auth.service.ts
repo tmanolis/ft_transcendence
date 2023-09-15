@@ -33,7 +33,7 @@ export class AuthService {
 
     if (!user) {
       try {
-        const user = await this.prisma.user.create({
+        user = await this.prisma.user.create({
           data: {
             id: dto.id,
             email: dto.email,
