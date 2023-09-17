@@ -35,9 +35,9 @@ const EditAvatar: React.FC = () => {
 	return (
 		<div>
 		{/* <AvatarImage src={avatarPath} alt="User Avatar" /> */}
-		<AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
-		<span>{username}</span>
-		<button>Edit Avatar</button>
+			<AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
+			<span>{username}</span>
+			<button>Edit Avatar</button>
 		</div>
 	);
 };

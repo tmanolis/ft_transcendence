@@ -1,7 +1,11 @@
 import axios, { AxiosError } from "axios";
-import React from "react";
+import React, { useState } from "react";
+import ConfirmButton from "./styles/ConfirmButton.styled";
 
 const EditUsername: React.FC = () => {
+	const [updateError, setUpdateError] = useState("");
+
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
@@ -20,9 +24,25 @@ const EditUsername: React.FC = () => {
 			updateDTO,
 			{ withCredentials: true });
 			console.log(response);
+			
 		  } catch (error) {
-			  console.log(error as AxiosError);
+			  handleUpdateError(error as AxiosError);
 		  }
+	}
+
+	const handleUpdateError = (error: AxiosError) => {
+    if (error.response) {
+      const status = error.response.status;
+      if (status === 403) {
+        setUpdateError("Username or email already in use");
+      } else if (status === 400) {
+        setUpdateError("Wrong format password or email");
+      } else {
+        setUpdateError("Sign up failed");
+      }
+    } else {
+      setUpdateError("Network error occured");
+    }
 	}
 
 	return (
@@ -34,37 +54,10 @@ const EditUsername: React.FC = () => {
 				id="new_username" 
 				placeholder="new username"
 			/>
-			<button type="submit">Confirm</button>
-			{/* <ConfirmButton type="submit">Confirm</ConfirmButton> */}
+			<ConfirmButton type="submit">Confirm</ConfirmButton>
 		</form>
 		</>
 	);
 };
 
 export default EditUsername
-
-// import React, { useState } from "react";
-// import axios from "axios";
-// import axios, { AxiosError } from "axios";
-// import ConfirmButton from "./styles/ConfirmButton.styled";
-
-// interface FormEvent extends React.FormEvent<HTMLFormElement> {}
-
-// const handleSubmit = async (e: React.FormEvent) => {
-// 	e.preventDefault();
-
-// 	const signupDTO = {
-// 	  userName: newUsername,
-// 	};
-
-	// try {
-	//   const response = await axios.patch(
-	// 	"http://localhost:3000/user/update",
-	// 	signupDTO,
-	// 	{ withCredentials: true }
-	//   );
-	//   console.log(response);
-	// } catch (error) {
-	// 	console.log(error);
-	// }
-//   };
