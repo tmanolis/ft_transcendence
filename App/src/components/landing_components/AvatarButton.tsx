@@ -1,14 +1,10 @@
 import React from "react";
-import Avatar from "./styles/AvatarButton.styled"
+import Avatar, { AvatarProps } from "./styles/AvatarButton.styled"
 
-const userImageSrc = "../../public/icon/Avatar.svg";
-
-const AvatarButton: React.FC = () => {
-  const handleAvatarClick = () => {
-  };
+const AvatarButton: React.FC<AvatarProps> = ({ userImageSrc, avaBar, onClick }) => {
 
   return (
-      <Avatar userImageSrc={userImageSrc} onClick={handleAvatarClick} />
+      <Avatar userImageSrc={userImageSrc} onClick={onClick} avaBar={avaBar}/>
   );
 };
 

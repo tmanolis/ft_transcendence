@@ -4,6 +4,7 @@ import styled from "styled-components";
 export type AvatarProps = {
   userImageSrc: string;
   onClick: () => void;
+  avaBar: boolean;
 };
 
 const StyledAvatar = styled.div`
