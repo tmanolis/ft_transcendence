@@ -7,7 +7,7 @@ export type LandContProps = {
 
 const LandingContainerStyled = styled.div`
     display: flex;
-    vertical-align: top;
+    justify-content: space-between;
     margin-right: 20px;
 `;
 const LandingContainer: React.FC<LandContProps> = ({ children }) => {

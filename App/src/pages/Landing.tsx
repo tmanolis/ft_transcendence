@@ -20,12 +20,14 @@ const Landing: React.FC = () => {
     const userImageSrc = "../../public/icon/Avatar.svg";
 
     return (
-        <LandingContainer>
-            <LandingButton onClick={handleLandingClick} navBar={menuBarIsShown} />
+        <>
+            <LandingContainer>
+                <LandingButton onClick={handleLandingClick} navBar={menuBarIsShown} />
+                <AvatarButton userImageSrc={userImageSrc} onClick={handleAvatarClick} avaBar={avatarBarIsShown}/>
+            </LandingContainer>
             {menuBarIsShown && <NavBar />}
-            <AvatarButton userImageSrc={userImageSrc} onClick={handleAvatarClick} avaBar={avatarBarIsShown}/>
             {avatarBarIsShown && <AvatarBar />}
-        </LandingContainer>
+        </>
     );
 }
 

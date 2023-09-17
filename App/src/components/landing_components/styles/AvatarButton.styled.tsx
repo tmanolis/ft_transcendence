@@ -16,6 +16,7 @@ const StyledAvatar = styled.div`
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
+  z-index: 2;
 `;
 
 const AvatarImage = styled.img`

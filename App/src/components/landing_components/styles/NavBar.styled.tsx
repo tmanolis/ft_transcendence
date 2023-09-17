@@ -6,23 +6,21 @@ export type NavProps = {
   children?: React.ReactNode;
 };
 
-const Container = styled.div`
+const NavBarStyled = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
+  position: absolute;
+  z-index: 2;
 `;
 
-const StyledNavBar = styled.div`
+const NavButton = styled.div`
   display: flex;
-  margin-top: 100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 450px;
   width: 80px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   gap: 45px;
   flex-shrink: 0;
 
@@ -32,11 +30,11 @@ const StyledNavBar = styled.div`
 
 const NavBar: React.FC<NavProps> = ({ children }) => {
   return (
-    <Container>
-      <StyledNavBar>
+    <NavBarStyled>
+      <NavButton>
         {children}
-      </StyledNavBar>
-    </Container>
+      </NavButton>
+    </NavBarStyled>
   );
 };
 

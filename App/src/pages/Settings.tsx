@@ -4,10 +4,12 @@ import Landing from "../pages/Landing";
 
 const Settings = () => {
     return (
-        <PageContainer>
-            <Landing />
+        <>
+        <Landing />
+        <PageContainer type="settings">
             <SettingsPopUp />
         </PageContainer>
+        </>
     );
 }
     

@@ -10,9 +10,9 @@ type AvatarMenuProps = {
 const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName }) => {
     return (
         <Link to={to}>
-            <div>
-              <button>{buttonName}</button>
-            </div>
+          <h1>
+            {buttonName}
+          </h1>
         </Link>
     );
 };
@@ -20,9 +20,9 @@ const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName }) => {
 const AvatarBar: React.FC = () => {
   return (
     <AvatarBarStyled>
-      <AvatarNavButton to="/profile" buttonName="Profile"/>
-      <AvatarNavButton to="/settings" buttonName="Settings"/>
-      <AvatarNavButton to="/auth" buttonName="Logout"/>
+      <AvatarNavButton to="/profile" buttonName="./Profile"/>
+      <AvatarNavButton to="/settings" buttonName="./Settings"/>
+      <AvatarNavButton to="/auth" buttonName="./Logout"/>
     </AvatarBarStyled>
   );
 };

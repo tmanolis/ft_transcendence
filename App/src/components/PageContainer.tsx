@@ -2,12 +2,13 @@ import PageContainerStyled from "./styles/PagesContainer.styled"
 
 export type PagesProps = {
     children?: React.ReactNode;
+    type?: "settings" | "other";
   };
 
-const PageContainer: React.FC<PagesProps> = ({ children}) => {
+const PageContainer: React.FC<PagesProps> = ({ children, type}) => {
     return (
-      <PageContainerStyled>
-        {children}
+      <PageContainerStyled type={type}>
+            {children}
       </PageContainerStyled>
     );
 }

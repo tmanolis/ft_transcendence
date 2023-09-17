@@ -10,16 +10,16 @@ const Profile = () => {
 
   return (
     <>
-    <Landing />
-    {/* <PageContainer> */}
-        <div>
-          {/* <ProfileAvatar />
-          <BarCode />
-          <UserStats />
-          <MatchHistory />
-          <BadgesInfos /> */}
-        </div>
-    {/* </PageContainer> */}
+      <Landing />
+      <PageContainer type="other">
+          <div>
+            {/* <ProfileAvatar />
+            <BarCode />
+            <UserStats />
+            <MatchHistory />
+            <BadgesInfos /> */}
+          </div>
+      </PageContainer>
     </>
   );
 };
