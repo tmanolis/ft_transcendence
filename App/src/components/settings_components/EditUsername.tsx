@@ -1,54 +1,40 @@
-import React, { useState } from "react";
-import axios from "axios";
-// import axios, { AxiosError } from "axios";
-// import ConfirmButton from "./styles/ConfirmButton.styled";
-
-// interface FormEvent extends React.FormEvent<HTMLFormElement> {}
+import axios, { AxiosError } from "axios";
+import React from "react";
 
 const EditUsername: React.FC = () => {
-
-	const [newUsername, setnewUsername] = useState("");
-	// const [loginError, setLoginError] = useState("");
-
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-	
-		const signupDTO = {
-		  userName: newUsername,
-		};
-	
-		try {
-		  const response = await axios.patch(
-			"http://localhost:3000/user/update",
-			signupDTO,
-		  );
-		  console.log(response);
-		} catch (error) {
-		//   handleLoginError(error as AxiosError);
-		}
-	  };
 
-	//   const handleLoginError = (error: AxiosError) => {
-	// 	if (error.response) {
-	// 	  const status = error.response.status;
-	// 	  if (status === 403) {
-	// 		setLoginError("Username or email already in use");
-	// 	  }
-	// 	} else {
-	// 	  setLoginError("Network error occured");
-	// 	}
-	//   };
+		const form = e.target as HTMLFormElement;;
+		const formData = new FormData(form);
+		const new_username = formData.get("new_username");
+
+		form.reset();
+
+		const updateDTO = {
+		  userName: new_username,
+		};
+
+		try {
+			const response = await axios.patch("http://localhost:3000/user/update",
+			updateDTO,
+			{ withCredentials: true });
+			console.log(response);
+		  } catch (error) {
+			  console.log(error as AxiosError);
+		  }
+	}
 
 	return (
 		<>
 		<form onSubmit={handleSubmit}>
 			<input
-				value={newUsername}
-				onChange={e => setnewUsername(e.target.value)} 
-				type ="text" id="new_nickname" 
-				placeholder="new nickname"
+				name = "new_username"
+				type ="text"
+				id="new_username" 
+				placeholder="new username"
 			/>
-			<button className="basic_btn">Confirm</button>
+			<button type="submit">Confirm</button>
 			{/* <ConfirmButton type="submit">Confirm</ConfirmButton> */}
 		</form>
 		</>
@@ -56,3 +42,29 @@ const EditUsername: React.FC = () => {
 };
 
 export default EditUsername
+
+// import React, { useState } from "react";
+// import axios from "axios";
+// import axios, { AxiosError } from "axios";
+// import ConfirmButton from "./styles/ConfirmButton.styled";
+
+// interface FormEvent extends React.FormEvent<HTMLFormElement> {}
+
+// const handleSubmit = async (e: React.FormEvent) => {
+// 	e.preventDefault();
+
+// 	const signupDTO = {
+// 	  userName: newUsername,
+// 	};
+
+	// try {
+	//   const response = await axios.patch(
+	// 	"http://localhost:3000/user/update",
+	// 	signupDTO,
+	// 	{ withCredentials: true }
+	//   );
+	//   console.log(response);
+	// } catch (error) {
+	// 	console.log(error);
+	// }
+//   };

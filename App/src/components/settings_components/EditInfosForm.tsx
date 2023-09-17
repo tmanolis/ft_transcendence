@@ -5,7 +5,7 @@ import EditUsername from "./EditUsername";
 const EditInfosForm: React.FC = () => {
 
 	return (
-		<form className="settings_form">
+		<>
 			<CheckBox2FA />
 			<EditUsername />
 			<div>
@@ -13,7 +13,7 @@ const EditInfosForm: React.FC = () => {
 				<input type ="text" id="new_password" placeholder="new password"/>
 				<button className="basic_btn">Confirm</button>
 			</div>
-		</form>
+		</>
 	);
 };
 
