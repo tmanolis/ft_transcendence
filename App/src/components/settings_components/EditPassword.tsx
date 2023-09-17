@@ -1,15 +1,15 @@
 import axios, { AxiosError } from "axios";
-import React, { useState } from "react";
 import ConfirmButton from "./styles/ConfirmButton.styled";
 
-const EditPassword: React.FC = () => {
-	const [updateError, setUpdateError] = useState("");
-	const [updateSucces, setUpdatSucces] = useState("");
+interface EditPasswordProps {
+	onError: (error: string) => void;
+	onSuccess: (success: string) => void;
+  }
+
+const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		setUpdatSucces("");
-		setUpdateError("");
 
 		const form = e.target as HTMLFormElement;;
 		const formData = new FormData(form);
@@ -28,7 +28,7 @@ const EditPassword: React.FC = () => {
 			updateDTO,
 			{ withCredentials: true });
 			console.log(response);
-			setUpdatSucces("Password was successfully changed");
+			onSuccess("Password was successfully changed");
 		  } catch (error) {
 			handleUpdateError(error as AxiosError);
 		  }
@@ -38,10 +38,10 @@ const EditPassword: React.FC = () => {
     if (error.response) {
       const status = error.response.status;
       if (status === 400) {
-        setUpdateError("Old password or new password is incorrect");
+        onError("Old password or new password is incorrect");
       }
     } else {
-      setUpdateError("Network error occured");
+      onError("Network error occured");
     }
 	}
 
@@ -62,8 +62,6 @@ const EditPassword: React.FC = () => {
 				/>
 				<ConfirmButton type="submit">Confirm</ConfirmButton>
 			</form>
-			{updateSucces && <div style={{ color: 'green', fontSize: '12px' }}>{updateSucces}</div>}
-			{updateError && <div style={{ color: 'red', fontSize: '12px' }}>{updateError}</div>}
 		</>
 	);
 };
