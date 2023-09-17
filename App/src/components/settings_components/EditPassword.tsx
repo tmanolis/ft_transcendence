@@ -4,9 +4,11 @@ import ConfirmButton from "./styles/ConfirmButton.styled";
 
 const EditPassword: React.FC = () => {
 	const [updateError, setUpdateError] = useState("");
+	const [updateSucces, setUpdatSucces] = useState("");
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		setUpdatSucces("");
 		setUpdateError("");
 
 		const form = e.target as HTMLFormElement;;
@@ -26,8 +28,8 @@ const EditPassword: React.FC = () => {
 			updateDTO,
 			{ withCredentials: true });
 			console.log(response);
+			setUpdatSucces("Password was successfully changed");
 		  } catch (error) {
-			console.log(error as AxiosError);
 			handleUpdateError(error as AxiosError);
 		  }
 	}
@@ -60,6 +62,7 @@ const EditPassword: React.FC = () => {
 				/>
 				<ConfirmButton type="submit">Confirm</ConfirmButton>
 			</form>
+			{updateSucces && <div style={{ color: 'green', fontSize: '12px' }}>{updateSucces}</div>}
 			{updateError && <div style={{ color: 'red', fontSize: '12px' }}>{updateError}</div>}
 		</>
 	);
