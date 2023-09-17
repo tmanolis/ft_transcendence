@@ -34,7 +34,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       );
 
       console.log(response);
-      navigate("/pong");
+      navigate("/");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {

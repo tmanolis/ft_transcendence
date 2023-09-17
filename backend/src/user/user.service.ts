@@ -36,6 +36,10 @@ export class UserService {
     });
     if (dto.twoFAActivated && !user.twoFASecret) {
       const otpauthUrl = await this.generate2FASecret(user);
+			if (!user.achievements.includes('TWOFA')){
+				user.achievements.push('TWOFA');
+				// emit notification achievement?
+			}
       return await toDataURL(otpauthUrl);
     } else if (!dto.twoFAActivated && user.twoFASecret) {
       user.twoFASecret = null;
@@ -71,5 +75,19 @@ export class UserService {
     );
     // redirect to page with otpautUrl + route '/2fa-verify'
     return otpauthUrl;
+  }
+
+  async getAllUsers() : Promise<Object> {
+    const allUserData = await this.prisma.user.findMany({
+      select: {
+        userName: true,
+        avatar: true,
+        status: true,
+        gamesWon: true,
+        gamesLost: true,
+        ranking: true,
+      },
+    });
+    return allUserData;
   }
 }

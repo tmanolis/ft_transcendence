@@ -20,11 +20,15 @@
 | function         | event name       | parameters      | description                       |
 | ---------------- | ---------------- | --------------- | --------------------------------- |
 | handleSetCanvas  | setCanvas        | client, payload |                                   |
-| handlePlayGame   | playGame         | client          | User try to join or create a game |
+| handleFindGame   | findGame         | client          | User try to join or create a game |
 | handleStartGame  | startGame        | client, payload | the gameInterval starts           |
 | handleMovePaddle | movePaddle       | client, payload |
-|                  | inviteUserToPlay |                 | todo                              |
-|                  | pauseGame        |                 | todo                              |
+| handeInvitePlayer| invitePlayer			| client, payload | User invites player
+|									 |									|	{userName}			| 											            |
+| handleRespondTo	 | respondToInvite	| client, payload | User invites player
+|	Invite					 |									|	{accept, user-	| User accepts or declines invitation
+|									 |									|	Name, gameID}		|
+|                  | pauseGame        |                 |                                   |
 
 ### Emit
 
@@ -55,3 +59,4 @@
 | ---------------- | --------------------------- | ----------- |
 | messageBroadcast | messageBody, chanel/room ID | todo        |
 | userJoined       | userName, chanel/room ID    | todo        |
+
