@@ -34,6 +34,7 @@ export class ChatUser {
 		public email: string,
 		public socketID: string,
 		public userName: string,
+		public rooms: string[],
 	) {}
 }
 
@@ -44,8 +45,8 @@ export class ChatRoom {
 		public password: string,
 		public members: ChatUser[],
 		public owner: string,
-		public admins: string[],
-		public muted: string[],
+		public admins: ChatUser[],
+		public muted: ChatUser[],
 	) {}
 }
 

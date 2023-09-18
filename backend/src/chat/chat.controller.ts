@@ -4,7 +4,7 @@ import { JwtGuard } from "src/auth/guard";
 import { ChatService } from "./chat.service";
 import { GetUser } from "src/decorator";
 import { User } from '@prisma/client'
-import { roomDTO } from "src/dto";
+import { createRoomDTO } from "src/dto";
 
 @ApiTags('Chat')
 @Controller('chat')
@@ -20,11 +20,11 @@ export class ChatController {
       'Creates room for direct messaging or channel.',
   })
 	@Post('createChannel')
-	openOrCreateDM(@GetUser() user: User, @Body() dto: roomDTO){
+	openOrCreateDM(@GetUser() user: User, @Body() dto: createRoomDTO){
 		console.log('in chat controller');
 		console.log('dto', dto);
 		console.log('user', user);
-		this.chatService.createChannel(user, dto);
+		return this.chatService.createChannel(user, dto);
 	}
 
 }

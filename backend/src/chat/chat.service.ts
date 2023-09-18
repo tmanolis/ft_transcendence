@@ -1,8 +1,8 @@
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from 'cache-manager';
-import { Inject, Injectable } from "@nestjs/common";
+import { ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
-import { ChatUser, messageDTO, roomDTO } from "src/dto";
+import { ChatUser, messageDTO, createRoomDTO } from "src/dto";
 import { User, Room, Message } from '@prisma/client'
 
 @Injectable()
@@ -13,7 +13,7 @@ export class ChatService {
 		private prisma: PrismaService,
 	) {}
 
-	async newConnection(email: string, socketID: string): Promise< ChatUser | null >{
+	async newConnection(socketID: string, email: string): Promise< ChatUser | null >{
 		const existingUser: ChatUser = await this.fetchUser(email);
 
 		if (existingUser) {
@@ -43,17 +43,7 @@ export class ChatService {
 		const existingUser = await this.fetchUser(email);
 		
 		if (existingUser){
-			const user = await this.prisma.user.findUnique({
-				where: {
-					email: email,
-				}
-			})
-			if (user.status === 'OFFLINE'){
-				this.cacheManager.del('chat' + email);
-				return null;
-			} else {
-				return existingUser;
-			}
+			return existingUser;
 		}
 	}
 
@@ -67,37 +57,39 @@ export class ChatService {
 		return null;
 	}
 
-	async openOrCreateDM(user: User, room: roomDTO){
-		const existingRoom = this.cacheManager.get('room' + roomDTO.name);
-		if (existingRoom){
-			return this.findAllMessages(roomDTO.name);
-		}
-
-		const otherUser = await this.prisma.user.findUnique({
+	async createChannel(user: User, roomDTO: createRoomDTO){
+		const existingRoom = await this.prisma.room.findUnique({
 			where: {
-				userName: room.otherUser,
+				id: roomDTO.name,
 			}
 		})
+		if (existingRoom){
+			throw new ConflictException('Room already exists');
+		}
 
-		await this.prisma.room.create({
+		const newRoom = await this.prisma.room.create({
 			data: {
-				id: room.name,
+				id: roomDTO.name,
 				users: {
-					connect: [
-						{ id: user.id },
-						{ id: otherUser.id }
-					]
+					connect: [{ id: user.id }],
 				}
 			}
 		})
+		return newRoom;
 	}
 
-	async findAllMessages(roomName: string): Promise<Message[]> {
+	async messageHistoryRoom(roomName: string): Promise<Message[]> {
 		return this.prisma.message.findMany({
 			where: {
 				roomID: roomName,
 			}
 		})
+	}
+
+	fullMessageHistory(user: ChatUser){
+		for (const room of user.rooms){
+			
+		}
 	}
 
 	createMessage(user: ChatUser, room: string, message: messageDTO) {

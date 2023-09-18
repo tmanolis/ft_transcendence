@@ -9,7 +9,6 @@ import { JwtService } from "@nestjs/jwt";
 import { Socket } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
 import { ChatUser, messageDTO } from "src/dto";
-import { SocketUser } from "src/decorator/socket-user.decorator";
 
 @WebSocketGateway({
   cors: {
@@ -29,12 +28,19 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
 	async handleConnection(@ConnectedSocket() client: Socket) {
     const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		const user: ChatUser = await this.chatService.newConnection(jwtData.email, client.id);
+		const user: ChatUser = await this.chatService.newConnection(client.id, jwtData.email);
 		if (!user){
 			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted.' });
 			client.disconnect();
 			return;
 		}
+
+		for (const room of user.rooms){
+			client.join(room);
+		}
+
+		const chatHistory = this.chatService.fullMessageHistory(user)
+		client.emit('updateChatHistory', chatHistory);
 	}
 
 	async handleDisconnect(@ConnectedSocket() client: Socket) {
@@ -52,11 +58,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		if (jwt === 'undefined' || jwt === null){
 			client.emit('accessDenied', { message: 'Authentification failed, please log in again.' });
-      client.disconnect();
+			client.disconnect();
 			return;
-    } else {
-			return (this.jwtService.decode(jwt));
-		}
+		} else {
+				return (this.jwtService.decode(jwt));
+			}
 	}
 
 
@@ -188,16 +194,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		- joins channel
 		- emits a message that user has joined the channel
 
-		inviteToChannel(room, user2Binvited)
-		- checks if user2Binvited exists
-		- checks if user has rights to invite
-		- emits invite to user2Binvited
-		- emits message to inform channel users
-
-		acceptInvitation(accept, room, inviter)
-		- if false, emits message to inviter (return)
-		- if true, joins user to the room
-		- emits message to inform channel users
+		leaveChannel(room)
+		- removes user from channel
+		- emits a message that user has left the channel
 
 		closeChannel(room)
 		- check is user is administrator
