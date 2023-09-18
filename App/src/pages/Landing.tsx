@@ -8,11 +8,6 @@ import LandingContainer from "../components/landing_components/styles/LandingCon
 
 const BASE_URL = "http://localhost:3000";
 
-const getUser = async () => {
-	const response = await axios.get(`${BASE_URL}/user/me`, { withCredentials: true })
-	return response.data;
-}
-
 const Landing: React.FC = () => {
     const [menuBarIsShown, setMenuBarIsShown] = useState(false);
     const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
