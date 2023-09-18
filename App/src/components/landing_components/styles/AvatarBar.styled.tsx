@@ -29,7 +29,7 @@ const NewPageName = styled.div`
   background: #000;
   
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 10px;
   font-style: normal;
   letter-spacing: 0.5px;
 
@@ -42,7 +42,8 @@ const NewPageName = styled.div`
   }
 
   h1 {
-    margin: 0; /* Remove margin */
+    margin: 0;
+    margin-left: 15px;
     display: flex;
     flex-direction: column;
     height: 100%; /* Set the height to 100% */
@@ -57,7 +58,7 @@ const NewPageName = styled.div`
     color: #FFF;
     text-decoration: none;
 
-    border-bottom: 2px solid #FFF;
+    border-bottom: 2px solid #b0b0b0;
   }
   
   a:hover {
