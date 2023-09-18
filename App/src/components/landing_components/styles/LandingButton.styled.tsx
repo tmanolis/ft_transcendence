@@ -26,7 +26,7 @@ const StyledLandingButton = styled.button<{}>`
     font-family: "JetBrains Mono", monospace;
     font-size: 35px;
     font-style: normal;
-    font-weight: 500;
+    /* font-weight: 500px; */
     line-height: 70px;
     letter-spacing: 0.9px;
     text-decoration: none;
@@ -37,6 +37,14 @@ const StyledLandingButton = styled.button<{}>`
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  h1:hover{
+    color: #000;
+  }
+
+  &:hover {
+    background-color: #FFF;
   }
 `;
 
