@@ -29,6 +29,15 @@ const NavButton = styled.div`
 
   background-image: url(${NavBarPNG});
   background-size: contain;
+
+  img {
+    transition: transform 0.1s, border 0.1s;
+  }
+
+  img:hover {
+    transform: scale(1.3);
+    /* border: 3px solid #fff; */
+  }
 `;
 
 const NavBar: React.FC<NavProps> = ({ children }) => {
