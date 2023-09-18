@@ -27,8 +27,8 @@ export class AuthDto {
   @IsNotEmpty()
   @IsString()
   // @MinLength(8)
-	// Commented for testing:
-	// @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+  // Commented for testing:
+  // @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
   //   message:
   //     'password too weak. Need at least one uppercase letter, one lowercase letter and one digit.',
   // })

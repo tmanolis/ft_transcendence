@@ -9,6 +9,7 @@ import Profile from "./pages/Profile";
 import Play from "./pages/Play";
 import Chat from "./pages/Chat";
 import GlobalStyle from "./theme/GlobalStyle";
+import Hello from "./pages/Hello";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
           <Route path="/chat" element={React.createElement(Chat)} />
           <Route path="/play" element={React.createElement(Play)} />
           <Route path="/pong" element={React.createElement(Pong)} />
+          <Route path="/hello" element={React.createElement(Hello)} />
         </Routes>
       </Router>
     </>
