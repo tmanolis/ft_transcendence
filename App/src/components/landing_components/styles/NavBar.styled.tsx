@@ -1,42 +1,43 @@
 import React from "react";
 import styled from "styled-components";
-import NavBarSVG from "../../../../public/icon/NavBar.svg"; // Import the SVG image
+// import NavBarSVG from "../../../../public/icon/navbar.svg";
+import NavBarPNG from "../../../assets/navbar.png"; // Import the SVG image
 
 export type NavProps = {
   children?: React.ReactNode;
 };
 
-const Container = styled.div`
+const NavBarStyled = styled.div`
   display: flex;
   width: 100%;
   height: 100%;
-  justify-content: flex-start;
-  align-items: center;
-  flex-direction: row;
+  position: absolute;
+  z-index: 1;
 `;
 
-const StyledNavBar = styled.div`
+const NavButton = styled.div`
   display: flex;
-  margin-top: 100px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   height: 450px;
   width: 80px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  margin-top: 120px;
+  left: 5px;
   gap: 45px;
   flex-shrink: 0;
 
-  background-image: url(${NavBarSVG});
-  background-size: fit;
+  background-image: url(${NavBarPNG});
+  background-size: contain;
 `;
 
 const NavBar: React.FC<NavProps> = ({ children }) => {
   return (
-    <Container>
-      <StyledNavBar>
+    <NavBarStyled>
+      <NavButton>
         {children}
-      </StyledNavBar>
-    </Container>
+      </NavButton>
+    </NavBarStyled>
   );
 };
 

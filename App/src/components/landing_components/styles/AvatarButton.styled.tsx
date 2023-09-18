@@ -4,21 +4,25 @@ import styled from "styled-components";
 export type AvatarProps = {
   userImageSrc: string;
   onClick: () => void;
+  avaBar: boolean;
 };
 
 const StyledAvatar = styled.div`
   position: absolute;
   top: 15px;
   right: 15px;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid transparent; /* Transparent border to create space for the gradient */
+  z-index: 2;
+  border-radius: 73px;
+  border: 2px solid var(--linear-white, #FAF2F2);
+  /* border: 2px solid transparent;
   border-top: 0px;
   border-bottom: 2px solid #b9b9b9;
-  background-image: linear-gradient(to bottom, #000000, #3b3b3b, #777777, #b9b9b9, #ffffff);
+  background-image: linear-gradient(to bottom, #000000, #3b3b3b, #777777, #b9b9b9, #ffffff); */
 
 `;
 

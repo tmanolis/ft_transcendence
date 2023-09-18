@@ -8,6 +8,8 @@ export type LandingProps = {
 }
 
 const StyledLandingButton = styled.button<{}>`
+  margin-top: 15px;
+  margin-left: 15px;
   width: 90px;
   height: 90px;
   display: flex;
@@ -21,10 +23,10 @@ const StyledLandingButton = styled.button<{}>`
   h1 {
     color: #FFF;
     text-align: center;
-    font-family: JetBrains Mono;
-    font-size: 45px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 35px;
     font-style: normal;
-    font-weight: 500;
+    /* font-weight: 500px; */
     line-height: 70px;
     letter-spacing: 0.9px;
     text-decoration: none;
@@ -35,6 +37,14 @@ const StyledLandingButton = styled.button<{}>`
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  h1:hover{
+    color: #000;
+  }
+
+  &:hover {
+    background-color: #FFF;
   }
 `;
 
