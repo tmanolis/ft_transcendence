@@ -19,12 +19,17 @@ const Landing: React.FC = () => {
 	const [avatarPath, setAvatarPath] = useState<string>("../../public/icon/Avatar.svg");
 
 	useEffect( () => {
-		getUser()
-		.then(data => {
-			setAvatarPath(data.avatar);})
-		.catch(error => {console.log(error)});
-	
-	},);
+        const fetchUserData = async () => {
+            try {
+            const response = await axios.get(`${BASE_URL}/user/me`, { withCredentials: true });
+            setAvatarPath(response.data.avatar);
+            } catch (error) {
+            console.error(error);
+            }
+        };
+
+        fetchUserData();
+        }, []);
 
     const handleLandingClick = () => {
         setMenuBarIsShown((current) => !current);
