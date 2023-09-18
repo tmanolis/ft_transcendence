@@ -14,22 +14,17 @@ export class ChatController {
 		private chatService: ChatService,
 	) {}
 
-  @ApiOperation({ description: 'open a DM' })
+  @ApiOperation({ description: 'Create room' })
   @ApiOkResponse({
     description:
-      'Returns chat history (or null when this is the first DM).',
+      'Creates room for direct messaging or channel.',
   })
-	@Post('open')
+	@Post('createChannel')
 	openOrCreateDM(@GetUser() user: User, @Body() dto: roomDTO){
 		console.log('in chat controller');
 		console.log('dto', dto);
 		console.log('user', user);
-		this.chatService.openOrCreateDM(user, dto);
-	}
-
-	@Post('channel/create')
-	createChannel(){
-
+		this.chatService.createChannel(user, dto);
 	}
 
 }

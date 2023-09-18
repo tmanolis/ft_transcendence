@@ -1,12 +1,32 @@
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+
 export class messageDTO {
 	sendtime: Date;
+
+	@IsString()
+	@IsNotEmpty()
 	sender: string;
+	
+	@MaxLength(128)
+	@IsString()
 	text: string;
 }
 
-export class roomDTO {
+export class createRoomDTO {
+	@IsString()
+	@IsNotEmpty()
 	name: string;
-	otherUser: string;
+
+	@IsNotEmpty()
+	status: Status;
+
+	@IsString()
+	@IsNotEmpty()
+	owner: string;
+
+	@IsString()
+	@IsOptional()
+	password?: string;
 }
 
 export class ChatUser {
@@ -14,7 +34,6 @@ export class ChatUser {
 		public email: string,
 		public socketID: string,
 		public userName: string,
-		public rooms: ChatRoom[],
 	) {}
 }
 
@@ -22,9 +41,10 @@ export class ChatRoom {
 	constructor(
 		public roomID: string,
 		public status: Status,
+		public password: string,
 		public members: ChatUser[],
-		public creator: string,
-		public administrators: string[],
+		public owner: string,
+		public admins: string[],
 		public muted: string[],
 	) {}
 }
@@ -32,5 +52,5 @@ export class ChatRoom {
 enum Status {
 	"public",
 	"private",
-	"protected",
+	"direct",
 }
