@@ -59,15 +59,6 @@ const NewPageName = styled.div`
 
     border-bottom: 2px solid #FFF;
   }
-  /* White line separator */
-  /* a::before {
-    content: "";
-    width: 100%;
-    height: 1px;
-    background-color: #FFF;
-    position: absolute;
-    bottom: 0;
-  } */
   
   a:hover {
     display: flex;
