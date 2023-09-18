@@ -1,1 +1,1 @@
-import badgesInfosStyled from "./badgesInfos.styled";
+// import badgesInfosStyled from "./badgesInfos.styled";

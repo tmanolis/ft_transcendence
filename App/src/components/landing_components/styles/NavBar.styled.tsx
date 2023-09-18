@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-import NavBarSVG from "../../../../public/icon/navbar.svg"; // Import the SVG image
-// import NavBarSVG from "../../../assets/navbar.png"; // Import the SVG image
+// import NavBarSVG from "../../../../public/icon/navbar.svg";
+import NavBarPNG from "../../../assets/navbar.png"; // Import the SVG image
 
 export type NavProps = {
   children?: React.ReactNode;
@@ -27,7 +27,7 @@ const NavButton = styled.div`
   gap: 45px;
   flex-shrink: 0;
 
-  background-image: url(${NavBarSVG});
+  background-image: url(${NavBarPNG});
   background-size: contain;
 `;
 

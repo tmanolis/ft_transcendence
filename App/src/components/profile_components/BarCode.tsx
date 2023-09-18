@@ -1,1 +1,1 @@
-import BarCodeStyled from "./BarCode.styled";
+// import BarCodeStyled from "./BarCode.styled";
