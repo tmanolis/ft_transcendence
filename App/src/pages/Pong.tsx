@@ -37,6 +37,7 @@ const Pong = () => {
   const [isWaiting, setIsWaiting] = useState<boolean>(true);
   const [countdown, setCountdown] = useState<number>(3);
   const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
+  const [gameID, setGameID] = useState<string>("");
 
   useEffect(() => {
     socket.on("connect", () => {
@@ -63,15 +64,9 @@ const Pong = () => {
       setBall(newPosition);
     });
 
-    socket.on("updateGame", (gameData: any) => {
-      setBall(gameData.ballPosition);
-      setScore({0: gameData.score[0], 1: gameData.score[1]});
-    });
-
     socket.on("updateScore", (newScore: Record<number, number>) => {
       setScore(newScore);
     });
-	
 
     // still testing
     socket.on("gameRunning", (gameState: Object) => {
@@ -108,13 +103,23 @@ const Pong = () => {
   }, [isWaiting, countdown]);
 
   useEffect(() => {
+    socket.on("updateGame", (gameData: any) => {
+      setBall(gameData.ballPosition);
+      setGameID(gameData.gameID);
+      console.log(gameID)
+      setScore({ 0: gameData.score[0], 1: gameData.score[1] });
+    });
+  }, [gameID]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      console.log(gameID);
       console.log(event.key);
       if (!isWaiting) {
         if (event.key === "ArrowUp") {
-          socket?.emit("movePaddle", "up");
+          socket?.emit("movePaddle", { key: "up", gameID: gameID});
         } else if (event.key === "ArrowDown") {
-          socket?.emit("movePaddle", "down");
+          socket?.emit("movePaddle", { key: "down", gameID: gameID});
         }
       }
     };

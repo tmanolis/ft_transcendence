@@ -24,10 +24,7 @@ export class AuthService {
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
     let user = await this.prisma.user.findFirst({
       where: {
-        OR: [
-					{ email: dto.email }, 
-					{ userName: dto.userName }
-				],
+        OR: [{ email: dto.email }, { userName: dto.userName }],
       },
     });
 
@@ -36,7 +33,7 @@ export class AuthService {
 
     if (!user) {
       try {
-        const user = await this.prisma.user.create({
+        user = await this.prisma.user.create({
           data: {
             id: dto.id,
             email: dto.email,
@@ -46,16 +43,13 @@ export class AuthService {
             password: dto.password,
           },
         });
-        return;
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
         }
       }
     }
-
-    console.log(user);
-    console.log('in 42 login');
+    console.log('auth 42 login: ', user.userName);
 
     if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');

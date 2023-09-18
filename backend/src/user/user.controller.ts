@@ -54,8 +54,7 @@ export class UserController {
   // get all active user on the server
   @Get('allUsers')
   @ApiOkResponse({
-    description:
-      'Returns all users public data',
+    description: 'Returns all users public data',
   })
   async getAllUsers() {
     return await this.userService.getAllUsers();
