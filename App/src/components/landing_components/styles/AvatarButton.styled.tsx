@@ -11,12 +11,14 @@ const StyledAvatar = styled.div`
   position: absolute;
   top: 15px;
   right: 15px;
-  width: 60px;
-  height: 60px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   cursor: pointer;
   z-index: 2;
+  border-radius: 73px;
+  border: 2px solid var(--linear-white, #FAF2F2);
 `;
 
 const AvatarImage = styled.img`

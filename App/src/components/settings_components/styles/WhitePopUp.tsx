@@ -5,13 +5,6 @@ export type WhitePopUpProps = {
   children?: React.ReactNode;
 };
 
-const PageContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh; /* Ensures the container takes up the full viewport height */
-`;
-
 const StyledWhitePopUp = styled.div`
   width: 398px;
   height: 521px;
@@ -25,14 +18,16 @@ const StyledWhitePopUp = styled.div`
   @media (max-width: 768px) {
     width: 90%;
     height: auto;
+    width: 90%;
+    height: auto;
+    max-height: 90vh; /* Limit the maximum height to 90% of viewport height */
+    overflow-y: auto; /* Add vertical scroll if content overflows */    
   }
 `;
 
 const WhitePopUp: React.FC<WhitePopUpProps> = ({ children }) => {
   return (
-    <PageContainer>
       <StyledWhitePopUp>{children}</StyledWhitePopUp>
-    </PageContainer>
   );
 };
 
