@@ -6,6 +6,7 @@ export type WhitePopUpProps = {
 };
 
 const StyledWhitePopUp = styled.div`
+  /* display: flex; */
   width: 398px;
   height: 521px;
   background: #FFFFFF;
