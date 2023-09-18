@@ -28,10 +28,14 @@ const Landing: React.FC = () => {
 
     const handleLandingClick = () => {
         setMenuBarIsShown((current) => !current);
+        if (avatarBarIsShown)
+            setAvatarBarIsShown((current) => !current);
     };
 
     const handleAvatarClick = () => {
         setAvatarBarIsShown((current) => !current);
+        if (menuBarIsShown)
+            setMenuBarIsShown((current) => !current);
     };
 
     const userImageSrc = `data:image/png;base64,${avatarPath}`;

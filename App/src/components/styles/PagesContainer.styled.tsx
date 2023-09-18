@@ -18,7 +18,7 @@ const PopUpPage = styled.div`
     flex-shrink: 0;
     border: 1px solid #FFF;
     background: #000;
-    box-shadow: 1px 5px 1px 0px #FFF;
+    box-shadow: 1px 3px 1px 0px #FFF;
 `;
 
 const PageContainer: React.FC<PagesContProps> = ({ children, type }) => {
