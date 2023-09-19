@@ -15,7 +15,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
-import { Player, GameStatus } from '../dto/game.dto';
+import { Game, GameStatus, Player } from '../dto/game.dto';
 
 import { GameService } from '../game/game.service';
 
@@ -43,23 +43,35 @@ export class SocketGateway implements OnGatewayConnection {
     // check JWT
     const jwt = client.handshake.headers.authorization;
     let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-
     if (jwt === 'undefined' || jwt === null) {
       console.log('Socket: No jwt, disconnecting');
       client.disconnect();
       return;
-    } else {
-      jwtData = this.jwtService.decode(jwt);
+    }
+    jwtData = this.jwtService.decode(jwt);
+    if (typeof jwtData !== 'object') {
+      console.log(client.id, 'Socket: Bad JWT data', jwtData);
+      client.disconnect();
+      return;
     }
 
-    if (typeof jwtData !== 'object') {
-      console.log(client.id, 'Socket: JWT data is not an object:', jwtData);
+    // find the user in database
+    const user = await this.prisma.user.findUnique({
+      where: {
+        email: jwtData.email,
+      },
+    });
+    if (!user) {
+      client.emit('accountDeleted', {
+        message: 'Your account has been deleted.',
+      });
       client.disconnect();
       return;
     }
 
     // link socket id to useremail
-    await this.cacheManager.set(client.id, jwtData.email);
+    await this.cacheManager.set(client.id, user.email);
+
     // check if player already exists in game
     const existingPlayer: string = await this.cacheManager.get(
       `game${jwtData.email}`,
@@ -76,41 +88,16 @@ export class SocketGateway implements OnGatewayConnection {
         'Socket: existing player updated: ',
         existingPlayerObject.email,
       );
-      return;
-    }
-
-    // find the user in database
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: jwtData.email,
-      },
-    });
-
-    if (!user) {
-      client.emit('accountDeleted', {
-        message: 'Your account has been deleted.',
-      });
-      client.disconnect();
+      this.gameService.joinGameAndLaunch(existingPlayerObject, existingPlayerObject.gameID);
       return;
     }
 
     // if no such player in redis, create one.
-    const newPlayer = new Player(
-      'non',
-      jwtData.email,
-      client.id,
-      user.userName,
-      0,
-    );
-    // save the new Player in redis
-    await this.cacheManager.set(
-      `game${jwtData.email}`,
-      JSON.stringify(newPlayer),
-    );
-    console.log('Socket: new client/player created:', newPlayer.email);
+    this.gameService.createPlayer(jwtData.email, client.id, user.userName);
   }
 
   async handleDisconnect(client: Socket) {
+    await this.cacheManager.del(client.id);
     // check if player left in game
     const playerEmail: string = await this.cacheManager.get(client.id);
     if (!playerEmail) return;
@@ -208,6 +195,7 @@ export class SocketGateway implements OnGatewayConnection {
         return;
       }
       if (gameData.status === GameStatus.Ended) {
+        this.gameService.endGame(gameData);
         clearInterval(gameInterval);
       }
     }, 1000 / 30);
