@@ -54,9 +54,6 @@ export class AuthService {
       }
     }
 
-    console.log(user);
-    console.log('in 42 login');
-
     if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');
       return;

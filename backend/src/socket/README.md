@@ -39,25 +39,35 @@
 
 ## CHAT
 
+## General
+
+- handleConnection
+	returns the full message history in format Record<roomName, Message[]> {} te be displayed
+
+- handleDisconnection
+
+
+### HTTP requests
+
+| request 	          | parameters  				| description        																		|
+| ------------------- | ------------------- | ----------------------------------------------------- |
+| create-channel			| roomName, status		|	creates room for dm/channel, for dm naming convention	|
+|											|											|	is email1-email2 (in alphabetical order)							|
+| join-channel				| roonName, password?	| joins user to room - if status public or private, and |
+|											|											|	the right password has been provided									|
+
 ### Listen
 
-| function | event name          | parameters  | description        |
-| -------- | ------------------- | ----------- | ------------------ |
-|          | startChat           |             | todo               |
-|          | inviteUserToChat    |             | todo               |
-|          | joinChanel          |             | todo               |
-|          | leaveChanel         |             | todo               |
-|          | kickUserFromChanel  |             | todo, chanel admin |
-|          | banUserFromChanel   |             | todo, chanel admin |
-|          | unBanUserFromChanel |             | todo, chanel admin |
-|          | muteUser            |             | todo, filter       |
-|          | unMuteUser          |             | todo, filter       |
-|          | message             | messageBody | todo               |
+| event name          | parameters  				| description        																		|
+| ------------------- | ------------------- | ----------------------------------------------------- |
+|	message							|	roomName						| broadcasts message if no block is active							|
+| updateHistory				|											| returns full message history every time, can be used  |
+|											|											|	to refresh chat page																	|
+
 
 ### Emit
 
-| event name       | body                        | description |
-| ---------------- | --------------------------- | ----------- |
-| messageBroadcast | messageBody, chanel/room ID | todo        |
-| userJoined       | userName, chanel/room ID    | todo        |
+| event name       | body                    | description 																					|
+| ---------------- | ------------------------| ---------------------------------------------------- |
+| messageBroadcast | messageBody             | broadcasts message to the relevant room	            |
 

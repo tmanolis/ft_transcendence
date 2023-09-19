@@ -28,9 +28,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
 	async handleConnection(@ConnectedSocket() client: Socket) {
     const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		const user: ChatUser = await this.chatService.newConnection(client.id, jwtData.email);
+		const user: ChatUser = await this.chatService.newConnection(client, jwtData.email);
 		if (!user){
-			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted.' });
+			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted. Please register again.' });
 			client.disconnect();
 			return;
 		}
@@ -39,17 +39,12 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			client.join(room);
 		}
 
-		const chatHistory = this.chatService.fullMessageHistory(user)
+		const chatHistory = this.chatService.userMessageHistory(user)
 		client.emit('updateChatHistory', chatHistory);
 	}
 
 	async handleDisconnect(@ConnectedSocket() client: Socket) {
-    const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-
-		const user: ChatUser = await this.chatService.disconnect(jwtData.email);
-		if (!user){
-			client.emit('accessDenied', { message: 'Authentification failed, please log in again.' });
-		}
+		// not sure if we have to do anything here...
 		console.log(client.id, ' disconnected from generic socket. 0.0');
 	}
 
@@ -67,7 +62,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 
 	/****************************************************************************/
-  /* chat													                                            */
+  /* messages											                                            */
   /****************************************************************************/
 	
 	@SubscribeMessage('message')
@@ -79,31 +74,32 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
 		const params = client.handshake.query;
 		const room: string = Array.isArray(params.room) ? params.room[0] : params.room;
-		const ok: boolean = this.chatService.createMessage(user, room, message);
-
-		if (ok){
-			// emit message to room
-		} else {
-			// emit error message
-		}
 		
-		// first thoughts: the room should be included in the message
-		// but do we make a difference betweens DM's and channels? 
-		// And the dto should be protected.
-		console.log('message: ', message);
-		console.log('params: ', params)
+		this.chatService.createMessage(user, room, message);
     return { event: 'user message received', socketID: client.id };
   }
 
+	@SubscribeMessage('updateHistory')
+	async handleUpdateHistor(
+		@ConnectedSocket() client: Socket){
+			const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+			const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
+			try {
+				const messageHistory = await this.chatService.userMessageHistory(user);
+		
+				if (messageHistory) {
+					client.emit('updateHistory', messageHistory);
+				} else {
+					client.emit('updateHistory', []);
+				}
+			} catch (error) {
+				client.emit('errorUpdateHistory', error);
+			}	
+	}
 
 
 	/****************************************************************************/
-  /* Direct Messaging								                                          */
-  /****************************************************************************/
-
-
-	/****************************************************************************/
-  /* Channels				  							                                          */
+  /* channels				  							                                          */
   /****************************************************************************/
 
 
@@ -112,11 +108,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	/*
 	To do:
-	- Check if we need to add a socket.gateway.ts where we handle first connection
-		and where the server object is created
-	- Create message dto
-	- Think of a naming convention for DM's (maybe: username1-username2)
-	- Reconnect to rooms if socketID refreshes
+	- See if messages/rooms should be stored in the cache or that prisma suffices
 	- Move respective reconnection issues to gameService/chatService
 	- Implement a message queue?
 
@@ -137,53 +129,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		****isTyping()
 		- lets other room/DM-users know that someone is typing
-
-	DM functions:
-
-		onDM(room, message) 
-		- checks if no block is active
-		- checks if room exists, 
-			if not -> createDMroom(user2DM)
-		- createMessage(room, message)
-		- sendMessage(room, message)
-
-		sendDM(user2DM, message)
-		- checks if no block is active
-		- checks if room exists, if not -> createDMroom(user2DM)
-		- emits DM to room
-
-		receiveDM(message)
-	
-		createDMRoom(user2DM)
-		- creates a room with naming convention
-		- creates room in prisma
-		- stores room info in Redis
-
-		joinDMRoom(room? otherUser?)
-		- make sure user belongs in this DM-room
-		- join user to the room
-
-		closeDMRoom(room)
-		- unjoin both users from room
-
+		
 		blockUser(user2Bblocked)
 		- mutes future messages from user2Bblocked
 
 		unblockUser(user2Bunblocked)
 		- unmutes future messages from user2Bunblocked
 
-		listActiveDMs()
-		- creates endpoint for active DM's and history?
-
 	Channel functions:
-
-		onChannelMessage(room, message)
-		- checks if channel exists
-		- checks if user is in channel
-		- checks if user is not blocked, muted or banned
-		- emits message to channel
 	
-		createChannel(room)
+		createChannel(room, status)
 		- creates a channel, either for DM's or channels
 		- sets creator as channel owner and administrator
 		- sets channel to either public, private or password protected
@@ -191,6 +146,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	
 		joinChannel(room)
 		- checks if channel exists
+		- checks if its public/private/direct
 		- joins channel
 		- emits a message that user has joined the channel
 
@@ -199,35 +155,37 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		- emits a message that user has left the channel
 
 		closeChannel(room)
-		- check is user is administrator
+		- check if user is administrator
 		- emit a message that channel will be closed?
 		- unjoin all users from room  
 
-		setPassword()
+		setChannelPassword()
 		- checks if user is administrator
 		- creates a password
+		- sets channel status to private
 	
 		addAdministrator(user2Badmin)
 		- checks if user is administrator themselves
+		- check if there's no active block or mute
 		- gives the user2Badmin permissions
 
 		removeAdministrator(admin)
 		- checks if user is administrator themselves
 		- checks if admin is not the channel owner (creator)
 		- if not, takes away admin's permissions
+		
+		kickUser(user2Bkicked)
+		- checks if user is administrator
+		- removes user2Bkicked from the channel
 
 		banUser(user2Bbanned)
 		- checks if user is administrator
 		- kicks user2Bbanned from channel
-		- puts user2Bbanned on a blacklist 
+		- puts user2Bbanned on a blacklist
 
 		muteUser(user2Bmutes)
 		- checks if user is administrator
 		- ignored the messages of user2Bmutes for a certain time period
-
-		kickUser(user2Bkicked)
-		- checks if user is administrator
-		- removes user2Bkicked from the channel
 
 		listUsers()
 		- returns a list of users in the room

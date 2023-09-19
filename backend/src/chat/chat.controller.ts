@@ -4,27 +4,35 @@ import { JwtGuard } from "src/auth/guard";
 import { ChatService } from "./chat.service";
 import { GetUser } from "src/decorator";
 import { User } from '@prisma/client'
-import { createRoomDTO } from "src/dto";
+import { createRoomDTO, joinRoomDTO } from "src/dto";
 
+@UseGuards(JwtGuard)
 @ApiTags('Chat')
 @Controller('chat')
-@UseGuards(JwtGuard)
 export class ChatController {
 	constructor(
 		private chatService: ChatService,
-	) {}
-
-  @ApiOperation({ description: 'Create room' })
-  @ApiOkResponse({
-    description:
+		) {}
+		
+		@ApiOperation({ description: 'Create room' })
+		@ApiOkResponse({
+			description:
       'Creates room for direct messaging or channel.',
-  })
-	@Post('createChannel')
-	openOrCreateDM(@GetUser() user: User, @Body() dto: createRoomDTO){
-		console.log('in chat controller');
-		console.log('dto', dto);
-		console.log('user', user);
-		return this.chatService.createChannel(user, dto);
-	}
+		})
+		@Post('create-channel')
+		handleCreateChannel(@GetUser() user: User, @Body() dto: createRoomDTO){
+			console.log('dto', dto);
+			return this.chatService.createChannel(user, dto);
+		}
+
+		@ApiOperation({ description: 'Join room' })
+		@ApiOkResponse({
+			description:
+      'To join a channel (not for DM).',
+		})
+		@Post('join-channel')
+		handleJoinChannel(@GetUser() user: User, @Body() dto: joinRoomDTO){
+			return this.chatService.joinChannel(user, dto);
+		}
 
 }

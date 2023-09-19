@@ -59,6 +59,13 @@ model Game {
 
 model Room {
   id        String   			@id @unique @default(uuid())
+	status		RoomStatus
+	password	String?
+	owner			String			  // stock e-mail (because user can't change it)
+	admins		String[]			// stock e-mail (because user can't change it)
+	blocked		String[]			// stock e-mail (because user can't change it)
+	muted			String[]			// stock e-mail (because user can't change it)
+	banned		String[]			// stock e-mail (because user can't change it)
   createdAt DateTime  		@default(now())
   messages  Message[]			@relation("message")
   users     RoomUser[]		@relation("roomUser")
@@ -66,9 +73,9 @@ model Room {
 
 model RoomUser {
 	id				String		@id @unique @default(uuid())
-	user			User			@relation("userRoom", fields: [roomID], references: [id])
+	user			User			@relation("userRoom", fields: [userID], references: [id])
 	userID		String
-	room			Room			@relation("roomUser", fields: [userID], references: [id])
+	room			Room			@relation("roomUser", fields: [roomID], references: [id])
 	roomID		String
 }
 
@@ -100,4 +107,10 @@ enum Achievement {
 	TWOFA
 	JOIN
 	FIRST
+}
+
+enum RoomStatus {
+	PUBLIC
+	PRIVATE
+	DIRECT
 }
