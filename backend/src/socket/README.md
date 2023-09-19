@@ -17,18 +17,18 @@
 
 ### Listen
 
-| function         | event name       | parameters      | description                       |
-| ---------------- | ---------------- | --------------- | --------------------------------- |
-| handleSetCanvas  | setCanvas        | client, payload |                                   |
-| handleFindGame   | findGame         | client          | User try to join or create a game |
-| handleStartGame  | startGame        | client, payload | the gameInterval starts           |
-| handleMovePaddle | movePaddle       | client, payload |
-| handeInvitePlayer| invitePlayer			| client, payload | User invites player
-|									 |									|	{userName}			| 											            |
-| handleRespondTo	 | respondToInvite	| client, payload | User invites player
-|	Invite					 |									|	{accept, user-	| User accepts or declines invitation
-|									 |									|	Name, gameID}		|
-|                  | pauseGame        |                 |                                   |
+| function          | event name      | parameters      | description                         |
+| ----------------- | --------------- | --------------- | ----------------------------------- |
+| handleSetCanvas   | setCanvas       | client, payload |                                     |
+| handleFindGame    | findGame        | client          | User try to join or create a game   |
+| handleStartGame   | startGame       | client, payload | the gameInterval starts             |
+| handleMovePaddle  | movePaddle      | client, payload |
+| handeInvitePlayer | invitePlayer    | client, payload | User invites player                 |
+|                   |                 | {userName}      |                                     |
+| handleRespondTo   | respondToInvite | client, payload | User invites player                 |
+| Invite            |                 | {accept, user-  | User accepts or declines invitation |
+|                   |                 | Name, gameID}   |
+|                   | pauseGame       |                 |                                     |
 
 ### Emit
 

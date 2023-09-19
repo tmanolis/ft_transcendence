@@ -77,6 +77,7 @@ export class SocketGateway implements OnGatewayConnection {
       `game${jwtData.email}`,
     );
     if (existingPlayer) {
+      console.log('The existing Player: ', existingPlayer);
       let existingPlayerObject: Player = JSON.parse(existingPlayer);
       existingPlayerObject.socketID = client.id;
       await this.cacheManager.set(
@@ -88,7 +89,10 @@ export class SocketGateway implements OnGatewayConnection {
         'Socket: existing player updated: ',
         existingPlayerObject.email,
       );
-      this.gameService.joinGameAndLaunch(existingPlayerObject, existingPlayerObject.gameID);
+      this.gameService.joinGameAndLaunch(
+        existingPlayerObject,
+        existingPlayerObject.gameID,
+      );
       return;
     }
 
@@ -97,17 +101,32 @@ export class SocketGateway implements OnGatewayConnection {
   }
 
   async handleDisconnect(client: Socket) {
-    await this.cacheManager.del(client.id);
-    // check if player left in game
+    // remove {client.id, playerEmail} pair from cache
     const playerEmail: string = await this.cacheManager.get(client.id);
-    if (!playerEmail) return;
     await this.cacheManager.del(client.id);
 
+    // check if there is a pending player(it should be the client disconnecting)
+    const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+    console.log(pendingPlayer);
+    if (pendingPlayer) {
+      const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
+      if (pendingPlayerObject.email === playerEmail) {
+        console.log('The pending player: ', pendingPlayer);
+        await this.cacheManager.del('pendingPlayer');
+        await this.cacheManager.del(`game${playerEmail}`);
+      }
+    }
+
+    // check if player left in game
+    if (!playerEmail) return;
     const existingPlayer: string = await this.cacheManager.get(
       `game${playerEmail}`,
     );
     if (!existingPlayer) return;
     const existingPlayerObject: Player = JSON.parse(existingPlayer);
+    if (existingPlayerObject.gameID === 'non') {
+      await this.cacheManager.del(`game${playerEmail}`);
+    }
 
     // find the user in database
     const user = await this.prisma.user.findUnique({
@@ -120,22 +139,18 @@ export class SocketGateway implements OnGatewayConnection {
       console.log('user not found!');
       return;
     }
-    if (user.status === 'OFFLINE') {
-      this.cacheManager.del(`game${existingPlayerObject.email}`);
-      return;
-    } else if (user.status === 'WAITING') {
-      const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-      if (!pendingPlayer) return;
-      // check if pendingPlayer(in cache) is the waiting player(in database)
-      const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
-      if (user.email === pendingPlayerObject.email) {
-        await this.cacheManager.del('pendingPlayer');
-        await this.cacheManager.del(`game${user.email}`);
-      }
-    } else if (user.status === 'PLAYING') {
-      // wait 30 seconds, or game is lost??
-      if (existingPlayerObject.gameID) {
-        client.join(existingPlayerObject.gameID.toString());
+    if (user.status === 'WAITING' || user.status === 'PLAYING') {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: user.email,
+          },
+          data: {
+            status: 'AWAY',
+          },
+        });
+      } catch (err) {
+        console.log(err);
       }
     }
     console.log(`Socket: ${client.id} disconnected from game socket. 0.0`);
@@ -160,7 +175,7 @@ export class SocketGateway implements OnGatewayConnection {
 
     const startGame: [boolean, string] =
       await this.gameService.joinOrCreateGame(currentPlayerObject);
-    const gameRoom: string = currentPlayerObject.gameID.toString();
+    const gameRoom: string = currentPlayerObject.gameID;
 
     client.join(gameRoom);
 
@@ -290,7 +305,10 @@ export class SocketGateway implements OnGatewayConnection {
   */
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: {key: string, gameID: string}): object {
+  handleMovePaddle(
+    client: Socket,
+    payload: { key: string; gameID: string },
+  ): object {
     const gameData = this.gameService.movePaddle(client, payload);
     let updateSide = '';
     console.log('game Data to sent: ', gameData);
