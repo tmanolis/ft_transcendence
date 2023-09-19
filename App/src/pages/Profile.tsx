@@ -1,6 +1,6 @@
 import Landing from "./Landing";
 import PageContainer from "../components/PageContainer";
-// import ProfileAvatar from "../components/profile_components/ProfileAvatar";
+import ProfileAvatar from "../components/profile_components/ProfileAvatar";
 // import UserStats from "../components/profile_components/UserStats";
 // import MatchHistory from "../components/profile_components/ProfilesContainer";
 // import BadgesInfos from "../components/profile_components/BadgesInfos";
@@ -11,7 +11,7 @@ const Profile = () => {
     <>
       <Landing />
       <PageContainer type="other">
-        {/* <ProfileAvatar /> */}
+        <ProfileAvatar />
         {/* <BarCode />
             <UserStats />
             <MatchHistory />
