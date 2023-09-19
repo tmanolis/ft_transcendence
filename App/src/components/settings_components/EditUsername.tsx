@@ -6,7 +6,6 @@ interface EditUsernameProps {
 }
 
 const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -27,7 +26,7 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
         { withCredentials: true }
       );
       console.log(response);
-	  window.location.reload();
+      window.location.reload();
     } catch (error) {
       handleUpdateError(error as AxiosError);
     }

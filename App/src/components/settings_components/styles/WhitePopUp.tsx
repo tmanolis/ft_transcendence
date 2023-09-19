@@ -9,8 +9,8 @@ const StyledWhitePopUp = styled.div`
   /* display: flex; */
   width: 398px;
   height: 521px;
-  background: #FFFFFF;
-  border: 1px solid #FFFFFF;
+  background: #ffffff;
+  border: 1px solid #ffffff;
   box-shadow: inset -5px -5px 0px #727272;
   color: #000000;
   padding: 10px;
@@ -22,14 +22,12 @@ const StyledWhitePopUp = styled.div`
     width: 90%;
     height: auto;
     max-height: 90vh; /* Limit the maximum height to 90% of viewport height */
-    overflow-y: auto; /* Add vertical scroll if content overflows */    
+    overflow-y: auto; /* Add vertical scroll if content overflows */
   }
 `;
 
 const WhitePopUp: React.FC<WhitePopUpProps> = ({ children }) => {
-  return (
-      <StyledWhitePopUp>{children}</StyledWhitePopUp>
-  );
+  return <StyledWhitePopUp>{children}</StyledWhitePopUp>;
 };
 
 export default WhitePopUp;

@@ -43,9 +43,7 @@ const NavButton = styled.div`
 const NavBar: React.FC<NavProps> = ({ children }) => {
   return (
     <NavBarStyled>
-      <NavButton>
-        {children}
-      </NavButton>
+      <NavButton>{children}</NavButton>
     </NavBarStyled>
   );
 };

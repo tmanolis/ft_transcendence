@@ -21,23 +21,23 @@ const NewPageName = styled.div`
   justify-content: space-between;
   position: absolute;
   margin-top: -65px;
-  right : 45px;
+  right: 45px;
   width: 206px;
   height: 227px;
   flex-shrink: 0;
-  border: 2px solid #FFF;
+  border: 2px solid #fff;
   background: #000;
-  
+
   flex-shrink: 0;
   font-size: 10px;
   font-style: normal;
   letter-spacing: 0.5px;
 
-    /* Hover styles */
+  /* Hover styles */
   transition: background-color 0.3s, color 0.3s;
   cursor: pointer;
 
-  h1:hover{
+  h1:hover {
     color: #000;
   }
 
@@ -55,32 +55,29 @@ const NewPageName = styled.div`
     flex-direction: column;
     height: 100%; /* Set the height to 100% */
     justify-content: space-between;
-    color: #FFF;
+    color: #fff;
     text-decoration: none;
 
     border-bottom: 2px solid #b0b0b0;
   }
-  
+
   a:hover {
     display: flex;
     justify-content: space-between;
-    background-color: #FFF;
+    background-color: #fff;
   }
 
   a:link,
   a:visited {
-    color: #FFF;
+    color: #fff;
     text-decoration: none;
   }
-  
 `;
 
 const NavBar: React.FC<NavProps> = ({ children }) => {
   return (
     <StyledNavBar>
-      <NewPageName>
-        {children}
-      </NewPageName>
+      <NewPageName>{children}</NewPageName>
     </StyledNavBar>
   );
 };

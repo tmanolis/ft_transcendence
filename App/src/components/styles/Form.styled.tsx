@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import backgroundImg from '../../assets/global_background.jpeg';
+import backgroundImg from "../../assets/global_background.jpeg";
 
 export type FormProps = {
   children?: React.ReactNode;

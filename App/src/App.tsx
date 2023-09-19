@@ -19,7 +19,10 @@ const App = () => {
         <Routes>
           <Route path="/auth" element={React.createElement(Authentification)} />
           <Route path="/" element={React.createElement(Landing)} />
-          <Route path="/leaderboard" element={React.createElement(Leaderboard)} />
+          <Route
+            path="/leaderboard"
+            element={React.createElement(Leaderboard)}
+          />
           <Route path="/settings" element={React.createElement(Settings)} />
           <Route path="/profile" element={React.createElement(Profile)} />
           <Route path="/chat" element={React.createElement(Chat)} />

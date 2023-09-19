@@ -1,9 +1,7 @@
 import Landing from "../pages/Landing";
 
 const Leaderboard = () => {
-    return (
-            <Landing />
-    );
-}
+  return <Landing />;
+};
 
 export default Leaderboard;

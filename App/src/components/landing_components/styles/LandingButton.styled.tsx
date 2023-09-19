@@ -5,7 +5,7 @@ export type LandingProps = {
   children?: React.ReactNode;
   onClick: () => void;
   navBar: boolean;
-}
+};
 
 const StyledLandingButton = styled.button<{}>`
   margin-top: 15px;
@@ -15,13 +15,13 @@ const StyledLandingButton = styled.button<{}>`
   display: flex;
   flex-shrink: 0;
   flex-direction: column;
-  border: 5px solid #E3DCDC;
-  background: rgba(217, 217, 217, 0.00);
+  border: 5px solid #e3dcdc;
+  background: rgba(217, 217, 217, 0);
   justify-content: center;
   align-items: center;
 
   h1 {
-    color: #FFF;
+    color: #fff;
     text-align: center;
     font-family: "JetBrains Mono", monospace;
     font-size: 35px;
@@ -39,20 +39,18 @@ const StyledLandingButton = styled.button<{}>`
     align-items: center;
   }
 
-  h1:hover{
+  h1:hover {
     color: #000;
   }
 
   &:hover {
-    background-color: #FFF;
+    background-color: #fff;
   }
 `;
 
 const LandingButton: React.FC<LandingProps> = ({ onClick, children }) => {
   return (
-    <StyledLandingButton onClick={onClick}>
-      {children}
-    </StyledLandingButton>
+    <StyledLandingButton onClick={onClick}>{children}</StyledLandingButton>
   );
 };
 

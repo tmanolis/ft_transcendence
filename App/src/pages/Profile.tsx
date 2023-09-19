@@ -7,13 +7,12 @@ import PageContainer from "../components/PageContainer";
 // import BarCode from "../components/profile_components/BarCode";
 
 const Profile = () => {
-
   return (
     <>
       <Landing />
       <PageContainer type="other">
-            {/* <ProfileAvatar />
-            <BarCode />
+        {/* <ProfileAvatar /> */}
+        {/* <BarCode />
             <UserStats />
             <MatchHistory />
             <BadgesInfos /> */}

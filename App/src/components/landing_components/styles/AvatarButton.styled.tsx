@@ -18,12 +18,11 @@ const StyledAvatar = styled.div`
   cursor: pointer;
   z-index: 2;
   border-radius: 73px;
-  border: 2px solid var(--linear-white, #FAF2F2);
+  border: 2px solid var(--linear-white, #faf2f2);
   /* border: 2px solid transparent;
   border-top: 0px;
   border-bottom: 2px solid #b9b9b9;
   background-image: linear-gradient(to bottom, #000000, #3b3b3b, #777777, #b9b9b9, #ffffff); */
-
 `;
 
 const AvatarImage = styled.img`

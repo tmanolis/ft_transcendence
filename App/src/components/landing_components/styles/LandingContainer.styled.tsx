@@ -6,16 +6,12 @@ export type LandContProps = {
 };
 
 const LandingContainerStyled = styled.div`
-    display: flex;
-    justify-content: space-between;
-    margin-right: 20px;
+  display: flex;
+  justify-content: space-between;
+  margin-right: 20px;
 `;
 const LandingContainer: React.FC<LandContProps> = ({ children }) => {
-  return (
-    <LandingContainerStyled>
-        {children}
-    </LandingContainerStyled>
-  );
+  return <LandingContainerStyled>{children}</LandingContainerStyled>;
 };
 
 export default LandingContainer;

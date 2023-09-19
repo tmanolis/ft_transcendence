@@ -9,47 +9,53 @@ import LandingContainer from "../components/landing_components/styles/LandingCon
 const BASE_URL = "http://localhost:3000";
 
 const Landing: React.FC = () => {
-    const [menuBarIsShown, setMenuBarIsShown] = useState(false);
-    const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
-	const [avatarPath, setAvatarPath] = useState<string>("../../public/icon/Avatar.svg");
+  const [menuBarIsShown, setMenuBarIsShown] = useState(false);
+  const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
+  const [avatarPath, setAvatarPath] = useState<string>(
+    "../../public/icon/Avatar.svg"
+  );
 
-	useEffect( () => {
-        const fetchUserData = async () => {
-            try {
-            const response = await axios.get(`${BASE_URL}/user/me`, { withCredentials: true });
-            setAvatarPath(response.data.avatar);
-            } catch (error) {
-            console.error(error);
-            }
-        };
-
-        fetchUserData();
-        }, []);
-
-    const handleLandingClick = () => {
-        setMenuBarIsShown((current) => !current);
-        if (avatarBarIsShown)
-            setAvatarBarIsShown((current) => !current);
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${BASE_URL}/user/me`, {
+          withCredentials: true,
+        });
+        setAvatarPath(response.data.avatar);
+      } catch (error) {
+        console.error(error);
+      }
     };
 
-    const handleAvatarClick = () => {
-        setAvatarBarIsShown((current) => !current);
-        if (menuBarIsShown)
-            setMenuBarIsShown((current) => !current);
-    };
+    fetchUserData();
+  }, []);
 
-    const userImageSrc = `data:image/png;base64,${avatarPath}`;
+  const handleLandingClick = () => {
+    setMenuBarIsShown((current) => !current);
+    if (avatarBarIsShown) setAvatarBarIsShown((current) => !current);
+  };
 
-    return (
-        <>
-            <LandingContainer>
-                <LandingButton onClick={handleLandingClick} navBar={menuBarIsShown} />
-                <AvatarButton userImageSrc={userImageSrc} onClick={handleAvatarClick} avaBar={avatarBarIsShown}/>
-            </LandingContainer>
-            {menuBarIsShown && <NavBar />}
-            {avatarBarIsShown && <AvatarBar />}
-        </>
-    );
-}
+  const handleAvatarClick = () => {
+    setAvatarBarIsShown((current) => !current);
+    if (menuBarIsShown) setMenuBarIsShown((current) => !current);
+  };
+
+  const userImageSrc = `data:image/png;base64,${avatarPath}`;
+
+  return (
+    <>
+      <LandingContainer>
+        <LandingButton onClick={handleLandingClick} navBar={menuBarIsShown} />
+        <AvatarButton
+          userImageSrc={userImageSrc}
+          onClick={handleAvatarClick}
+          avaBar={avatarBarIsShown}
+        />
+      </LandingContainer>
+      {menuBarIsShown && <NavBar />}
+      {avatarBarIsShown && <AvatarBar />}
+    </>
+  );
+};
 
 export default Landing;

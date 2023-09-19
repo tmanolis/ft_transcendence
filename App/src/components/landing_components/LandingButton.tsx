@@ -1,4 +1,4 @@
-import PSSButton, {LandingProps} from "./styles/LandingButton.styled";
+import PSSButton, { LandingProps } from "./styles/LandingButton.styled";
 
 const LandingButton: React.FC<LandingProps> = ({ navBar, onClick }) => {
   return (

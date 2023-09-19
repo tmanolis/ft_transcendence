@@ -1,8 +1,7 @@
-import { createGlobalStyle } from 'styled-components';
-import backgroundImg from '../assets/global_background.jpeg';
+import { createGlobalStyle } from "styled-components";
+import backgroundImg from "../assets/global_background.jpeg";
 import JBRegular from "../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2";
 
- 
 const GlobalStyle = createGlobalStyle`
   body {
     padding-top: 20px;
@@ -22,5 +21,5 @@ const GlobalStyle = createGlobalStyle`
     flex-shrink: 0;
   }
 `;
- 
+
 export default GlobalStyle;
