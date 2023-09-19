@@ -16,22 +16,22 @@ export const ProfileAvatarStyled = styled.div`
 `;
 
 export const AvatarImage = styled.img`
-    width: 139.809px;
-    height: 136px;
-    flex-shrink: 0;
-    object-fit: cover;
-    border-radius: 139.809px;
-    border: 2px solid var(--linear-white, #FAF2F2);
-    background: url(<path-to-image>), lightgray 50% / cover no-repeat;
+  width: 139.809px;
+  height: 136px;
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 139.809px;
+  border: 2px solid var(--linear-white, #faf2f2);
+  background: url(<path-to-image>), lightgray 50% / cover no-repeat;
 
-    margin-right: 20px;
+  margin-right: 20px;
 `;
 
 const statusColors = {
   ONLINE: "green",
   OFFLINE: "red",
   PLAYING: "blue",
-  AWAY: "orange"
+  AWAY: "orange",
 };
 
 export const UserStatus: React.FC<ProfileAvatar> = styled.div`
@@ -42,7 +42,8 @@ export const UserStatus: React.FC<ProfileAvatar> = styled.div`
   font-weight: 500;
   line-height: 100%; /* 466.667% */
   letter-spacing: 0.3px;
-  color: ${(props) => statusColors[props.status as keyof typeof statusColors] || "white"};
+  color: ${(props) =>
+    statusColors[props.status as keyof typeof statusColors] || "white"};
 `;
 
 export const ProfileInfoBlock = styled.div`
