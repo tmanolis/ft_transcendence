@@ -40,8 +40,8 @@ export class ChatService {
 			return null;
 		} else {
 			const newChatUser = new ChatUser(user.email, socketID, user.userName, []);
-			this.cacheManager.set('chat' + user.email, JSON.stringify(newChatUser));
-			console.log('created new chat user:', newChatUser.email);
+			await this.cacheManager.set('chat' + user.email, JSON.stringify(newChatUser));
+			const checkCache = await this.cacheManager.get('chat' + user.email);
 			return newChatUser;
 		}
 	}
@@ -121,7 +121,7 @@ export class ChatService {
 	}
 
 	async joinChannel(user: User, roomDTO: joinRoomDTO){
-		const cacheUser: ChatUser = await this.fetchUser('chat' + user.email);
+		const cacheUser: ChatUser = await this.fetchUser(user.email);
 		console.log('email', user.email);
 		console.log('chatuser', cacheUser);
 		if (!cacheUser) throw new ForbiddenException('Please reconnect.')
@@ -144,7 +144,7 @@ export class ChatService {
 		};
 
 		cacheUser.rooms.push(joinRoomDTO.name);
-		this.cacheManager.set('chat' + user.email, JSON.stringify(cacheUser));
+		await this.cacheManager.set('chat' + user.email, JSON.stringify(cacheUser));
 
 		const updatedRoom = await this.prisma.room.update({
 			where: {

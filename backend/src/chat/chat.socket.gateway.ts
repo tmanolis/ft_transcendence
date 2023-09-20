@@ -58,7 +58,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			return;
 		} else {
 				return (this.jwtService.decode(jwt));
-			}
+		}
 	}
 
 
