@@ -131,7 +131,18 @@ export class AuthService {
         payload.code,
       );
       if (validatedUser) {
-        this.updateAfterLogin(user, res);
+				if (user.twoFAActivated){
+					this.updateAfterLogin(user, res);
+				} else {
+					await this.prisma.user.update({
+						where: {
+							id: user.id,
+						},
+						data: {
+							twoFAActivated: true,
+						},
+					});				
+				}
       }
     } catch (error) {
       const caughtError = error.message;

@@ -11,7 +11,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async updateUser(user: User, dto: UpdateDto): Promise<string> {
-    const { password, oldPassword, ...otherFields } = dto;
+    const { password, oldPassword, twoFAActivated, ...otherFields } = dto;
 
     if (password) {
       if (user.isFourtyTwoStudent)
@@ -42,7 +42,7 @@ export class UserService {
         // emit notification achievement?
       }
       return await toDataURL(otpauthUrl);
-    } else if (!dto.twoFAActivated && user.twoFASecret) {
+    } else if (dto.twoFAActivated === false) {
 			await this.prisma.user.update({
 				where: {
 					id: user.id,
