@@ -12,6 +12,7 @@ const StyledConfirmButton = styled.button<{}>`
   width: 68px;
   height: 23px;
   flex-shrink: 0;
+  margin: 5px;
 
   border: 1px solid #fff;
   background: #fff;

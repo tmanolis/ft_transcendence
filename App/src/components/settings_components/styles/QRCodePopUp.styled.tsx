@@ -11,10 +11,17 @@ export const QRCodePopupWrapper = styled.div`
   background: #000000;
   border: 2px solid #FFFFFF;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column; /* Align children vertically */
+  align-items: center; /* Center horizontally */
+  justify-content: center; /* Center vertically */
+  text-align: center; /* Center text within the wrapper */
   z-index: 999; /* Make it appear in front of other elements */
 `;
+
+export const ChildContainer = styled.div`
+  margin-top: 10px; /* Add margin between child elements */
+`;
+
 
 export const QRCodeContainer = styled.div`
   background-color: white;
