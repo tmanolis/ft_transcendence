@@ -1,7 +1,7 @@
-// import { Inject, Injectable, forwardRef, CACHE_MANAGER } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { Socket } from 'socket.io';
-import { Injectable } from '@nestjs/common';
-// import { Cache, CACHE_MANAGER } from 'cache-manager';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { PrismaService } from 'nestjs-prisma';
 import { Game, GameStatus } from '../dto/game.dto';
 import { Player } from '../dto/game.dto';
@@ -10,8 +10,8 @@ import { User, Game as prismaGame } from '@prisma/client';
 @Injectable()
 export class GameService {
   constructor(
-    // @Inject(CACHE_MANAGER) 
-    // private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER) 
+    private readonly cacheManager: Cache,
     private prisma: PrismaService,
 ) {}
 
@@ -46,8 +46,7 @@ export class GameService {
 
   async joinOrCreateGame(
     player: Player): Promise<[boolean, number]>{
-		let pendingPlayer = 'lalala';
-    // let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+    let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
     
     // Check if pending player exists, is available and is not current player
     if (pendingPlayer){
@@ -58,11 +57,11 @@ export class GameService {
         }
       })
       if (user.status !== 'WAITING'){
-        // this.cacheManager.del('pendingPlayer');
+        this.cacheManager.del('pendingPlayer');
         pendingPlayer = undefined;
       }
 			if (otherPlayer.userName === player.userName){
-				// this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+				this.cacheManager.set('pendingPlayer', JSON.stringify(player));
 				return [false, player.gameID];
 			}
     }
@@ -70,11 +69,11 @@ export class GameService {
     // Matching
     if (!pendingPlayer && player){
 			this.createWaitingGame(player);
-      // this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+      this.cacheManager.set('pendingPlayer', JSON.stringify(player));
       return [false, player.gameID];
     } else {
       const otherPlayer = JSON.parse(pendingPlayer);
-      // this.cacheManager.del('pendingPlayer');
+      this.cacheManager.del('pendingPlayer');
       const gameID = otherPlayer.gameID;
 			this.joinGameAndLaunch(player, gameID);
       return [true, otherPlayer.gameID];

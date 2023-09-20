@@ -20,11 +20,11 @@ export class ChatService {
   /* handle connection/disconnection                                          */
   /****************************************************************************/
 
-	async newConnection(socket: Socket, email: string): Promise< ChatUser | null >{
+	async newConnection(socketID: string, email: string): Promise< ChatUser | null >{
 		const existingUser: ChatUser = await this.fetchUser(email);
 
 		if (existingUser) {
-			existingUser.socket = socket;
+			existingUser.socketID = socketID;
 			await this.cacheManager.set('chat' + email, JSON.stringify(existingUser));
 			console.log('updating existing chat user:', existingUser.email);
 			return existingUser;
@@ -39,8 +39,8 @@ export class ChatService {
 		if (!user){
 			return null;
 		} else {
-			const newChatUser = new ChatUser(user.email, socket, user.userName, null);
-			await this.cacheManager.set('chat' + user.email, JSON.stringify(newChatUser));
+			const newChatUser = new ChatUser(user.email, socketID, user.userName, []);
+			this.cacheManager.set('chat' + user.email, JSON.stringify(newChatUser));
 			console.log('created new chat user:', newChatUser.email);
 			return newChatUser;
 		}
@@ -79,11 +79,6 @@ export class ChatService {
 				roomDTO.password = await argon.hash(roomDTO.password);
 			}
 		};
-		try {
-			this.joinUsers(roomDTO, user);
-		} catch (error){
-			return error;
-		}
 
 		const newRoom = await this.prisma.room.create({
 			data: {
@@ -93,34 +88,14 @@ export class ChatService {
 				password: roomDTO.password,
 				status: status,
 				users: {
-					create: [{ user: { connect: { id: user.id } } }], 
+					create: [{ 
+						user: { 
+							connect: { email: user.email } } }], 
 				}
 			}
 		})
 
 		return newRoom;
-	}
-
-	async joinUsers(roomDTO: createRoomDTO, user: User){
-		if (roomDTO.status === 'direct'){
-			const emails = roomDTO.name.split('-');
-      const [email1, email2] = emails;
-
-      const user1 = await this.fetchUser(email1);
-			if (user1){
-				user1.socket.join(roomDTO.name);
-			}
-
-			const user2 = await this.fetchUser(email2);
-			if (user2){
-				user2.socket.join(roomDTO.name);
-			} 
-			// to add: if one of the users doesn't exist, make a temporary room
-			// that will go live as soon as the missing user connects to the chat.
-		} else {
-			const socketUser = await this.fetchUser(user.email);
-			socketUser.socket.join(roomDTO.name);
-		}
 	}
 
 	convertRoomStatus(roomDTO: createRoomDTO){
@@ -146,8 +121,10 @@ export class ChatService {
 	}
 
 	async joinChannel(user: User, roomDTO: joinRoomDTO){
-		const cacheUser: ChatUser = await this.fetchUser(user.email);
-		if (!cacheUser) throw new ForbiddenException('User profile deleted, please register again.')
+		const cacheUser: ChatUser = await this.fetchUser('chat' + user.email);
+		console.log('email', user.email);
+		console.log('chatuser', cacheUser);
+		if (!cacheUser) throw new ForbiddenException('Please reconnect.')
 
 		const room = await this.prisma.room.findUnique({
 			where: {
@@ -175,8 +152,10 @@ export class ChatService {
 			},
 			data: {
 				users: {
-					connect: { id: user.id },
-				},
+					create: [{ 
+						user: { 
+							connect: { email: user.email } } }], 
+				}
 			},
 		});
 
@@ -222,7 +201,7 @@ export class ChatService {
 		})
 		const rooms = await this.prisma.roomUser.findMany({
 			where : {
-				userID: prismaUser.id,
+				email: prismaUser.email,
 			}
 		})
 

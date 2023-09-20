@@ -73,8 +73,8 @@ model Room {
 
 model RoomUser {
 	id				String		@id @unique @default(uuid())
-	user			User			@relation("userRoom", fields: [userID], references: [id])
-	userID		String
+	user			User			@relation("userRoom", fields: [email], references: [email])
+	email			String
 	room			Room			@relation("roomUser", fields: [roomID], references: [id])
 	roomID		String
 }

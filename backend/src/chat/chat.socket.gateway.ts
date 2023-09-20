@@ -28,7 +28,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
 	async handleConnection(@ConnectedSocket() client: Socket) {
     const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		const user: ChatUser = await this.chatService.newConnection(client, jwtData.email);
+		const user: ChatUser = await this.chatService.newConnection(client.id, jwtData.email);
 		if (!user){
 			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted. Please register again.' });
 			client.disconnect();
@@ -45,6 +45,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	async handleDisconnect(@ConnectedSocket() client: Socket) {
 		// not sure if we have to do anything here...
+		// maybe save all chat history if we decide to use the cache
 		console.log(client.id, ' disconnected from generic socket. 0.0');
 	}
 

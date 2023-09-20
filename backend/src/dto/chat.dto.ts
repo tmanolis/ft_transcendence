@@ -45,7 +45,7 @@ export class joinRoomDTO {
 export class ChatUser {
 	constructor(
 		public email: string,
-		public socket: Socket,
+		public socketID: string,
 		public userName: string,
 		public rooms: string[],
 	) {}
