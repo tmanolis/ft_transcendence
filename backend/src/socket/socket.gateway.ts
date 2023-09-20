@@ -88,7 +88,10 @@ export class SocketGateway implements OnGatewayConnection {
         'Socket: existing player updated: ',
         existingPlayerObject.email,
       );
-      this.gameService.joinGameAndLaunch(existingPlayerObject, existingPlayerObject.gameID);
+      this.gameService.joinGameAndLaunch(
+        existingPlayerObject,
+        existingPlayerObject.gameID,
+      );
       return;
     }
 
