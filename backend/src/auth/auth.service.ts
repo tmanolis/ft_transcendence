@@ -38,7 +38,7 @@ export class AuthService {
             id: dto.id,
             email: dto.email,
             userName: dto.userName,
-            avatar: await this.fetchImage(dto.image),
+            avatar: await this.fetchImageFromURL(dto.image),
             isFourtyTwoStudent: true,
             password: dto.password,
           },
@@ -66,6 +66,7 @@ export class AuthService {
     let token: string;
     try {
       const hash = await argon.hash(dto.password);
+			// const imageBase64 = this.fetchImageFromFile('defaultAvatar.jpg');
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
@@ -74,7 +75,7 @@ export class AuthService {
         },
       });
       token = await this.signToken(user.id, user.email);
-      res.cookie('jwt', token).redirect('/hello');
+      res.cookie('jwt', token).redirect('/');
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');
@@ -151,7 +152,7 @@ export class AuthService {
     });
   }
 
-  async fetchImage(url: string): Promise<string> {
+  async fetchImageFromURL(url: string): Promise<string> {
     try {
       const response = await axios.get(url, {
         responseType: 'arraybuffer',
@@ -166,6 +167,17 @@ export class AuthService {
     }
     return null;
   }
+
+	fetchImageFromFile(filePath: string){
+		try{
+			const fs = require('fs');
+			const imageBuffer = fs.readFileSync(filePath);
+			const base64Image = imageBuffer.toString('base64');
+			return base64Image;
+		} catch (error){
+			console.log(error);
+		}
+	}
 
   async addToBlacklist(userID: string, token: string): Promise<void> {
     await this.prisma.jwtBlacklist.upsert({
