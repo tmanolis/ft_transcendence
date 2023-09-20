@@ -16,7 +16,7 @@ model User {
   createdAt 			    DateTime @default(now())
   email     			    String  @unique
   userName  			    String  @unique
-  avatar    		  	  String  @default("defaultAvatar.jpg")
+  avatar    		  	  String  @default("img/defaultAvatar.jpg")
   isFourtyTwoStudent  Boolean @default(false)
   role      		  	  Role    @default(USER)
   status    		 	    Status  @default(ONLINE)

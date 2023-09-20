@@ -93,7 +93,7 @@ export class GameService {
     }
   }
 
-  async createWaitingGame(player: Player){
+  async createWaitingGame(player: Player) {
     const gameID = player.socketID;
     const newGame = new Game(
       gameID,
@@ -101,8 +101,8 @@ export class GameService {
       player,
       null,
       [8, 8],
-      { x: 400, y: 400, },
-      { x: 5, y: 5, },
+      { x: 400, y: 400 },
+      { x: 5, y: 5 },
       Math.random() * Math.PI * 2,
       GameStatus.Waiting,
     );
@@ -123,10 +123,10 @@ export class GameService {
     console.log('game created with id', gameID);
   }
 
-  async joinGameAndLaunch(player: Player, gameID: string) : Promise<boolean> {
+  async joinGameAndLaunch(player: Player, gameID: string): Promise<boolean> {
     const game = this.games.find((game) => game.gameID === gameID);
     console.log('join and launch', game);
-    if (game){
+    if (game) {
       player.gameID = gameID;
       this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
       game.rightPlayer = player;
@@ -134,10 +134,12 @@ export class GameService {
         where: {
           email: {
             in: [game.leftPlayer.email, game.rightPlayer.email],
-          },}, data : {
+          },
+        },
+        data: {
           status: 'PLAYING',
         },
-      })
+      });
       game.status = GameStatus.Playing;
       return true;
     } else {
@@ -149,7 +151,7 @@ export class GameService {
   /* GAME END                                                                 */
   /****************************************************************************/
 
-  endGame(game: Game){
+  endGame(game: Game) {
     this.saveGameStats(game);
     this.deleteGame(game.gameID);
   }
@@ -178,7 +180,7 @@ export class GameService {
   /* GAMEPLAY                                                                 */
   /****************************************************************************/
 
-  movePaddle(client: Socket, payload: {key: string, gameID: string}) {
+  movePaddle(client: Socket, payload: { key: string; gameID: string }) {
     console.log(payload);
     const currentGame = this.games.find(
       (game) =>
@@ -303,52 +305,50 @@ export class GameService {
 
   /****************************************************************************/
   /* GAME STATS                                                               */
-  /****************************************************************************/  
+  /****************************************************************************/
 
-  async saveGameStats(game: Game){
+  async saveGameStats(game: Game) {
     const leftPlayer = await this.prisma.user.findUnique({
       where: {
-        email: game.leftPlayer.email
-      }, include: {
+        email: game.leftPlayer.email,
+      },
+      include: {
         games: {},
-      }
-    })
+      },
+    });
     const rightPlayer = await this.prisma.user.findUnique({
       where: {
-        email: game.leftPlayer.email
-      }, include: {
+        email: game.leftPlayer.email,
+      },
+      include: {
         games: {},
-      }
-    })
-
+      },
+    });
 
     const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
     const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
 
     const dbGame = await this.prisma.game.create({
       data: {
-          players: {
-              connect: [
-                  { email: leftPlayer.email },
-                  { email: rightPlayer.email }
-              ]
-          },
-          winnerId: winner.id,
-          loserId: loser.id,
-      }
-    })
+        players: {
+          connect: [{ email: leftPlayer.email }, { email: rightPlayer.email }],
+        },
+        winnerId: winner.id,
+        loserId: loser.id,
+      },
+    });
 
     this.updatePlayerStats(leftPlayer, dbGame);
     this.updatePlayerStats(rightPlayer, dbGame);
   }
 
-  async updatePlayerStats(player: User, game: prismaGame){
-    if (player.id === game.winnerId){
+  async updatePlayerStats(player: User, game: prismaGame) {
+    if (player.id === game.winnerId) {
       player.gamesWon++;
-      if (player.gamesWon === 1){
-        if (!player.achievements.includes('WINNER')){
+      if (player.gamesWon === 1) {
+        if (!player.achievements.includes('WINNER')) {
           player.achievements.push('WINNER');
-          // emit notification achievement? 
+          // emit notification achievement?
         }
       }
     } else {
@@ -386,6 +386,5 @@ export class GameService {
     } else {
       return (angle += (Math.PI / 2) * 3);
     }
-  }
-
+  };
 }

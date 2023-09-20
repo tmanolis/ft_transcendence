@@ -124,7 +124,9 @@ export class SocketGateway implements OnGatewayConnection {
       this.cacheManager.del(`game${existingPlayerObject.email}`);
       return;
     } else if (user.status === 'WAITING') {
-      const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+      const pendingPlayer: string = await this.cacheManager.get(
+        'pendingPlayer',
+      );
       if (!pendingPlayer) return;
       // check if pendingPlayer(in cache) is the waiting player(in database)
       const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
@@ -290,7 +292,10 @@ export class SocketGateway implements OnGatewayConnection {
   */
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(client: Socket, payload: {key: string, gameID: string}): object {
+  handleMovePaddle(
+    client: Socket,
+    payload: { key: string; gameID: string },
+  ): object {
     const gameData = this.gameService.movePaddle(client, payload);
     let updateSide = '';
     console.log('game Data to sent: ', gameData);

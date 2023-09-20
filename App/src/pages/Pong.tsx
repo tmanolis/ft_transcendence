@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
 
-import PageContainer from "../components/styles/PageContainer.styled";
+import PageContainer from "../components/styles/AuthContainer.styled";
 
 // Connect to the socket from outside of the component
 // avoid reconnection when ever the states changed
@@ -27,10 +27,10 @@ const Pong = () => {
   const paddleHeight = 75;
   const paddleWidth = 10;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
-    canvasHeight / 2 - paddleHeight / 2,
+    canvasHeight / 2 - paddleHeight / 2
   );
   const [rightPaddleY, setRightPaddleY] = useState<number>(
-    canvasHeight / 2 - paddleHeight / 2,
+    canvasHeight / 2 - paddleHeight / 2
   );
   const [ball, setBall] = useState<Position>({ x: 0, y: 0 });
   const [isLanding, setIsLanding] = useState<boolean>(true);
@@ -114,7 +114,7 @@ const Pong = () => {
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
-      console.log(gameID)
+      console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
   }, [gameID]);
@@ -125,9 +125,9 @@ const Pong = () => {
       console.log(event.key);
       if (!isWaiting) {
         if (event.key === "ArrowUp") {
-          socket?.emit("movePaddle", { key: "up", gameID: gameID});
+          socket?.emit("movePaddle", { key: "up", gameID: gameID });
         } else if (event.key === "ArrowDown") {
-          socket?.emit("movePaddle", { key: "down", gameID: gameID});
+          socket?.emit("movePaddle", { key: "down", gameID: gameID });
         }
       }
     };
@@ -190,7 +190,7 @@ const Pong = () => {
           canvasWidth - paddleWidth - 40,
           rightPaddleY,
           paddleWidth,
-          paddleHeight,
+          paddleHeight
         );
 
         // draw the ball
@@ -200,7 +200,7 @@ const Pong = () => {
             ball.x - paddleWidth / 2,
             ball.y / 2 - paddleWidth / 2,
             paddleWidth,
-            paddleWidth,
+            paddleWidth
           );
         }
 
@@ -221,7 +221,7 @@ const Pong = () => {
         context.fillText(
           "Press Enter to start a game.",
           canvas.width / 2,
-          canvas.height / 2,
+          canvas.height / 2
         );
       } else if (context && isWaiting) {
         context.font = "30px 'JetBrains Mono', monospace";
@@ -231,7 +231,7 @@ const Pong = () => {
         context.fillText(
           "Waiting for another player...",
           canvas.width / 2,
-          canvas.height / 2,
+          canvas.height / 2
         );
       } else if (context && countdown > 0) {
         context.font = "90px 'JetBrains Mono', monospace";
@@ -241,7 +241,7 @@ const Pong = () => {
         context.fillText(
           countdown.toString(),
           canvas.width / 2,
-          canvas.height / 2,
+          canvas.height / 2
         );
       }
     }

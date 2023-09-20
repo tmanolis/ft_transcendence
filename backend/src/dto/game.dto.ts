@@ -1,8 +1,8 @@
 export enum GameStatus {
-	Playing = 'playing',
-	Pause = 'pause',
-	Ended = 'ended',
-	Waiting = 'waiting',
+  Playing = 'playing',
+  Pause = 'pause',
+  Ended = 'ended',
+  Waiting = 'waiting',
 }
 
 interface Position {

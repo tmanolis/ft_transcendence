@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import PSSBackground from "../../assets/PSSbackground.png";
+import backgroundImg from "../../assets/global_background.jpeg";
 
 export type FormProps = {
   children?: React.ReactNode;
@@ -42,7 +42,7 @@ const FormContainer = styled.div`
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-image: url(${PSSBackground});
+  background-image: url(${backgroundImg});
   background-size: cover;
   background-position: center;
 `;
@@ -68,7 +68,6 @@ const Form: React.FC<FormProps> = ({ onSubmit, loginError, children }) => {
         {loginError && <ErrorMessage>* {loginError}</ErrorMessage>}
         {children}
       </StyledForm>
-      ;
     </FormContainer>
   );
 };
