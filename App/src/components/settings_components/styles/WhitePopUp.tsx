@@ -6,7 +6,7 @@ export type WhitePopUpProps = {
 };
 
 const StyledWhitePopUp = styled.div`
-  /* display: flex; */
+  /* Initial styles for larger screens */
   width: 398px;
   height: 521px;
   background: #ffffff;
@@ -15,14 +15,18 @@ const StyledWhitePopUp = styled.div`
   color: #000000;
   padding: 10px;
 
-  /* Add responsive styles */
+  /* Center the element both horizontally and vertically */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  /* Add responsive styles for smaller screens */
   @media (max-width: 768px) {
     width: 90%;
     height: auto;
-    width: 90%;
-    height: auto;
-    max-height: 90vh; /* Limit the maximum height to 90% of viewport height */
-    overflow-y: auto; /* Add vertical scroll if content overflows */
+    max-height: 90vh;
+    overflow-y: auto;
   }
 `;
 

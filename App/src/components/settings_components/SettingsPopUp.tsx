@@ -4,6 +4,7 @@ import EditAvatar from "./EditAvatar";
 import CheckBox2FA from "./CheckBox2FA";
 import EditUsername from "./EditUsername";
 import EditPassword from "./EditPassword";
+import QRCodePopup from "./QRcodePopUp";
 
 const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");
@@ -23,17 +24,13 @@ const SettingsPopUp: React.FC = () => {
   };
 
   return (
+    <>
+    {QRCode && <QRCodePopup QRCode={QRCode} />}
     <WhitePopUp>
       <h2>Settings</h2>
       <h3>Manage your informations and security</h3>
       <EditAvatar />
       <CheckBox2FA QRcode={handleQRcode} />
-      {QRCode && (
-        <div className="popup">
-          <h3>Scan QRCode</h3>
-          <img src={QRCode} alt="QRCode img" />
-        </div>
-      )}
       <EditUsername onError={handleUpdateError} />
       <EditPassword
         onError={handleUpdateError}
@@ -46,6 +43,7 @@ const SettingsPopUp: React.FC = () => {
         <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
       )}
     </WhitePopUp>
+    </>
   );
 };
 
