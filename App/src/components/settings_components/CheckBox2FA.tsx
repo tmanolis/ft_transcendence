@@ -3,9 +3,12 @@ import React, { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3000";
 
-const CheckBox2FA: React.FC = () => {
+interface CheckBox2FAProps {
+  QRcode: (error: string) => void;
+}
+
+const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
   const [isChecked, setIsChecked] = useState(false);
-  const [QRCode, setQRCode] = useState("");
   
   useEffect(() => {
     const fetchUserData = async () => {
@@ -42,7 +45,7 @@ const CheckBox2FA: React.FC = () => {
       );
       console.log(response.data);
       if (newCheckedValue) {
-        setQRCode(response.data);
+        QRcode(response.data);
       }
     } catch (error) {
       console.error(error);;
@@ -63,12 +66,6 @@ const CheckBox2FA: React.FC = () => {
       />
       <label htmlFor="2fa_checkbox">enable_2fa</label>
       <p>double factor authentification for maximum security</p>
-      {QRCode && (
-        <div className="popup">
-          <h3>Scan QRCode</h3>
-          <img src={QRCode} alt="QRCode img" />
-        </div>
-      )}
     </>
   );
 };

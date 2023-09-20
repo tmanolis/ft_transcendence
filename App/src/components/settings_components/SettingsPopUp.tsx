@@ -6,9 +6,13 @@ import EditUsername from "./EditUsername";
 import EditPassword from "./EditPassword";
 
 const SettingsPopUp: React.FC = () => {
+  const [QRCode, setQRCode] = useState("");
   const [updateError, setUpdateError] = useState("");
   const [updateSuccess, setUpdateSuccess] = useState("");
-
+  
+  const handleQRcode = (path: string) => {
+    setQRCode(path);
+  };
   // Function to handle errors and update updateError state
   const handleUpdateError = (error: string) => {
     setUpdateError(error);
@@ -23,7 +27,13 @@ const SettingsPopUp: React.FC = () => {
       <h2>Settings</h2>
       <h3>Manage your informations and security</h3>
       <EditAvatar />
-      <CheckBox2FA />
+      <CheckBox2FA QRcode={handleQRcode} />
+      {QRCode && (
+        <div className="popup">
+          <h3>Scan QRCode</h3>
+          <img src={QRCode} alt="QRCode img" />
+        </div>
+      )}
       <EditUsername onError={handleUpdateError} />
       <EditPassword
         onError={handleUpdateError}
