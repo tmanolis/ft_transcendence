@@ -53,10 +53,6 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
 
   };
 
-  // useEffect(() => {
-  //   console.log("isChecked: " + isChecked);
-  // }, [isChecked]);
-
   return (
     <>
       <input type="checkbox"
