@@ -5,6 +5,7 @@ const BASE_URL = "http://localhost:3000";
 
 const CheckBox2FA: React.FC = () => {
   const [isChecked, setIsChecked] = useState(false);
+  const [QRCode, setQRCode] = useState("");
   
   useEffect(() => {
     const fetchUserData = async () => {
@@ -23,11 +24,14 @@ const CheckBox2FA: React.FC = () => {
   }, []);
 
   const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
-    console.log("state: " + event.target.checked);
+    const newCheckedValue = event.target.checked;
+    
+    setIsChecked(newCheckedValue);
+    console.log("state: " + newCheckedValue);
+    console.log("isChecked during handleCheckbox: " + isChecked);
     
     const updateDTO = {
-      twoFAActivated: event.target.checked
+      twoFAActivated: newCheckedValue
     };
 
     try {
@@ -36,12 +40,19 @@ const CheckBox2FA: React.FC = () => {
         updateDTO,
         { withCredentials: true }
       );
-      console.log(response);
+      console.log(response.data);
+      if (newCheckedValue) {
+        setQRCode(response.data);
+      }
     } catch (error) {
       console.error(error);;
     }
 
   };
+
+  // useEffect(() => {
+  //   console.log("isChecked: " + isChecked);
+  // }, [isChecked]);
 
   return (
     <>
@@ -52,6 +63,12 @@ const CheckBox2FA: React.FC = () => {
       />
       <label htmlFor="2fa_checkbox">enable_2fa</label>
       <p>double factor authentification for maximum security</p>
+      {QRCode && (
+        <div className="popup">
+          <h3>Scan QRCode</h3>
+          <img src={QRCode} alt="QRCode img" />
+        </div>
+      )}
     </>
   );
 };
