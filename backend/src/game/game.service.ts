@@ -41,20 +41,11 @@ export class GameService {
     this.canvas.paddleHeight = paddleHeight;
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
-  
+
   async createPlayer(email: string, socketID: string, userName: string) {
-    const newPlayer = new Player(
-      'non',
-      email,
-      socketID,
-      userName,
-      0,
-    );
+    const newPlayer = new Player('non', email, socketID, userName, 0);
     // save the new Player in redis
-    await this.cacheManager.set(
-      `game${email}`,
-      JSON.stringify(newPlayer),
-    );
+    await this.cacheManager.set(`game${email}`, JSON.stringify(newPlayer));
     console.log('Game Service: new client/player created:', newPlayer.email);
   }
 

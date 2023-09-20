@@ -67,134 +67,133 @@ export class AuthService {
     let token: string;
     try {
       const hash = await argon.hash(dto.password);
-			const imageBase64 = this.fetchImageFromFile('defaultAvatar.jpg');
+      const imageBase64 = this.fetchImageFromFile('defaultAvatar.jpg');
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
           userName: dto.userName,
           password: hash,
-					avatar: imageBase64,
+          avatar: imageBase64,
         },
       });
       token = await this.signToken(user.id, user.email);
-      res.cookie('jwt', token).redirect('/');
+      res.cookie('jwt', token).send({ status: 'logged in' });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');
       }
     }
   }
-	
-	
+
   async localLogin(dto: LoginDto, res: any) {
     const user = await this.prisma.user.findUnique({
       where: {
-				email: dto.email,
+        email: dto.email,
       },
     });
-		
+
     if (!user) throw new ForbiddenException('User not found');
-		
+
     if (user.isFourtyTwoStudent)
-		throw new ForbiddenException('Log in through OAuth only');
-	
+      throw new ForbiddenException('Log in through OAuth only');
+
     const passwordMatches = await argon.verify(user.password, dto.password);
-		
+
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
-		
+
     if (user.twoFAActivated) {
-			return { redirect: '/2fa-verify' };
+      return { redirect: '/2fa-verify' };
     }
     await this.updateAfterLogin(user, res);
     return user;
   }
-	
+
   async handleLogout(user: User, res: any, req: any) {
-		await this.prisma.user.update({
-			where: {
-				id: user.id,
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
       },
       data: {
-				status: 'OFFLINE',
+        status: 'OFFLINE',
       },
     });
-		
+
     const token = req.cookies.jwt;
     if (token) {
-			this.addToBlacklist(user.id, token);
+      this.addToBlacklist(user.id, token);
     }
-		
+
     res.clearCookie('jwt').redirect('http://localhost:8080');
   }
-	
+
   async twoFAVerify(user: User, res: any, payload: any) {
-		try {
-			const validatedUser = await this.twoFA.validate(
+    try {
+      const validatedUser = await this.twoFA.validate(
         user.userName,
         payload.code,
-				);
-				if (validatedUser) {
-					if (user.twoFAActivated){
-						this.updateAfterLogin(user, res);
-					} else {
-						await this.prisma.user.update({
-							where: {
-								id: user.id,
-							},
-							data: {
-								twoFAActivated: true,
-							},
-						});				
-					}
-				}
-			} catch (error) {
-				const caughtError = error.message;
-				res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
-			}
-		}
-		
-		signToken(id: string, email: string): Promise<string> {
-			const payload = {
-				sub: id,
-				email,
-			};
-			const secret = this.config.get('JWT_SECRET');
-			
-			return this.jwt.signAsync(payload, {
+      );
+      if (validatedUser) {
+        if (user.twoFAActivated) {
+          this.updateAfterLogin(user, res);
+        } else {
+          await this.prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              twoFAActivated: true,
+            },
+          });
+        }
+      }
+    } catch (error) {
+      const caughtError = error.message;
+      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+    }
+  }
+
+  signToken(id: string, email: string): Promise<string> {
+    const payload = {
+      sub: id,
+      email,
+    };
+    const secret = this.config.get('JWT_SECRET');
+
+    return this.jwt.signAsync(payload, {
       expiresIn: '90m',
       secret: secret,
     });
   }
-	
+
   async fetchImageFromURL(url: string): Promise<string> {
-		try {
-			const response = await axios.get(url, {
-				responseType: 'arraybuffer',
+    try {
+      const response = await axios.get(url, {
+        responseType: 'arraybuffer',
       });
       if (response.status === 200) {
-				const imageBuffer = Buffer.from(response.data, 'binary');
+        const imageBuffer = Buffer.from(response.data, 'binary');
         const returnString = imageBuffer.toString('base64');
         return returnString;
       }
     } catch (error) {
-			throw new NotFoundException('Could not load profile picture.');
+      throw new NotFoundException('Could not load profile picture.');
     }
     return null;
   }
 
-	fetchImageFromFile(fileName: string){
-		try{
-			const imageBuffer = readFileSync(fileName);
-			const imageBase64 = Buffer.from(imageBuffer).toString('base64');
-			return imageBase64;
-		} catch (error){
-			throw new Error('Error reading image file: ${error.message}');
-		}
-	}
-	
+  fetchImageFromFile(fileName: string) {
+    try {
+      const imageBuffer = readFileSync(fileName);
+      const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+      return imageBase64;
+    } catch (error) {
+      throw new Error('Error reading image file: ${error.message}');
+    }
+  }
+
   async addToBlacklist(userID: string, token: string): Promise<void> {
     await this.prisma.jwtBlacklist.upsert({
-			where: { userID },
+      where: { userID },
       update: { token },
       create: { token, userID },
     });
@@ -212,7 +211,7 @@ export class AuthService {
 
     const token = await this.signToken(user.id, user.email);
     if (user.isFourtyTwoStudent) {
-      res.cookie('jwt', token).redirect('http://localhost:8080/pong');
+      res.cookie('jwt', token).redirect('/');
     } else {
       res.cookie('jwt', token).send({ status: 'logged in' });
     }

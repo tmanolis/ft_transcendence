@@ -43,15 +43,15 @@ export class UserService {
       }
       return await toDataURL(otpauthUrl);
     } else if (dto.twoFAActivated === false) {
-			await this.prisma.user.update({
-				where: {
-					id: user.id,
-				},
-				data: {
-					twoFASecret: null,
-					twoFAActivated: false,
-				},
-			});
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          twoFASecret: null,
+          twoFAActivated: false,
+        },
+      });
     }
     return 'OK';
   }
