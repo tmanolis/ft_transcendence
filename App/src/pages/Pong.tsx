@@ -68,6 +68,14 @@ const Pong = () => {
       setScore(newScore);
     });
 
+    socket.on("rejoinGame", (gameData: any) => {
+      setIsLanding(false);
+      setBall(gameData.ballPosition);
+      setGameID(gameData.gameID);
+      console.log(gameID)
+      setScore({ 0: gameData.score[0], 1: gameData.score[1] });
+    });
+
     // still testing
     socket.on("gameRunning", (gameState: Object) => {
       console.log(gameState);
