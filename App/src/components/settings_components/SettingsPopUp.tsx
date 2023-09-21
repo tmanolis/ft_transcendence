@@ -5,6 +5,7 @@ import CheckBox2FA from "./CheckBox2FA";
 import EditUsername from "./EditUsername";
 import EditPassword from "./EditPassword";
 import QRCodePopup from "./QRcodePopUp";
+import { SettingsWrapper } from "./styles/SettingsPopUp.styled";
 
 const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");
@@ -30,18 +31,20 @@ const SettingsPopUp: React.FC = () => {
       <h2>Settings</h2>
       <h3>Manage your informations and security</h3>
       <EditAvatar />
-      <CheckBox2FA QRcode={handleQRcode} />
-      <EditUsername onError={handleUpdateError} />
-      <EditPassword
-        onError={handleUpdateError}
-        onSuccess={handleUpdateSuccess}
-      />
-      {updateSuccess && (
-        <div style={{ color: "green", fontSize: "12px" }}>{updateSuccess}</div>
-      )}
-      {updateError && (
-        <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
-      )}
+        <SettingsWrapper>
+        <CheckBox2FA QRcode={handleQRcode} />
+        <EditUsername onError={handleUpdateError} />
+        <EditPassword
+          onError={handleUpdateError}
+          onSuccess={handleUpdateSuccess}
+        />
+        {updateSuccess && (
+          <div style={{ color: "green", fontSize: "12px" }}>{updateSuccess}</div>
+        )}
+        {updateError && (
+          <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
+        )}
+      </SettingsWrapper>
     </WhitePopUp>
     </>
   );

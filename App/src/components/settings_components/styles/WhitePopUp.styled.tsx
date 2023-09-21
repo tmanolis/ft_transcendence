@@ -38,7 +38,7 @@ const StyledWhitePopUp = styled.div`
   h3 {
     color: rgba(0, 0, 0, 0.60);
     font-family: "JetBrains Mono",monospace;
-    font-size: 15px;
+    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     margin-top: 0px;

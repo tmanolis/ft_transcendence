@@ -22,7 +22,7 @@ margin-top: 5px;
 margin-bottom: 5px;
 color: #000;
 font-family: "JetBrains Mono",monospace;
-font-size: 18px;
+font-size: 19px;
 font-style: normal;
 font-weight: 550;
 `;

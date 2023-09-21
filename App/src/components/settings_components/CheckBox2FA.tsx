@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { CheckBoxWrapper } from "./styles/CheckBox2FA.styled";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -50,10 +51,11 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
     } catch (error) {
       console.error(error);;
     }
+
   };
 
   return (
-    <>
+    <CheckBoxWrapper>
       <input type="checkbox"
       id="2fa_checkbox"
       checked={isChecked}
@@ -61,7 +63,7 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
       />
       <label htmlFor="2fa_checkbox">enable_2fa</label>
       <p>double factor authentification for maximum security</p>
-    </>
+    </CheckBoxWrapper>
   );
 };
 
