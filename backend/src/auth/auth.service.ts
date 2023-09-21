@@ -147,8 +147,7 @@ export class AuthService {
         }
       }
     } catch (error) {
-      const caughtError = error.message;
-      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+      throw new Error(error.message);
     }
   }
 
