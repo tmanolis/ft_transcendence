@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
-import styled from "styled-components";
 import axios from "axios";
-
-const AvatarImage = styled.img`
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  object-fit: cover;
-`;
+import { AvatarImage, EditAvatarWrapper, UserInfoWrapper } from "./styles/EditAvatar.styled";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -57,24 +50,24 @@ const EditAvatar: React.FC = () => {
     if (file) {
       setSelectedFile(file);
     }
-	console.log(file);
-	// handleUpload();
   };
 
   return (
-    <div>
+    <EditAvatarWrapper>
       <AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
-      <span>{username}</span>
-      <input
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-        ref={(input) => input && (input.value = "")}
-      />
-      <button onClick={() => (document.querySelector("input[type='file']") as HTMLInputElement | null)?.click()}>Choose Avatar</button>
-      <button onClick={handleUpload}>Upload Avatar</button>
-    </div>
+      <UserInfoWrapper>
+        <p>{username}</p>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+          ref={(input) => input && (input.value = "")}
+        />
+        <button onClick={() => (document.querySelector("input[type='file']") as HTMLInputElement | null)?.click()}>Choose Avatar</button>
+        <button onClick={handleUpload}>Upload Avatar</button>
+      </UserInfoWrapper>
+    </EditAvatarWrapper>
   );
 };
 
