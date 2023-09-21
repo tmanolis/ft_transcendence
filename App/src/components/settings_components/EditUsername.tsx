@@ -1,5 +1,6 @@
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "./styles/ConfirmButton.styled";
+import InputSettings, { InputContainer } from "./styles/InputSettings.styled";
 
 interface EditUsernameProps {
   onError: (error: string) => void;
@@ -46,13 +47,15 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <input
-          name="new_username"
-          type="text"
-          id="new_username"
-          placeholder="new username"
-        />
-        <ConfirmButton type="submit">Confirm</ConfirmButton>
+        <InputContainer>
+          <InputSettings
+            name="new_username"
+            type="text"
+            id="new_username"
+            placeholder="<type new_username>"
+          />
+          <ConfirmButton type="submit">Confirm</ConfirmButton>
+        </InputContainer>
       </form>
     </>
   );

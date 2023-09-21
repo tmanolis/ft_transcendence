@@ -11,13 +11,10 @@ export type ConfirmButtonProps = {
 const StyledConfirmButton = styled.button<{}>`
   width: 68px;
   height: 23px;
-  flex-shrink: 0;
-  margin: 5px;
-
+  margin-top: auto; /* Align the button at the bottom */
   border: 1px solid #fff;
   background: #fff;
   box-shadow: -3px -2px 1px 0px rgba(0, 0, 0, 0.98) inset;
-
   color: #000;
   font-family: "JetBrains Mono", monospace;
   font-weight: normal;
