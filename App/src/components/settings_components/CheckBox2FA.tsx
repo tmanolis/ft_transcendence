@@ -3,7 +3,11 @@ import React, { useEffect, useState } from "react";
 
 const BASE_URL = "http://localhost:3000";
 
-const CheckBox2FA: React.FC = () => {
+interface CheckBox2FAProps {
+  QRcode: (error: string) => void;
+}
+
+const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
   const [isChecked, setIsChecked] = useState(false);
   
   useEffect(() => {
@@ -23,11 +27,14 @@ const CheckBox2FA: React.FC = () => {
   }, []);
 
   const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    setIsChecked(event.target.checked);
-    console.log("state: " + event.target.checked);
+    const newCheckedValue = event.target.checked;
+    
+    setIsChecked(newCheckedValue);
+    console.log("state: " + newCheckedValue);
+    console.log("isChecked during handleCheckbox: " + isChecked);
     
     const updateDTO = {
-      twoFAActivated: event.target.checked
+      twoFAActivated: newCheckedValue
     };
 
     try {
@@ -36,11 +43,13 @@ const CheckBox2FA: React.FC = () => {
         updateDTO,
         { withCredentials: true }
       );
-      console.log(response);
+      console.log(response.data);
+      if (newCheckedValue) {
+        QRcode(response.data);
+      }
     } catch (error) {
       console.error(error);;
     }
-
   };
 
   return (
