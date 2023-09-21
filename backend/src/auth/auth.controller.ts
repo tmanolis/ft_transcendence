@@ -72,7 +72,7 @@ export class AuthController {
     @Res() res: any,
     @GetUser() user: User,
   ) {
-    await this.authService.twoFAVerify(user, res, payload);
+    return await this.authService.twoFAVerify(user, res, payload);
   }
 
   @UseGuards(JwtGuard)

@@ -5,19 +5,19 @@ import CheckBox2FA from "./CheckBox2FA";
 import EditUsername from "./EditUsername";
 import EditPassword from "./EditPassword";
 import QRCodePopup from "./QRcodePopUp";
-import styled from "styled-components";
+// import styled from "styled-components";
 
-const SettingsContainer = styled.div`
-box-sizing: border-box;
-/* position: absolute; */
-left: 3.52%;
-right: 3.27%;
-top: 37.04%;
-bottom: 2.5%;
+// const SettingsContainer = styled.div`
+// box-sizing: border-box;
+// /* position: absolute; */
+// left: 3.52%;
+// right: 3.27%;
+// top: 37.04%;
+// bottom: 2.5%;
 
-border: 1px solid #000000;
+// border: 1px solid #000000;
 
-`;
+// `;
 
 const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");

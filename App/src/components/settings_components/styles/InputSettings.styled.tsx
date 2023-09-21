@@ -14,7 +14,7 @@ const StyledInputSettings = styled.input`
 border: 1px solid #000;
 background: rgba(62, 62, 62, 0.00);
 color: rgba(0, 0, 0, 0.80);
-font-family: JetBrains Mono;
+font-family: "JetBrains Mono",monospace;
 font-size: 15px;
 font-style: normal;
 font-weight: 500;

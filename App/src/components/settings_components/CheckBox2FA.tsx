@@ -50,7 +50,6 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
     } catch (error) {
       console.error(error);;
     }
-
   };
 
   return (
