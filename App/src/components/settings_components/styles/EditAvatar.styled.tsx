@@ -20,6 +20,11 @@ export const UserInfoWrapper = styled.div`
 export const Username = styled.p`
 margin-top: 5px;
 margin-bottom: 5px;
+color: #000;
+font-family: "JetBrains Mono",monospace;
+font-size: 18px;
+font-style: normal;
+font-weight: 550;
 `;
 
 export const EditButton = styled.button`

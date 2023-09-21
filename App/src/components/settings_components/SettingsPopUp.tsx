@@ -1,23 +1,10 @@
 import React, { useState } from "react";
-import WhitePopUp from "./styles/WhitePopUp";
+import WhitePopUp from "./styles/WhitePopUp.styled";
 import EditAvatar from "./EditAvatar";
 import CheckBox2FA from "./CheckBox2FA";
 import EditUsername from "./EditUsername";
 import EditPassword from "./EditPassword";
 import QRCodePopup from "./QRcodePopUp";
-// import styled from "styled-components";
-
-// const SettingsContainer = styled.div`
-// box-sizing: border-box;
-// /* position: absolute; */
-// left: 3.52%;
-// right: 3.27%;
-// top: 37.04%;
-// bottom: 2.5%;
-
-// border: 1px solid #000000;
-
-// `;
 
 const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");
@@ -43,7 +30,6 @@ const SettingsPopUp: React.FC = () => {
       <h2>Settings</h2>
       <h3>Manage your informations and security</h3>
       <EditAvatar />
-      {/* <SettingsContainer> */}
       <CheckBox2FA QRcode={handleQRcode} />
       <EditUsername onError={handleUpdateError} />
       <EditPassword
@@ -56,7 +42,6 @@ const SettingsPopUp: React.FC = () => {
       {updateError && (
         <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
       )}
-      {/* </SettingsContainer> */}
     </WhitePopUp>
     </>
   );
