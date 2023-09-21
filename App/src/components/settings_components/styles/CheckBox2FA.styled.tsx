@@ -19,7 +19,7 @@ export const CheckBoxWrapper = styled.div`
 
   p {
 	color: rgba(0, 0, 0, 0.60);
-	font-size: 13px;
+	font-size: 12px;
 	font-style: normal;
 	font-weight: 400;
 	line-height: 16px; /* 133.333% */
