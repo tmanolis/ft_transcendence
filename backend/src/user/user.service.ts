@@ -35,7 +35,7 @@ export class UserService {
       data: otherFields,
     });
 
-    if (dto.twoFAActivated && !user.twoFASecret) {
+    if (dto.twoFAActivated) {
       const otpauthUrl = await this.generate2FASecret(user);
       if (!user.achievements.includes('TWOFA')) {
         user.achievements.push('TWOFA');
