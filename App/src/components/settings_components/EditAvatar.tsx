@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { AvatarImage, EditAvatarWrapper, UserInfoWrapper } from "./styles/EditAvatar.styled";
+import { AvatarImage, EditAvatarWrapper, EditButton, UserInfoWrapper, Username } from "./styles/EditAvatar.styled";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -56,7 +56,7 @@ const EditAvatar: React.FC = () => {
     <EditAvatarWrapper>
       <AvatarImage src={`data:image/png;base64,${avatarPath}`} alt="User Avatar" />
       <UserInfoWrapper>
-        <p>{username}</p>
+        <Username>{username}</Username>
         <input
           type="file"
           accept="image/*"
@@ -64,8 +64,8 @@ const EditAvatar: React.FC = () => {
           style={{ display: "none" }}
           ref={(input) => input && (input.value = "")}
         />
-        <button onClick={() => (document.querySelector("input[type='file']") as HTMLInputElement | null)?.click()}>Choose Avatar</button>
-        <button onClick={handleUpload}>Upload Avatar</button>
+        <EditButton onClick={() => (document.querySelector("input[type='file']") as HTMLInputElement | null)?.click()}>+ Choose Avatar</EditButton>
+        <EditButton onClick={handleUpload}>+ Upload Avatar</EditButton>
       </UserInfoWrapper>
     </EditAvatarWrapper>
   );
