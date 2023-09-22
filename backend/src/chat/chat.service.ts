@@ -3,11 +3,12 @@ import { Cache } from 'cache-manager';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
 import { ChatUser, messageDTO, createRoomDTO, joinRoomDTO, ChatMessage } from "src/dto";
-import { User, Message, RoomStatus, Room } from '@prisma/client';
+import { User, Message, RoomStatus, Room, RoomUser } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from "@nestjs/jwt";
 import { WebSocketServer } from "@nestjs/websockets";
+import { userInfo } from "os";
 
 @Injectable()
 export class ChatService {
@@ -114,7 +115,7 @@ export class ChatService {
 				users: {
 					create: [{ 
 						user: { 
-							connect: { email: user.email } } }], 
+							connect: { email: user.email } } }],
 				}
 			},
 			include: {
@@ -125,51 +126,67 @@ export class ChatService {
 		const { password, ...secureRoom } = newRoom;
 		return secureRoom;
 
-		// still missing: way to make a temp room for direct messaging
+		// still missing: 
+		// * way to make a temp room for direct messaging
+		// * join chatuser in gateway
+		// * new roomUser should get role owner
 	}
 
 
-	async joinChannel(roomDTO: joinRoomDTO){
-	// 	const cacheUser: ChatUser = await this.fetchUser(user.email);
-	// 	console.log('email', user.email);
-	// 	console.log('chatuser', cacheUser);
-	// 	if (!cacheUser) throw new ForbiddenException('Please reconnect.')
+	async joinChannel(client: Socket, roomDTO: joinRoomDTO){
+		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
+		const chatuser: ChatUser = await this.fetchChatuser(jwtData.email);
 
-	// 	const room = await this.prisma.room.findUnique({
-	// 		where: {
-	// 			id: roomDTO.name,
-	// 		}
-	// 	})
-		
-	// 	if (!room) throw new BadRequestException('Room does not exist');
+		// check if room exists
+		const room = await this.prisma.room.findUnique({
+			where: {
+				name: roomDTO.name,
+			}, include: {
+				users: true,
+			}
+		})
+		if (!room) throw new BadRequestException('Room does not exist');
 
-	// 	const isBanned = room.banned.some((blockedUser) => blockedUser === user.email);
-	// 	if (isBanned) throw new ForbiddenException('You are banned from this channel');
+		// check if user hasn't been banned
+		const userInRoom = await room.users.find((roomUser: RoomUser) => {
+			return roomUser.email === chatuser.email;
+		});
+		if (userInRoom && userInRoom.isBanned) throw new ForbiddenException('Oh oh, you are banned from this channel')
+		else if (userInRoom) throw new ForbiddenException('You are already in this room');
 
-	// 	if (room.status === 'DIRECT') throw new ForbiddenException('Not possible to join this room');
-	// 	else if (room.status === 'PRIVATE'){
-	// 		const passwordMatches = await argon.verify(room.password, roomDTO.password);
-	// 		if (!passwordMatches) throw new ForbiddenException('Password incorrect');
-	// 	};
+		// check if room is joinable
+		if (room.status === RoomStatus.DIRECT) throw new ForbiddenException('Not possible to join ');
+
+		if (room.status === RoomStatus.PRIVATE){
+			const passwordMatches = await argon.verify(room.password, roomDTO.password);
+			if (!passwordMatches) throw new ForbiddenException('Password incorrect');
+	}
+
+		// joining in socket
+		client.join(roomDTO.name);
+		const updatedRoom = await this.prisma.room.update({
+			where: {
+				name: roomDTO.name,
+			},
+			data: {
+				users: {
+					create: [{ 
+						user: { 
+							connect: { email: chatuser.email } } }], 
+				}
+			},
+			include: {
+				users: true,
+			}
+		});
+
 
 	// 	cacheUser.rooms.push(joinRoomDTO.name);
 	// 	await this.cacheManager.set('chat' + user.email, JSON.stringify(cacheUser));
-
-	// 	const updatedRoom = await this.prisma.room.update({
-	// 		where: {
-	// 			id: room.id,
-	// 		},
-	// 		data: {
-	// 			users: {
-	// 				create: [{ 
-	// 					user: { 
-	// 						connect: { email: user.email } } }], 
-	// 			}
-	// 		},
-	// 	});
-
-	// 	return updatedRoom;
+		console.log(updatedRoom);
+		return updatedRoom;
 	}
+
 
 	/****************************************************************************/
   /* messages													                                        */

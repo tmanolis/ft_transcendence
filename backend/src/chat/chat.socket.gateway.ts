@@ -84,9 +84,9 @@ export class ChatGateway
 	@SubscribeMessage('joinChannel')
 	handleJoinChannel(
 		@ConnectedSocket() client: Socket,
-		@MessageBody(), joinDTO: joinRoomDTO,
+		@MessageBody() joinDTO: joinRoomDTO,
 	){
-		this.chatService.joinChannel(joinDTO);
+		this.chatService.joinChannel(client, joinDTO);
 	}
 
 
