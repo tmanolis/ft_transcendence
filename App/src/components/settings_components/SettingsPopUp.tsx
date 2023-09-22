@@ -48,18 +48,18 @@ const SettingsPopUp: React.FC = () => {
       <h3>Manage your informations and security</h3>
       <EditAvatar />
         <SettingsWrapper>
-        <CheckBox2FA QRcode={handleQRcode} />
-        <EditUsername onError={handleUpdateError} />
-        {is42Student !== true && <EditPassword
-          onError={handleUpdateError}
-          onSuccess={handleUpdateSuccess}
-        />}
-        {updateSuccess && (
-          <div style={{ color: "green", fontSize: "12px" }}>{updateSuccess}</div>
-        )}
-        {updateError && (
-          <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
-        )}
+          <CheckBox2FA QRcode={handleQRcode} />
+          <EditUsername onError={handleUpdateError} />
+          {is42Student !== true && <EditPassword
+            onError={handleUpdateError}
+            onSuccess={handleUpdateSuccess}
+          />}
+          {updateSuccess && (
+            <div style={{ color: "green", fontSize: "12px" }}>{updateSuccess}</div>
+          )}
+          {updateError && (
+            <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
+          )}
       </SettingsWrapper>
     </WhitePopUp>
     </>

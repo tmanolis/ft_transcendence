@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const CheckBoxWrapper = styled.div`
   font-family: "JetBrains Mono",monospace;
-  margin: 20px;
+  margin: 25px;
   
   input {
 	width: 12px;
