@@ -34,149 +34,47 @@ export class SocketGateway implements OnGatewayConnection {
   ) {}
   @WebSocketServer()
   server: Server;
+  pauseCounter = 300;
 
   /****************************************************************************/
-  /* handle connection/disconnection                                          */
+  // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    console.log(`Socket: ${client.id} connected to game socket`);
-    // check JWT
-    const jwt = client.handshake.headers.authorization;
-    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    if (jwt === 'undefined' || jwt === null) {
-      console.log('Socket: No jwt, disconnecting');
+    if (await this.gameService.identifyUser(client) === 'failed') {
       client.disconnect();
-      return;
     }
-    jwtData = this.jwtService.decode(jwt);
-    if (typeof jwtData !== 'object') {
-      console.log(client.id, 'Socket: Bad JWT data', jwtData);
-      client.disconnect();
-      return;
-    }
-
-    // find the user in database
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: jwtData.email,
-      },
-    });
-    if (!user) {
-      client.emit('accountDeleted', {
-        message: 'Your account has been deleted.',
-      });
-      client.disconnect();
-      return;
-    }
-
-    // link socket id to useremail
-    await this.cacheManager.set(client.id, user.email);
-
-    // check if player already exists in game
-    const existingPlayer: string = await this.cacheManager.get(
-      `game${jwtData.email}`,
-    );
-    if (existingPlayer) {
-      console.log('The existing Player: ', existingPlayer);
-      let existingPlayerObject: Player = JSON.parse(existingPlayer);
-      existingPlayerObject.socketID = client.id;
-      await this.cacheManager.set(
-        `game${jwtData.email}`,
-        JSON.stringify(existingPlayerObject),
-      );
-      console.log(existingPlayerObject);
-      console.log(
-        'Socket: existing player updated: ',
-        existingPlayerObject.email,
-      );
-      this.gameService.joinGameAndLaunch(
-        existingPlayerObject,
-        existingPlayerObject.gameID,
-      );
-      return;
-    }
-
-    // if no such player in redis, create one.
-    this.gameService.createPlayer(jwtData.email, client.id, user.userName);
   }
 
+  /****************************************************************************/
+  // handle disconnection
+  /****************************************************************************/
   async handleDisconnect(client: Socket) {
-    // remove {client.id, playerEmail} pair from cache
-    const playerEmail: string = await this.cacheManager.get(client.id);
-    await this.cacheManager.del(client.id);
-
-    // check if there is a pending player(it should be the client disconnecting)
-    const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    console.log(pendingPlayer);
-    if (pendingPlayer) {
-      const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
-      if (pendingPlayerObject.email === playerEmail) {
-        console.log('The pending player: ', pendingPlayer);
-        await this.cacheManager.del('pendingPlayer');
-        await this.cacheManager.del(`game${playerEmail}`);
-      }
-    }
-
-    // check if player left in game
-    if (!playerEmail) return;
-    const existingPlayer: string = await this.cacheManager.get(
-      `game${playerEmail}`,
-    );
-    if (!existingPlayer) return;
-    const existingPlayerObject: Player = JSON.parse(existingPlayer);
-    if (existingPlayerObject.gameID === 'non') {
-      await this.cacheManager.del(`game${playerEmail}`);
-    }
-
-    // find the user in database
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: existingPlayerObject.email,
-      },
-    });
-    // check the user status in database;
-    if (!user) {
-      console.log('user not found!');
-      return;
-    }
-    if (user.status === 'WAITING' || user.status === 'PLAYING') {
-      try {
-        await this.prisma.user.update({
-          where: {
-            email: user.email,
-          },
-          data: {
-            status: 'AWAY',
-          },
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }
+    console.log('\x1b[31m Disconnect! \x1b[0m');
+    await this.gameService.cancelPendingGame(client);
+    await this.gameService.updateUserDisconnectStatus(client);
+    await this.gameService.clearData(client);
     console.log(`Socket: ${client.id} disconnected from game socket. 0.0`);
   }
 
   /****************************************************************************/
-  /* GAME                                                                     */
+  // Find game
   /****************************************************************************/
-  @SubscribeMessage('setCanvas')
-  handleSetCanvas(client: Socket, payload: any) {
-    this.gameService.setCanvas(payload);
-  }
-
   @SubscribeMessage('findGame')
   async handleFindGame(client: Socket) {
-    const currentPlayerEmail: string = await this.cacheManager.get(client.id);
-    const currentPlayer: string = await this.cacheManager.get(
-      `game${currentPlayerEmail}`,
-    );
+    let currentPlayer = await this.gameService.createPlayer(client);
     if (!currentPlayer) return;
-    const currentPlayerObject: Player = JSON.parse(currentPlayer);
+
+    const pausedGameID = await this.gameService.findPausedGame(client);
+    if (pausedGameID) 
+      currentPlayer.gameID = pausedGameID;
+
+    let newGame: Game = await this.gameService.createGame(client);
+    if (newGame) 
+      currentPlayer.gameID = newGame.gameID;
 
     const startGame: [boolean, string] =
-      await this.gameService.joinOrCreateGame(currentPlayerObject);
-    const gameRoom: string = currentPlayerObject.gameID;
-
+      await this.gameService.findMatchingGame(currentPlayer);
+    const gameRoom: string = startGame[1];
     client.join(gameRoom);
 
     if (startGame[0]) {
@@ -184,36 +82,53 @@ export class SocketGateway implements OnGatewayConnection {
     }
   }
 
+  /****************************************************************************/
+  // GAME
+  /****************************************************************************/
+  @SubscribeMessage('setCanvas')
+  handleSetCanvas(client: Socket, payload: any) {
+    this.gameService.setCanvas(payload);
+  }
+
   @SubscribeMessage('startGame')
   async handleStartGame(client: Socket, payload: Object): Promise<Object> {
-    const currentPlayerEmail: string = await this.cacheManager.get(client.id);
-    const currentPlayer: string = await this.cacheManager.get(
-      `game${currentPlayerEmail}`,
-    );
-    const currentPlayerObject: Player = JSON.parse(currentPlayer);
+    const currentPlayer = await this.gameService.getSocketPlayer(client);
+    if (!currentPlayer) return;
 
-    // probably need "client/socket id" from both client and save it into the "gamedata" object.
-    console.log("Let's go!");
-    console.log(currentPlayerObject);
-    const gameRoom: string = currentPlayerObject.gameID.toString();
-    console.log(gameRoom);
+    const gameRoom: string = currentPlayer.gameID;
+    let gameData: Game;
 
-    // Move the GAME LOOP(gameInterval) here so all the event listener/emitter will stay in this gateway file
-    // gameInterval will call "gameLogic" 30 times per second.
     const gameInterval = setInterval(async () => {
-      const gameData = this.gameService.gameLogic(client);
-      this.server.to(gameRoom).emit('updateGame', gameData);
-      // also need to ubpdate the paddle for both sides.
-      console.log(gameData);
+      gameData = await this.gameService.gameLogic(client);
       if (!gameData) {
         clearInterval(gameInterval);
         return;
       }
-      if (gameData.status === GameStatus.Ended) {
-        this.gameService.endGame(gameData);
+      if (gameData.leftPlayer === null || gameData.rightPlayer === null) {
         clearInterval(gameInterval);
+        return;
+      }
+      // also need to ubpdate the paddle for both sides.
+      if (gameData.status === GameStatus.Pause) {
+        this.server.to(gameRoom).emit('pause', this.pauseCounter);
+        this.pauseCounter--;
+        if (this.pauseCounter === 0) {
+          gameData.status = GameStatus.Ended;
+        }
+      } else if (gameData.status === GameStatus.Ended) {
+        this.server.to(gameRoom).emit('updateGame', gameData);
+        this.server.to(gameRoom).emit('ended', gameData);
+      } else {
+        this.pauseCounter = 300;
+        this.server.to(gameRoom).emit('updateGame', gameData);
+      }
+
+      if (gameData.status === GameStatus.Ended) {
+        clearInterval(gameInterval);
+        await this.gameService.endGame(gameData)
       }
     }, 1000 / 30);
+
 
     return { event: 'start game', socketID: client.id };
   }
@@ -305,11 +220,13 @@ export class SocketGateway implements OnGatewayConnection {
   */
 
   @SubscribeMessage('movePaddle')
-  handleMovePaddle(
+  async handleMovePaddle(
     client: Socket,
     payload: { key: string; gameID: string },
-  ): object {
-    const gameData = this.gameService.movePaddle(client, payload);
+  ): Promise<object> {
+    console.log("got moveP event!");
+    const gameData = await this.gameService.movePaddle(client, payload);
+    if (!gameData) return;
     let updateSide = '';
     console.log('game Data to sent: ', gameData);
 
