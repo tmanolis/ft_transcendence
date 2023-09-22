@@ -28,6 +28,23 @@ const StyledWhitePopUp = styled.div`
     max-height: 90vh;
     overflow-y: auto;
   }
+
+  h2 {
+    margin-top: 13px;
+    margin-bottom: 2px;
+    font-size: 30px;
+  }
+
+  h3 {
+    color: rgba(0, 0, 0, 0.60);
+    font-family: "JetBrains Mono",monospace;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    margin-top: 0px;
+    margin-left: 1px;
+    margin-bottom: 23px;
+  }
 `;
 
 const WhitePopUp: React.FC<WhitePopUpProps> = ({ children }) => {
