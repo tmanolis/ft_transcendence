@@ -17,7 +17,6 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
         const response = await axios.get(`${BASE_URL}/user/me`, {
           withCredentials: true,
         });
-        console.log("response: " + response.data.twoFAActivated);
         setIsChecked(response.data.twoFAActivated);
       } catch (error) {
         console.error(error);

@@ -37,10 +37,10 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
     if (error.response) {
       const status = error.response.status;
       if (status === 500) {
-        onError("Update failed. Please try again!");
+        onError("Username is already used");
       }
     } else {
-      onError("Network error occurred");
+      onError("Update failed. Please try again!");
     }
   };
 
