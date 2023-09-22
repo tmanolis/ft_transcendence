@@ -12,105 +12,104 @@ generator client {
 
 model User {
   /// basic info
-  id        			    String  @id @unique @default(uuid())
-  createdAt 			    DateTime @default(now())
-  email     			    String  @unique
-  userName  			    String  @unique
-  avatar    		  	  String  @default("defaultAvatar.jpg")
-  isFourtyTwoStudent  Boolean @default(false)
-  role      		  	  Role    @default(USER)
-  status    		 	    Status  @default(ONLINE)
+  id                 String   @id @unique @default(uuid())
+  createdAt          DateTime @default(now())
+  email              String   @unique
+  userName           String   @unique
+  avatar             String   @default("defaultAvatar.jpg")
+  isFourtyTwoStudent Boolean  @default(false)
+  status             Status   @default(ONLINE)
 
   /// authentification
-  password 	      String
-  twoFAActivated  Boolean @default(false)
-  twoFASecret     String?
+  password       String
+  twoFAActivated Boolean @default(false)
+  twoFASecret    String?
 
   /// community
-  friends     			    String[]
-  frienRequestsSent 	  String[]
-  friendReqestsReceived	String[]
-  rooms       			    RoomUser[]	@relation("userRoom")
+  friends               String[]
+  frienRequestsSent     String[]
+  friendReqestsReceived String[]
+  rooms                 RoomUser[] @relation("userRoom")
 
   /// statistics
-  gamesWon    	Int?
-  gamesLost   	Int?
-  ranking       Int?
-  achievements  Achievement[] @unique
+  gamesWon     Int?
+  gamesLost    Int?
+  ranking      Int?
+  achievements Achievement[] @unique
 
   ///historics
-  games   Game[]  @relation("player")
+  games Game[] @relation("player")
 }
 
 model jwtBlacklist {
-  id     Int       @id @default(autoincrement())
-  userID String	   @unique @default(uuid())
-  token  String    @unique
+  id     Int    @id @default(autoincrement())
+  userID String @unique @default(uuid())
+  token  String @unique
 }
 
 model Game {
-  gameId      Int       @id @default(autoincrement())
-  players     User[]    @relation("player")
-  winnerId    String
-  loserId     String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  gameId    Int      @id @default(autoincrement())
+  players   User[]   @relation("player")
+  winnerId  String
+  loserId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Room {
-  id        String   			@id @unique @default(uuid())
-	status		RoomStatus
-	password	String?
-	owner			String			  // stock e-mail (because user can't change it)
-	admins		String[]			// stock e-mail (because user can't change it)
-	blocked		String[]			// stock e-mail (because user can't change it)
-	muted			String[]			// stock e-mail (because user can't change it)
-	banned		String[]			// stock e-mail (because user can't change it)
-  createdAt DateTime  		@default(now())
-  messages  Message[]			@relation("message")
-  users     RoomUser[]		@relation("roomUser")
+  name      String     @id @unique @default(uuid())
+  status    RoomStatus
+  password  String?
+  owner     String // stock e-mail (because user can't change it)
+  createdAt DateTime   @default(now())
+  messages  Message[]  @relation("message")
+  users     RoomUser[] @relation("roomUser")
 }
 
 model RoomUser {
-	id				String		@id @unique @default(uuid())
-	user			User			@relation("userRoom", fields: [email], references: [email])
-	email			String
-	room			Room			@relation("roomUser", fields: [roomID], references: [id])
-	roomID		String
+  id       String  @id @unique @default(uuid())
+  user     User    @relation("userRoom", fields: [email], references: [email])
+  email    String
+  room     Room    @relation("roomUser", fields: [roomID], references: [name])
+  roomID   String
+  isMuted  Boolean @default(false)
+  isBanned Boolean @default(false)
+  role     Role    @default(USER)
 }
 
 model Message {
-  id          Int       @id @default(autoincrement())
-  text        String
-  sendtime    DateTime  @default(now())
-  sender    	String		// this is the username
-  room        Room      @relation("message", fields: [roomID], references: [id])
-  roomID      String		@unique
+  id       Int      @id @default(autoincrement())
+  text     String
+  sendtime DateTime @default(now())
+  sender   String // this is the username
+  room     Room     @relation("message", fields: [roomID], references: [name])
+  roomID   String   @unique
 }
 
 enum Role {
   USER
   ADMIN
+  OWNER
 }
 
 enum Status {
   ONLINE
-	AWAY
+  AWAY
   OFFLINE
   PLAYING
-	WAITING
+  WAITING
 }
 
 enum Achievement {
-	WINNER
-	FRIEND
-	TWOFA
-	JOIN
-	FIRST
+  WINNER
+  FRIEND
+  TWOFA
+  JOIN
+  FIRST
 }
 
 enum RoomStatus {
-	PUBLIC
-	PRIVATE
-	DIRECT
+  PUBLIC
+  PRIVATE
+  DIRECT
 }

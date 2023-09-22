@@ -9,7 +9,7 @@ import {
 	WebSocketServer } from "@nestjs/websockets";
 import { Socket, Server } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
-import { ChatUser, messageDTO } from "src/dto";
+import { ChatUser, joinRoomDTO, messageDTO } from "src/dto";
 
 @WebSocketGateway({
   cors: {
@@ -81,7 +81,13 @@ export class ChatGateway
   /* channels				  							                                          */
   /****************************************************************************/
 
-
+	@SubscribeMessage('joinChannel')
+	handleJoinChannel(
+		@ConnectedSocket() client: Socket,
+		@MessageBody(), joinDTO: joinRoomDTO,
+	){
+		this.chatService.joinChannel(joinDTO);
+	}
 
 
 

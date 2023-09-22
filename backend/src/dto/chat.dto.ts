@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
-import { Socket } from 'socket.io';
+import { RoomStatus } from '@prisma/client';
 
 export class messageDTO {
 	@ApiProperty({ description: 'roomname or emailuser1-emailuser2 for DM (alphabetic order)'})
@@ -28,7 +28,7 @@ export class createRoomDTO {
 	@ApiProperty({ description: 'status: private/public/direct' })
 	@IsNotEmpty()
 	@IsString()
-	status: string;
+	status: RoomStatus;
 
 	@ApiProperty({ description: 'only for private channels' })
 	@IsString()

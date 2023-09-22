@@ -91,66 +91,45 @@ export class ChatService {
   /* channels												                                          */
   /****************************************************************************/
 
-	// async createChannel(user: User, roomDTO: createRoomDTO){
-	// 	const existingRoom = await this.prisma.room.findUnique({
-	// 		where: {
-	// 			id: roomDTO.name,
-	// 		}
-	// 	})
+	async createChannel(user: User, roomDTO: createRoomDTO){
+		const existingRoom = await this.prisma.room.findUnique({
+			where: {
+				name: roomDTO.name,
+			}
+		})
 
-	// 	if (existingRoom){
-	// 		throw new ConflictException('Room already exists');
-	// 	}
-		
-	// 	const status: RoomStatus = this.convertRoomStatus(roomDTO);
-	// 	if (status === 'PRIVATE'){
-	// 		if (!roomDTO.password) throw new ForbiddenException('Password mandatory for private channel');
-	// 		else {
-	// 			roomDTO.password = await argon.hash(roomDTO.password);
-	// 		}
-	// 	};
+		if (existingRoom) throw new ConflictException('Room already exists');
 
-	// 	const newRoom = await this.prisma.room.create({
-	// 		data: {
-	// 			id: roomDTO.name,
-	// 			owner: user.email,
-	// 			admins: [user.email],
-	// 			password: roomDTO.password,
-	// 			status: status,
-	// 			users: {
-	// 				create: [{ 
-	// 					user: { 
-	// 						connect: { email: user.email } } }], 
-	// 			}
-	// 		}
-	// 	})
+		if (roomDTO.status === RoomStatus.PRIVATE){
+			if (!roomDTO.password) throw new ForbiddenException('Password mandatory for private channel');
+			else {
+				roomDTO.password = await argon.hash(roomDTO.password);
+			}
+		};
 
-	// 	return newRoom;
-	// }
+		const newRoom = await this.prisma.room.create({
+			data: {
+				...roomDTO,
+				owner: user.email,
+				users: {
+					create: [{ 
+						user: { 
+							connect: { email: user.email } } }], 
+				}
+			},
+			include: {
+				users: true,
+			}
+		});
 
-	// convertRoomStatus(roomDTO: createRoomDTO){
-	// 	let status: RoomStatus;
+		const { password, ...secureRoom } = newRoom;
+		return secureRoom;
 
-	// 	switch (roomDTO.status) {
-	// 		case 'public':
-	// 			status = 'PUBLIC';
-	// 			break;
-	// 		case 'private':
-	// 			if (!roomDTO.password) {
-	// 				throw new ForbiddenException('Private room needs to be password protected');
-	// 			}
-	// 			status = 'PRIVATE';
-	// 			break;
-	// 		case 'direct':
-	// 			status = 'DIRECT';
-	// 			break;
-	// 		default:
-	// 			throw new ForbiddenException('Invalid status');
-	// 	}
-	// 	return status;
-	// }
+		// still missing: way to make a temp room for direct messaging
+	}
 
-	// async joinChannel(user: User, roomDTO: joinRoomDTO){
+
+	async joinChannel(roomDTO: joinRoomDTO){
 	// 	const cacheUser: ChatUser = await this.fetchUser(user.email);
 	// 	console.log('email', user.email);
 	// 	console.log('chatuser', cacheUser);
@@ -190,7 +169,7 @@ export class ChatService {
 	// 	});
 
 	// 	return updatedRoom;
-	// }
+	}
 
 	/****************************************************************************/
   /* messages													                                        */
@@ -198,8 +177,6 @@ export class ChatService {
 
 	async handleMessage(message: messageDTO) {
 		console.log('INCOMING MESSAGE', '\nroom: ', message.room, '\ntext: ', message.text);
-		// const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
-		// const chatuser: ChatUser = this.fetchChatuser(jwtData.email);
 
 		const date: number = Date.now();
 		const newMessage: ChatMessage = {
