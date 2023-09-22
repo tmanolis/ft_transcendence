@@ -55,13 +55,15 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
 
   return (
     <CheckBoxWrapper>
-      <input type="checkbox"
-      id="2fa_checkbox"
-      checked={isChecked}
-      onChange={handleCheckboxChange} 
-      />
-      <label htmlFor="2fa_checkbox">enable_2fa</label>
-      <p>double factor authentification for maximum security</p>
+      <div>
+        <input type="checkbox"
+        id="2fa_checkbox"
+        checked={isChecked}
+        onChange={handleCheckboxChange} 
+        />
+        <label htmlFor="2fa_checkbox">enable_2fa</label>
+      </div>
+        <p>double factor authentification for maximum security</p>
     </CheckBoxWrapper>
   );
 };
