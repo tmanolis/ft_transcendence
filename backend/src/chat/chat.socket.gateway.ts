@@ -1,11 +1,13 @@
+import { OnModuleInit } from "@nestjs/common";
 import { 
 	ConnectedSocket,
 	MessageBody,
 	OnGatewayConnection, 
 	OnGatewayDisconnect, 
 	SubscribeMessage, 
-	WebSocketGateway } from "@nestjs/websockets";
-import { Socket } from 'socket.io';
+	WebSocketGateway,
+	WebSocketServer } from "@nestjs/websockets";
+import { Socket, Server } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
 import { ChatUser, messageDTO } from "src/dto";
 
@@ -16,16 +18,24 @@ import { ChatUser, messageDTO } from "src/dto";
 	namespace: 'chat',
 })
 
-export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway 
+	implements 
+		OnGatewayConnection, 
+		OnGatewayDisconnect {
 	constructor(
 		private readonly chatService: ChatService,
-	) {	}
+		) {	}
+
+	async afterInit(server: any) {
+    this.chatService.server = server;
+  }
 
 	/****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
 	async handleConnection(@ConnectedSocket() client: Socket) {
 		this.chatService.newConnection(client);
+		client.join('randomRoom');
 
 		// const chatHistory = this.chatService.userMessageHistory(user)
 		// client.emit('updateChatHistory', chatHistory);
@@ -37,7 +47,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log('chatuser disconnected: ', client.id);
 	}
 
-
   /****************************************************************************/
   /* messages											                											      */
   /****************************************************************************/
@@ -47,14 +56,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		@ConnectedSocket() client: Socket,
 		@MessageBody() message: messageDTO,
 	){
-		this.chatService.createMessage(client, message);
-		// const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		// const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
-		// const params = client.handshake.query;
-		// const room: string = Array.isArray(params.room) ? params.room[0] : params.room;
-		
-		// this.chatService.createMessage(user, room, message);
-    // return { event: 'user message received', socketID: client.id };
+		await this.chatService.handleMessage(message);
   }
 
 	// @SubscribeMessage('updateHistory')

@@ -2,11 +2,12 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from 'cache-manager';
 import { BadRequestException, ConflictException, ForbiddenException, Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "nestjs-prisma";
-import { ChatUser, messageDTO, createRoomDTO, joinRoomDTO } from "src/dto";
+import { ChatUser, messageDTO, createRoomDTO, joinRoomDTO, ChatMessage } from "src/dto";
 import { User, Message, RoomStatus, Room } from '@prisma/client';
 import * as argon from 'argon2';
-import { Socket } from 'socket.io';
+import { Socket, Server } from 'socket.io';
 import { JwtService } from "@nestjs/jwt";
+import { WebSocketServer } from "@nestjs/websockets";
 
 @Injectable()
 export class ChatService {
@@ -16,7 +17,9 @@ export class ChatService {
 		private prisma: PrismaService,
 		private readonly jwtService: JwtService,
 	) {}
-
+	
+	@WebSocketServer()
+	server: Server;
 
 	/****************************************************************************/
   /* handle connection/disconnection                                          */
@@ -193,25 +196,27 @@ export class ChatService {
   /* messages													                                        */
   /****************************************************************************/
 
-	createMessage(client: Socket, message: messageDTO) {
+	async handleMessage(message: messageDTO) {
 		console.log('INCOMING MESSAGE', '\nroom: ', message.room, '\ntext: ', message.text);
+		// const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
+		// const chatuser: ChatUser = this.fetchChatuser(jwtData.email);
 
-		// const room = this.prisma.room.findUnique({
-		// 	where: {
-		// 		id: roomName,
-		// 	}
-		// })
+		const date: number = Date.now();
+		const newMessage: ChatMessage = {
+			room: message.room,
+			date: date,
+			sender: message.sender,
+			text: message.text,
+		}
 
-		// // if (user is blocked){
-		// // 	throw new ForbiddenException('user has been blocked')
-		// // }
+		// check if room exists? 
+		// check if user is in room?
 
-		// // if (room doesn't exist){
-		// // 	throw new BadRequestException('room does not exist')
-		// // }
+		const roomHistory: string = await this.cacheManager.get('room' + message.room);
+		const newRoomhistory: string = JSON.stringify(newMessage) + roomHistory || '';
+		await this.cacheManager.set('room', newRoomhistory);
 
-		// // save in prisma
-		// return true;
+		this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
 	}
 
 	// async roomMessageHistory(roomName: string): Promise<Message[]> {

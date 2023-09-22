@@ -3,10 +3,17 @@ import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 import { Socket } from 'socket.io';
 
 export class messageDTO {
+	@ApiProperty({ description: 'roomname or emailuser1-emailuser2 for DM (alphabetic order)'})
 	@IsString()
 	@IsNotEmpty()
 	room: string;
 	
+	@ApiProperty({ description: 'current username of sender'})
+	@IsString()
+	@IsNotEmpty()
+	sender: string;
+
+	@ApiProperty({ description: 'message (max 128 characters)'})
 	@MaxLength(128)
 	@IsString()
 	text: string;
@@ -48,6 +55,15 @@ export class ChatUser {
 		public socketID: string,
 		public userName: string,
 		public rooms: string[],
+	) {}
+}
+
+export class ChatMessage {
+	constructor(
+		public room: string,
+		public date: number,
+		public sender: string,
+		public text: string,
 	) {}
 }
 
