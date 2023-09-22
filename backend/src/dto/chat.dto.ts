@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 export class messageDTO {
 	@IsString()
 	@IsNotEmpty()
-	sender: string;
+	room: string;
 	
 	@MaxLength(128)
 	@IsString()

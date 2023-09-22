@@ -77,7 +77,7 @@ export class AuthService {
         },
       });
       token = await this.signToken(user.id, user.email);
-      res.cookie('jwt', token).redirect('/hello');
+      res.cookie('jwt', token).send({ status: 'logged in' });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');

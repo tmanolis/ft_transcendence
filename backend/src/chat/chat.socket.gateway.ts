@@ -5,7 +5,6 @@ import {
 	OnGatewayDisconnect, 
 	SubscribeMessage, 
 	WebSocketGateway } from "@nestjs/websockets";
-import { JwtService } from "@nestjs/jwt";
 import { Socket } from 'socket.io';
 import { ChatService } from "src/chat/chat.service";
 import { ChatUser, messageDTO } from "src/dto";
@@ -20,84 +19,61 @@ import { ChatUser, messageDTO } from "src/dto";
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly chatService: ChatService,
-		private readonly jwtService: JwtService,
 	) {	}
 
 	/****************************************************************************/
   /* handle connection/disconnection                                          */
   /****************************************************************************/
 	async handleConnection(@ConnectedSocket() client: Socket) {
-    const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		const user: ChatUser = await this.chatService.newConnection(client.id, jwtData.email);
-		if (!user){
-			client.emit('chat', 'accessDenied', { message: 'Your account has been deleted. Please register again.' });
-			client.disconnect();
-			return;
-		}
+		this.chatService.newConnection(client);
 
-		for (const room of user.rooms){
-			client.join(room);
-		}
-
-		const chatHistory = this.chatService.userMessageHistory(user)
-		client.emit('updateChatHistory', chatHistory);
+		// const chatHistory = this.chatService.userMessageHistory(user)
+		// client.emit('updateChatHistory', chatHistory);
 	}
 
 	async handleDisconnect(@ConnectedSocket() client: Socket) {
 		// not sure if we have to do anything here...
 		// maybe save all chat history if we decide to use the cache
-		console.log(client.id, ' disconnected from generic socket. 0.0');
-	}
-
-	verifyJWT(client: Socket){
-		const jwt = client.handshake.headers.authorization;
-
-		if (jwt === 'undefined' || jwt === null){
-			client.emit('accessDenied', { message: 'Authentification failed, please log in again.' });
-			client.disconnect();
-			return;
-		} else {
-				return (this.jwtService.decode(jwt));
-		}
+		console.log('chatuser disconnected: ', client.id);
 	}
 
 
-	/****************************************************************************/
-  /* messages											                                            */
+  /****************************************************************************/
+  /* messages											                											      */
   /****************************************************************************/
 	
-	@SubscribeMessage('message')
+	@SubscribeMessage('sendMessage')
   async handleMessageReceived(
 		@ConnectedSocket() client: Socket,
 		@MessageBody() message: messageDTO,
 	){
-		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
-		const params = client.handshake.query;
-		const room: string = Array.isArray(params.room) ? params.room[0] : params.room;
+		this.chatService.createMessage(client, message);
+		// const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+		// const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
+		// const params = client.handshake.query;
+		// const room: string = Array.isArray(params.room) ? params.room[0] : params.room;
 		
-		this.chatService.createMessage(user, room, message);
-    return { event: 'user message received', socketID: client.id };
+		// this.chatService.createMessage(user, room, message);
+    // return { event: 'user message received', socketID: client.id };
   }
 
-	@SubscribeMessage('updateHistory')
-	async handleUpdateHistor(
-		@ConnectedSocket() client: Socket){
-			const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-			const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
-			try {
-				const messageHistory = await this.chatService.userMessageHistory(user);
+	// @SubscribeMessage('updateHistory')
+	// async handleUpdateHistor(
+	// 	@ConnectedSocket() client: Socket){
+	// 		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
+	// 		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
+	// 		try {
+	// 			const messageHistory = await this.chatService.userMessageHistory(user);
 		
-				if (messageHistory) {
-					client.emit('updateHistory', messageHistory);
-				} else {
-					client.emit('updateHistory', []);
-				}
-			} catch (error) {
-				client.emit('errorUpdateHistory', error);
-			}	
-	}
-
+	// 			if (messageHistory) {
+	// 				client.emit('updateHistory', messageHistory);
+	// 			} else {
+	// 				client.emit('updateHistory', []);
+	// 			}
+	// 		} catch (error) {
+	// 			client.emit('errorUpdateHistory', error);
+	// 		}	
+	// }
 
 	/****************************************************************************/
   /* channels				  							                                          */
