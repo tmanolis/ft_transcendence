@@ -35,9 +35,9 @@
 	
 		createChannel(room, status)
 		- creates a channel, either for DM's or channels
-		- sets creator as channel owner and administrator
-		- sets channel to either public, private or password protected
-		- if password protected, sets password
+		- sets creator as channel owner
+		- sets channel to either public, private or direct
+		- if private, sets password
 	
 		joinChannel(room)
 		- checks if channel exists

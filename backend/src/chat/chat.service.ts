@@ -39,16 +39,13 @@ export class ChatService {
 		}
 
 		// check if user exists in prisma
-		const prismaUser: User = await this.prisma.user.findUnique({
-			where: {
-				email: jwtData.email,
-			}
-		})
+		const prismaUser: User = await this.fetchPrismaUser(jwtData.email);
 
 		// create new user or disconnect
 		if (!prismaUser){
 			client.emit('chat', 'accessDenied', {message: 'Account not found, please reconnect.'})
 			client.disconnect();
+			return;
 		} else {
 			const newChatUser = new ChatUser(prismaUser.email, client.id, prismaUser.userName, []);
 			console.log('creating new chat user:', prismaUser.email);
@@ -77,6 +74,14 @@ export class ChatService {
 		} 
 		
 		return null;
+	}
+
+	async fetchPrismaUser(email: string): Promise<User | null>{
+		return await this.prisma.user.findUnique({
+			where: {
+				email: email,
+			}
+		});
 	}
 
 	async reconnectChatuser(user: ChatUser, socket: Socket){
@@ -115,7 +120,8 @@ export class ChatService {
 				users: {
 					create: [{ 
 						user: { 
-							connect: { email: user.email } } }],
+							connect: { email: user.email } },
+						role: 'OWNER' }],
 				}
 			},
 			include: {
@@ -123,20 +129,71 @@ export class ChatService {
 			}
 		});
 
+		// sending a little welcome message
+		const welcomeMessage: messageDTO = {
+			room: roomDTO.name,
+			sender: 'PongStoryShort',
+			text: 'Congratulations! You have successfully created a channel.'
+		}
+		this.handleMessage(welcomeMessage);
+		
 		const { password, ...secureRoom } = newRoom;
 		return secureRoom;
 
 		// still missing: 
 		// * way to make a temp room for direct messaging
 		// * join chatuser in gateway
-		// * new roomUser should get role owner
 	}
 
 
 	async joinChannel(client: Socket, roomDTO: joinRoomDTO){
 		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
 		const chatuser: ChatUser = await this.fetchChatuser(jwtData.email);
+		const prismaUser = await this.fetchPrismaUser(chatuser.email);
 
+		try{
+			await this.securityCheckJoinChannel(chatuser, prismaUser, roomDTO);
+			// joining socket to room
+			client.join(roomDTO.name);
+	
+			// adding roomuser in prisma
+			const updatedRoom = await this.prisma.room.update({
+				where: {
+					name: roomDTO.name,
+				},
+				data: {
+					users: {
+						create: [{ 
+							user: { 
+								connect: { email: chatuser.email } } }], 
+					}
+				},
+				include: {
+					users: true,
+				}
+			});
+			
+			// updating cache
+			chatuser.rooms.push(joinRoomDTO.name);
+			await this.cacheManager.set('chat' + chatuser.email, JSON.stringify(chatuser));
+		
+			// sending a little welcome message
+			const welcomeMessage: messageDTO = {
+				room: roomDTO.name,
+				sender: 'PongStoryShort',
+				text: 'Please welcome ' + prismaUser.userName + ' to this channel!'
+			}
+			await this.handleMessage(welcomeMessage);
+		} catch (error){
+			throw error;
+		}
+
+	}
+
+	async securityCheckJoinChannel(chatuser: ChatUser, prismaUser: User, roomDTO: joinRoomDTO){
+		// check if user exists
+		if (!prismaUser) throw new BadRequestException('Your account has been deleted. Please register again.');
+		
 		// check if room exists
 		const room = await this.prisma.room.findUnique({
 			where: {
@@ -145,56 +202,33 @@ export class ChatService {
 				users: true,
 			}
 		})
-		if (!room) throw new BadRequestException('Room does not exist');
+		if (!room) throw new BadRequestException('This channel does not exist');
 
 		// check if user hasn't been banned
 		const userInRoom = await room.users.find((roomUser: RoomUser) => {
 			return roomUser.email === chatuser.email;
 		});
 		if (userInRoom && userInRoom.isBanned) throw new ForbiddenException('Oh oh, you are banned from this channel')
+
+		// check if user is already in channel
 		else if (userInRoom) throw new ForbiddenException('You are already in this room');
 
 		// check if room is joinable
-		if (room.status === RoomStatus.DIRECT) throw new ForbiddenException('Not possible to join ');
+		if (room.status === RoomStatus.DIRECT) throw new ForbiddenException('Not possible to join a private conversation');
 
+		// check if password is correct for private room
 		if (room.status === RoomStatus.PRIVATE){
 			const passwordMatches = await argon.verify(room.password, roomDTO.password);
 			if (!passwordMatches) throw new ForbiddenException('Password incorrect');
+		}
 	}
-
-		// joining in socket
-		client.join(roomDTO.name);
-		const updatedRoom = await this.prisma.room.update({
-			where: {
-				name: roomDTO.name,
-			},
-			data: {
-				users: {
-					create: [{ 
-						user: { 
-							connect: { email: chatuser.email } } }], 
-				}
-			},
-			include: {
-				users: true,
-			}
-		});
-
-
-	// 	cacheUser.rooms.push(joinRoomDTO.name);
-	// 	await this.cacheManager.set('chat' + user.email, JSON.stringify(cacheUser));
-		console.log(updatedRoom);
-		return updatedRoom;
-	}
-
-
+	
+	
 	/****************************************************************************/
   /* messages													                                        */
   /****************************************************************************/
 
 	async handleMessage(message: messageDTO) {
-		console.log('INCOMING MESSAGE', '\nroom: ', message.room, '\ntext: ', message.text);
-
 		const date: number = Date.now();
 		const newMessage: ChatMessage = {
 			room: message.room,
