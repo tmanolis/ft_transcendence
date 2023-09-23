@@ -38,7 +38,7 @@ export class GameService {
       return 'failed';
     }
     jwtData = this.jwtService.decode(jwt);
-    if (typeof jwtData !== 'object') {
+    if (!jwtData || typeof jwtData !== 'object') {
       return 'failed';
     }
     const user = await this.getUserByEmail(jwtData.email);
@@ -144,6 +144,19 @@ export class GameService {
   /****************************************************************************/
   // Create, Update Player(before finding a game)
   /****************************************************************************/
+  async getPlayerByEmail(email: string): Promise<Player> {
+    let player: Player;
+    const playerString: string = await this.cacheManager.get(`game${email}`);
+    if (playerString) { 
+      try {
+        player = JSON.parse(playerString);
+      } catch(error) {
+        console.log(error);
+      }
+    }
+    return player;
+  }
+
   async getSocketPlayer(client: Socket) {
     let player: Player;
     const playerEmail: string = await this.cacheManager.get(client.id);
@@ -242,7 +255,60 @@ export class GameService {
     console.log("game CREATEEEDDDD!!!!!!");
     return newGame;
   }
-  
+
+  /****************************************************************************/
+  // INVITE
+  /****************************************************************************/
+  async checkInvitedUserStatus(client: Socket, userEmail: string): Promise<string> {
+    let result: string;
+    const invitingUser: User = await this.getSocketUser(client);
+    const invitedUser: User = await this.getUserByEmail(userEmail);
+    if (invitedUser && invitingUser) {
+      if (invitedUser.email === invitingUser.email) {
+        result = 'Can not invite your self.';
+      } else if (invitedUser.status === 'ONLINE') {
+        result = invitedUser.status;
+      } else {
+        result = 'User not available.';
+      }
+    } else {
+      result = 'User not found.';
+    }
+    return result;
+  }
+
+  async createInvitingGame(player: Player): Promise<Game> {
+    const gameID = `game${player.socketID}`;
+    const newGame = new Game(
+      gameID,
+      1,
+      player,
+      null,
+      [8, 8],
+      { x: 400, y: 400 },
+      { x: 3, y: 3 },
+      this.generateAngle(1, 1),
+      GameStatus.Waiting,
+    );
+    player.gameID = gameID;
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: player.email,
+        },
+        data: {
+          status: 'WAITING',
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    this.cacheManager.set(gameID, JSON.stringify(newGame));
+    this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
+    await this.cacheManager.set(`invite${player.email}`, JSON.stringify(player));
+    return newGame;
+  }
+
   /****************************************************************************/
   /* GAME INIT                                                                */
   /****************************************************************************/
