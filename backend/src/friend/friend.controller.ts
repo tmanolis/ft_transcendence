@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Post,
   Patch,
   UseGuards,
   UseInterceptors,
@@ -9,6 +10,7 @@ import {
   BadRequestException,
   Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 
@@ -43,4 +45,43 @@ export class FriendController {
   async getSentRequests(@GetUser() user: User) {
     return { sentRequests: user.friendRequestsSent };
   }
+
+  /*****************************************************************************/
+  // POST 
+  /*****************************************************************************/
+  // Send request
+  @Post('sendFriendRequest')
+  async sendFriendRequest(
+    @GetUser() user: User,
+    @Body() payload: { userEmail: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.sendFriendRequest(
+      user,
+      payload,
+      res,
+    );
+    res.status(result.statusCode).send({ status: result.status, message: result.message });
+  }
+
+  /*****************************************************************************/
+  // PATCH
+  /*****************************************************************************/
+  // Cancel request
+  @Patch('cancelFriendRequest')
+  async cancelFriendRequest(
+    @GetUser() user: User,
+    @Body() payload: { userEmail: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.cancelFriendRequest(
+      user,
+      payload,
+      res,
+    );
+    res.status(result.statusCode).send({ status: result.status, message: result.message });
+  }
+
+
+
 }
