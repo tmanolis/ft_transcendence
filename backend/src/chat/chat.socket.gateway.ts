@@ -81,6 +81,18 @@ export class ChatGateway
   /* channels				  							                                          */
   /****************************************************************************/
 	
+	@SubscribeMessage('createChannel')
+	async handleCreateChannel(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() createDTO: createRoomDTO,
+	){
+		try{
+			await this.chatService.createChannel(client, createDTO);
+		} catch (error){
+			client.emit('createChannelError', { message: error.message });
+		}
+	}
+
 	@SubscribeMessage('joinChannel')
 	async handleJoinChannel(
 		@ConnectedSocket() client: Socket,

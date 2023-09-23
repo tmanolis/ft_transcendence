@@ -97,30 +97,29 @@ export class ChatService {
   /* channels												                                          */
   /****************************************************************************/
 
-	async createChannel(user: User, roomDTO: createRoomDTO){
-		const existingRoom = await this.prisma.room.findUnique({
-			where: {
-				name: roomDTO.name,
-			}
-		})
+	async createChannel(client: Socket, roomDTO: createRoomDTO){
+		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
+		const chatuser: ChatUser = await this.fetchChatuser(jwtData.email);
+		const prismaUser = await this.fetchPrismaUser(chatuser.email);
 
-		if (existingRoom) throw new ConflictException('Room already exists');
+		try{
+			await this.securityCheckCreateChannel(chatuser, prismaUser, roomDTO);
+		} catch(error){
+			throw error;
+		}
 
-		if (roomDTO.status === RoomStatus.PRIVATE){
-			if (!roomDTO.password) throw new ForbiddenException('Password mandatory for private channel');
-			else {
-				roomDTO.password = await argon.hash(roomDTO.password);
-			}
-		};
+		// join socket to room
+		client.join(roomDTO.name);
 
+		// create new room
 		const newRoom = await this.prisma.room.create({
 			data: {
 				...roomDTO,
-				owner: user.email,
+				owner: chatuser.email,
 				users: {
 					create: [{ 
 						user: { 
-							connect: { email: user.email } },
+							connect: { email: chatuser.email } },
 						role: 'OWNER' }],
 				}
 			},
@@ -129,6 +128,10 @@ export class ChatService {
 			}
 		});
 
+		// updating cache
+		chatuser.rooms.push(joinRoomDTO.name);
+		await this.cacheManager.set('chat' + chatuser.email, JSON.stringify(chatuser));
+
 		// sending a little welcome message
 		const welcomeMessage: messageDTO = {
 			room: roomDTO.name,
@@ -136,58 +139,70 @@ export class ChatService {
 			text: 'Congratulations! You have successfully created a channel.'
 		}
 		this.handleMessage(welcomeMessage);
-		
-		const { password, ...secureRoom } = newRoom;
-		return secureRoom;
 
 		// still missing: 
 		// * way to make a temp room for direct messaging
-		// * join chatuser in gateway
 	}
 
+	async securityCheckCreateChannel(chatuser, prismaUser, roomDTO){
+		// check if room exists
+		const existingRoom = await this.prisma.room.findUnique({
+			where: {
+				name: roomDTO.name,
+			}
+		})
+		if (existingRoom) throw new ConflictException('Room already exists');
+	
+		// check password for private room
+		if (roomDTO.status === RoomStatus.PRIVATE){
+			if (!roomDTO.password) throw new ForbiddenException('Password mandatory for private channel');
+			else {
+				roomDTO.password = await argon.hash(roomDTO.password);
+			}
+		};
+	}
 
-	async joinChannel(client: Socket, roomDTO: joinRoomDTO){
+	async joinChannel(client: Socket, roomDTO: joinRoomDTO){		
 		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = await this.getJWTData(client);
 		const chatuser: ChatUser = await this.fetchChatuser(jwtData.email);
 		const prismaUser = await this.fetchPrismaUser(chatuser.email);
-
+		
 		try{
 			await this.securityCheckJoinChannel(chatuser, prismaUser, roomDTO);
-			// joining socket to room
-			client.join(roomDTO.name);
-	
-			// adding roomuser in prisma
-			const updatedRoom = await this.prisma.room.update({
-				where: {
-					name: roomDTO.name,
-				},
-				data: {
-					users: {
-						create: [{ 
-							user: { 
-								connect: { email: chatuser.email } } }], 
-					}
-				},
-				include: {
-					users: true,
-				}
-			});
-			
-			// updating cache
-			chatuser.rooms.push(joinRoomDTO.name);
-			await this.cacheManager.set('chat' + chatuser.email, JSON.stringify(chatuser));
-		
-			// sending a little welcome message
-			const welcomeMessage: messageDTO = {
-				room: roomDTO.name,
-				sender: 'PongStoryShort',
-				text: 'Please welcome ' + prismaUser.userName + ' to this channel!'
-			}
-			await this.handleMessage(welcomeMessage);
 		} catch (error){
 			throw error;
 		}
+		// joining socket to room
+		client.join(roomDTO.name);
 
+		// adding roomuser in prisma
+		const updatedRoom = await this.prisma.room.update({
+			where: {
+				name: roomDTO.name,
+			},
+			data: {
+				users: {
+					create: [{ 
+						user: { 
+							connect: { email: chatuser.email } } }], 
+				}
+			},
+			include: {
+				users: true,
+			}
+		});
+		
+		// updating cache
+		chatuser.rooms.push(joinRoomDTO.name);
+		await this.cacheManager.set('chat' + chatuser.email, JSON.stringify(chatuser));
+	
+		// sending a little welcome message
+		const welcomeMessage: messageDTO = {
+			room: roomDTO.name,
+			sender: 'PongStoryShort',
+			text: 'Please welcome ' + prismaUser.userName + ' to this channel!'
+		}
+		await this.handleMessage(welcomeMessage);
 	}
 
 	async securityCheckJoinChannel(chatuser: ChatUser, prismaUser: User, roomDTO: joinRoomDTO){

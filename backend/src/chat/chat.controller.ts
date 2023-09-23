@@ -14,16 +14,16 @@ export class ChatController {
 		private chatService: ChatService,
 		) {}
 		
-		@ApiOperation({ description: 'Create room' })
-		@ApiOkResponse({
-			description:
-      'Creates room for direct messaging or channel.',
-		})
-		@Post('create-channel')
-		handleCreateChannel(@GetUser() user: User, @Body() dto: createRoomDTO){
-			console.log('dto', dto);
-			return this.chatService.createChannel(user, dto);
-		}
+		// @ApiOperation({ description: 'Create room' })
+		// @ApiOkResponse({
+		// 	description:
+    //   'Creates room for direct messaging or channel.',
+		// })
+		// @Post('create-channel')
+		// handleCreateChannel(@GetUser() user: User, @Body() dto: createRoomDTO){
+		// 	console.log('dto', dto);
+		// 	return this.chatService.createChannel(user, dto);
+		// }
 
 		// @ApiOperation({ description: 'Join room' })
 		// @ApiOkResponse({
