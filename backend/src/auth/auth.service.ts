@@ -24,10 +24,7 @@ export class AuthService {
   async fourtyTwoLogin(res: any, dto: AuthDto, accessToken: string) {
     let user = await this.prisma.user.findFirst({
       where: {
-        OR: [
-					{ email: dto.email }, 
-					{ userName: dto.userName }
-				],
+        OR: [{ email: dto.email }, { userName: dto.userName }],
       },
     });
 
