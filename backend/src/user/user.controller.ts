@@ -52,7 +52,7 @@ export class UserController {
   }
 
   // get all active user on the server
-  @Get('allUsers')
+  @Get('all-users')
   @ApiOkResponse({
     description: 'Returns all users public data',
   })
