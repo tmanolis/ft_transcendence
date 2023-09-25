@@ -49,6 +49,7 @@ const Authentification = () => {
         createPortal(
           <Modal2FA onCancel={handleButtonClick} nonce={nonce2FA}>
             <h2>2FA Authentification</h2>
+            <p>Please enter your code</p>
           </Modal2FA>,
           document.body
         )}

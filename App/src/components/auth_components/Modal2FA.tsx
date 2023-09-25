@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-
-import "./styles/Modal2FA.styled.css";
-import InputSettings from "../settings_components/styles/InputSettings.styled";
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
 import { useNavigate } from "react-router";
+import Input from "./styles/Input.styled";
+import { ModalContainer, PopUpWrapper } from "./styles/Modal2FA.styled";
+import Button from "./styles/Button.styled";
 
 interface Modal2FAProps {
 	onCancel: () => void;
@@ -50,25 +50,22 @@ interface Modal2FAProps {
 	};
 
 	return (
-		<div className="modal-container">
-		<div className="modal">
-			<div className="modal-content">
+		<ModalContainer>
+			<PopUpWrapper>
 				{children}
-				<InputSettings
+				<Input
 				type="text"
 				value={inputValue}
 				onChange={(e) => setInputValue(e.target.value)} // Update inputValue
-				placeholder="<Enter code>"
-				// style={{ border: "1px solid #fff", borderRadius: "5px", color: "white", margin: "3px" }}
+				placeholder="Enter code here"
 				/>
 				{errorResponse && (
 				<div style={{ color: "red", fontSize: "12px" }}>{errorResponse}</div>)}
-			</div>
-			<div className="modal-footer">
-			<ConfirmButton type="button" onClick={onCancel}>Cancel</ConfirmButton>
-        	<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
-			</div>
-		</div>
-		</div>
+				<div>
+					<Button type="button" onClick={onCancel}>Cancel</Button>
+					<Button type="submit" onClick={handleConfirmClick}>Confirm</Button>
+				</div>
+			</PopUpWrapper>
+		</ModalContainer>
 	);
 };
