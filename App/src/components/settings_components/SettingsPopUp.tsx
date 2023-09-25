@@ -13,6 +13,7 @@ const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");
   const [updateError, setUpdateError] = useState("");
   const [updateSuccess, setUpdateSuccess] = useState("");
+  const [username, setUsername] = useState("");
   const [is42Student, set42IsStudent] = useState(false);
   
   const handleQRcode = (path: string) => {
@@ -33,6 +34,7 @@ const SettingsPopUp: React.FC = () => {
     axios.get("http://localhost:3000/user/me", { withCredentials: true })
       .then((response) => {
         console.log(response.data.isFourtyTwoStudent);
+        setUsername(response.data.userName);
         set42IsStudent(response.data.isFourtyTwoStudent);
       })
       .catch((error) => {
@@ -42,7 +44,7 @@ const SettingsPopUp: React.FC = () => {
 
   return (
     <>
-    {QRCode && <QRCodePopup QRCode={QRCode} />}
+    {QRCode && <QRCodePopup QRCode={QRCode} username={username}/>}
     <WhitePopUp>
       <h2>Settings</h2>
       <h3>Manage your informations and security</h3>

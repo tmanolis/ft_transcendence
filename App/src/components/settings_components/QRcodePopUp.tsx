@@ -6,9 +6,10 @@ import InputSettings from './styles/InputSettings.styled';
 
 interface QRCodePopupProps {
   QRCode: string;
+  username: string;
 }
 
-const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode }) => {
+const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode, username }) => {
   const [inputValue, setInputValue] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
@@ -20,7 +21,8 @@ const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode }) => {
 
     console.log("inputValue: " + inputValue);
     const updateDTO = {
-      code: inputValue
+      code: inputValue,
+      userName: username
     };
 
     try {
