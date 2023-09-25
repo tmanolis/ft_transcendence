@@ -5,7 +5,7 @@ import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
-import fourtyTwoLogo from "../assets/42_logo.png";
+import fourtyTwoLogo from "../../assets/42_logo.png";
 
 export type LoginFormProps = {
   onLinkClick: () => void;
