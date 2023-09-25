@@ -29,7 +29,7 @@ model User {
   friends               String[]
   frienRequestsSent     String[]
   friendReqestsReceived String[]
-  rooms                 RoomUser[] @relation("userRoom")
+  rooms                 UserInRoom[] @relation("connecting User to UserInRoom")
 
   /// statistics
   gamesWon     Int?
@@ -57,20 +57,20 @@ model Game {
 }
 
 model Room {
-  name      String     @id @unique @default(uuid())
+  name      String     		@id @unique @default(uuid())
   status    RoomStatus
   password  String?
-  owner     String // stock e-mail (because user can't change it)
-  createdAt DateTime   @default(now())
-  messages  Message[]  @relation("message")
-  users     RoomUser[] @relation("roomUser")
+  owner     String 				// this is user e-mail (because they can not change it)
+  createdAt DateTime   		@default(now())
+  messages  Message[]  		@relation("message")
+  users     UserInRoom[] 	@relation("connecting Room to UserInRoom")
 }
 
-model RoomUser {
+model UserInRoom {
   id       String  @id @unique @default(uuid())
-  user     User    @relation("userRoom", fields: [email], references: [email])
+  user     User    @relation("connecting User to UserInRoom", fields: [email], references: [email])
   email    String
-  room     Room    @relation("roomUser", fields: [roomID], references: [name])
+  room     Room    @relation("connecting Room to UserInRoom", fields: [roomID], references: [name])
   roomID   String
   isMuted  Boolean @default(false)
   isBanned Boolean @default(false)
@@ -81,7 +81,7 @@ model Message {
   id       Int      @id @default(autoincrement())
   text     String
   sendtime DateTime @default(now())
-  sender   String // this is the username
+  sender   String 	// this is the username
   room     Room     @relation("message", fields: [roomID], references: [name])
   roomID   String   @unique
 }
