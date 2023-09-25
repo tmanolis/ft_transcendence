@@ -1,6 +1,6 @@
 import {
   ForbiddenException,
-	Inject,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -20,8 +20,8 @@ import { time } from 'console';
 @Injectable()
 export class AuthService {
   constructor(
-		@Inject(CACHE_MANAGER)
-		private readonly cacheManager: Cache,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
@@ -106,20 +106,26 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-			const nonce: string = this.generateRandomNonce(16);
-			const timestamp: number = new Date().getTime();
-			await this.cacheManager.set(nonce, JSON.stringify({username: user.userName, timestamp: timestamp}));
-      console.log('cache set with: ', nonce, {username: user.userName, timestamp: timestamp});
-			return res.send({ event: '2fa needed', nonce: nonce });
+      const nonce: string = this.generateRandomNonce(16);
+      const timestamp: number = new Date().getTime();
+      await this.cacheManager.set(
+        nonce,
+        JSON.stringify({ username: user.userName, timestamp: timestamp }),
+      );
+      console.log('cache set with: ', nonce, {
+        username: user.userName,
+        timestamp: timestamp,
+      });
+      return res.send({ event: '2fa needed', nonce: nonce });
     }
     await this.updateAfterLogin(user, res);
     return user;
   }
 
-	generateRandomNonce(length: number){
-		const crypto = require('crypto');
-		return crypto.randomBytes(length).toString('hex');
-	}
+  generateRandomNonce(length: number) {
+    const crypto = require('crypto');
+    return crypto.randomBytes(length).toString('hex');
+  }
 
   async handleLogout(user: User, res: any, req: any) {
     await this.prisma.user.update({
@@ -141,13 +147,14 @@ export class AuthService {
 
   async twoFAVerify(res: any, dto: VerifyTwoFADTO) {
     try {
-			// get username with nonce and check if 5 minutes haven't passed
-			const cache: string = await this.cacheManager.get(dto.nonce);
-			const nonceObject: {username: string, timestamp: number} = JSON.parse(cache);
-			const now = new Date().getTime();
-			if ((now - nonceObject.timestamp) >= 300000){
-				throw new ForbiddenException('2FA time out, please log in again.');
-			}
+      // get username with nonce and check if 5 minutes haven't passed
+      const cache: string = await this.cacheManager.get(dto.nonce);
+      const nonceObject: { username: string; timestamp: number } =
+        JSON.parse(cache);
+      const now = new Date().getTime();
+      if (now - nonceObject.timestamp >= 300000) {
+        throw new ForbiddenException('2FA time out, please log in again.');
+      }
 
       const user = await this.prisma.user.findUnique({
         where: {
@@ -159,28 +166,28 @@ export class AuthService {
 
       if (validatedUser) {
         this.updateAfterLogin(user, res);
-				return res.send({ event: '2fa ok' });
-			}
+        return res.send({ event: '2fa ok' });
+      }
     } catch (error) {
       throw new Error(error.message);
     }
   }
 
-	async twoFAEnable(user: User, res: any, dto: EnableTwoFADTO) {
+  async twoFAEnable(user: User, res: any, dto: EnableTwoFADTO) {
     try {
       const validatedUser = await this.twoFA.validate(user.userName, dto.code);
 
       if (validatedUser) {
-				await this.prisma.user.update({
-					where: {
-						id: user.id,
-					},
-					data: {
-						twoFAActivated: true,
-					},
-				});
-			}
-			return res.send({ event: '2fa ok' });
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            twoFAActivated: true,
+          },
+        });
+      }
+      return res.send({ event: '2fa ok' });
     } catch (error) {
       throw new Error(error.message);
     }

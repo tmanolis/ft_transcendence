@@ -61,7 +61,8 @@ export class VerifyTwoFADTO {
   code: string;
 
   @ApiProperty({
-    description: 'this is sent after password verification, but before 2FA verification',
+    description:
+      'this is sent after password verification, but before 2FA verification',
   })
   @IsNotEmpty()
   @IsString()
@@ -75,4 +76,3 @@ export class EnableTwoFADTO {
   @Length(6, 6)
   code: string;
 }
-

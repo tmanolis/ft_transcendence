@@ -70,14 +70,19 @@ export class AuthController {
     return await this.authService.twoFAVerify(res, dto);
   }
 
-	@UseGuards(JwtGuard)
-	@Post('2fa-enable')
-	@ApiOkResponse({ description: '2FA is now enabled.' })
-	@ApiUnauthorizedResponse({ description: '2FA verification failed. Please try again!' })
-  async twoFAEnable(@GetUser() user: User, @Body() dto: EnableTwoFADTO, @Res() res: any) {
+  @UseGuards(JwtGuard)
+  @Post('2fa-enable')
+  @ApiOkResponse({ description: '2FA is now enabled.' })
+  @ApiUnauthorizedResponse({
+    description: '2FA verification failed. Please try again!',
+  })
+  async twoFAEnable(
+    @GetUser() user: User,
+    @Body() dto: EnableTwoFADTO,
+    @Res() res: any,
+  ) {
     return await this.authService.twoFAEnable(user, res, dto);
   }
-
 
   @UseGuards(JwtGuard)
   @Get('logout')
