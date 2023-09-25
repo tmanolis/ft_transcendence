@@ -61,11 +61,9 @@ export class TwoFADTO {
   code: string;
 
   @ApiProperty({
-    description:
-      'optional: please return it on login 2fa verification, in settings it is not needed',
+    example: 'user123',
   })
   @IsNotEmpty()
   @IsString()
-  @IsOptional()
   userName: string;
 }

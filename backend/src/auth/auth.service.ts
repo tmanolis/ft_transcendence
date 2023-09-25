@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { AuthDto, LoginDto } from '../dto';
+import { AuthDto, LoginDto, TwoFADTO } from '../dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
@@ -124,19 +124,16 @@ export class AuthService {
     res.clearCookie('jwt').send({ status: 'logged out' });
   }
 
-  async twoFAVerify(user: User, res: any, payload: any) {
-    if (!user) {
-      user = await this.prisma.user.findUnique({
+  async twoFAVerify(res: any, dto: TwoFADTO) {
+    try {
+      const user = await this.prisma.user.findUnique({
         where: {
-          userName: payload.userName,
+          userName: dto.userName,
         },
       });
-    }
-    try {
-      const validatedUser = await this.twoFA.validate(
-        user.userName,
-        payload.code,
-      );
+
+      const validatedUser = await this.twoFA.validate(user.userName, dto.code);
+
       if (validatedUser) {
         if (user.twoFAActivated) {
           this.updateAfterLogin(user, res);
@@ -151,7 +148,7 @@ export class AuthService {
           });
         }
       }
-      return res.send({ event: '2fa ok', username: user.userName });
+      return res.send({ event: '2fa ok' });
     } catch (error) {
       throw new Error(error.message);
     }
