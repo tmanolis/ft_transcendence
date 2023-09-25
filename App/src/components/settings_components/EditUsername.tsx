@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "./styles/ConfirmButton.styled";
 import InputSettings, { InputContainer } from "./styles/InputSettings.styled";
-import { EditUsernameWrapper } from "./styles/editUsername.styled";
+import { EditUsernameWrapper } from "./styles/EditUsername.styled";
 
 interface EditUsernameProps {
   onError: (error: string) => void;
