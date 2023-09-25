@@ -15,6 +15,7 @@ import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import axios from 'axios';
 import { readFileSync } from 'fs';
+import { time } from 'console';
 
 @Injectable()
 export class AuthService {
@@ -107,8 +108,9 @@ export class AuthService {
     if (user.twoFAActivated) {
 			const nonce: string = this.generateRandomNonce(16);
 			const timestamp: number = new Date().getTime();
-			await this.cacheManager.set(nonce, JSON.stringify({user: user.userName, timestamp: timestamp}));
-      return res.send({ event: '2fa needed', nonce: nonce });
+			await this.cacheManager.set(nonce, JSON.stringify({username: user.userName, timestamp: timestamp}));
+      console.log('cache set with: ', nonce, {username: user.userName, timestamp: timestamp});
+			return res.send({ event: '2fa needed', nonce: nonce });
     }
     await this.updateAfterLogin(user, res);
     return user;
@@ -139,12 +141,12 @@ export class AuthService {
 
   async twoFAVerify(res: any, dto: VerifyTwoFADTO) {
     try {
+			// get username with nonce and check if 5 minutes haven't passed
 			const cache: string = await this.cacheManager.get(dto.nonce);
 			const nonceObject: {username: string, timestamp: number} = JSON.parse(cache);
-			
 			const now = new Date().getTime();
-			if (now - nonceObject.timestamp < 300000){
-				throw new ForbiddenException('2FA verification took longer than 5 minutes. Please retry.');
+			if ((now - nonceObject.timestamp) >= 300000){
+				throw new ForbiddenException('2FA time out, please log in again.');
 			}
 
       const user = await this.prisma.user.findUnique({
