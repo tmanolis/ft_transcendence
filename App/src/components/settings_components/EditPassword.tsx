@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "./styles/ConfirmButton.styled";
 import InputSettings, { InputContainer } from "./styles/InputSettings.styled";
+import { EditPasswordWrapper } from "./styles/EditPassword.styled";
 
 interface EditPasswordProps {
   onError: (error: string) => void;
@@ -48,7 +49,7 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
   };
 
   return (
-    <>
+    <EditPasswordWrapper>
       <form onSubmit={handleSubmit}>
       <InputContainer>
         <InputSettings
@@ -68,7 +69,7 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
           <ConfirmButton type="submit">Confirm</ConfirmButton>
         </InputContainer>
       </form>
-    </>
+    </EditPasswordWrapper>
   );
 };
 
