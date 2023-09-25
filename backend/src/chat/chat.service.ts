@@ -274,15 +274,24 @@ export class ChatService {
         'Your account has been deleted. Please register again.',
       );
 
+    // catch prisma error when variables are not correct
+    let room;
+    try {
+      room = await this.prisma.room.findUnique({
+        where: {
+          name: roomDTO.name,
+        },
+        include: {
+          users: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Channel not found, did you send the right variables?',
+      );
+    }
+
     // check if room exists
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: roomDTO.name,
-      },
-      include: {
-        users: true,
-      },
-    });
     if (!room) throw new BadRequestException('This channel does not exist');
 
     // check if user hasn't been banned
