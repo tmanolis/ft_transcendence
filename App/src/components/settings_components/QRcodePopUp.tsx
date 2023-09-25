@@ -6,10 +6,9 @@ import InputSettings from './styles/InputSettings.styled';
 
 interface QRCodePopupProps {
   QRCode: string;
-  username: string;
 }
 
-const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode, username }) => {
+const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode}) => {
   const [inputValue, setInputValue] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
@@ -21,13 +20,12 @@ const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode, username }) => {
 
     console.log("inputValue: " + inputValue);
     const updateDTO = {
-      code: inputValue,
-      userName: username
+      code: inputValue
     };
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/2fa-verify",
+        "http://localhost:3000/auth/2fa-enable",
         updateDTO,
         { withCredentials: true }
       );
