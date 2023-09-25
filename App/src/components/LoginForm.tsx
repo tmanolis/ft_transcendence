@@ -30,11 +30,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       const response = await axios.post(
         "http://localhost:3000/auth/local/login",
         loginDTO,
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       console.log(response);
-      navigate("/hello");
+      navigate("/");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {

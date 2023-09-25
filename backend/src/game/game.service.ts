@@ -363,7 +363,6 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-
   async createWaitingGame(player: Player) : Promise<Game> {
     const gameID = `game${player.socketID}`;
     const newGame = new Game(
@@ -659,7 +658,6 @@ export class GameService {
         games: {},
       },
     });
-    console.log("game RESULt:", game);
     const winner = (game.score[0] > game.score[1]) ? leftPlayer : rightPlayer;
     const loser = (game.score[1] > game.score[0]) ? leftPlayer : rightPlayer;
 
@@ -695,6 +693,7 @@ export class GameService {
         console.log(err);
       }
     }
+
     (player.id === dbGame.winnerId) ? player.gamesWon++ : player.gamesLost++;
     try {
       await this.prisma.user.update({

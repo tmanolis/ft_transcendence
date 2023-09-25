@@ -11,6 +11,7 @@ import { TwoFA } from './strategy';
 import { User } from '@prisma/client';
 import * as argon from 'argon2';
 import axios from 'axios';
+import { readFileSync } from 'fs';
 
 @Injectable()
 export class AuthService {
@@ -38,7 +39,7 @@ export class AuthService {
             id: dto.id,
             email: dto.email,
             userName: dto.userName,
-            avatar: await this.fetchImage(dto.image),
+            avatar: await this.fetchImageFromURL(dto.image),
             isFourtyTwoStudent: true,
             password: dto.password,
           },
@@ -66,15 +67,17 @@ export class AuthService {
     let token: string;
     try {
       const hash = await argon.hash(dto.password);
+      const imageBase64 = this.fetchImageFromFile('defaultAvatar.jpg');
       const user = await this.prisma.user.create({
         data: {
           email: dto.email,
           userName: dto.userName,
           password: hash,
+          avatar: imageBase64,
         },
       });
       token = await this.signToken(user.id, user.email);
-      res.cookie('jwt', token).redirect('/hello');
+      res.cookie('jwt', token).send({ status: 'logged in' });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');
@@ -130,11 +133,22 @@ export class AuthService {
         payload.code,
       );
       if (validatedUser) {
-        this.updateAfterLogin(user, res);
+        if (user.twoFAActivated) {
+          this.updateAfterLogin(user, res);
+        } else {
+          await this.prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              twoFAActivated: true,
+            },
+          });
+        }
       }
+      return res.send({event: "2fa ok"});
     } catch (error) {
-      const caughtError = error.message;
-      res.redirect(`/hello/error?error=${encodeURIComponent(caughtError)}`);
+      throw new Error(error.message);
     }
   }
 
@@ -151,7 +165,7 @@ export class AuthService {
     });
   }
 
-  async fetchImage(url: string): Promise<string> {
+  async fetchImageFromURL(url: string): Promise<string> {
     try {
       const response = await axios.get(url, {
         responseType: 'arraybuffer',
@@ -165,6 +179,16 @@ export class AuthService {
       throw new NotFoundException('Could not load profile picture.');
     }
     return null;
+  }
+
+  fetchImageFromFile(fileName: string) {
+    try {
+      const imageBuffer = readFileSync(fileName);
+      const imageBase64 = Buffer.from(imageBuffer).toString('base64');
+      return imageBase64;
+    } catch (error) {
+      throw new Error('Error reading image file: ${error.message}');
+    }
   }
 
   async addToBlacklist(userID: string, token: string): Promise<void> {
@@ -187,7 +211,7 @@ export class AuthService {
 
     const token = await this.signToken(user.id, user.email);
     if (user.isFourtyTwoStudent) {
-      res.cookie('jwt', token).redirect('http://localhost:8080/pong');
+      res.cookie('jwt', token).redirect('/');
     } else {
       res.cookie('jwt', token).send({ status: 'logged in' });
     }
