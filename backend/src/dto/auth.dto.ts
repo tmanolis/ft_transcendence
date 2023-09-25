@@ -53,7 +53,7 @@ export class LoginDto {
   password: string;
 }
 
-export class TwoFADTO {
+export class VerifyTwoFADTO {
   @ApiProperty({ description: 'code must be 6 characters long' })
   @IsNotEmpty()
   @IsString()
@@ -61,9 +61,18 @@ export class TwoFADTO {
   code: string;
 
   @ApiProperty({
-    example: 'user123',
+    description: 'this is sent after password verification, but before 2FA verification',
   })
   @IsNotEmpty()
   @IsString()
-  userName: string;
+  nonce: string;
 }
+
+export class EnableTwoFADTO {
+  @ApiProperty({ description: 'code must be 6 characters long' })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 6)
+  code: string;
+}
+

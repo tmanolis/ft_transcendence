@@ -1,10 +1,13 @@
 import {
   ForbiddenException,
+	Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { AuthDto, LoginDto, TwoFADTO } from '../dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { AuthDto, EnableTwoFADTO, LoginDto, VerifyTwoFADTO } from '../dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TwoFA } from './strategy';
@@ -16,6 +19,8 @@ import { readFileSync } from 'fs';
 @Injectable()
 export class AuthService {
   constructor(
+		@Inject(CACHE_MANAGER)
+		private readonly cacheManager: Cache,
     private prisma: PrismaService,
     private jwt: JwtService,
     private config: ConfigService,
@@ -100,11 +105,18 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-      return res.send({ event: '2fa needed', userName: user.userName });
+			const nonce = this.generateRandomNonce(16);
+			await this.cacheManager.set(nonce, user.userName);
+      return res.send({ event: '2fa needed', nonce: nonce });
     }
     await this.updateAfterLogin(user, res);
     return user;
   }
+
+	generateRandomNonce(length: number){
+		const crypto = require('crypto');
+		return crypto.randomBytes(length).toString('hex');
+	}
 
   async handleLogout(user: User, res: any, req: any) {
     await this.prisma.user.update({
@@ -124,31 +136,41 @@ export class AuthService {
     res.clearCookie('jwt').send({ status: 'logged out' });
   }
 
-  async twoFAVerify(res: any, dto: TwoFADTO) {
+  async twoFAVerify(res: any, dto: VerifyTwoFADTO) {
     try {
+			const username: string = await this.cacheManager.get(dto.nonce);
       const user = await this.prisma.user.findUnique({
         where: {
-          userName: dto.userName,
+          userName: username,
         },
       });
 
       const validatedUser = await this.twoFA.validate(user.userName, dto.code);
 
       if (validatedUser) {
-        if (user.twoFAActivated) {
-          this.updateAfterLogin(user, res);
-        } else {
-          await this.prisma.user.update({
-            where: {
-              id: user.id,
-            },
-            data: {
-              twoFAActivated: true,
-            },
-          });
-        }
-      }
-      return res.send({ event: '2fa ok' });
+        this.updateAfterLogin(user, res);
+				return res.send({ event: '2fa ok' });
+			}
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+	async twoFAEnable(user: User, res: any, dto: EnableTwoFADTO) {
+    try {
+      const validatedUser = await this.twoFA.validate(user.userName, dto.code);
+
+      if (validatedUser) {
+				await this.prisma.user.update({
+					where: {
+						id: user.id,
+					},
+					data: {
+						twoFAActivated: true,
+					},
+				});
+			}
+			return res.send({ event: '2fa ok' });
     } catch (error) {
       throw new Error(error.message);
     }
