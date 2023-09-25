@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios, { AxiosError } from "axios";
-import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
 import { useNavigate } from "react-router";
 import Input from "./styles/Input.styled";
 import { ModalContainer, PopUpWrapper } from "./styles/Modal2FA.styled";
