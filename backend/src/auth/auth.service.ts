@@ -105,8 +105,9 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-			const nonce = this.generateRandomNonce(16);
-			await this.cacheManager.set(nonce, user.userName);
+			const nonce: string = this.generateRandomNonce(16);
+			const timestamp: number = new Date().getTime();
+			await this.cacheManager.set(nonce, JSON.stringify({user: user.userName, timestamp: timestamp}));
       return res.send({ event: '2fa needed', nonce: nonce });
     }
     await this.updateAfterLogin(user, res);
@@ -138,10 +139,17 @@ export class AuthService {
 
   async twoFAVerify(res: any, dto: VerifyTwoFADTO) {
     try {
-			const username: string = await this.cacheManager.get(dto.nonce);
+			const cache: string = await this.cacheManager.get(dto.nonce);
+			const nonceObject: {username: string, timestamp: number} = JSON.parse(cache);
+			
+			const now = new Date().getTime();
+			if (now - nonceObject.timestamp < 300000){
+				throw new ForbiddenException('2FA verification took longer than 5 minutes. Please retry.');
+			}
+
       const user = await this.prisma.user.findUnique({
         where: {
-          userName: username,
+          userName: nonceObject.username,
         },
       });
 
