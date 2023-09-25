@@ -4,6 +4,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   UseGuards,
   UseInterceptors,
   UploadedFiles,
@@ -47,11 +48,11 @@ export class FriendController {
   }
 
   /*****************************************************************************/
-  // POST 
+  // POST
   /*****************************************************************************/
   // Send request
   @Post('sendFriendRequest')
-  async sendFriendRequest(
+  async handleSendFriendRequest(
     @GetUser() user: User,
     @Body() payload: { userEmail: string },
     @Res() res: Response,
@@ -61,15 +62,38 @@ export class FriendController {
       payload,
       res,
     );
-    res.status(result.statusCode).send({ status: result.status, message: result.message });
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
   }
 
   /*****************************************************************************/
   // PATCH
   /*****************************************************************************/
+  // Accept request
+  @Patch('acceptFriendRequest')
+  async handleAcceptFriendRequest(
+    @GetUser() user: User,
+    @Body() payload: { userEmail: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.acceptFriendRequest(
+      user,
+      payload,
+      res,
+    );
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
+  }
+
+
+  /*****************************************************************************/
+  // DELETE 
+  /*****************************************************************************/
   // Cancel request
-  @Patch('cancelFriendRequest')
-  async cancelFriendRequest(
+  @Delete('cancelFriendRequest')
+  async handleCancelFriendRequest(
     @GetUser() user: User,
     @Body() payload: { userEmail: string },
     @Res() res: Response,
@@ -79,9 +103,42 @@ export class FriendController {
       payload,
       res,
     );
-    res.status(result.statusCode).send({ status: result.status, message: result.message });
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
   }
 
+  // Decline request
+  @Delete('declineFriendRequest')
+  async handleDeclineFriendRequest(
+    @GetUser() user: User,
+    @Body() payload: { userEmail: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.declineFriendRequest(
+      user,
+      payload,
+      res,
+    );
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
+  }
 
-
+  // Unfriend
+  @Delete('unfriend')
+  async handleUnfriend(
+    @GetUser() user: User,
+    @Body() payload: { userEmail: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.unfriend(
+      user,
+      payload,
+      res,
+    );
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
+  }
 }

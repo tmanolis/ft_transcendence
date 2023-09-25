@@ -49,7 +49,7 @@ export class SocketGateway implements OnGatewayConnection {
       return;
     }
     jwtData = this.jwtService.decode(jwt);
-    if (typeof jwtData !== 'object') {
+    if (!jwtData || typeof jwtData !== 'object') {
       console.log(client.id, 'Socket: Bad JWT data', jwtData);
       client.disconnect();
       return;
