@@ -66,12 +66,8 @@ export class AuthController {
   @Post('2fa-verify')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: '2FA failed. Please try again!' })
-  async twoFAVerify(
-    @Body() dto: TwoFADTO,
-    @Res() res: any,
-    @GetUser() user: User,
-  ) {
-    return await this.authService.twoFAVerify(user, res, dto);
+  async twoFAVerify(@Body() dto: TwoFADTO, @Res() res: any) {
+    return await this.authService.twoFAVerify(res, dto);
   }
 
   @UseGuards(JwtGuard)
