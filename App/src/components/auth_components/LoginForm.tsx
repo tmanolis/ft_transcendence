@@ -9,9 +9,10 @@ import fourtyTwoLogo from "../../assets/42_logo.png";
 
 export type LoginFormProps = {
   onLinkClick: () => void;
+  openModal2FA: () => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -34,7 +35,10 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       );
 
       console.log(response);
-      navigate("/");
+      if (response.data.event === "2fa needed")
+        openModal2FA();
+      else
+        navigate("/");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {
