@@ -42,8 +42,10 @@ export class SocketGateway implements OnGatewayConnection {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    console.log(`\x1b[32m Socket: ${client.id} connect to Game Socket! \x1b[0m`);
-    if (await this.gameService.identifyUser(client) === 'failed') {
+    console.log(
+      `\x1b[32m Socket: ${client.id} connect to Game Socket! \x1b[0m`,
+    );
+    if ((await this.gameService.identifyUser(client)) === 'failed') {
       client.disconnect();
     }
   }
@@ -55,7 +57,9 @@ export class SocketGateway implements OnGatewayConnection {
     await this.gameService.cancelPendingGame(client);
     await this.gameService.updateUserDisconnectStatus(client);
     await this.gameService.clearData(client);
-    console.log(`\x1b[31m Socket: ${client.id} disconnect from Game Socket! \x1b[0m`);
+    console.log(
+      `\x1b[31m Socket: ${client.id} disconnect from Game Socket! \x1b[0m`,
+    );
   }
 
   /****************************************************************************/
@@ -67,12 +71,10 @@ export class SocketGateway implements OnGatewayConnection {
     if (!currentPlayer) return;
 
     const pausedGameID = await this.gameService.findPausedGame(client);
-    if (pausedGameID) 
-      currentPlayer.gameID = pausedGameID;
+    if (pausedGameID) currentPlayer.gameID = pausedGameID;
 
     let newGame: Game = await this.gameService.createGame(client);
-    if (newGame) 
-      currentPlayer.gameID = newGame.gameID;
+    if (newGame) currentPlayer.gameID = newGame.gameID;
 
     const startGame: [boolean, string] =
       await this.gameService.findMatchingGame(currentPlayer);
@@ -128,7 +130,7 @@ export class SocketGateway implements OnGatewayConnection {
       if (gameData.status === GameStatus.Ended) {
         this.gameService.endGame(gameData);
         clearInterval(gameInterval);
-        await this.gameService.endGame(gameData)
+        await this.gameService.endGame(gameData);
       }
     }, 1000 / 30);
 
@@ -140,7 +142,7 @@ export class SocketGateway implements OnGatewayConnection {
     client: Socket,
     payload: { key: string; gameID: string },
   ): Promise<object> {
-    console.log("got moveP event!");
+    console.log('got moveP event!');
     const gameData = await this.gameService.movePaddle(client, payload);
     if (!gameData) return;
     let updateSide = '';
@@ -179,9 +181,10 @@ export class SocketGateway implements OnGatewayConnection {
       this.server
         .to(client.id)
         .emit('errorGameInvite', { error: 'User Email not provided.' });
-      return ;
+      return;
     }
-    const invitedUserStatus: string = await this.gameService.checkInvitedUserStatus(client, invitedUserEmail);
+    const invitedUserStatus: string =
+      await this.gameService.checkInvitedUserStatus(client, invitedUserEmail);
     if (invitedUserStatus === 'ONLINE') {
       this.server
         .to(client.id)
@@ -194,16 +197,19 @@ export class SocketGateway implements OnGatewayConnection {
     }
 
     // create the game and wait
-    console.log("create inviting game and wait")
+    console.log('create inviting game and wait');
     const invitingPlayer: Player = await this.gameService.createPlayer(client);
-    const invitingGame: Game = await this.gameService.createInvitingGame(invitingPlayer);
+    const invitingGame: Game =
+      await this.gameService.createInvitingGame(invitingPlayer);
     console.log(invitingGame);
     if (invitingGame) {
       client.join(invitingGame.gameID);
-      const invitedUserSocketID: string = await this.cacheManager.get(`game${invitedUserEmail}`);
+      const invitedUserSocketID: string = await this.cacheManager.get(
+        `game${invitedUserEmail}`,
+      );
       this.server
         .to(invitedUserSocketID)
-        .emit('gameInvite', { invitedBy: invitingPlayer.email});
+        .emit('gameInvite', { invitedBy: invitingPlayer.email });
     }
   }
 
@@ -213,7 +219,8 @@ export class SocketGateway implements OnGatewayConnection {
   async handleAcceptInvitation(client: Socket, payload: string) {
     // create the invitedPlayer
     const invitedPlayer: Player = await this.gameService.createPlayer(client);
-    const invitingPlayer: Player = await this.gameService.getPlayerByEmail(payload);
+    const invitingPlayer: Player =
+      await this.gameService.getPlayerByEmail(payload);
     if (!invitingPlayer) {
       this.server
         .to(invitedPlayer.socketID)
@@ -234,24 +241,32 @@ export class SocketGateway implements OnGatewayConnection {
     }
     client.join(invitingPlayer.gameID);
 
-    const inviteGameStarted = await this.gameService.joinGameAndLaunch(invitedPlayer, invitingPlayer.gameID);
-    if (inviteGameStarted){
-      this.server.to(invitingPlayer.socketID).emit("invitationAccepted");
+    const inviteGameStarted = await this.gameService.joinGameAndLaunch(
+      invitedPlayer,
+      invitingPlayer.gameID,
+    );
+    if (inviteGameStarted) {
+      this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
     } else {
-      this.server.to(invitedPlayer.socketID).emit("errorGameInvite", {error: "Game has been deleted"});
+      this.server
+        .to(invitedPlayer.socketID)
+        .emit('errorGameInvite', { error: 'Game has been deleted' });
     }
   }
 
   @SubscribeMessage('declineInvitation')
   async handleDeclineInvitation(client: Socket, payload: string) {
-    console.log("invitation declined!");
+    console.log('invitation declined!');
     if (!payload) {
-      return ;
+      return;
     }
-    const invitingPlayer: Player = await this.gameService.getPlayerByEmail(payload);
+    const invitingPlayer: Player =
+      await this.gameService.getPlayerByEmail(payload);
     if (invitingPlayer) {
       this.server.to(invitingPlayer.socketID).emit('invitationDeclined');
-      const invitingGame: Game = await this.gameService.getGameByID(invitingPlayer.gameID);
+      const invitingGame: Game = await this.gameService.getGameByID(
+        invitingPlayer.gameID,
+      );
       if (invitingGame) {
         await this.cacheManager.del(`game${invitingGame.gameID}`);
         await this.cacheManager.del(`invite${invitingPlayer.email}`);

@@ -17,18 +17,18 @@
 
 ### Listen
 
-| function          | event name      | parameters      | description                         |
-| ----------------- | --------------- | --------------- | ----------------------------------- |
-| handleSetCanvas   | setCanvas       | client, payload |                                     |
-| handleFindGame    | findGame        | client          | User try to join or create a game   |
-| handleStartGame   | startGame       | client, payload | the gameInterval starts             |
-| handleMovePaddle  | movePaddle      | client, payload |
-| handeInvitePlayer | invitePlayer    | client, payload | User invites player                 |
-|                   |                 | {userName}      |                                     |
-| handleRespondTo   | respondToInvite | client, payload | User invites player                 |
-| Invite            |                 | {accept, user-  | User accepts or declines invitation |
-|                   |                 | Name, gameID}   |
-|                   | pauseGame       |                 |                                     |
+| event name      | parameters      | description                         |
+| --------------- | --------------- | ----------------------------------- |
+| setCanvas       | client, payload |                                     |
+| findGame        | client          | User try to join or create a game   |
+| startGame       | client, payload | the gameInterval starts             |
+| movePaddle      | client, payload |
+| invitePlayer    | client, payload | User invites player                 |
+|                 | {userName}      |                                     |
+| respondToInvite | client, payload | User invites player                 |
+|                 | {accept, user-  | User accepts or declines invitation |
+|                 | Name, gameID}   |
+| pauseGame       |                 |                                     |
 
 ### Emit
 
@@ -40,18 +40,18 @@
 
 ### Listen
 
-| function | event name          | parameters  | description        |
-| -------- | ------------------- | ----------- | ------------------ |
-|          | startChat           |             | todo               |
-|          | inviteUserToChat    |             | todo               |
-|          | joinChanel          |             | todo               |
-|          | leaveChanel         |             | todo               |
-|          | kickUserFromChanel  |             | todo, chanel admin |
-|          | banUserFromChanel   |             | todo, chanel admin |
-|          | unBanUserFromChanel |             | todo, chanel admin |
-|          | muteUser            |             | todo, filter       |
-|          | unMuteUser          |             | todo, filter       |
-|          | message             | messageBody | todo               |
+| event name          | parameters  | description        |
+| ------------------- | ----------- | ------------------ |
+| startChat           |             | todo               |
+| inviteUserToChat    |             | todo               |
+| joinChanel          |             | todo               |
+| leaveChanel         |             | todo               |
+| kickUserFromChanel  |             | todo, chanel admin |
+| banUserFromChanel   |             | todo, chanel admin |
+| unBanUserFromChanel |             | todo, chanel admin |
+| muteUser            |             | todo, filter       |
+| unMuteUser          |             | todo, filter       |
+| message             | messageBody | todo               |
 
 ### Emit
 
