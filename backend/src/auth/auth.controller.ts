@@ -63,12 +63,11 @@ export class AuthController {
     return await this.authService.localLogin(dto, res);
   }
 
-  @UseGuards(JwtGuard)
   @Post('2fa-verify')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: '2FA failed. Please try again!' })
   async twoFAVerify(
-    @Body() payload: { code: string },
+    @Body() payload: { code: string, email: string },
     @Res() res: any,
     @GetUser() user: User,
   ) {

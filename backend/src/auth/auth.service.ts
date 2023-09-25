@@ -53,8 +53,7 @@ export class AuthService {
     console.log('auth 42 login: ', user.userName);
 
     if (!user || user.isFourtyTwoStudent === false) {
-      res.redirect('http://localhost:8080');
-      return;
+			return res.status(500).json({ message: '42 login failed' });
     }
 
     if (user.twoFAActivated) {
@@ -76,8 +75,10 @@ export class AuthService {
           avatar: imageBase64,
         },
       });
-      token = await this.signToken(user.id, user.email);
-      res.cookie('jwt', token).send({ status: 'logged in' });
+			await this.updateAfterLogin(user, res);
+			return user;
+      // token = await this.signToken(user.id, user.email);
+      // res.cookie('jwt', token).send({ status: 'logged in' });
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');
