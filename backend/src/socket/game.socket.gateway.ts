@@ -208,12 +208,10 @@ export class GameGateway implements OnGatewayConnection {
     console.log('player before emit', currentPlayer);
     const gameID = currentPlayer.gameID.toString();
     client.join(gameID);
-    this.server
-      .to(invitedPlayer.socketID)
-      .emit('gameInvite', {
-        invitedBy: currentPlayer.userName,
-        gameID: gameID,
-      });
+    this.server.to(invitedPlayer.socketID).emit('gameInvite', {
+      invitedBy: currentPlayer.userName,
+      gameID: gameID,
+    });
   }
 
   @SubscribeMessage('respondToInvite')

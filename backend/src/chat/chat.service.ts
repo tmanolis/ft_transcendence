@@ -40,7 +40,7 @@ export class ChatService {
 
   async newConnection(client: Socket): Promise<ChatUser | null> {
     // decode authorization header to get email
-		const email: string = this.getEmailFromJWT(client);
+    const email: string = this.getEmailFromJWT(client);
     if (!email) return;
 
     // update and reconnect user if they are in the cache already
@@ -86,9 +86,9 @@ export class ChatService {
       client.disconnect();
       return;
     } else {
-    const jwtData: 
-		| { sub: string; email: string; iat: string; exp: string }
-      | any = this.jwtService.decode(jwt);
+      const jwtData:
+        | { sub: string; email: string; iat: string; exp: string }
+        | any = this.jwtService.decode(jwt);
       return jwtData.email;
     }
   }
@@ -125,7 +125,7 @@ export class ChatService {
   /****************************************************************************/
 
   async createChannel(client: Socket, roomDTO: createRoomDTO) {
-		const email: string = this.getEmailFromJWT(client);
+    const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
 
@@ -139,29 +139,29 @@ export class ChatService {
     client.join(roomDTO.name);
 
     // create new room
-		try{
-			const newRoom = await this.prisma.room.create({
-				data: {
-					...roomDTO,
-					owner: chatuser.email,
-					users: {
-						create: [
-							{
-								user: {
-									connect: { email: chatuser.email },
-								},
-								role: 'OWNER',
-							},
-						],
-					},
-				},
-				include: {
-					users: true,
-				},
-			});
-		} catch (error){
-			console.log(error);
-		}
+    try {
+      const newRoom = await this.prisma.room.create({
+        data: {
+          ...roomDTO,
+          owner: chatuser.email,
+          users: {
+            create: [
+              {
+                user: {
+                  connect: { email: chatuser.email },
+                },
+                role: 'OWNER',
+              },
+            ],
+          },
+        },
+        include: {
+          users: true,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     // updating cache
     chatuser.rooms.push(joinRoomDTO.name);
@@ -190,19 +190,21 @@ export class ChatService {
       );
 
     // catch prisma error when variables are not correct
-		let existingRoom: Room;
-		try{
-			existingRoom = await this.prisma.room.findUnique({
-				where: {
-					name: roomDTO.name,
-				},
-			});
-		} catch (error){
-			throw new BadRequestException('Channel could not be created, did you send the right variables?')
-		}
+    let existingRoom: Room;
+    try {
+      existingRoom = await this.prisma.room.findUnique({
+        where: {
+          name: roomDTO.name,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Channel could not be created, did you send the right variables?',
+      );
+    }
 
-		//check if room exists
-		if (existingRoom) throw new ConflictException('Room already exists');
+    //check if room exists
+    if (existingRoom) throw new ConflictException('Room already exists');
 
     // check password for private room
     if (roomDTO.status === RoomStatus.PRIVATE) {
@@ -215,7 +217,7 @@ export class ChatService {
   }
 
   async joinChannel(client: Socket, roomDTO: joinRoomDTO) {
-		const email: string = this.getEmailFromJWT(client);
+    const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
 
@@ -224,7 +226,7 @@ export class ChatService {
     } catch (error) {
       throw error;
     }
-		
+
     // joining socket to room
     client.join(roomDTO.name);
 
