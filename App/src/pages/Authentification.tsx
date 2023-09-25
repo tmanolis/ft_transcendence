@@ -22,14 +22,16 @@ const PageContainer = styled.div<PageContainerProps>`
 const Authentification = () => {
   const [switchRegister, setSwitchRegister] = useState<boolean>(false);
   const [modal2FAOpen, setModal2FAOpen] = useState(false);
+  const [nonce2FA, setNonce2FA] = useState("");
   
 
   const handleLink = () => {
     setSwitchRegister(true);
   };
 
-  const handleModal2FA = () => {
+  const handleModal2FA = (nonce: string) => {
     setModal2FAOpen(true);
+    setNonce2FA(nonce);
   }
 
   const handleButtonClick = () => {
@@ -41,11 +43,11 @@ const Authentification = () => {
       {switchRegister ? (
         <RegisterForm />
       ) : (
-        <LoginForm onLinkClick={handleLink} openModal2FA={handleModal2FA}/>
+        <LoginForm onLinkClick={handleLink} openModal2FA={handleModal2FA} />
       )}
       {modal2FAOpen &&
         createPortal(
-          <Modal2FA onCancel={handleButtonClick}>
+          <Modal2FA onCancel={handleButtonClick} nonce={nonce2FA}>
             <h2>2FA Authentification</h2>
           </Modal2FA>,
           document.body

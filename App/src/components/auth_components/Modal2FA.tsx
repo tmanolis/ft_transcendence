@@ -4,45 +4,50 @@ import "./styles/Modal2FA.styled.css";
 import InputSettings from "../settings_components/styles/InputSettings.styled";
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
+import { useNavigate } from "react-router";
 
 interface Modal2FAProps {
 	onCancel: () => void;
+	nonce: string;
 	children: React.ReactNode;
   }
   
-  export const Modal2FA: React.FC<Modal2FAProps> = ({ onCancel,  children }) => {
+  export const Modal2FA: React.FC<Modal2FAProps> = ({ onCancel, nonce,  children }) => {
 	const [inputValue, setInputValue] = useState("");
   	const [errorResponse, setErrorResponse] = useState("");
 
-	  const handleConfirmClick = async () => {
+	const navigate = useNavigate();
 
-		console.log("inputValue: " + inputValue);
-		const updateDTO = {
-		  code: inputValue,
-		  nonce: "prout"
-		};
-	
-		try {
-		  const response = await axios.post(
-			"http://localhost:3000/auth/2fa-verify",
-			updateDTO,
-			{ withCredentials: true }
-		  );
-		  console.log(response);
-		  window.location.reload();
-		  
-		} catch (error) {
-		  handleUpdateError(error as AxiosError);
-		}
-	  };
-	
-	  const handleUpdateError = (error: AxiosError) => {
-		console.log(error.response)
-		if (error.response) {
-			setErrorResponse("2FA failed. Please try again!");
-			setInputValue("");
-		};
-	  };
+	const handleConfirmClick = async () => {
+
+	console.log("inputValue: " + inputValue);
+	console.log("nonceValue: " + nonce);
+	const updateDTO = {
+		code: inputValue,
+		nonce: nonce
+	};
+
+	try {
+		const response = await axios.post(
+		"http://localhost:3000/auth/2fa-verify",
+		updateDTO,
+		{ withCredentials: true }
+		);
+		console.log(response);
+		navigate("/");
+		
+	} catch (error) {
+		handleUpdateError(error as AxiosError);
+	}
+	};
+
+	const handleUpdateError = (error: AxiosError) => {
+	console.log(error.response)
+	if (error.response) {
+		setErrorResponse("Wrong code. Please try again!");
+		setInputValue("");
+	};
+	};
 
 	return (
 		<div className="modal-container">
