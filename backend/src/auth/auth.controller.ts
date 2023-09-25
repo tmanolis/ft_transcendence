@@ -52,15 +52,15 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'User could not be created. Please try again!',
   })
-  signup(@Res() res: any, @Body() dto: AuthDto) {
-    return this.authService.localSignup(res, dto);
+  async signup(@Res() res: any, @Body() dto: AuthDto) {
+    return await this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
-  signin(@Body() dto: LoginDto, @Res() res: any) {
-    return this.authService.localLogin(dto, res);
+  async signin(@Body() dto: LoginDto, @Res() res: any) {
+    return await this.authService.localLogin(dto, res);
   }
 
   @UseGuards(JwtGuard)

@@ -58,7 +58,7 @@ export class AuthService {
     }
 
     if (user.twoFAActivated) {
-      return { redirect: '/2fa-verify' };
+			return res.send({event: '2fa needed', userName: user.userName});
     }
     await this.updateAfterLogin(user, res);
   }
@@ -102,7 +102,7 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-      return { redirect: '/2fa-verify' };
+			return res.send({event: '2fa needed', userName: user.userName});
     }
     await this.updateAfterLogin(user, res);
     return user;
@@ -123,7 +123,7 @@ export class AuthService {
       this.addToBlacklist(user.id, token);
     }
 
-    res.clearCookie('jwt').redirect('http://localhost:8080');
+    res.clearCookie('jwt').send({ status: 'logged out' });
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
@@ -146,7 +146,7 @@ export class AuthService {
           });
         }
       }
-      return res.send({event: "2fa ok"});
+      return res.send({event: "2fa ok", username: user.userName});
     } catch (error) {
       throw new Error(error.message);
     }
