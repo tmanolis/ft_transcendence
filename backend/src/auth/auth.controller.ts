@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
-import { AuthDto, LoginDto } from '../dto';
+import { AuthDto, LoginDto, TwoFADTO } from '../dto';
 import { TwoFA } from './strategy';
 import { JwtGuard } from './guard';
 import { GetUser } from 'src/decorator';
@@ -67,11 +67,11 @@ export class AuthController {
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: '2FA failed. Please try again!' })
   async twoFAVerify(
-    @Body() payload: { code: string, email: string },
+    @Body() dto: TwoFADTO,
     @Res() res: any,
     @GetUser() user: User,
   ) {
-    return await this.authService.twoFAVerify(user, res, payload);
+    return await this.authService.twoFAVerify(user, res, dto);
   }
 
   @UseGuards(JwtGuard)

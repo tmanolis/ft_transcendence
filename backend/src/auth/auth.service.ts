@@ -50,14 +50,13 @@ export class AuthService {
         }
       }
     }
-    console.log('auth 42 login: ', user.userName);
 
     if (!user || user.isFourtyTwoStudent === false) {
-			return res.status(500).json({ message: '42 login failed' });
+      return res.status(500).json({ message: '42 login failed' });
     }
 
     if (user.twoFAActivated) {
-			return res.send({event: '2fa needed', userName: user.userName});
+      return res.send({ event: '2fa needed', userName: user.userName });
     }
     await this.updateAfterLogin(user, res);
   }
@@ -75,10 +74,8 @@ export class AuthService {
           avatar: imageBase64,
         },
       });
-			await this.updateAfterLogin(user, res);
-			return user;
-      // token = await this.signToken(user.id, user.email);
-      // res.cookie('jwt', token).send({ status: 'logged in' });
+      await this.updateAfterLogin(user, res);
+      return user;
     } catch (error) {
       if (error.code === 'P2002') {
         throw new ForbiddenException('Credentials taken');
@@ -103,7 +100,7 @@ export class AuthService {
     if (!passwordMatches) throw new ForbiddenException('Password incorrect');
 
     if (user.twoFAActivated) {
-			return res.send({event: '2fa needed', userName: user.userName});
+      return res.send({ event: '2fa needed', userName: user.userName });
     }
     await this.updateAfterLogin(user, res);
     return user;
@@ -128,6 +125,13 @@ export class AuthService {
   }
 
   async twoFAVerify(user: User, res: any, payload: any) {
+    if (!user) {
+      user = await this.prisma.user.findUnique({
+        where: {
+          userName: payload.userName,
+        },
+      });
+    }
     try {
       const validatedUser = await this.twoFA.validate(
         user.userName,
@@ -147,7 +151,7 @@ export class AuthService {
           });
         }
       }
-      return res.send({event: "2fa ok", username: user.userName});
+      return res.send({ event: '2fa ok', username: user.userName });
     } catch (error) {
       throw new Error(error.message);
     }
