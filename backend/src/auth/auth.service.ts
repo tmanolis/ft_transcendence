@@ -146,7 +146,7 @@ export class AuthService {
           });
         }
       }
-      return res.send({event: "2fa ok"});
+      return res.send({ event: '2fa ok' });
     } catch (error) {
       throw new Error(error.message);
     }

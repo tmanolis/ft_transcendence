@@ -33,9 +33,8 @@ model User {
   chats       			    Chat[]    @relation("ChatUsers")
 
   /// statistics
-  gamesWon    	Int?
-  gamesLost   	Int?
-  ranking       Int?
+  gamesWon    	Int		@default(0)
+  gamesLost   	Int		@default(0)
   achievements  Achievement[] @unique
 
   ///historics
