@@ -11,7 +11,7 @@ export class UserService {
   constructor(private readonly prisma: PrismaService) {}
 
   async updateUser(user: User, dto: UpdateDto): Promise<string> {
-    const { password, oldPassword, ...otherFields } = dto;
+    const { password, oldPassword, twoFAActivated, ...otherFields } = dto;
 
     if (password) {
       if (user.isFourtyTwoStudent)
@@ -34,15 +34,24 @@ export class UserService {
       },
       data: otherFields,
     });
-    if (dto.twoFAActivated && !user.twoFASecret) {
+
+    if (dto.twoFAActivated) {
       const otpauthUrl = await this.generate2FASecret(user);
       if (!user.achievements.includes('TWOFA')) {
         user.achievements.push('TWOFA');
         // emit notification achievement?
       }
       return await toDataURL(otpauthUrl);
-    } else if (!dto.twoFAActivated && user.twoFASecret) {
-      user.twoFASecret = null;
+    } else if (dto.twoFAActivated === false) {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          twoFASecret: null,
+          twoFAActivated: false,
+        },
+      });
     }
     return 'OK';
   }
@@ -73,7 +82,6 @@ export class UserService {
       'PongStoryShort',
       secret,
     );
-    // redirect to page with otpautUrl + route '/2fa-verify'
     return otpauthUrl;
   }
 

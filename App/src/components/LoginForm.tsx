@@ -5,7 +5,7 @@ import Input from "./styles/Input.styled";
 import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
-import fourtyTwoLogo from "../assets/42_logo.png"
+import fourtyTwoLogo from "../assets/42_logo.png";
 
 export type LoginFormProps = {
   onLinkClick: () => void;
@@ -30,11 +30,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       const response = await axios.post(
         "http://localhost:3000/auth/local/login",
         loginDTO,
-        { withCredentials: true },
+        { withCredentials: true }
       );
 
       console.log(response);
-      navigate("/hello");
+      navigate("/");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {
@@ -48,9 +48,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       if (status === 400) {
         setLoginError("Invalid email or password format");
       } else if (status === 403) {
-				if (error.response.data && typeof error.response.data === 'object' && 'message' in error.response.data) {
-					setLoginError((error.response.data as any).message);
-      }} else {
+        if (
+          error.response.data &&
+          typeof error.response.data === "object" &&
+          "message" in error.response.data
+        ) {
+          setLoginError((error.response.data as any).message);
+        }
+      } else {
         setLoginError("Login failed");
       }
     } else {
@@ -78,7 +83,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">Sign up with <img src={fourtyTwoLogo} alt="42 Logo" /></a>
+        <a href="http://localhost:3000/auth/fourtytwo/login">
+          Sign up with <img src={fourtyTwoLogo} alt="42 Logo" />
+        </a>
       </Button>
 
       <p>――――― OR ――――― </p>

@@ -1,10 +1,9 @@
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { PrismaService } from 'nestjs-prisma';
-import { Game, GameStatus } from '../dto/game.dto';
-import { Player } from '../dto/game.dto';
+import { Game, GameStatus, Player } from '../dto/game.dto';
 import { User, Game as prismaGame } from '@prisma/client';
 
 @Injectable()
@@ -26,7 +25,6 @@ export class GameService {
 
   private games: Game[] = [];
   private startPaddle: number = 165;
-  private gameIDcounter: number = 0;
 
   /****************************************************************************/
   /* GAME INIT                                                                */
@@ -44,7 +42,14 @@ export class GameService {
     this.startPaddle = canvasHeight / 2 - paddleHeight / 2;
   }
 
-  async joinOrCreateGame(player: Player): Promise<[boolean, number]> {
+  async createPlayer(email: string, socketID: string, userName: string) {
+    const newPlayer = new Player('non', email, socketID, userName, 0);
+    // save the new Player in redis
+    await this.cacheManager.set(`game${email}`, JSON.stringify(newPlayer));
+    console.log('Game Service: new client/player created:', newPlayer.email);
+  }
+
+  async joinOrCreateGame(player: Player): Promise<[boolean, string]> {
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
 
     // Check if pending player exists, is available and is not current player
@@ -80,42 +85,41 @@ export class GameService {
   }
 
   async createWaitingGame(player: Player) {
-    const gameID = this.gameIDcounter;
-    this.gameIDcounter++;
+    const gameID = player.socketID;
     const newGame = new Game(
       gameID,
       1,
       player,
       null,
-      [10, 10],
-      {
-        x: 400,
-        y: 400,
-      },
-      {
-        x: 7,
-        y: 7,
-      },
+      [8, 8],
+      { x: 400, y: 400 },
+      { x: 5, y: 5 },
       Math.random() * Math.PI * 2,
       GameStatus.Waiting,
     );
     player.gameID = gameID;
-    await this.prisma.user.update({
-      where: {
-        email: player.email,
-      },
-      data: {
-        status: 'WAITING',
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: player.email,
+        },
+        data: {
+          status: 'WAITING',
+        },
+      });
+    } catch (err) {
+      console.log(err);
+    }
     this.games.push(newGame);
     console.log('game created with id', gameID);
   }
 
-  async joinGameAndLaunch(player: Player, gameID: number): Promise<boolean> {
+  async joinGameAndLaunch(player: Player, gameID: string): Promise<boolean> {
     const game = this.games.find((game) => game.gameID === gameID);
+    console.log('join and launch', game);
     if (game) {
       player.gameID = gameID;
+      this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
       game.rightPlayer = player;
       await this.prisma.user.updateMany({
         where: {
@@ -143,7 +147,7 @@ export class GameService {
     this.deleteGame(game.gameID);
   }
 
-  async deleteGame(gameID: number) {
+  async deleteGame(gameID: string) {
     const game = this.games.find((game) => game.gameID === gameID);
 
     game.leftPlayer.gameID = null;
@@ -167,7 +171,8 @@ export class GameService {
   /* GAMEPLAY                                                                 */
   /****************************************************************************/
 
-  movePaddle(client: Socket, payload: Object) {
+  movePaddle(client: Socket, payload: { key: string; gameID: string }) {
+    console.log(payload);
     const currentGame = this.games.find(
       (game) =>
         game.leftPlayer.socketID === client.id ||
@@ -179,8 +184,6 @@ export class GameService {
         ? currentGame.leftPlayer
         : currentGame.rightPlayer;
 
-    console.log(currentPlayer);
-
     if (!currentPlayer) {
       console.log('error');
       return;
@@ -189,11 +192,11 @@ export class GameService {
         console.log('no pad pos');
         currentPlayer.paddlePosition = 165;
       }
-      if (payload === 'up') {
-        if (currentPlayer.paddlePosition - 5 >= 0) {
+      if (payload.key === 'up') {
+        if (currentPlayer.paddlePosition - 5 > 0) {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
         }
-      } else if (payload === 'down') {
+      } else if (payload.key === 'down') {
         if (currentPlayer.paddlePosition + 5 < 325) {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
         }
@@ -221,43 +224,60 @@ export class GameService {
         ? currentGame.leftPlayer
         : currentGame.rightPlayer;
 
-    if (currentGame.ballPosition.x > 750) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[0] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
+    // ball hits paddle
+    if (
+      currentGame.ballPosition.x <= 54 &&
+      currentGame.ballPosition.x > 47 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballDirection.x *= -1;
+      currentGame.ballPosition.x +=
+        Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+      currentGame.ballPosition.y +=
+        Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+      return currentGame;
     }
 
-    if (currentGame.ballPosition.x <= 50) {
+    if (
+      currentGame.ballPosition.x >= 748 &&
+      currentGame.ballPosition.x < 755 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballDirection.x *= -1;
+      currentGame.ballPosition.x +=
+        Math.cos(currentGame.ballAngle) * currentGame.ballDirection.x;
+      currentGame.ballPosition.y +=
+        Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
+      return currentGame;
+    }
+
+    // ball pass the paddles
+    if (currentGame.ballPosition.x <= 10) {
       currentGame.ballPosition.x = 400;
       currentGame.ballPosition.y = 400;
       currentGame.score[1] += 1;
-      currentGame.ballAngle = Math.random() * Math.PI * 2;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+    if (currentGame.ballPosition.x >= 790) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
     }
 
-    if (
-      currentGame.ballPosition.x <= 55 &&
-      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
-        0 &&
-      currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
-        75
-    ) {
-      console.log(currentGame.ballPosition);
-      currentGame.ballDirection.x *= -1;
-    }
-
-    if (
-      currentGame.ballPosition.x >= 745 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
-        0 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
-        75
-    ) {
-      console.log(currentGame.ballPosition);
-      currentGame.ballDirection.x *= -1;
-    }
-
-    if (currentGame.ballPosition.y < 3 || currentGame.ballPosition.y >= 797) {
+    if (currentGame.ballPosition.y < 7 || currentGame.ballPosition.y >= 793) {
       currentGame.ballDirection.y *= -1;
     }
 
@@ -269,7 +289,6 @@ export class GameService {
     if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
       console.log('end');
       currentGame.status = GameStatus.Ended;
-      this.endGame(currentGame);
     }
 
     return currentGame;
@@ -327,4 +346,36 @@ export class GameService {
       player.gamesLost++;
     }
   }
+
+  /****************************************************************************/
+  // helper functions
+  /****************************************************************************/
+  generateAngle = (x: number, y: number) => {
+    let angle = Math.random() * Math.PI * 2;
+    console.log('init angle: ', angle);
+    if (angle > 3.5 && angle < 5) {
+      if (angle > (Math.PI / 2) * 3) {
+        angle += 1;
+      } else {
+        angle -= 1;
+      }
+    }
+    if (angle > 0.6 && angle < 2.5) {
+      if (angle > Math.PI / 2) {
+        angle += 1;
+      } else {
+        angle -= 1;
+      }
+    }
+    console.log('mod angle: ', angle);
+    if (x > 0 && y > 0) {
+      return angle;
+    } else if (x > 0 && y < 0) {
+      return (angle += Math.PI / 2);
+    } else if (x < 0 && y < 0) {
+      return (angle += Math.PI);
+    } else {
+      return (angle += (Math.PI / 2) * 3);
+    }
+  };
 }
