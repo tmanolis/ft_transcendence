@@ -8,8 +8,6 @@ import {
   UserStatus,
 } from "./styles/ProfileAvatar.styled";
 
-const BASE_URL = "http://localhost:3000";
-
 function toTitleCase(input: string) {
   return `• ${input
     .toLowerCase()
@@ -26,7 +24,7 @@ const ProfileAvatarBlock: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/user/me`, {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
           withCredentials: true,
         });
         setAvatarPath(response.data.avatar);

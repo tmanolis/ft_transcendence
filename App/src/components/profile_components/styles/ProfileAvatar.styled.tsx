@@ -22,7 +22,9 @@ export const AvatarImage = styled.img`
   object-fit: cover;
   border-radius: 139.809px;
   border: 2px solid var(--linear-white, #faf2f2);
-  background: url(<path-to-image>), lightgray 50% / cover no-repeat;
+  background:
+    url(<path-to-image>),
+    lightgray 50% / cover no-repeat;
 
   margin-right: 20px;
 `;

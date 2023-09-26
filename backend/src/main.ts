@@ -38,18 +38,17 @@ async function bootstrap() {
   app.use(cookieParser());
 
   const cors = {
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:8080',
-      'http://localhost',
-      '*',
-    ],
+    origin: `${process.env.FRONTEND_URL}`,
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
-    allowedHeaders: ['Accept', 'Content-Type', 'Authorization'],
+    allowedHeaders: [
+      'Accept',
+      'Content-Type',
+      'Authorization',
+      'Access-Control-Allow-Origin',
+    ],
   };
   app.enableCors(cors);
 

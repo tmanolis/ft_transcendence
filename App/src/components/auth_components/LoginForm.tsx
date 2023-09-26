@@ -28,9 +28,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/local/login",
+        `${import.meta.env.VITE_BACKEND_URL}/auth/local/login`,
         loginDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       console.log(response);
@@ -72,7 +72,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1 style={{ marginBottom: "0px" }}>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">
+        <a href={`${import.meta.env.VITE_BACKEND_URL}/auth/fourtytwo/login`}>
           Sign up with <img src={fourtyTwoLogo} alt="42 Logo" />
         </a>
       </Button>

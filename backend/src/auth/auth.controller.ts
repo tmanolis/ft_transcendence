@@ -24,7 +24,10 @@ import { User } from '@prisma/client';
 @ApiTags('User')
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService, private twoFA: TwoFA) {}
+  constructor(
+    private authService: AuthService,
+    private twoFA: TwoFA,
+  ) {}
 
   @Get('fourtytwo/login')
   @UseGuards(FourtyTwoAuthGuard)

@@ -28,7 +28,7 @@ interface Modal2FAProps {
 
 	try {
 		const response = await axios.post(
-		"http://localhost:3000/auth/2fa-verify",
+		`${import.meta.env.VITE_BACKEND_URL}/auth/2fa-verify`,
 		updateDTO,
 		{ withCredentials: true }
 		);

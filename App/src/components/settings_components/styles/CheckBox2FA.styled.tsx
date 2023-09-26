@@ -5,23 +5,23 @@ export const CheckBoxWrapper = styled.div`
   margin: 25px;
 
   div {
-	display: flex;
+    display: flex;
   }
 
   input[type="checkbox"] {
     width: 15px; /* Increase the size of the checkbox */
     height: 15px; /* Increase the size of the checkbox */
     border: 2px solid #000;
-	border-radius: 0.10em;
-    background: rgba(217, 217, 217, 0.00);
+    border-radius: 0.1em;
+    background: rgba(217, 217, 217, 0);
     appearance: none; /* Remove default browser styles */
     cursor: pointer;
 
-	display: grid;
-  	place-content: center;
+    display: grid;
+    place-content: center;
 
-	&:checked::before {
-      content: "\u00D7"; /* Unicode checkmark character : can change it to 2713 to be clearer */ 
+    &:checked::before {
+      content: "\u00D7"; /* Unicode checkmark character : can change it to 2713 to be clearer */
       font-size: 20px; /* Adjust the size of the checkmark */
       color: #000; /* Color of the checkmark */
     }
@@ -33,17 +33,17 @@ export const CheckBoxWrapper = styled.div`
     font-style: normal;
     font-weight: 550;
     margin-left: 5px; /* Add some space between the checkbox and label */
-	margin-top: 2.5px;
+    margin-top: 2.5px;
   }
 
   p {
-    color: rgba(0, 0, 0, 0.60);
+    color: rgba(0, 0, 0, 0.6);
     font-size: 12px;
     font-style: normal;
     font-weight: 400;
     line-height: 16px;
     margin: 0px;
-	margin-left: 10px;
+    margin-left: 10px;
     padding: 2px;
     width: 284px;
   }

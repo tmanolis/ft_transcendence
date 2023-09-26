@@ -24,7 +24,7 @@ export default function RegisterForm() {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/local/signup",
+        `${import.meta.env.VITE_BACKEND_URL}/auth/local/signup`,
         signupDTO,
 				{ withCredentials: true }
       );
