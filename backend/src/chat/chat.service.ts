@@ -52,8 +52,8 @@ export class ChatService {
     // check if user exists in prisma
     const newUser: ChatUser | null = await this.reconnectPrismaUser(client, email);
 
-		if (!newUser){		
-			client.emit('chat', 'accessDenied', {
+		if (!newUser){
+			client.emit('accessDenied', {
 				message: 'Account not found, please reconnect.',
 			});
 			client.disconnect();
@@ -104,7 +104,7 @@ export class ChatService {
       socket.join(room);
     }
     await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
-    console.log('updating existing chat user:', user.email);
+		console.log('update existing chat user:', user.email);
   }
 
 	async reconnectPrismaUser(client: Socket, email: string): Promise<ChatUser>{
@@ -140,8 +140,9 @@ export class ChatService {
 			'chat' + prismaUser.email,
 			JSON.stringify(newChatUser),
 		);
-    
+
 		console.log('creating new chat user:', email);
+		return newChatUser;
 	}
 
   /****************************************************************************/
@@ -184,8 +185,10 @@ export class ChatService {
         },
       });
     } catch (error) {
-      console.log(error);
-    }
+      throw new BadRequestException(
+        'Channel could not be created, did you send the right variables?',
+      ); 
+		}
 
     // updating cache
     chatuser.rooms.push(joinRoomDTO.name);
