@@ -26,7 +26,7 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
 
     try {
       const response = await axios.patch(
-        "http://localhost:3000/user/update",
+        `${import.meta.env.VITE_BACKEND_URL}/user/update`,
         updateDTO,
         { withCredentials: true },
       );

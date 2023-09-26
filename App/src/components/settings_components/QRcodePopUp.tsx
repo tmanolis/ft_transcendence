@@ -28,7 +28,7 @@ const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode}) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/2fa-enable",
+        `${import.meta.env.VITE_BACKEND_URL}/auth/2fa-enable`,
         updateDTO,
         { withCredentials: true },
       );

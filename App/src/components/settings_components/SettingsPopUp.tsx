@@ -30,7 +30,7 @@ const SettingsPopUp: React.FC = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/user/me", { withCredentials: true })
+      .get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, { withCredentials: true })
       .then((response) => {
         console.log(response.data.isFourtyTwoStudent);
         set42IsStudent(response.data.isFourtyTwoStudent);

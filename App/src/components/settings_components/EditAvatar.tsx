@@ -8,10 +8,8 @@ import {
   Username,
 } from "./styles/EditAvatar.styled";
 
-const BASE_URL = "http://localhost:3000";
-
 const getUser = async () => {
-  const response = await axios.get(`${BASE_URL}/user/me`, {
+  const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
     withCredentials: true,
   });
   return response.data;
@@ -40,7 +38,7 @@ const EditAvatar: React.FC = () => {
 
       try {
         const response = await axios.patch(
-          `${BASE_URL}/user/update`,
+          `${import.meta.env.VITE_BACKEND_URL}/user/update`,
           formData,
           {
             withCredentials: true,

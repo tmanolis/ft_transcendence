@@ -6,8 +6,6 @@ import NavBar from "../components/landing_components/NavBar";
 import AvatarBar from "../components/landing_components/AvatarBar";
 import LandingContainer from "../components/landing_components/styles/LandingContainer.styled";
 
-const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`;
-
 const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);
   const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
@@ -18,7 +16,7 @@ const Landing: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${BASE_URL}/user/me`, {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
           withCredentials: true,
         });
         setAvatarPath(response.data.avatar);
