@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
 
-import PageContainer from "../components/styles/AuthContainer.styled";
+import PageContainer from "../components/auth_components/styles/AuthContainer.styled";
 
 // Connect to the socket from outside of the component
 // avoid reconnection when ever the states changed

@@ -1,13 +1,8 @@
 import {
   SubscribeMessage,
   WebSocketGateway,
-  MessageBody,
   WebSocketServer,
-  ConnectedSocket,
   OnGatewayConnection,
-  OnGatewayDisconnect,
-  WsResponse,
-  WsException,
 } from '@nestjs/websockets';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -26,7 +21,7 @@ import { GameService } from '../game/game.service';
   },
   namespace: 'game',
 })
-export class SocketGateway implements OnGatewayConnection {
+export class GameGateway implements OnGatewayConnection {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,

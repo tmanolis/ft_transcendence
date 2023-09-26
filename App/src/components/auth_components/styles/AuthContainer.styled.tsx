@@ -1,6 +1,6 @@
 import React from "react";
 import { styled } from "styled-components";
-import JBRegular from "../../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2";
+import JBRegular from "../../../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBrainsMono-Regular.woff2";
 
 export type PageProps = {
   children?: React.ReactNode;

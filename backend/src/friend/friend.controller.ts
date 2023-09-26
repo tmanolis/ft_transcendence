@@ -11,9 +11,7 @@ import {
 } from '@nestjs/common';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
-
 import { JwtGuard } from 'src/auth/guard';
-
 import { FriendService } from './friend.service';
 import { GetUser } from 'src/decorator';
 
@@ -35,12 +33,12 @@ export class FriendController {
   // Get the requests received from other users
   @Get('receivedRequests')
   async getReceivedRequests(@GetUser() user: User) {
-    return { receivedRequests: user.friendRequestsReceived };
+    return { receivedRequests: user.friendReqestsReceived };
   }
 
   // Get the requests sent by me
   @Get('sentRequests')
   async getSentRequests(@GetUser() user: User) {
-    return { sentRequests: user.friendRequestsSent };
+    return { sentRequests: user.frienRequestsSent };
   }
 }
