@@ -5,7 +5,7 @@ const Register = () => {
 
   return (
     <PageContainer>
-		<RegisterForm />
+		  <RegisterForm />
     </PageContainer>
   );
 };

@@ -8,10 +8,9 @@ import Button from "./styles/Button.styled";
 interface Modal2FAProps {
 	onCancel: () => void;
 	nonce: string;
-	children: React.ReactNode;
   }
   
-  export const Modal2FA: React.FC<Modal2FAProps> = ({ onCancel, nonce,  children }) => {
+  export const Modal2FA: React.FC<Modal2FAProps> = ({ onCancel, nonce }) => {
 	const [inputValue, setInputValue] = useState("");
   	const [errorResponse, setErrorResponse] = useState("");
 
@@ -51,7 +50,8 @@ interface Modal2FAProps {
 	return (
 		<ModalContainer>
 			<PopUpWrapper>
-				{children}
+				<h2>2FA Authentification</h2>
+				<p>Please enter your code</p>
 				<Input
 				type="text"
 				value={inputValue}

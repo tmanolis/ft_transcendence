@@ -78,6 +78,7 @@ export class AuthService {
             password: dto.password,
           },
         });
+        await this.fourtyTwoFirstLogin(user, res);
       } catch (error) {
         if (error.code === 'P2002') {
           throw new ForbiddenException('Credentials taken');
@@ -90,8 +91,9 @@ export class AuthService {
     }
 
     if (user.twoFAActivated) {
-      const nonce = this.generateAndCacheRandomNonce(user.userName);
-      return res.status(200).json({ event: '2fa needed', nonce: nonce });
+      const nonce = await this.generateAndCacheRandomNonce(user.userName);
+      console.log(nonce);
+      return res.cookie("nonce", nonce).status(200).redirect(`${process.env.FRONTEND_URL}/auth/verify2fa-42api`);
     }
     await this.updateAfterLogin(user, res);
   }
@@ -119,6 +121,20 @@ export class AuthService {
     return await this.updateAfterLogin(user, res);
   }
 
+  async fourtyTwoFirstLogin(user: User, res: any) {
+    await this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        status: 'ONLINE',
+      },
+    });
+
+    const token = await this.signToken(user.id, user.email);
+    return res.cookie('jwt', token).status(200).redirect(`${process.env.FRONTEND_URL}/settings`);
+  }
+
   async updateAfterLogin(user: User, res: any) {
     await this.prisma.user.update({
       where: {
@@ -130,7 +146,7 @@ export class AuthService {
     });
 
     const token = await this.signToken(user.id, user.email);
-    if (user.isFourtyTwoStudent) {
+    if (user.isFourtyTwoStudent && !user.twoFAActivated ) {
       return res.cookie('jwt', token).status(200).redirect(`${process.env.FRONTEND_URL}`);
     } else {
       return res.cookie('jwt', token).status(200).json({ status: 'logged in' });
