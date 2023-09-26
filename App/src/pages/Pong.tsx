@@ -89,6 +89,7 @@ const Pong = () => {
 
     socket.on("endWaitingState", () => {
       setIsWaiting(false);
+      console.log("waiting ENDED!!!");
       const interval = setInterval(() => {
         setCountdown((prevCountdown: number) => {
           if (prevCountdown <= 1) {
@@ -114,7 +115,6 @@ const Pong = () => {
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
-      console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
   }, [gameID]);

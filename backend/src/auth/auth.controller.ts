@@ -18,7 +18,7 @@ import { AuthService } from './auth.service';
 import { AuthDto, EnableTwoFADTO, LoginDto, VerifyTwoFADTO } from '../dto';
 import { TwoFA } from './strategy';
 import { JwtGuard } from './guard';
-import { GetUser } from 'src/decorator';
+import { GetUser } from '../decorator';
 import { User } from '@prisma/client';
 
 @ApiTags('User')
