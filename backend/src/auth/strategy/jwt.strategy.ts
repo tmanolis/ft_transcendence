@@ -15,7 +15,10 @@ const ExtractJwtFromCookie = (req: Request) => {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(config: ConfigService, private prisma: PrismaService) {
+  constructor(
+    config: ConfigService,
+    private prisma: PrismaService,
+  ) {
     super({
       jwtFromRequest: ExtractJwtFromCookie,
       secretOrKey: config.get('JWT_SECRET'),

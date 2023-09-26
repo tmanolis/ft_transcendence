@@ -21,7 +21,7 @@ import { GameService } from '../game/game.service';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:8080'],
+    origin: [`${process.env.FRONTEND_URL}`, '*'],
   },
 })
 export class SocketGateway implements OnGatewayConnection {
@@ -127,9 +127,8 @@ export class SocketGateway implements OnGatewayConnection {
       this.cacheManager.del(`game${existingPlayerObject.email}`);
       return;
     } else if (user.status === 'WAITING') {
-      const pendingPlayer: string = await this.cacheManager.get(
-        'pendingPlayer',
-      );
+      const pendingPlayer: string =
+        await this.cacheManager.get('pendingPlayer');
       if (!pendingPlayer) return;
       // check if pendingPlayer(in cache) is the waiting player(in database)
       const pendingPlayerObject: Player = JSON.parse(pendingPlayer);

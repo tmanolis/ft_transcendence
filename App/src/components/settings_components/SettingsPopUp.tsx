@@ -8,13 +8,12 @@ import QRCodePopup from "./QRcodePopUp";
 import { SettingsWrapper } from "./styles/SettingsPopUp.styled";
 import axios from "axios";
 
-
 const SettingsPopUp: React.FC = () => {
   const [QRCode, setQRCode] = useState("");
   const [updateError, setUpdateError] = useState("");
   const [updateSuccess, setUpdateSuccess] = useState("");
   const [is42Student, set42IsStudent] = useState(false);
-  
+
   const handleQRcode = (path: string) => {
     setQRCode(path);
   };
@@ -30,7 +29,8 @@ const SettingsPopUp: React.FC = () => {
   };
 
   useEffect(() => {
-    axios.get("http://localhost:3000/user/me", { withCredentials: true })
+    axios
+      .get("http://localhost:3000/user/me", { withCredentials: true })
       .then((response) => {
         console.log(response.data.isFourtyTwoStudent);
         set42IsStudent(response.data.isFourtyTwoStudent);
@@ -38,30 +38,34 @@ const SettingsPopUp: React.FC = () => {
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);;
+  }, []);
 
   return (
     <>
-    {QRCode && <QRCodePopup QRCode={QRCode} />}
-    <WhitePopUp>
-      <h2>Settings</h2>
-      <h3>Manage your informations and security</h3>
-      <EditAvatar />
+      {QRCode && <QRCodePopup QRCode={QRCode} />}
+      <WhitePopUp>
+        <h2>Settings</h2>
+        <h3>Manage your informations and security</h3>
+        <EditAvatar />
         <SettingsWrapper>
           <CheckBox2FA QRcode={handleQRcode} />
           <EditUsername onError={handleUpdateError} />
-          {is42Student !== true && <EditPassword
-            onError={handleUpdateError}
-            onSuccess={handleUpdateSuccess}
-          />}
+          {is42Student !== true && (
+            <EditPassword
+              onError={handleUpdateError}
+              onSuccess={handleUpdateSuccess}
+            />
+          )}
           {updateSuccess && (
-            <div style={{ color: "green", fontSize: "12px" }}>{updateSuccess}</div>
+            <div style={{ color: "green", fontSize: "12px" }}>
+              {updateSuccess}
+            </div>
           )}
           {updateError && (
             <div style={{ color: "red", fontSize: "12px" }}>{updateError}</div>
           )}
-      </SettingsWrapper>
-    </WhitePopUp>
+        </SettingsWrapper>
+      </WhitePopUp>
     </>
   );
 };

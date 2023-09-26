@@ -30,7 +30,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/auth/local/login`,
         loginDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       console.log(response);

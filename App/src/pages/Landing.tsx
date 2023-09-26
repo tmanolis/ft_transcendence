@@ -12,7 +12,7 @@ const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);
   const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
   const [avatarPath, setAvatarPath] = useState<string>(
-    "../../public/icon/Avatar.svg"
+    "../../public/icon/Avatar.svg",
   );
 
   useEffect(() => {

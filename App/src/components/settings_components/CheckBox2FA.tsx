@@ -10,7 +10,7 @@ interface CheckBox2FAProps {
 
 const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
   const [isChecked, setIsChecked] = useState(false);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -26,44 +26,46 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
     fetchUserData();
   }, []);
 
-  const handleCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCheckboxChange = async (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const newCheckedValue = event.target.checked;
-    
+
     setIsChecked(newCheckedValue);
     console.log("state: " + newCheckedValue);
     console.log("isChecked during handleCheckbox: " + isChecked);
-    
+
     const updateDTO = {
-      twoFAActivated: newCheckedValue
+      twoFAActivated: newCheckedValue,
     };
 
     try {
       const response = await axios.patch(
         "http://localhost:3000/user/update",
         updateDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response.data);
       if (newCheckedValue) {
         QRcode(response.data);
       }
     } catch (error) {
-      console.error(error);;
+      console.error(error);
     }
-
   };
 
   return (
     <CheckBoxWrapper>
       <div>
-        <input type="checkbox"
-        id="2fa_checkbox"
-        checked={isChecked}
-        onChange={handleCheckboxChange} 
+        <input
+          type="checkbox"
+          id="2fa_checkbox"
+          checked={isChecked}
+          onChange={handleCheckboxChange}
         />
         <label htmlFor="2fa_checkbox">enable_2fa</label>
       </div>
-        <p>double factor authentification for maximum security</p>
+      <p>double factor authentification for maximum security</p>
     </CheckBoxWrapper>
   );
 };

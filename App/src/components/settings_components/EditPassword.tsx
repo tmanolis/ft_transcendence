@@ -28,7 +28,7 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
       const response = await axios.patch(
         "http://localhost:3000/user/update",
         updateDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response);
       onSuccess("Password was successfully changed");
@@ -51,13 +51,13 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
   return (
     <EditPasswordWrapper>
       <form onSubmit={handleSubmit}>
-      <InputContainer>
-        <InputSettings
-          name="old_password"
-          type="text"
-          id="old_password"
-          placeholder="<type old_password>"
-        />
+        <InputContainer>
+          <InputSettings
+            name="old_password"
+            type="text"
+            id="old_password"
+            placeholder="<type old_password>"
+          />
         </InputContainer>
         <InputContainer>
           <InputSettings

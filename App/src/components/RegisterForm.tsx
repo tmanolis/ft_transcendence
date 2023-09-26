@@ -25,7 +25,7 @@ export default function RegisterForm() {
     try {
       const response = await axios.post(
         "http://localhost:3000/auth/local/signup",
-        signupDTO
+        signupDTO,
       );
       console.log(response);
       navigate("/pong");

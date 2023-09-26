@@ -1,5 +1,4 @@
-import styled from 'styled-components';
-
+import styled from "styled-components";
 
 export const QRCodePopupWrapper = styled.div`
   position: fixed;
@@ -9,7 +8,7 @@ export const QRCodePopupWrapper = styled.div`
   top: 50%; /* Center vertically */
   transform: translate(-50%, -50%); /* Centering trick */
   background: #000000;
-  border: 2px solid #FFFFFF;
+  border: 2px solid #ffffff;
   display: flex;
   flex-direction: column; /* Align children vertically */
   align-items: center; /* Center horizontally */
@@ -21,7 +20,6 @@ export const QRCodePopupWrapper = styled.div`
 export const ChildContainer = styled.div`
   margin-top: 10px; /* Add margin between child elements */
 `;
-
 
 export const QRCodeContainer = styled.div`
   background-color: white;

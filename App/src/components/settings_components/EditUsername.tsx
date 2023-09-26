@@ -25,7 +25,7 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
       const response = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/user/update`,
         updateDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response);
       window.location.reload();
