@@ -21,3 +21,5 @@ CALLBACK_URL="{callback_url}"
 ###############################################################################
 JWT_SECRET="{don't tell anyone my secret}"
 BACKEND_HOST="{the backend host name}"
+FRONTEND_URL="{the front end url with port}"
+VITE_BACKEND_URL="{the backend url with port}"

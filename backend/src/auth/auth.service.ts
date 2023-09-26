@@ -211,7 +211,7 @@ export class AuthService {
 
     const token = await this.signToken(user.id, user.email);
     if (user.isFourtyTwoStudent) {
-      res.cookie('jwt', token).redirect('/');
+      res.cookie('jwt', token).redirect(`${process.env.FRONTEND_URL}/`);
     } else {
       res.cookie('jwt', token).send({ status: 'logged in' });
     }

@@ -28,7 +28,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/local/login",
+        `${import.meta.env.VITE_BACKEND_URL}/auth/local/login`,
         loginDTO,
         { withCredentials: true }
       );
@@ -83,7 +83,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">
+        <a href={`${import.meta.env.VITE_BACKEND_URL}/auth/fourtytwo/login`}>
           Sign up with <img src={fourtyTwoLogo} alt="42 Logo" />
         </a>
       </Button>

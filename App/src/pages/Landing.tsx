@@ -6,7 +6,7 @@ import NavBar from "../components/landing_components/NavBar";
 import AvatarBar from "../components/landing_components/AvatarBar";
 import LandingContainer from "../components/landing_components/styles/LandingContainer.styled";
 
-const BASE_URL = "http://localhost:3000";
+const BASE_URL = `${import.meta.env.VITE_BACKEND_URL}`;
 
 const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);

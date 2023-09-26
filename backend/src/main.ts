@@ -39,10 +39,7 @@ async function bootstrap() {
 
   const cors = {
     origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:8080',
-      'http://localhost',
+      `${process.env.FRONTEND_URL}`,
       '*',
     ],
     methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
