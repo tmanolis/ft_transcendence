@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Socket } from 'socket.io';
 import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { PrismaService } from 'nestjs-prisma';
 import { Game, GameStatus, Player } from '../dto/game.dto';
 import { User, Game as prismaGame } from '@prisma/client';

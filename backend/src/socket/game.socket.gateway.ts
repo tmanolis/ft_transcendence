@@ -1,13 +1,8 @@
 import {
   SubscribeMessage,
   WebSocketGateway,
-  MessageBody,
   WebSocketServer,
-  ConnectedSocket,
   OnGatewayConnection,
-  OnGatewayDisconnect,
-  WsResponse,
-  WsException,
 } from '@nestjs/websockets';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -23,8 +18,9 @@ import { GameService } from '../game/game.service';
   cors: {
     origin: ['http://localhost:3000', 'http://localhost:8080'],
   },
+  namespace: 'game',
 })
-export class SocketGateway implements OnGatewayConnection {
+export class GameGateway implements OnGatewayConnection {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -48,55 +44,59 @@ export class SocketGateway implements OnGatewayConnection {
       client.disconnect();
       return;
     }
-    jwtData = this.jwtService.decode(jwt);
+
     if (typeof jwtData !== 'object') {
-      console.log(client.id, 'Socket: Bad JWT data', jwtData);
-      client.disconnect();
-      return;
-    }
+      console.log(client.id, 'JWT data is not an object:', jwtData);
+      jwtData = this.jwtService.decode(jwt);
+      if (typeof jwtData !== 'object') {
+        console.log(client.id, 'Socket: Bad JWT data', jwtData);
+        client.disconnect();
+        return;
+      }
 
-    // find the user in database
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: jwtData.email,
-      },
-    });
-    if (!user) {
-      client.emit('accountDeleted', {
-        message: 'Your account has been deleted.',
+      // find the user in database
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: jwtData.email,
+        },
       });
-      client.disconnect();
-      return;
-    }
+      if (!user) {
+        client.emit('accountDeleted', {
+          message: 'Your account has been deleted.',
+        });
+        client.disconnect();
+        return;
+      }
 
-    // link socket id to useremail
-    await this.cacheManager.set(client.id, user.email);
+      // link socket id to useremail
+      await this.cacheManager.set(client.id, user.email);
 
-    // check if player already exists in game
-    const existingPlayer: string = await this.cacheManager.get(
-      `game${jwtData.email}`,
-    );
-    if (existingPlayer) {
-      let existingPlayerObject: Player = JSON.parse(existingPlayer);
-      existingPlayerObject.socketID = client.id;
-      await this.cacheManager.set(
+      // check if player already exists in game
+      const existingPlayer: string = await this.cacheManager.get(
         `game${jwtData.email}`,
-        JSON.stringify(existingPlayerObject),
       );
-      console.log(existingPlayerObject);
-      console.log(
-        'Socket: existing player updated: ',
-        existingPlayerObject.email,
-      );
-      this.gameService.joinGameAndLaunch(
-        existingPlayerObject,
-        existingPlayerObject.gameID,
-      );
-      return;
-    }
+      if (existingPlayer) {
+        let existingPlayerObject: Player = JSON.parse(existingPlayer);
+        existingPlayerObject.socketID = client.id;
+        await this.cacheManager.set(
+          `game${jwtData.email}`,
+          JSON.stringify(existingPlayerObject),
+        );
+        console.log(existingPlayerObject);
+        console.log(
+          'Socket: existing player updated: ',
+          existingPlayerObject.email,
+        );
+        this.gameService.joinGameAndLaunch(
+          existingPlayerObject,
+          existingPlayerObject.gameID,
+        );
+        return;
+      }
 
-    // if no such player in redis, create one.
-    this.gameService.createPlayer(jwtData.email, client.id, user.userName);
+      // if no such player in redis, create one.
+      this.gameService.createPlayer(jwtData.email, client.id, user.userName);
+    }
   }
 
   async handleDisconnect(client: Socket) {
@@ -281,12 +281,17 @@ export class SocketGateway implements OnGatewayConnection {
 
     if (response.accept) {
       client.join(response.gameID.toString());
-			const gameStarted = this.gameService.joinGameAndLaunch(currentPlayer, response.gameID);
-			if (gameStarted){
-				this.server.to(invitingPlayer.socketID).emit("invitationAccepted");
-			} else {
-				this.server.to(currentPlayer.socketID).emit("errorGameInvite", {error: "Game has been deleted"});
-			}
+      const gameStarted = this.gameService.joinGameAndLaunch(
+        currentPlayer,
+        response.gameID,
+      );
+      if (gameStarted) {
+        this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
+      } else {
+        this.server
+          .to(currentPlayer.socketID)
+          .emit('errorGameInvite', { error: 'Game has been deleted' });
+      }
     } else {
       this.server.to(invitingPlayer.socketID).emit('invitationDeclined');
       this.gameService.deleteGame(currentPlayer.gameID);
@@ -321,16 +326,5 @@ export class SocketGateway implements OnGatewayConnection {
     console.log(payload);
     console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
-  }
-
-  /****************************************************************************/
-  /* CHAT                                                                     */
-  /****************************************************************************/
-
-  @SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object): Object {
-    console.log(payload);
-    console.log('Message received!!!');
-    return { event: 'player message receivedt ', socketID: client.id };
   }
 }
