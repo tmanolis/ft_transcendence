@@ -273,33 +273,4 @@ export class AuthService {
       throw new Error('Error reading image file: ${error.message}');
     }
   }
-<<<<<<< HEAD
-
-  async addToBlacklist(userID: string, token: string): Promise<void> {
-    await this.prisma.jwtBlacklist.upsert({
-      where: { userID },
-      update: { token },
-      create: { token, userID },
-    });
-  }
-
-  async updateAfterLogin(user: User, res: any) {
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        status: 'ONLINE',
-      },
-    });
-
-    const token = await this.signToken(user.id, user.email);
-    if (user.isFourtyTwoStudent) {
-      res.cookie('jwt', token).redirect(`${process.env.FRONTEND_URL}/`);
-    } else {
-      res.cookie('jwt', token).send({ status: 'logged in' });
-    }
-  }
-=======
->>>>>>> 2aab02e33a7a7fe5cd0fa360aebcfdfe5a32be77
 }
