@@ -9,7 +9,7 @@ import fourtyTwoLogo from "../../assets/42_logo.png";
 
 export type LoginFormProps = {
   onLinkClick: () => void;
-  openModal2FA: () => void;
+  openModal2FA: (nonce: string) => void;
 };
 
 const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
@@ -36,7 +36,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
 
       console.log(response);
       if (response.data.event === "2fa needed")
-        openModal2FA();
+      {
+        openModal2FA(response.data.nonce);
+      }
       else
         navigate("/");
       console.log("response other", response);
