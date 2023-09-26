@@ -126,7 +126,7 @@ export class FriendService {
       throw new BadRequestException('Receiver not found.');
     }
 
-    // check if sender and receiver's sentRequest/receivedRequest array 
+    // check if sender and receiver's sentRequest/receivedRequest array
     // contain the corresponding email
     if (
       !sender.friendRequestsSent.includes(receiverEmail) ||
@@ -216,8 +216,8 @@ export class FriendService {
           },
         },
       });
-      if (add.FriendResult.friends.length === 1) {
-        console.log("Added my first friend.");
+      if (addFriendResult.friends.length === 1) {
+        console.log('Added my first friend.');
         // Add FRIEND achievement.
         // Should probably create an achievement module for this.
       }
@@ -236,12 +236,12 @@ export class FriendService {
             push: receiverEmail,
           },
         },
+      });
       if (addFriendResult.friends.length === 1) {
-        console.log("Added my first friend.");
+        console.log('Added my first friend.');
         // Add FRIEND achievement.
         // Should probably create an achievement module for this.
       }
-      });
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
     }
@@ -313,11 +313,7 @@ export class FriendService {
   /*****************************************************************************/
   /* unfriend */
   /*****************************************************************************/
-  async unfriend(
-    user: User,
-    payload: { userEmail: string },
-    res: Response,
-  ) {
+  async unfriend(user: User, payload: { userEmail: string }, res: Response) {
     // check user/payload data
     const checkData = await this.checkSenderAndReceiver(user, payload);
     if (checkData !== '') {
@@ -439,7 +435,7 @@ export class FriendService {
     }
   }
 
-  async getUserByEmail(email: string) : Promise<User> {
+  async getUserByEmail(email: string): Promise<User> {
     let user: User = null;
     try {
       user = await this.prisma.user.findUnique({

@@ -87,9 +87,8 @@ export class FriendController {
       .send({ status: result.status, message: result.message });
   }
 
-
   /*****************************************************************************/
-  // DELETE 
+  // DELETE
   /*****************************************************************************/
   // Cancel request
   @Delete('cancelFriendRequest')
@@ -132,11 +131,7 @@ export class FriendController {
     @Body() payload: { userEmail: string },
     @Res() res: Response,
   ) {
-    const result = await this.friendService.unfriend(
-      user,
-      payload,
-      res,
-    );
+    const result = await this.friendService.unfriend(user, payload, res);
     res
       .status(result.statusCode)
       .send({ status: result.status, message: result.message });
