@@ -6,6 +6,7 @@ import { ModalContainer, PopUpWrapper } from "../components/auth_components/styl
 import { useNavigate } from "react-router";
 import axios, { AxiosError } from "axios";
 import styled from "styled-components";
+import Cookies from 'js-cookie';
 
 type PageContainerProps = {
 	children?: React.ReactNode;
@@ -33,6 +34,7 @@ const Verify2FA = () => {
 
 	const updateDTO = {
 		code: inputValue,
+    nonce: Cookies.get('nonce')
 	};
 
 	try {
@@ -42,6 +44,7 @@ const Verify2FA = () => {
 		{ withCredentials: true }
 		);
 		console.log(response);
+    navigate("/");
 	} catch (error) {
 			handleUpdateError(error as AxiosError);
 	}
