@@ -108,6 +108,11 @@ export class AuthService {
     if (user.twoFAActivated) {
       const nonce: string = this.generateRandomNonce(16);
       const timestamp: number = new Date().getTime();
+      console.log(
+        'caching: ',
+        nonce,
+        JSON.stringify({ username: user.userName, timestamp: timestamp }),
+      );
       await this.cacheManager.set(
         nonce,
         JSON.stringify({ username: user.userName, timestamp: timestamp }),
@@ -166,7 +171,6 @@ export class AuthService {
 
       if (validatedUser) {
         this.updateAfterLogin(user, res);
-        return res.send({ event: '2fa ok' });
       }
     } catch (error) {
       throw new Error(error.message);
