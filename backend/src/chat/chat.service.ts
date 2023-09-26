@@ -15,12 +15,11 @@ import {
   joinRoomDTO,
   ChatMessage,
 } from 'src/dto';
-import { User, Message, RoomStatus, Room, UserInRoom } from '@prisma/client';
+import { User, RoomStatus, Room, UserInRoom } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { userInfo } from 'os';
 
 @Injectable()
 export class ChatService {
@@ -51,28 +50,17 @@ export class ChatService {
     }
 
     // check if user exists in prisma
-    const prismaUser: User = await this.fetchPrismaUser(email);
+    const newUser: ChatUser | null = await this.reconnectPrismaUser(client, email);
 
-    // create new user or disconnect
-    if (!prismaUser) {
-      client.emit('chat', 'accessDenied', {
-        message: 'Account not found, please reconnect.',
-      });
-      client.disconnect();
-      return;
-    } else {
-      const newChatUser = new ChatUser(
-        prismaUser.email,
-        client.id,
-        prismaUser.userName,
-      );
-      console.log('creating new chat user:', prismaUser.email);
-      await this.cacheManager.set(
-        'chat' + prismaUser.email,
-        JSON.stringify(newChatUser),
-      );
-      return newChatUser;
-    }
+		if (!newUser){		
+			client.emit('chat', 'accessDenied', {
+				message: 'Account not found, please reconnect.',
+			});
+			client.disconnect();
+			return;
+		}
+
+    return newUser;
   }
 
   getEmailFromJWT(client: Socket) {
@@ -112,21 +100,49 @@ export class ChatService {
 
   async reconnectChatuser(user: ChatUser, socket: Socket) {
     user.socketID = socket.id;
-		const prismaUser = await this.prisma.user.findUnique({
-      where: {
-        email: user.email,
-      }, include: {
-				rooms: true,
-			}
-    });
-
-    for (const room of prismaUser.rooms) {
-      socket.join(room.roomID);
+    for (const room in user.rooms) {
+      socket.join(room);
     }
-    
-		await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
+    await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
     console.log('updating existing chat user:', user.email);
   }
+
+	async reconnectPrismaUser(client: Socket, email: string): Promise<ChatUser>{
+		const prismaUser = await this.prisma.user.findUnique({
+			where: {
+				email: email,
+			}, include: {
+				rooms: true,
+			}
+		})
+
+		// check if prisma user exists
+		if (!prismaUser){
+			return null;
+		}
+
+		// create new chatuser
+		const newChatUser = new ChatUser(
+			prismaUser.email,
+			client.id,
+			prismaUser.userName,
+			[],
+		);
+
+		// add connected rooms and join
+		for (const room of prismaUser.rooms){
+			newChatUser.rooms.push(room.roomID);
+			client.join(room.roomID);
+		}
+		
+		// push to cache
+		await this.cacheManager.set(
+			'chat' + prismaUser.email,
+			JSON.stringify(newChatUser),
+		);
+    
+		console.log('creating new chat user:', email);
+	}
 
   /****************************************************************************/
   /* channels												                                          */
@@ -171,6 +187,13 @@ export class ChatService {
       console.log(error);
     }
 
+    // updating cache
+    chatuser.rooms.push(joinRoomDTO.name);
+    await this.cacheManager.set(
+      'chat' + chatuser.email,
+      JSON.stringify(chatuser),
+    );
+
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
       room: roomDTO.name,
@@ -210,7 +233,7 @@ export class ChatService {
     // check password for private room
     if (roomDTO.status === RoomStatus.PRIVATE) {
       if (!roomDTO.password)
-        throw new ForbiddenException('Password is mandatory for private channel');
+        throw new ForbiddenException('Password mandatory for private channel');
       else {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
@@ -251,6 +274,13 @@ export class ChatService {
         users: true,
       },
     });
+
+    // updating cache
+    chatuser.rooms.push(joinRoomDTO.name);
+    await this.cacheManager.set(
+      'chat' + chatuser.email,
+      JSON.stringify(chatuser),
+    );
 
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
