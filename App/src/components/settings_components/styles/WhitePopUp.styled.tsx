@@ -31,6 +31,7 @@ const StyledWhitePopUp = styled.div`
 
   h2 {
     margin-top: 13px;
+    margin-left: 10px;
     margin-bottom: 2px;
     font-size: 30px;
   }
@@ -42,7 +43,7 @@ const StyledWhitePopUp = styled.div`
     font-style: normal;
     font-weight: 400;
     margin-top: 0px;
-    margin-left: 1px;
+    margin-left: 10px;
     margin-bottom: 23px;
   }
 `;

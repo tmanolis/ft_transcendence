@@ -3,7 +3,8 @@ import styled from "styled-components";
 export const EditAvatarWrapper = styled.div`
   display: flex; /* Display children side by side */
   align-items: center; /* Vertically align children */
-  margin: 10px; /* Add margin for spacing */
+  margin: 15px; /* Add margin for spacing */
+  margin-bottom: 20px;
 `;
 
 export const AvatarImage = styled.img`
