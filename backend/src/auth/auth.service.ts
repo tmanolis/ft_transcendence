@@ -50,7 +50,6 @@ export class AuthService {
         }
       }
     }
-    console.log('auth 42 login: ', user.userName);
 
     if (!user || user.isFourtyTwoStudent === false) {
       res.redirect('http://localhost:8080');
@@ -146,7 +145,7 @@ export class AuthService {
           });
         }
       }
-      return res.send({event: "2fa ok"});
+      return res.send({ event: '2fa ok' });
     } catch (error) {
       throw new Error(error.message);
     }
