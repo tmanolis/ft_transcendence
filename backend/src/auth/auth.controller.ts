@@ -15,7 +15,7 @@ import {
 } from '@nestjs/swagger';
 import { FourtyTwoAuthGuard } from './guard/FourtyTwo.guard';
 import { AuthService } from './auth.service';
-import { AuthDto, LoginDto } from '../dto';
+import { AuthDto, EnableTwoFADTO, LoginDto, VerifyTwoFADTO } from '../dto';
 import { TwoFA } from './strategy';
 import { JwtGuard } from './guard';
 import { GetUser } from 'src/decorator';
@@ -52,27 +52,36 @@ export class AuthController {
   @ApiUnauthorizedResponse({
     description: 'User could not be created. Please try again!',
   })
-  signup(@Res() res: any, @Body() dto: AuthDto) {
-    return this.authService.localSignup(res, dto);
+  async signup(@Res() res: any, @Body() dto: AuthDto) {
+    return await this.authService.localSignup(res, dto);
   }
 
   @Post('local/login')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: 'Login failed. Please try again!' })
-  signin(@Body() dto: LoginDto, @Res() res: any) {
-    return this.authService.localLogin(dto, res);
+  async signin(@Body() dto: LoginDto, @Res() res: any) {
+    return await this.authService.localLogin(dto, res);
   }
 
-  @UseGuards(JwtGuard)
   @Post('2fa-verify')
   @ApiOkResponse({ description: 'User is now online.' })
   @ApiUnauthorizedResponse({ description: '2FA failed. Please try again!' })
-  async twoFAVerify(
-    @Body() payload: { code: string },
-    @Res() res: any,
+  async twoFAVerify(@Body() dto: VerifyTwoFADTO, @Res() res: any) {
+    return await this.authService.twoFAVerify(res, dto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Post('2fa-enable')
+  @ApiOkResponse({ description: '2FA is now enabled.' })
+  @ApiUnauthorizedResponse({
+    description: '2FA verification failed. Please try again!',
+  })
+  async twoFAEnable(
     @GetUser() user: User,
+    @Body() dto: EnableTwoFADTO,
+    @Res() res: any,
   ) {
-    return await this.authService.twoFAVerify(user, res, payload);
+    return await this.authService.twoFAEnable(user, res, dto);
   }
 
   @UseGuards(JwtGuard)
