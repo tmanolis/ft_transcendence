@@ -165,7 +165,7 @@ export class ChatService {
 
     // create new room
     try {
-      const newRoom = await this.prisma.room.create({
+      let newRoom = await this.prisma.room.create({
         data: {
           ...roomDTO,
           owner: chatuser.email,
@@ -197,16 +197,17 @@ export class ChatService {
       JSON.stringify(chatuser),
     );
 
-    // sending a little welcome message
-    const welcomeMessage: messageDTO = {
-      room: roomDTO.name,
-      sender: 'PongStoryShort',
-      text: 'Congratulations! You have successfully created a channel.',
-    };
-    this.handleMessage(welcomeMessage);
-
-    // still missing:
-    // * way to make a temp room for direct messaging
+		if (roomDTO.status === RoomStatus.DIRECT){
+			return await this.addOtherUser(roomDTO, email);
+		} else {
+			// sending a little welcome message
+			const welcomeMessage: messageDTO = {
+				room: roomDTO.name,
+				sender: 'PongStoryShort',
+				text: 'Congratulations! You have successfully created a channel.',
+			};
+			this.handleMessage(welcomeMessage);
+		}
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
@@ -346,6 +347,70 @@ export class ChatService {
       if (!passwordMatches) throw new ForbiddenException('Password incorrect');
     }
   }
+
+  /****************************************************************************/
+  /* dm room												                                          */
+  /****************************************************************************/
+
+	async addOtherUser(roomDTO: createRoomDTO, email: string){
+		// parsing room name and find other email
+		const otherEmail = this.parseDMRoomName(roomDTO.name, email);
+
+		const otherPrismaUser = await this.prisma.user.findUnique({
+			where: {
+				email: otherEmail,
+			}
+		})
+		if (!otherPrismaUser){
+			throw new BadRequestException('Other user not familiar to us')
+		}
+
+    // connecting user and room in prisma
+    await this.prisma.room.update({
+      where: {
+        name: roomDTO.name,
+      },
+      data: {
+        users: {
+          create: [
+            {
+              user: {
+                connect: { email: otherEmail },
+              },
+            },
+          ],
+        },
+      },
+      include: {
+        users: true,
+      },
+    });
+
+		// updating cache object if existing
+		const otherChatUser = await this.fetchChatuser(otherEmail);
+
+		if (otherChatUser){
+			otherChatUser.rooms.push(roomDTO.name);
+			await this.cacheManager.set(
+				'chat' + otherChatUser.email,
+				JSON.stringify(otherChatUser)
+			)
+		}
+	}
+
+	parseDMRoomName(name: string, currentEmail: string){
+		const parts = name.split('-');
+		const [email1, email2] = parts;
+
+		if (
+			parts.length !== 2 || 
+			!parts.includes(currentEmail) ||
+			email2 > email1){
+			throw new BadRequestException('Room name does not comply with naming convention');
+		}
+
+		return parts.find(email => email !== currentEmail);
+	}
 
   /****************************************************************************/
   /* messages													                                        */
