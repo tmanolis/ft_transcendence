@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { PrismaModule, PrismaService } from 'nestjs-prisma';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy, TwoFA, FourtyTwoStrategy } from './strategy';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [HttpModule, PrismaModule, JwtModule.register({})],
@@ -15,6 +16,7 @@ import { JwtStrategy, TwoFA, FourtyTwoStrategy } from './strategy';
     PrismaService,
     JwtStrategy,
     TwoFA,
+    ConfigService,
   ],
 })
 export class AuthModule {}

@@ -26,9 +26,10 @@ export default function RegisterForm() {
       const response = await axios.post(
         "http://localhost:3000/auth/local/signup",
         signupDTO,
+				{ withCredentials: true }
       );
       console.log(response);
-      navigate("/pong");
+      navigate("/");
     } catch (error) {
       handleLoginError(error as AxiosError);
     }

@@ -27,6 +27,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   async validate(req: Request, payload: { sub: string; email: string }) {
+    console.log('in jwt strategy');
     const user = await this.prisma.user.findUnique({
       where: {
         id: payload.sub,
@@ -34,6 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     });
 
     if (!user || user.status === 'OFFLINE') {
+      console.log('user is offline');
       throw new UnauthorizedException('Unauthorized');
     }
 
@@ -41,9 +43,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     if (token) {
       const tokenBlacklisted = await this.isTokenBlacklisted(token);
       if (tokenBlacklisted) {
+        console.log('user has invalid token');
         throw new UnauthorizedException('Invalid token');
       }
     } else {
+      console.log('no token found');
       throw new UnauthorizedException('No token found');
     }
 

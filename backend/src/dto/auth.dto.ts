@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Length,
   Matches,
   MinLength,
 } from 'class-validator';
@@ -38,4 +39,40 @@ export class AuthDto {
   @IsOptional()
   @IsString()
   twoFACode: string;
+}
+
+export class LoginDto {
+  @ApiProperty({ example: 'example@site.com' })
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ example: '12345' })
+  @IsNotEmpty()
+  @IsString()
+  password: string;
+}
+
+export class VerifyTwoFADTO {
+  @ApiProperty({ description: 'code must be 6 characters long' })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 6)
+  code: string;
+
+  @ApiProperty({
+    description:
+      'this is sent after password verification, but before 2FA verification',
+  })
+  @IsNotEmpty()
+  @IsString()
+  nonce: string;
+}
+
+export class EnableTwoFADTO {
+  @ApiProperty({ description: 'code must be 6 characters long' })
+  @IsNotEmpty()
+  @IsString()
+  @Length(6, 6)
+  code: string;
 }
