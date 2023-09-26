@@ -57,7 +57,6 @@ export class ChatUser {
     public email: string,
     public socketID: string,
     public userName: string,
-    public rooms: string[],
   ) {}
 }
 

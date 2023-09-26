@@ -65,7 +65,6 @@ export class ChatService {
         prismaUser.email,
         client.id,
         prismaUser.userName,
-        [],
       );
       console.log('creating new chat user:', prismaUser.email);
       await this.cacheManager.set(
@@ -113,10 +112,19 @@ export class ChatService {
 
   async reconnectChatuser(user: ChatUser, socket: Socket) {
     user.socketID = socket.id;
-    for (const room in user.rooms) {
-      socket.join(room);
+		const prismaUser = await this.prisma.user.findUnique({
+      where: {
+        email: user.email,
+      }, include: {
+				rooms: true,
+			}
+    });
+
+    for (const room of prismaUser.rooms) {
+      socket.join(room.roomID);
     }
-    await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
+    
+		await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
     console.log('updating existing chat user:', user.email);
   }
 
@@ -163,13 +171,6 @@ export class ChatService {
       console.log(error);
     }
 
-    // updating cache
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
-
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
       room: roomDTO.name,
@@ -209,7 +210,7 @@ export class ChatService {
     // check password for private room
     if (roomDTO.status === RoomStatus.PRIVATE) {
       if (!roomDTO.password)
-        throw new ForbiddenException('Password mandatory for private channel');
+        throw new ForbiddenException('Password is mandatory for private channel');
       else {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
@@ -231,7 +232,7 @@ export class ChatService {
     client.join(roomDTO.name);
 
     // adding roomuser in prisma
-    const updatedRoom = await this.prisma.room.update({
+    await this.prisma.room.update({
       where: {
         name: roomDTO.name,
       },
@@ -250,13 +251,6 @@ export class ChatService {
         users: true,
       },
     });
-
-    // updating cache
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
 
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
