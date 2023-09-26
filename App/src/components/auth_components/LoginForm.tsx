@@ -82,12 +82,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="email"
+        autoComplete="email"
       />
       <Input
         type="password"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
         placeholder="password"
+        autoComplete="current-password"
       />
       <RegisterLink to="/auth/register">
         Don't have an account? Sign up here.

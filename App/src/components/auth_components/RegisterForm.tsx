@@ -57,17 +57,20 @@ export default function RegisterForm() {
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
         placeholder="username"
+        autoComplete="username"
       />
       <Input
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="email"
+        autoComplete="email"
       />
       <Input
         type="password"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
         placeholder="password"
+        autoComplete="current-password"
       />
       <HoverText>ⓘ requirements</HoverText>
       <Button type="submit">Create an account</Button>

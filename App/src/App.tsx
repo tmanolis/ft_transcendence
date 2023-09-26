@@ -11,6 +11,7 @@ import Play from "./pages/Play";
 import Chat from "./pages/Chat";
 import GlobalStyle from "./theme/GlobalStyle";
 import Hello from "./pages/Hello";
+import Verify2FA from "./pages/Verify2FA";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         <Routes>
           <Route path="/auth" element={React.createElement(Authentification)} />
           <Route path="/auth/register" element={React.createElement(Register)} />
+          <Route path="/auth/verify-2fa" element={React.createElement(Verify2FA)} />
           <Route path="/" element={React.createElement(Landing)} />
           <Route
             path="/leaderboard"
