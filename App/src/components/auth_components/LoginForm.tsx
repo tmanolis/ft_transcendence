@@ -2,17 +2,16 @@ import React, { useState } from "react";
 import Button from "./styles/Button.styled";
 import Form from "./styles/Form.styled";
 import Input from "./styles/Input.styled";
-import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
 import fourtyTwoLogo from "../../assets/42_logo.png";
+import { RegisterLink } from "./styles/RegisterLink.styled";
 
 export type LoginFormProps = {
-  onLinkClick: () => void;
   openModal2FA: (nonce: string) => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -69,22 +68,6 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
     }
   };
 
-  /*
-	const handleFourtyTwo = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		
-		// 42 login callback URI is not working - should fix that before finishing this method
-		try {
-			const response = await axios.get(
-				'http://localhost:3000/auth/fourtytwo/login'
-			);
-			console.log('response 42', response)
-		} catch (error) {
-			console.log('error 42', error);
-		}
-	}
-*/
-
   return (
     <Form onSubmit={handleSubmit} loginError={loginError}>
       <h1>Connect</h1>
@@ -106,9 +89,9 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick, openModal2FA }) => {
         onChange={(e) => setPass(e.target.value)}
         placeholder="password"
       />
-      <LinkButton onClick={onLinkClick}>
+      <RegisterLink to="/auth/register">
         Don't have an account? Sign up here.
-      </LinkButton>
+      </RegisterLink>
       <Button type="submit">Log In</Button>
     </Form>
   );
