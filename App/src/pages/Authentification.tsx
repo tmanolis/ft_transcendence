@@ -36,10 +36,7 @@ const Authentification = () => {
         <LoginForm openModal2FA={handleModal2FA} />
         {modal2FAOpen &&
           createPortal(
-          <Modal2FA onCancel={handleButtonClick} nonce={nonce2FA}>
-            <h2>2FA Authentification</h2>
-            <p>Please enter your code</p>
-          </Modal2FA>,
+          <Modal2FA onCancel={handleButtonClick} nonce={nonce2FA} />,
           document.body
         )}
     </PageContainer>
