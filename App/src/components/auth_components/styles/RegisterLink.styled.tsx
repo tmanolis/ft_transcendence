@@ -7,7 +7,7 @@ export const RegisterLink = styled(Link)`
   font-family: "JetBrains Mono", monospace;
   font-size: 75%;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
   border: none;
   text-align: right;
   padding-right: 37px;
