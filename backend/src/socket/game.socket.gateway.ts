@@ -17,7 +17,7 @@ import { GameService } from '../game/game.service';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:8080'],
+    origin: [`${process.env.FRONTEND_URL}`],
   },
   namespace: 'game',
 })

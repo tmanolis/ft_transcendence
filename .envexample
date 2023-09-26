@@ -16,10 +16,15 @@ CLIENT_ID="{client_id}"
 CLIENT_SECRET="{client_secret}"
 CALLBACK_URL="{callback_url}"
 
+
+
 ###############################################################################
-# MISC                                                                        #
+# AUTH                                                                        #
 ###############################################################################
 JWT_SECRET="{don't tell anyone my secret}"
-BACKEND_HOST="{the backend host name}"
+
+###############################################################################
+# CORS                                                                        #
+###############################################################################
 FRONTEND_URL="{the front end url with port}"
 VITE_BACKEND_URL="{the backend url with port}"

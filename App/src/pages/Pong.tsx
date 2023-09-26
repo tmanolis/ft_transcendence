@@ -7,7 +7,7 @@ import PageContainer from "../components/auth_components/styles/AuthContainer.st
 // Connect to the socket from outside of the component
 // avoid reconnection when ever the states changed
 const access_token: string = Cookies.get("jwt")!;
-const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}`, {
+const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/game`, {
   extraHeaders: {
     Authorization: access_token,
   },
