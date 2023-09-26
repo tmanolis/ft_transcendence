@@ -64,7 +64,7 @@ export class UserController {
   // get all active users in order of win rate
   @Get('leaderboard')
   @ApiOkResponse({
-    description: 'Returns users in winning order',
+    description: 'Returns ranked users',
   })
   async getLeaderboard() {
     return await this.userService.getLeaderboard();
