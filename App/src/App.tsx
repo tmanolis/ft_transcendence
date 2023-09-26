@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
+import Register from "./pages/Register";
 import Pong from "./pages/Pong";
 import Landing from "./pages/Landing";
 import Leaderboard from "./pages/Leaderboard";
@@ -18,6 +19,7 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/auth" element={React.createElement(Authentification)} />
+          <Route path="/auth/register" element={React.createElement(Register)} />
           <Route path="/" element={React.createElement(Landing)} />
           <Route
             path="/leaderboard"
