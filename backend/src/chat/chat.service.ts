@@ -362,7 +362,7 @@ export class ChatService {
 			}
 		})
 		if (!otherPrismaUser){
-			throw new BadRequestException('Other user not familiar to us')
+			throw new BadRequestException('Other user not found');
 		}
 
     // connecting user and room in prisma
