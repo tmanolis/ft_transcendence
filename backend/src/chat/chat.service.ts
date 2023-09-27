@@ -20,6 +20,7 @@ import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
+import crypto from 'crypto';
 
 @Injectable()
 export class ChatService {
@@ -122,7 +123,7 @@ export class ChatService {
         prismaUser.email,
         socket.id,
         prismaUser.userName,
-        [],
+        // [],
       );
       console.log('creating new chat user:', email);
     }
@@ -146,7 +147,6 @@ export class ChatService {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
-    let otherEmail: string;
 
     try {
       await this.securityCheckCreateChannel(prismaUser, roomDTO);
@@ -184,13 +184,6 @@ export class ChatService {
       );
     }
 
-    // update cache
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
-
     // send a little welcome message
     const welcomeMessage: messageDTO = {
       room: roomDTO.name,
@@ -198,6 +191,8 @@ export class ChatService {
       text: 'Congratulations! You have successfully created a channel.',
     };
     this.handleMessage(welcomeMessage);
+
+    return roomDTO.name;
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
@@ -269,13 +264,6 @@ export class ChatService {
       },
     });
 
-    // updating cache
-    chatuser.rooms.push(roomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
-
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
       room: roomDTO.name,
@@ -342,30 +330,35 @@ export class ChatService {
   /* dm room												                                          */
   /****************************************************************************/
 
-  async createDirectMessage(client: Socket, roomDTO: createRoomDTO) {
+  async createDirectMessage(
+    client: Socket,
+    roomDTO: createRoomDTO,
+  ): Promise<string> {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
     let otherPrismaUser: User;
+    let roomName: string;
 
     try {
-      this.securityCheckCreateChannel(prismaUser, roomDTO);
       otherPrismaUser = await this.prismaCheckOtherUser(
         roomDTO.name,
         prismaUser,
       );
+      roomName = this.unqiueRoomName(prismaUser.id, otherPrismaUser.id);
+      roomDTO.name = roomName;
+      this.securityCheckCreateChannel(prismaUser, roomDTO);
     } catch (error) {
       throw error;
     }
 
-    client.join(roomDTO.name);
-
+    // create a new room that is connected to both users
     try {
       await this.prisma.room.create({
         data: {
           ...roomDTO,
           owner: email,
-          name: prismaUser.id + '-' + otherPrismaUser.id,
+          name: roomName,
           users: {
             create: [
               {
@@ -393,28 +386,18 @@ export class ChatService {
       );
     }
 
-    // update cache current user
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
+    // join socket to room
+    client.join(roomName);
 
-    // update cache other user
+    // notify other chatuser
     const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
-
-    if (otherChatUser) {
-      otherChatUser.rooms.push(roomDTO.name);
-      await this.cacheManager.set(
-        'chat' + otherChatUser.email,
-        JSON.stringify(otherChatUser),
-      );
-    }
-
     if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
       this.server
         .to(otherChatUser.socketID)
-        .emit('reconnectNeeded', 'Please reconnect chat websocket');
+        .emit('reconnectNeeded', {
+          message:
+            'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
+        });
     }
 
     // send a little welcome message
@@ -428,6 +411,14 @@ export class ChatService {
         otherPrismaUser.userName,
     };
     await this.handleMessage(welcomeMessage);
+
+    return roomName;
+  }
+
+  unqiueRoomName(uid1: string, uid2: string) {
+    const sortedIDs = [uid1, uid2].sort();
+    const concatenatedIDs = sortedIDs.join();
+    return concatenatedIDs;
   }
 
   async prismaCheckOtherUser(

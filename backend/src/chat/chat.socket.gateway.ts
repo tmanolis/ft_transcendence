@@ -1,4 +1,3 @@
-import { OnModuleInit } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -6,11 +5,10 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+import { Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
-import { ChatUser, createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
+import { createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
 import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
@@ -63,11 +61,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() createDTO: createRoomDTO,
   ) {
     try {
+      let channel: string;
       if (createDTO.status === RoomStatus.DIRECT) {
-        await this.chatService.createDirectMessage(client, createDTO);
+        channel = await this.chatService.createDirectMessage(client, createDTO);
       } else {
-        await this.chatService.createChannel(client, createDTO);
+        channel = await this.chatService.createChannel(client, createDTO);
       }
+      client.emit('createChannelSuccess', {
+        message: 'Channel created with name ' + channel,
+      });
     } catch (error) {
       client.emit('createChannelError', { message: error.message });
     }
