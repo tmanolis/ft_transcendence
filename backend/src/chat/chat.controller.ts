@@ -1,7 +1,7 @@
 import { Controller, Patch, Body, UseGuards, Res } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ApiTags } from '@nestjs/swagger';
-import { toPublicDTO, changePassDTO } from './channel.dto';
+import { toPublicDTO, changePassDTO, adminDTO } from './channel.dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
 import { User } from '@prisma/client';
@@ -42,4 +42,24 @@ export class ChatController {
     await this.chatService.changePass(user, dto);
     return res.status(200).send({ message: 'Channel password changed' });
   }
+
+  @Patch('addAdmin')
+  async handleAddAdmin(
+    @GetUser() user: User,
+    @Body() dto: adminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.addAdmin(user, dto);
+    return res.status(200).send({ message: dto.userName + ' is now channel admin' });
+	}
+
+	@Patch('removeAdmin')
+  async handleRemoveAdmin(
+    @GetUser() user: User,
+    @Body() dto: adminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.removeAdmin(user, dto);
+    return res.status(200).send({ message: dto.userName + ' is removed from channel admins' });
+	}
 }

@@ -30,7 +30,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { userInfo } from 'os';
-import { changePassDTO, toPublicDTO } from './channel.dto';
+import { adminDTO, changePassDTO, toPublicDTO } from './channel.dto';
 
 @Injectable()
 export class ChatService {
@@ -380,6 +380,43 @@ export class ChatService {
       });
     }
   }
+
+	async addAdmin(user: User, dto: adminDTO){
+		const room = await this.ownerCheck(user, dto);
+
+		if (room){
+			// somehow fetch email here
+			const email = 'a@a.com';
+			const userInRoom = room.users.find(
+				(userInRoom: UserInRoom) => userInRoom.email === email
+			);
+
+			if (!userInRoom) throw new NotFoundException('User to be admin is not in this room');
+
+			if (userInRoom.role === 'OWNER') throw new BadRequestException('Can not downgrade room owner');
+
+			else if (userInRoom.role === 'ADMIN') throw new BadRequestException('This user is already admin');
+
+			else {
+				await this.prisma.userInRoom.update({
+					where: {
+						id: userInRoom.id,
+					},
+					data: {
+						role: 'ADMIN',
+					},
+				});		
+			}
+		}
+	}
+
+	async removeAdmin(user: User, dto: adminDTO){
+		const room = await this.ownerCheck(user, dto);
+
+		if (room){
+			// give user in room user role
+		}
+	}
 
   async ownerCheck(user: User, dto: toPublicDTO) {
     const room = await this.prisma.room.findUnique({

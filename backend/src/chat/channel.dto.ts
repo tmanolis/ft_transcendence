@@ -16,3 +16,14 @@ export class changePassDTO {
   @IsString()
   password: string;
 }
+
+export class adminDTO {
+  @ApiProperty({ description: 'Channel name' })
+  @IsString()
+  channel: string;
+
+  @ApiProperty({ description: 'User to add/remove from admins' })
+  @IsString()
+  userName: string;
+}
+
