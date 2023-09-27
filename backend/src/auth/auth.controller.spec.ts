@@ -13,7 +13,7 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AuthModule],
-      providers: [TwoFA, AuthService, PrismaService, JwtService, ConfigService], 
+      providers: [TwoFA, AuthService, PrismaService, JwtService, ConfigService],
       controllers: [AuthController, TwoFA],
     }).compile();
 

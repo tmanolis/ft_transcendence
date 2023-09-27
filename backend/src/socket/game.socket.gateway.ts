@@ -194,8 +194,9 @@ export class GameGateway implements OnGatewayConnection {
     // create the game and wait
     console.log('create inviting game and wait');
     const invitingPlayer: Player = await this.gameService.createPlayer(client);
-    const invitingGame: Game =
-      await this.gameService.createInvitingGame(invitingPlayer);
+    const invitingGame: Game = await this.gameService.createInvitingGame(
+      invitingPlayer,
+    );
     console.log(invitingGame);
     if (invitingGame) {
       client.join(invitingGame.gameID);
@@ -214,8 +215,9 @@ export class GameGateway implements OnGatewayConnection {
   async handleAcceptInvitation(client: Socket, payload: string) {
     // create the invitedPlayer
     const invitedPlayer: Player = await this.gameService.createPlayer(client);
-    const invitingPlayer: Player =
-      await this.gameService.getPlayerByEmail(payload);
+    const invitingPlayer: Player = await this.gameService.getPlayerByEmail(
+      payload,
+    );
     if (!invitingPlayer) {
       this.server
         .to(invitedPlayer.socketID)
@@ -255,8 +257,9 @@ export class GameGateway implements OnGatewayConnection {
     if (!payload) {
       return;
     }
-    const invitingPlayer: Player =
-      await this.gameService.getPlayerByEmail(payload);
+    const invitingPlayer: Player = await this.gameService.getPlayerByEmail(
+      payload,
+    );
     if (invitingPlayer) {
       this.server.to(invitingPlayer.socketID).emit('invitationDeclined');
       const invitingGame: Game = await this.gameService.getGameByID(
