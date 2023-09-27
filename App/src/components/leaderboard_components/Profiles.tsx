@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { ProfileContainer, ProfilesListWrapper } from './styles/Profiles.styled';
+import backgroundImg from "../../assets/code-barre.png";
+import { Avatar, CodeBar, GamesPlayed, GamesWinned, ProfileContainer, ProfilesListWrapper, Rank, Username } from './styles/Profiles.styled';
 
 interface Profile {
 	avatar: string;
@@ -44,12 +45,16 @@ function Item(data: Profile[]) {
     <>
       {data.map((value, index) => (
         <ProfileContainer key={index}>
-          <div className="avatar">
-            <img src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
+          <div className="code-barre">
+            <CodeBar src={`${backgroundImg}`} alt="code-barre" />
           </div>
-          <h3>{value.userName}</h3>
-          <div className="rank">#Rank {value.place}</div>
-          <div className="gamesPlayed">{value.gamesPlayed}</div>
+          <div className="avatar">
+            <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
+          </div>
+          <Username>{value.userName}</Username>
+          <GamesWinned>{value.gamesWon} <span>Wins</span></GamesWinned>
+          <GamesPlayed>{value.gamesPlayed} <span>Played</span></GamesPlayed>
+          <Rank>#Rank {value.place}</Rank>
         </ProfileContainer>
       ))}
     </>

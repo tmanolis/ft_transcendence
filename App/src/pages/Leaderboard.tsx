@@ -7,7 +7,7 @@ const Leaderboard = () => {
     <>
       <Landing />
       <PageContainer type="other">
-        <h2 style={{ margin: "30px", fontSize: "30px"}}>
+        <h2 style={{ margin: "30px", paddingLeft: "12px", fontSize: "30px"}}>
           Leaderboard
         </h2>
         <Profiles />

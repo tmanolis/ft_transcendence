@@ -15,7 +15,6 @@ const PageContainerStyled = styled.div`
 const PopUpPage = styled.div`
   width: 960px;
   height: 642px;
-  flex-shrink: 0;
   border: 1px solid #fff;
   background: #000;
   box-shadow: 1px 3px 1px 0px #fff;
