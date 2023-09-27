@@ -1,5 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
+import { ProfileContainer, ProfilesListWrapper } from './styles/Profiles.styled';
 
 interface Profile {
 	avatar: string;
@@ -30,9 +31,9 @@ const Profiles: React.FC = () => {
   }, []); // Add an empty dependency array to run this effect only once
 
   return (
-    <div id="profile">
-      {Item(profilesList)}
-    </div>
+    <ProfilesListWrapper>
+        {Item(profilesList)}
+    </ProfilesListWrapper>
   );
 }
 
@@ -42,18 +43,14 @@ function Item(data: Profile[]) {
   return (
     <>
       {data.map((value, index) => (
-        <div className="flex" key={index}>
-          <div className="item">
+        <ProfileContainer key={index}>
+          <div className="avatar">
             <img src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
-            <div className="info">
-              <h3>{value.userName}</h3>
-              <span>{value.place}</span>
-            </div>
           </div>
-          <div className="item">
-            <span>{value.gamesPlayed}</span>
-          </div>
-        </div>
+          <h3>{value.userName}</h3>
+          <div className="rank">#Rank {value.place}</div>
+          <div className="gamesPlayed">{value.gamesPlayed}</div>
+        </ProfileContainer>
       ))}
     </>
   );

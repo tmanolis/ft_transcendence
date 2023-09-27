@@ -1,5 +1,5 @@
 import PageContainer from "../components/PageContainer";
-import Profiles from "../components/leaderboard_components/styles/Profiles";
+import Profiles from "../components/leaderboard_components/Profiles";
 import Landing from "../pages/Landing";
 
 const Leaderboard = () => {
