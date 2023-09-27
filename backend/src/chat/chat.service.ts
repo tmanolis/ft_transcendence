@@ -49,9 +49,10 @@ export class ChatService {
       return existingUser;
     }
 
-    // check if user exists in prisma
+    // reconnect user if they are in prisma
     const newUser: ChatUser | null = await this.reconnectPrismaUser(client, email);
 
+		// send error message if not
 		if (!newUser){
 			client.emit('accessDenied', {
 				message: 'Account not found, please reconnect.',
@@ -99,10 +100,15 @@ export class ChatService {
   }
 
   async reconnectChatuser(user: ChatUser, socket: Socket) {
+		// update socket id
     user.socketID = socket.id;
+
+		// rejoin rooms with new socket
     for (const room in user.rooms) {
       socket.join(room);
     }
+
+		// update cache
     await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
 		console.log('update existing chat user:', user.email);
   }
@@ -129,7 +135,7 @@ export class ChatService {
 			[],
 		);
 
-		// add connected rooms and join
+		// add connected rooms to chatuser and rejoin with new socket
 		for (const room of prismaUser.rooms){
 			newChatUser.rooms.push(room.roomID);
 			client.join(room.roomID);
