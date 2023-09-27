@@ -42,21 +42,11 @@ export class ChatService {
     const email: string = this.getEmailFromJWT(client);
     if (!email) return;
 
-    // update and reconnect user if they are in the cache already
-    const existingUser: ChatUser = await this.fetchChatuser(email);
-    if (existingUser) {
-      this.reconnectChatuser(existingUser, client);
-      return existingUser;
-    }
+    // update cache and join socket to rooms
+    const chatUser = await this.reconnectUser(email, client);
 
-    // reconnect user if they are in prisma
-    const newUser: ChatUser | null = await this.reconnectPrismaUser(
-      client,
-      email,
-    );
-
-    // send error message if not
-    if (!newUser) {
+    // send error message if not found
+    if (!chatUser) {
       client.emit('accessDenied', {
         message: 'Account not found, please reconnect.',
       });
@@ -64,7 +54,7 @@ export class ChatService {
       return;
     }
 
-    return newUser;
+    return chatUser;
   }
 
   getEmailFromJWT(client: Socket) {
@@ -105,21 +95,8 @@ export class ChatService {
     });
   }
 
-  async reconnectChatuser(user: ChatUser, socket: Socket) {
-    // update socket id
-    user.socketID = socket.id;
-
-    // rejoin rooms with new socket
-    for (const room in user.rooms) {
-      socket.join(room);
-    }
-
-    // update cache
-    await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
-    console.log('update existing chat user:', user.email);
-  }
-
-  async reconnectPrismaUser(client: Socket, email: string): Promise<ChatUser> {
+  async reconnectUser(email: string, socket: Socket) {
+    // find user in prisma including connected rooms
     const prismaUser = await this.prisma.user.findUnique({
       where: {
         email: email,
@@ -129,33 +106,36 @@ export class ChatService {
       },
     });
 
-    // check if prisma user exists
     if (!prismaUser) {
       return null;
     }
 
-    // create new chatuser
-    const newChatUser = new ChatUser(
-      prismaUser.email,
-      client.id,
-      prismaUser.userName,
-      [],
-    );
+    // find user in cache
+    let chatUser: ChatUser = await this.fetchChatuser(email);
 
-    // add connected rooms to chatuser and rejoin with new socket
-    for (const room of prismaUser.rooms) {
-      newChatUser.rooms.push(room.roomID);
-      client.join(room.roomID);
+    // update socketID or create new cache user
+    if (chatUser) {
+      chatUser.socketID = socket.id;
+      console.log('update existing chat user:', email);
+    } else {
+      chatUser = new ChatUser(
+        prismaUser.email,
+        socket.id,
+        prismaUser.userName,
+        [],
+      );
+      console.log('creating new chat user:', email);
     }
 
-    // push to cache
-    await this.cacheManager.set(
-      'chat' + prismaUser.email,
-      JSON.stringify(newChatUser),
-    );
+    // rejoin all rooms
+    for (const room of prismaUser.rooms) {
+      socket.join(room.roomID);
+    }
 
-    console.log('creating new chat user:', email);
-    return newChatUser;
+    // set or update cache
+    await this.cacheManager.set('chat' + email, JSON.stringify(chatUser));
+
+    return chatUser;
   }
 
   /****************************************************************************/
