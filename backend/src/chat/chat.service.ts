@@ -159,9 +159,16 @@ export class ChatService {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
+		let otherEmail: string;
 
     try {
       await this.securityCheckCreateChannel(prismaUser, roomDTO);
+
+			// few checks for diresct messaging
+			if (roomDTO.status === RoomStatus.DIRECT){
+				otherEmail = this.parseDMRoomName(roomDTO.name, email);
+				await this.prismaCheckOtherUser(otherEmail);
+			}
     } catch (error) {
       throw error;
     }
@@ -171,7 +178,7 @@ export class ChatService {
 
     // create new room
     try {
-      let newRoom = await this.prisma.room.create({
+      await this.prisma.room.create({
         data: {
           ...roomDTO,
           owner: chatuser.email,
@@ -194,6 +201,11 @@ export class ChatService {
       throw new BadRequestException(
         'Channel could not be created, did you send the right variables?',
       ); 
+		}
+
+		// add other user if direct messaging
+		if (roomDTO.status === RoomStatus.DIRECT){
+			this.addOtherUser(roomDTO, otherEmail);
 		}
 
     // updating cache
@@ -358,19 +370,18 @@ export class ChatService {
   /* dm room												                                          */
   /****************************************************************************/
 
-	async addOtherUser(roomDTO: createRoomDTO, email: string){
-		// parsing room name and find other email
-		const otherEmail = this.parseDMRoomName(roomDTO.name, email);
-
+	async prismaCheckOtherUser(email: string){
 		const otherPrismaUser = await this.prisma.user.findUnique({
 			where: {
-				email: otherEmail,
+				email: email,
 			}
 		})
 		if (!otherPrismaUser){
 			throw new BadRequestException('Other user not found');
 		}
+	}
 
+	async addOtherUser(roomDTO: createRoomDTO, email: string){
     // connecting user and room in prisma
     await this.prisma.room.update({
       where: {
@@ -381,7 +392,7 @@ export class ChatService {
           create: [
             {
               user: {
-                connect: { email: otherEmail },
+                connect: { email: email },
               },
             },
           ],
@@ -393,7 +404,7 @@ export class ChatService {
     });
 
 		// updating cache object if existing
-		const otherChatUser = await this.fetchChatuser(otherEmail);
+		const otherChatUser = await this.fetchChatuser(email);
 
 		if (otherChatUser){
 			otherChatUser.rooms.push(roomDTO.name);
