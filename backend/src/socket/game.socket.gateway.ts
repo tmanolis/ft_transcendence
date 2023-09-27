@@ -109,7 +109,7 @@ export class GameGateway implements OnGatewayConnection {
       }
       // also need to ubpdate the paddle for both sides.
       if (gameData.status === GameStatus.Pause) {
-        this.server.to(gameRoom).emit('pause', this.pauseCounter);
+        this.server.to(gameRoom).emit('pause', gameData);
         this.pauseCounter--;
         if (this.pauseCounter === 0) {
           gameData.status = GameStatus.Ended;
@@ -123,11 +123,10 @@ export class GameGateway implements OnGatewayConnection {
       }
 
       if (gameData.status === GameStatus.Ended) {
-        this.gameService.endGame(gameData);
-        clearInterval(gameInterval);
         await this.gameService.endGame(gameData);
+        clearInterval(gameInterval);
       }
-    }, 1000 / 30);
+    }, 1000 / 90);
 
     return { event: 'start game', socketID: client.id };
   }

@@ -35,7 +35,7 @@ model User {
   gamesWon     Int?
   gamesLost    Int?
   ranking      Int?
-  achievements Achievement[] @unique
+  achievements Achievement[]
 
   ///historics
   games Game[] @relation("player")

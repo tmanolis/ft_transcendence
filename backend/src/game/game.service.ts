@@ -123,7 +123,7 @@ export class GameService {
 
   async clearData(client: Socket) {
     console.log('cleaning!!');
-    const player = await this.getSocketPlayer(client);
+    const player: Player = await this.getSocketPlayer(client);
     if (!player) return;
 
     const game: Game = await this.getGameByID(player.gameID);
@@ -133,15 +133,18 @@ export class GameService {
     if (player.gameID === '') {
       await this.cacheManager.del(`game${player.email}`);
     } else {
-      await this.pauseGame(player.gameID);
+      await this.pauseGame(player.gameID, player.email);
     }
     await this.cacheManager.del(client.id);
   }
 
-  async pauseGame(gameID: string) {
+  async pauseGame(gameID: string, playerEmail: string) {
     const game = await this.getGameByID(gameID);
     if (!game) return;
     game.status = GameStatus.Pause;
+    if (game.pausedBy === '') {
+      game.pausedBy = playerEmail;
+    }
     await this.cacheManager.set(gameID, JSON.stringify(game));
   }
 
@@ -173,7 +176,6 @@ export class GameService {
 
   async createPlayer(client: Socket): Promise<Player> {
     const pausingPlayer = await this.updatePausingPlayer(client);
-    console.log('has pausing player: ', pausingPlayer);
     if (pausingPlayer) return pausingPlayer;
 
     const user: User = await this.getSocketUser(client);
@@ -239,24 +241,22 @@ export class GameService {
         this.joinGameAndLaunch(pausingPlayerObject, pausingPlayerObject.gameID);
       }
     }
-    console.log('has paused game: ', gameID);
     return gameID;
   }
 
   async createGame(client: Socket): Promise<Game> {
     let newGame: Game;
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    // continue to joinGame if there is a pendingPlayer
+    // return null and continue to joinGame if there is a pendingPlayer
     let pausedGameID: string = await this.findPausedGame(client);
-    console.log('paused game in create game: ', pausedGameID);
     if (!pendingPlayer && !pausedGameID) {
       let player: Player = await this.getSocketPlayer(client);
       if (player) {
-        console.log('create a pending game');
         newGame = await this.createWaitingGame(player);
       }
     }
-    console.log('game CREATEEEDDDD!!!!!!');
+
+    newGame && console.log(`\x1b[35m Game: new game "${newGame.gameID}" created \x1b[0m`,);
     return newGame;
   }
 
@@ -269,9 +269,10 @@ export class GameService {
       null,
       [8, 8],
       { x: 400, y: 400 },
-      { x: 3, y: 3 },
+      { x: 1, y: 1 },
       this.generateAngle(1, 1),
       GameStatus.Waiting,
+      '',
     );
     player.gameID = gameID;
     try {
@@ -296,7 +297,6 @@ export class GameService {
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
     // Check if pending player exists, is available and is not current player
     if (pendingPlayer) {
-      console.log('pending player existeddddddddddddddddddddddddd!');
       const otherPlayer = JSON.parse(pendingPlayer);
       const user: User = await this.prisma.user.findUnique({
         where: {
@@ -331,6 +331,9 @@ export class GameService {
     const game = await this.getGameByID(gameID);
 
     if (game) {
+      if (game.pausedBy === player.email) {
+        game.pausedBy = '';
+      }
       console.log('join game:', game);
       player.gameID = gameID;
       this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
@@ -397,9 +400,10 @@ export class GameService {
       null,
       [8, 8],
       { x: 400, y: 400 },
-      { x: 3, y: 3 },
+      { x: 1, y: 1 },
       this.generateAngle(1, 1),
       GameStatus.Waiting,
+      '',
     );
     player.gameID = gameID;
     try {
@@ -650,7 +654,7 @@ export class GameService {
   /* GAME STATS                                                               */
   /****************************************************************************/
   async saveGameStats(game: Game) {
-    const leftPlayer = await this.prisma.user.findUnique({
+    const leftPlayer: User = await this.prisma.user.findUnique({
       where: {
         email: game.leftPlayer.email,
       },
@@ -666,8 +670,16 @@ export class GameService {
         games: {},
       },
     });
-    const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
-    const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    let winner: User;
+    let loser: User;
+
+    if (game.pausedBy !== '') {
+      winner = (leftPlayer.email === game.pausedBy) ? rightPlayer : leftPlayer;
+      loser = (leftPlayer.email === game.pausedBy) ? leftPlayer : rightPlayer;
+    } else {
+      winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
+      loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    }
 
     const dbGame = await this.prisma.game.create({
       data: {
@@ -684,10 +696,11 @@ export class GameService {
   }
 
   async updatePlayerStats(player: User, dbGame: prismaGame) {
-    console.log(player.achievements);
+    console.log(player.email, " : ", player.achievements);
+    console.log(!(player.achievements.includes('WINNER')));
     if (
       player.id === dbGame.winnerId &&
-      !player.achievements.includes('WINNER')
+      !(player.achievements.includes('WINNER'))
     ) {
       try {
         await this.prisma.user.update({

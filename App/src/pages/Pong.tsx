@@ -72,6 +72,8 @@ const Pong = () => {
       setIsLanding(false);
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
+      setLeftPaddleY(gameData.leftPlayer.paddlePosition);
+      setRightPaddleY(gameData.rightPlayer.paddlePosition);
       console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
@@ -115,6 +117,8 @@ const Pong = () => {
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
+      setLeftPaddleY(gameData.leftPlayer.paddlePosition);
+      setRightPaddleY(gameData.rightPlayer.paddlePosition);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
   }, [gameID]);
