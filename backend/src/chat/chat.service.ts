@@ -6,6 +6,8 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import {
@@ -15,12 +17,20 @@ import {
   joinRoomDTO,
   ChatMessage,
 } from 'src/dto';
-import { User, Message, RoomStatus, Room, UserInRoom } from '@prisma/client';
+import {
+  User,
+  Message,
+  RoomStatus,
+  Room,
+  UserInRoom,
+  Status,
+} from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { userInfo } from 'os';
+import { changePassDTO, toPublicDTO } from './channel.dto';
 
 @Injectable()
 export class ChatService {
@@ -143,7 +153,6 @@ export class ChatService {
       const newRoom = await this.prisma.room.create({
         data: {
           ...roomDTO,
-          owner: chatuser.email,
           users: {
             create: [
               {
@@ -318,6 +327,82 @@ export class ChatService {
       );
       if (!passwordMatches) throw new ForbiddenException('Password incorrect');
     }
+  }
+
+  /****************************************************************************/
+  /* owner options										                                        */
+  /****************************************************************************/
+
+  async toPublic(user: User, dto: toPublicDTO) {
+    const room = await this.ownerCheck(user, dto);
+
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PUBLIC',
+        },
+      });
+    }
+  }
+
+  async toPrivate(user: User, dto: changePassDTO) {
+    const room = await this.ownerCheck(user, dto);
+
+    const hash = await argon.hash(dto.password);
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PRIVATE',
+          password: hash,
+        },
+      });
+    }
+  }
+
+  async changePass(user: User, dto: changePassDTO) {
+    const room = await this.ownerCheck(user, dto);
+
+    const hash = await argon.hash(dto.password);
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          password: hash,
+        },
+      });
+    }
+  }
+
+  async ownerCheck(user: User, dto: toPublicDTO) {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.channel,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!room) throw new NotFoundException('Room not found');
+
+    const userInRoom = room.users.find(
+      (userInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('User is not in this room');
+
+    if (userInRoom.role !== 'OWNER')
+      throw new UnauthorizedException('You are not the owner of this room');
+
+    return room;
   }
 
   /****************************************************************************/
