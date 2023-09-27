@@ -392,12 +392,10 @@ export class ChatService {
     // notify other chatuser
     const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
     if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
-      this.server
-        .to(otherChatUser.socketID)
-        .emit('reconnectNeeded', {
-          message:
-            'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
-        });
+      this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+        message:
+          'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
+      });
     }
 
     // send a little welcome message
