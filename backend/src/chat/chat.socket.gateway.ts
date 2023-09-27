@@ -52,25 +52,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.handleMessage(message);
   }
 
-  // will do this in a next issue/PR.......
-  // @SubscribeMessage('updateHistory')
-  // async handleUpdateHistor(
-  // 	@ConnectedSocket() client: Socket){
-  // 		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-  // 		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
-  // 		try {
-  // 			const messageHistory = await this.chatService.userMessageHistory(user);
-
-  // 			if (messageHistory) {
-  // 				client.emit('updateHistory', messageHistory);
-  // 			} else {
-  // 				client.emit('updateHistory', []);
-  // 			}
-  // 		} catch (error) {
-  // 			client.emit('errorUpdateHistory', error);
-  // 		}
-  // }
-
   /****************************************************************************/
   /* channels				  							                                          */
   /****************************************************************************/
