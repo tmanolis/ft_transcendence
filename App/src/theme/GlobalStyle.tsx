@@ -5,9 +5,13 @@ import JBRegular from "../assets/fonts/JetBrainsMono-2.304/fonts/webfonts/JetBra
 const GlobalStyle = createGlobalStyle`
   body {
     padding-top: 20px;
-    background: url(${backgroundImg}), lightgray 50% / cover no-repeat;
+    background: url(${backgroundImg});
     background-size: cover;
+    background-position-x: center;
+    background-repeat: no-repeat;
     position: relative;
+    height: 100vh;
+    width: 100%;
     z-index: -1;
     margin: 0;
     padding: 0;
@@ -16,10 +20,7 @@ const GlobalStyle = createGlobalStyle`
     src: url(${JBRegular}) format("woff2");
     font-weight: normal;
     font-style: normal;
-    width: 100%;
-    height: 100%;
     flex-shrink: 0;
-    background-repeat: no-repeat;
   }
 `;
 

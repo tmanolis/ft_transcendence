@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
 
+import Landing from "../pages/Landing";
 import PageContainer from "../components/auth_components/styles/AuthContainer.styled";
 
 // Connect to the socket from outside of the component
@@ -252,11 +253,14 @@ const Pong = () => {
   }, [leftPaddleY, rightPaddleY, ball, isWaiting, isLanding, countdown, score]);
 
   return (
-    <PageContainer>
-      <h1>Pong</h1>
-      <canvas ref={canvasRef} />
-      <p>Use the arrow keys to play the game</p>
-    </PageContainer>
+    <>
+      <Landing />
+      <PageContainer>
+        <h1>Pong</h1>
+        <canvas ref={canvasRef} />
+        <p>Use the arrow keys to play the game</p>
+      </PageContainer>
+    </>
   );
 };
 
