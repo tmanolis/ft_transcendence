@@ -8,7 +8,7 @@ export type NavProps = {
 const StyledNavBar = styled.div`
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 50%;
   position: absolute;
   align-items: flex-start;
   justify-content: flex-end;
