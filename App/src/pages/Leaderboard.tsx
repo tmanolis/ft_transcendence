@@ -1,7 +1,19 @@
+import PageContainer from "../components/PageContainer";
+import Profiles from "../components/leaderboard_components/styles/Profiles";
 import Landing from "../pages/Landing";
 
 const Leaderboard = () => {
-  return <Landing />;
+  return (
+    <>
+      <Landing />
+      <PageContainer type="other">
+        <h2 style={{ margin: "30px", fontSize: "30px"}}>
+          Leaderboard
+        </h2>
+        <Profiles />
+      </PageContainer>
+    </>
+  )
 };
 
 export default Leaderboard;

@@ -19,7 +19,7 @@ const PopUpPage = styled.div`
   border: 1px solid #fff;
   background: #000;
   box-shadow: 1px 3px 1px 0px #fff;
-  font-family: "JetBrains Mono";
+  font-family: "JetBrains Mono", monospace;
 
   @media screen and (max-width: 960px) {
     width: 70%;
