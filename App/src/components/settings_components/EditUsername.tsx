@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "./styles/ConfirmButton.styled";
 import InputSettings, { InputContainer } from "./styles/InputSettings.styled";
+import { EditUsernameWrapper } from "./styles/EditUsername.styled";
 
 interface EditUsernameProps {
   onError: (error: string) => void;
@@ -22,9 +23,9 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
 
     try {
       const response = await axios.patch(
-        "http://localhost:3000/user/update",
+        `${import.meta.env.VITE_BACKEND_URL}/user/update`,
         updateDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response);
       window.location.reload();
@@ -37,15 +38,15 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
     if (error.response) {
       const status = error.response.status;
       if (status === 500) {
-        onError("Update failed. Please try again!");
+        onError("Username is already used");
       }
     } else {
-      onError("Network error occurred");
+      onError("Update failed. Please try again!");
     }
   };
 
   return (
-    <>
+    <EditUsernameWrapper>
       <form onSubmit={handleSubmit}>
         <InputContainer>
           <InputSettings
@@ -57,7 +58,7 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
           <ConfirmButton type="submit">Confirm</ConfirmButton>
         </InputContainer>
       </form>
-    </>
+    </EditUsernameWrapper>
   );
 };
 

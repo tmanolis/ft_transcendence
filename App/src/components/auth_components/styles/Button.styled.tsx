@@ -17,6 +17,7 @@ const StyledButton = styled.button<{}>`
   font-family: "JetBrains Mono", monospace;
   width: 200px;
   margin: 1.5rem auto;
+  box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
 
   a {
     text-decoration: none;

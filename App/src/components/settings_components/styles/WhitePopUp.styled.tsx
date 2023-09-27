@@ -31,18 +31,19 @@ const StyledWhitePopUp = styled.div`
 
   h2 {
     margin-top: 13px;
+    margin-left: 10px;
     margin-bottom: 2px;
     font-size: 30px;
   }
 
   h3 {
-    color: rgba(0, 0, 0, 0.60);
-    font-family: "JetBrains Mono",monospace;
+    color: rgba(0, 0, 0, 0.6);
+    font-family: "JetBrains Mono", monospace;
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
     margin-top: 0px;
-    margin-left: 1px;
+    margin-left: 10px;
     margin-bottom: 23px;
   }
 `;

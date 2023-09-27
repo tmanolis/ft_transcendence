@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Cookies from "js-cookie";
 
-import PageContainer from "../components/styles/AuthContainer.styled";
+import Landing from "../pages/Landing";
+import PageContainer from "../components/auth_components/styles/AuthContainer.styled";
 
 // Connect to the socket from outside of the component
 // avoid reconnection when ever the states changed
 const access_token: string = Cookies.get("jwt")!;
-const socket: Socket = io("http://localhost:3000", {
+const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/game`, {
   extraHeaders: {
     Authorization: access_token,
   },
@@ -27,10 +28,10 @@ const Pong = () => {
   const paddleHeight = 75;
   const paddleWidth = 10;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
-    canvasHeight / 2 - paddleHeight / 2
+    canvasHeight / 2 - paddleHeight / 2,
   );
   const [rightPaddleY, setRightPaddleY] = useState<number>(
-    canvasHeight / 2 - paddleHeight / 2
+    canvasHeight / 2 - paddleHeight / 2,
   );
   const [ball, setBall] = useState<Position>({ x: 0, y: 0 });
   const [isLanding, setIsLanding] = useState<boolean>(true);
@@ -72,7 +73,7 @@ const Pong = () => {
       setIsLanding(false);
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
-      console.log(gameID)
+      console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
@@ -89,6 +90,7 @@ const Pong = () => {
 
     socket.on("endWaitingState", () => {
       setIsWaiting(false);
+      console.log("waiting ENDED!!!");
       const interval = setInterval(() => {
         setCountdown((prevCountdown: number) => {
           if (prevCountdown <= 1) {
@@ -114,7 +116,6 @@ const Pong = () => {
     socket.on("updateGame", (gameData: any) => {
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
-      console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
   }, [gameID]);
@@ -190,7 +191,7 @@ const Pong = () => {
           canvasWidth - paddleWidth - 40,
           rightPaddleY,
           paddleWidth,
-          paddleHeight
+          paddleHeight,
         );
 
         // draw the ball
@@ -200,7 +201,7 @@ const Pong = () => {
             ball.x - paddleWidth / 2,
             ball.y / 2 - paddleWidth / 2,
             paddleWidth,
-            paddleWidth
+            paddleWidth,
           );
         }
 
@@ -221,7 +222,7 @@ const Pong = () => {
         context.fillText(
           "Press Enter to start a game.",
           canvas.width / 2,
-          canvas.height / 2
+          canvas.height / 2,
         );
       } else if (context && isWaiting) {
         context.font = "30px 'JetBrains Mono', monospace";
@@ -231,7 +232,7 @@ const Pong = () => {
         context.fillText(
           "Waiting for another player...",
           canvas.width / 2,
-          canvas.height / 2
+          canvas.height / 2,
         );
       } else if (context && countdown > 0) {
         context.font = "90px 'JetBrains Mono', monospace";
@@ -241,18 +242,21 @@ const Pong = () => {
         context.fillText(
           countdown.toString(),
           canvas.width / 2,
-          canvas.height / 2
+          canvas.height / 2,
         );
       }
     }
   }, [leftPaddleY, rightPaddleY, ball, isWaiting, isLanding, countdown, score]);
 
   return (
-    <PageContainer>
-      <h1>Pong</h1>
-      <canvas ref={canvasRef} />
-      <p>Use the arrow keys to play the game</p>
-    </PageContainer>
+    <>
+      <Landing />
+      <PageContainer>
+        <h1>Pong</h1>
+        <canvas ref={canvasRef} />
+        <p>Use the arrow keys to play the game</p>
+      </PageContainer>
+    </>
   );
 };
 

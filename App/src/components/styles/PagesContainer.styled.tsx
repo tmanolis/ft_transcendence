@@ -19,10 +19,12 @@ const PopUpPage = styled.div`
   border: 1px solid #fff;
   background: #000;
   box-shadow: 1px 3px 1px 0px #fff;
+  font-family: "JetBrains Mono";
 
   @media screen and (max-width: 960px) {
     width: 70%;
   }
+
 `;
 
 const PageContainer: React.FC<PagesContProps> = ({ children, type }) => {

@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import Button from "./styles/Button.styled";
 import Form from "./styles/Form.styled";
 import Input from "./styles/Input.styled";
-import LinkButton from "./styles/LinkButton.styled";
 import axios, { AxiosError } from "axios";
 import { useNavigate } from "react-router";
-import fourtyTwoLogo from "../assets/42_logo.png";
+import fourtyTwoLogo from "../../assets/42_logo.png";
+import { RegisterLink } from "./styles/RegisterLink.styled";
 
 export type LoginFormProps = {
-  onLinkClick: () => void;
+  openModal2FA: (nonce: string) => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -28,13 +28,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/auth/local/login",
+        `${import.meta.env.VITE_BACKEND_URL}/auth/local/login`,
         loginDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
       console.log(response);
-      navigate("/");
+      if (response.data.event === "2fa needed")
+      {
+        openModal2FA(response.data.nonce);
+      }
+      else
+        navigate("/");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {
@@ -63,27 +68,11 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
     }
   };
 
-  /*
-	const handleFourtyTwo = async (e: React.MouseEvent<HTMLButtonElement>) => {
-		e.preventDefault();
-		
-		// 42 login callback URI is not working - should fix that before finishing this method
-		try {
-			const response = await axios.get(
-				'http://localhost:3000/auth/fourtytwo/login'
-			);
-			console.log('response 42', response)
-		} catch (error) {
-			console.log('error 42', error);
-		}
-	}
-*/
-
   return (
     <Form onSubmit={handleSubmit} loginError={loginError}>
-      <h1>Connect</h1>
+      <h1 style={{ marginBottom: "0px" }}>Connect</h1>
       <Button type="button">
-        <a href="http://localhost:3000/auth/fourtytwo/login">
+        <a href={`${import.meta.env.VITE_BACKEND_URL}/auth/fourtytwo/login`}>
           Sign up with <img src={fourtyTwoLogo} alt="42 Logo" />
         </a>
       </Button>
@@ -93,16 +82,18 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLinkClick }) => {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="email"
+        autoComplete="email"
       />
       <Input
         type="password"
         value={pass}
         onChange={(e) => setPass(e.target.value)}
         placeholder="password"
+        autoComplete="current-password"
       />
-      <LinkButton onClick={onLinkClick}>
+      <RegisterLink to="/auth/register">
         Don't have an account? Sign up here.
-      </LinkButton>
+      </RegisterLink>
       <Button type="submit">Log In</Button>
     </Form>
   );

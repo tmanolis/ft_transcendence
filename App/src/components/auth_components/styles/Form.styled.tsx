@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import backgroundImg from "../../assets/global_background.jpeg";
+import backgroundImg from "../../../assets/global_background.jpeg";
 
 export type FormProps = {
   children?: React.ReactNode;
@@ -17,6 +17,7 @@ export const StyledForm = styled.form`
   background-color: rgba(255, 255, 255, 0.8);
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.25);
   border: none;
+  padding-bottom: 20px;
 
   h1 {
     font-family: "JetBrains Mono", monospace;

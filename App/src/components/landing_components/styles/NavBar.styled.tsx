@@ -31,7 +31,9 @@ const NavButton = styled.div`
   background-size: contain;
 
   img {
-    transition: transform 0.1s, border 0.1s;
+    transition:
+      transform 0.1s,
+      border 0.1s;
   }
 
   img:hover {

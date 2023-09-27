@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
+import Register from "./pages/Register";
 import Pong from "./pages/Pong";
 import Landing from "./pages/Landing";
 import Leaderboard from "./pages/Leaderboard";
@@ -10,6 +11,7 @@ import Play from "./pages/Play";
 import Chat from "./pages/Chat";
 import GlobalStyle from "./theme/GlobalStyle";
 import Hello from "./pages/Hello";
+import Verify2FA from "./pages/Verify2FA";
 
 const App = () => {
   return (
@@ -18,6 +20,8 @@ const App = () => {
       <Router>
         <Routes>
           <Route path="/auth" element={React.createElement(Authentification)} />
+          <Route path="/auth/register" element={React.createElement(Register)} />
+          <Route path="/auth/verify2fa-42api" element={React.createElement(Verify2FA)} />
           <Route path="/" element={React.createElement(Landing)} />
           <Route
             path="/leaderboard"

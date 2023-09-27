@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import ConfirmButton from "./styles/ConfirmButton.styled";
 import InputSettings, { InputContainer } from "./styles/InputSettings.styled";
+import { EditPasswordWrapper } from "./styles/EditPassword.styled";
 
 interface EditPasswordProps {
   onError: (error: string) => void;
@@ -25,9 +26,9 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
 
     try {
       const response = await axios.patch(
-        "http://localhost:3000/user/update",
+        `${import.meta.env.VITE_BACKEND_URL}/user/update`,
         updateDTO,
-        { withCredentials: true }
+        { withCredentials: true },
       );
       console.log(response);
       onSuccess("Password was successfully changed");
@@ -48,15 +49,15 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
   };
 
   return (
-    <>
+    <EditPasswordWrapper>
       <form onSubmit={handleSubmit}>
-      <InputContainer>
-        <InputSettings
-          name="old_password"
-          type="text"
-          id="old_password"
-          placeholder="<type old_password>"
-        />
+        <InputContainer>
+          <InputSettings
+            name="old_password"
+            type="text"
+            id="old_password"
+            placeholder="<type old_password>"
+          />
         </InputContainer>
         <InputContainer>
           <InputSettings
@@ -68,7 +69,7 @@ const EditPassword: React.FC<EditPasswordProps> = ({ onError, onSuccess }) => {
           <ConfirmButton type="submit">Confirm</ConfirmButton>
         </InputContainer>
       </form>
-    </>
+    </EditPasswordWrapper>
   );
 };
 
