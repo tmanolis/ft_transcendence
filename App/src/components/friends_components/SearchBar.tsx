@@ -27,6 +27,10 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 	  }
 	};
 
+	const handleAutofill = (username: string) => {
+		setWordEntered(username);
+	}
+
 	const handleAddFriend = async () => {
 		console.log("add friend button");
 		setFilteredData([]);
@@ -46,7 +50,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 			console.log(wordEntered + " succesfully added.");
 		  } catch (error) {
 			console.log(error);
-			setAddFriendError(wordEntered + " doesn't exist.")
+			setAddFriendError("Can't add " + wordEntered + " as friend.")
 		  }
 	  };
   
@@ -69,7 +73,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 		  <div className="dataResult">
 			{filteredData.slice(0, 15).map((value, key) => {
 			  return (
-				  <p key={key}>{value.userName} </p>
+				  <p onClick={() => handleAutofill(value.userName)} key={key}>{value.userName} </p>
 			  );
 			})}
 		</div>
