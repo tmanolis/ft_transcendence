@@ -30,10 +30,9 @@ const SearchUser: React.FC = () => {
 	  }, []); // Add an empty dependency array to run this effect only once
 
   return (
-    <div>
-      <h3>Search an user</h3>
+    <>
       <SearchBar placeholder="Enter a username..." data={UsersList} />
-    </div>
+    </>
   );
 }
 

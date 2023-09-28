@@ -3,9 +3,9 @@ import styled from 'styled-components';
 export const FriendsListWrapper = styled.div`
 	margin: 15px;
 	padding: 15px;
-	height: 477px;
+	height: 445px;
 	width: 900px;
-	// overflow-y: auto; /* Enable vertical scrolling if content overflows vertically */
+	overflow-y: auto; /* Enable vertical scrolling if content overflows vertically */
 	font-family: "JetBrains Mono", monospace;
 
 	display: flex;
