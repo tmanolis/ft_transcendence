@@ -1,7 +1,12 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { GetUserByUsernameDTO, UpdateDto, GetUserByEmailDTO, SecureUser } from 'src/dto';
+import {
+  GetUserByUsernameDTO,
+  UpdateDto,
+  GetUserByEmailDTO,
+  SecureUser,
+} from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
@@ -98,13 +103,6 @@ export class UserService {
     return allUserData;
   }
 
-	async getUserByUsername(dot: GetUserByUsernameDTO){
-		// promise is secure u
-	}
-
-	async getUserByEmail(dot: GetUserByEmailDTO){
-		// promise is secure u
-	}
   async getLeaderboard() {
     const allUsers: SecureUser[] = await this.getAllUsers();
 
@@ -147,14 +145,32 @@ export class UserService {
     return leaderboard;
   }
 
-  async addGames(payload, user) {
-    await this.prisma.user.update({
+  async getUserByUsername(dto: GetUserByUsernameDTO): Promise<SecureUser> {
+    return await this.prisma.user.findUnique({
       where: {
-        email: user.email,
+        userName: dto.userName,
       },
-      data: {
-        gamesWon: payload.won,
-        gamesLost: payload.lost,
+      select: {
+        userName: true,
+        avatar: true,
+        status: true,
+        gamesWon: true,
+        gamesLost: true,
+      },
+    });
+  }
+
+  async getUserByEmail(dto: GetUserByEmailDTO): Promise<SecureUser> {
+    return await this.prisma.user.findUnique({
+      where: {
+        email: dto.email,
+      },
+      select: {
+        userName: true,
+        avatar: true,
+        status: true,
+        gamesWon: true,
+        gamesLost: true,
       },
     });
   }

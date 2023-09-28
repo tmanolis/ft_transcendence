@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, Matches, MinLength, IsEmail } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+  IsEmail,
+} from 'class-validator';
+import { Status } from '@prisma/client';
 
 export class UpdateDto {
   @ApiProperty({ description: 'New username (optional)' })
@@ -37,15 +44,25 @@ export class UpdateDto {
   twoFAActivated: boolean;
 }
 
-export class GetUserByUsernameDTO{
+export class GetUserByUsernameDTO {
   @ApiProperty({ description: 'Requested username' })
   @IsString()
   userName: string;
 }
 
-export class GetUserByEmailDTO{
-  @ApiProperty({ description: 'Requested username' })
+export class GetUserByEmailDTO {
+  @ApiProperty({ description: 'Requested email' })
   @IsString()
-	@IsEmail()
+  @IsEmail()
   email: string;
+}
+
+export class SecureUser {
+  constructor(
+    public userName: string,
+    public avatar: string,
+    public status: Status,
+    public gamesWon: number,
+    public gamesLost: number,
+  ) {}
 }
