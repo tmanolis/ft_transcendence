@@ -29,6 +29,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 
 	const handleAutofill = (username: string) => {
 		setWordEntered(username);
+		setFilteredData([]);
 	}
 
 	const handleAddFriend = async () => {
@@ -50,7 +51,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 			console.log(wordEntered + " succesfully added.");
 		  } catch (error) {
 			console.log(error);
-			setAddFriendError("Can't add " + wordEntered + " as friend.")
+			setAddFriendError("Can't add " + wordEntered)
 		  }
 	  };
   
