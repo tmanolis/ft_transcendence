@@ -6,6 +6,8 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import {
@@ -14,6 +16,7 @@ import {
   createRoomDTO,
   joinRoomDTO,
   ChatMessage,
+  AdminDTO,
 } from 'src/dto';
 import { User, Message, RoomStatus, Room, UserInRoom } from '@prisma/client';
 import * as argon from 'argon2';
@@ -318,6 +321,112 @@ export class ChatService {
       );
       if (!passwordMatches) throw new ForbiddenException('Password incorrect');
     }
+  }
+
+  /****************************************************************************/
+  /* admin options										                                        */
+  /****************************************************************************/
+
+  async mute(user: User, dto: AdminDTO) {
+    const room = await this.adminCheck(user, dto);
+
+    if (room) {
+      const userInRoom = await this.getRoomUserByUsername(dto.username);
+
+      if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not mute room owner');
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            isMuted: true,
+          },
+        });
+      }
+    }
+
+    // find a way that the user is unmuted after one hour
+  }
+
+  async ban(user: User, dto: AdminDTO) {
+    const room = await this.adminCheck(user, dto);
+
+    if (room) {
+      const userInRoom = await this.getRoomUserByUsername(dto.username);
+
+      if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not ban room owner');
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            isBanned: true,
+          },
+        });
+      }
+    }
+  }
+
+  async kick(user: User, dto: AdminDTO) {
+    const room = await this.adminCheck(user, dto);
+
+    if (room) {
+      const userInRoom = await this.getRoomUserByUsername(dto.username);
+
+      if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not kick room owner');
+
+      // remove user from channel
+    }
+  }
+
+  async adminCheck(user: User, dto: AdminDTO): Promise<Room> {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.channel,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!room) throw new NotFoundException('Room not found');
+
+    const userInRoom: UserInRoom = room.users.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('User is not in this room');
+
+    if (!(userInRoom.role === 'OWNER' || userInRoom.role === 'ADMIN'))
+      throw new UnauthorizedException(
+        'You need to be admin or owner for this operation',
+      );
+
+    return userInRoom;
+  }
+
+  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userName: username,
+      },
+      include: {
+        rooms: true,
+      },
+    });
+
+    const userInRoom: UserInRoom = user.rooms.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('User is not in this room');
+
+    return userInRoom;
   }
 
   /****************************************************************************/

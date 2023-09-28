@@ -52,6 +52,18 @@ export class joinRoomDTO {
   password?: string;
 }
 
+export class AdminDTO {
+  @ApiProperty({ description: 'user to be muted/banned/kicked' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ description: 'channel name' })
+  @IsString()
+  @IsNotEmpty()
+  channel: string;
+}
+
 export class ChatUser {
   constructor(
     public email: string,
