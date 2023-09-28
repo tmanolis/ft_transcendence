@@ -5,7 +5,7 @@ export const FriendsListWrapper = styled.div`
 	padding: 15px;
 	height: 477px;
 	width: 900px;
-	overflow-y: auto; /* Enable vertical scrolling if content overflows vertically */
+	// overflow-y: auto; /* Enable vertical scrolling if content overflows vertically */
 	font-family: "JetBrains Mono", monospace;
 
 	display: flex;
