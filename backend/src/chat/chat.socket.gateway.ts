@@ -1,4 +1,3 @@
-import { OnModuleInit } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -6,11 +5,11 @@ import {
   OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
-  WebSocketServer,
 } from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
+import { Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
-import { ChatUser, createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
+import { createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
+import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
@@ -52,25 +51,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.chatService.handleMessage(message);
   }
 
-  // will do this in a next issue/PR.......
-  // @SubscribeMessage('updateHistory')
-  // async handleUpdateHistor(
-  // 	@ConnectedSocket() client: Socket){
-  // 		const jwtData: { sub: string; email: string; iat: string; exp: string } | any = this.verifyJWT(client);
-  // 		const user: ChatUser = await this.chatService.fetchUser(jwtData.email);
-  // 		try {
-  // 			const messageHistory = await this.chatService.userMessageHistory(user);
-
-  // 			if (messageHistory) {
-  // 				client.emit('updateHistory', messageHistory);
-  // 			} else {
-  // 				client.emit('updateHistory', []);
-  // 			}
-  // 		} catch (error) {
-  // 			client.emit('errorUpdateHistory', error);
-  // 		}
-  // }
-
   /****************************************************************************/
   /* channels				  							                                          */
   /****************************************************************************/
@@ -81,7 +61,15 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @MessageBody() createDTO: createRoomDTO,
   ) {
     try {
-      await this.chatService.createChannel(client, createDTO);
+      let channel: string;
+      if (createDTO.status === RoomStatus.DIRECT) {
+        channel = await this.chatService.createDirectMessage(client, createDTO);
+      } else {
+        channel = await this.chatService.createChannel(client, createDTO);
+      }
+      client.emit('createChannelSuccess', {
+        message: 'Channel created with name ' + channel,
+      });
     } catch (error) {
       client.emit('createChannelError', { message: error.message });
     }

@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Status } from '@prisma/client';
 import {
   IsEmail,
   IsNotEmpty,
@@ -40,16 +39,6 @@ export class AuthDto {
   @IsOptional()
   @IsString()
   twoFACode: string;
-}
-
-export class SecureUser {
-  constructor(
-    public userName: string,
-    public avatar: string,
-    public status: Status,
-    public gamesWon: number,
-    public gamesLost: number,
-  ) {}
 }
 
 export class LoginDto {

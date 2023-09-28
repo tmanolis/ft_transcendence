@@ -93,7 +93,10 @@ export class AuthService {
     if (user.twoFAActivated) {
       const nonce = await this.generateAndCacheRandomNonce(user.userName);
       console.log(nonce);
-      return res.cookie("nonce", nonce).status(200).redirect(`${process.env.FRONTEND_URL}/auth/verify2fa-42api`);
+      return res
+        .cookie('nonce', nonce)
+        .status(200)
+        .redirect(`${process.env.FRONTEND_URL}/auth/verify2fa-42api`);
     }
     await this.updateAfterLogin(user, res);
   }
@@ -132,7 +135,10 @@ export class AuthService {
     });
 
     const token = await this.signToken(user.id, user.email);
-    return res.cookie('jwt', token).status(200).redirect(`${process.env.FRONTEND_URL}/settings`);
+    return res
+      .cookie('jwt', token)
+      .status(200)
+      .redirect(`${process.env.FRONTEND_URL}/settings`);
   }
 
   async updateAfterLogin(user: User, res: any) {
@@ -146,8 +152,11 @@ export class AuthService {
     });
 
     const token = await this.signToken(user.id, user.email);
-    if (user.isFourtyTwoStudent && !user.twoFAActivated ) {
-      return res.cookie('jwt', token).status(200).redirect(`${process.env.FRONTEND_URL}`);
+    if (user.isFourtyTwoStudent && !user.twoFAActivated) {
+      return res
+        .cookie('jwt', token)
+        .status(200)
+        .redirect(`${process.env.FRONTEND_URL}`);
     } else {
       return res.cookie('jwt', token).status(200).json({ status: 'logged in' });
     }
