@@ -6,6 +6,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
+  Post,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
@@ -52,11 +53,29 @@ export class UserController {
   }
 
   // get all active user on the server
-  @Get('allUsers')
+  @Get('all-users')
   @ApiOkResponse({
     description: 'Returns all users public data',
   })
   async getAllUsers() {
     return await this.userService.getAllUsers();
+  }
+
+  // get all active users in order of win rate
+  @Get('leaderboard')
+  @ApiOkResponse({
+    description: 'Returns ranked users',
+  })
+  async getLeaderboard() {
+    return await this.userService.getLeaderboard();
+  }
+
+  // THIS FUNCTION IS JUST FOR TESTING!!!
+  // You can add games to a player
+  // Please remove before merge
+  // payload: {won: number, lost: number}
+  @Post('addGame')
+  addGame(@Body() payload, @GetUser() user: User) {
+    this.userService.addGames(payload, user);
   }
 }
