@@ -60,6 +60,15 @@ export class UserController {
     return await this.userService.getAllUsers();
   }
 
+  @Get('allUsernames')
+  @ApiOkResponse({
+    description: 'Returns username of all users',
+  })
+  async handleGetAllUsernames() {
+    return await this.userService.getAllUsernames();
+  }
+
+  // get all active users in order of win rate
   @Get('leaderboard')
   @ApiOkResponse({
     description: 'Returns ranked list of all users',

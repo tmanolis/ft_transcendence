@@ -103,6 +103,16 @@ export class UserService {
     return allUserData;
   }
 
+  async getAllUsernames(): Promise<string[]> {
+    const objectUsernames = await this.prisma.user.findMany({
+      select: {
+        userName: true,
+      },
+    });
+    const usernames: string[] = objectUsernames.map((user) => user.userName);
+    return usernames;
+  }
+
   async getLeaderboard() {
     const allUsers: SecureUser[] = await this.getAllUsers();
 
