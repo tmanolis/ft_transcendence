@@ -74,9 +74,18 @@ export const UserInfos = styled.div`
 	}
 `;
 
-export const Rank = styled.div`
-	margin-right: 8px;
-	font-size: 45px;
+export const ProfileButton = styled.button`
+	padding: 5px;
+	margin-right: 6px;
+
+	border-top: 1px solid #fff;
+  	border-left: 1px solid #fff;
+	background: #000;
+	box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
+
+	color: #fff;
+	font-family: "JetBrains Mono", monospace;
 	font-style: normal;
-	font-weight: 550; /* Set the font weight to make it bold */
+	font-weight: 400;
+	letter-spacing: 0.2px;
 `;
