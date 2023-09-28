@@ -7,10 +7,113 @@ import {
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { Response } from 'express';
+import { SecureUser } from 'src/dto';
 
 @Injectable()
 export class FriendService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /*****************************************************************************/
+  /* send friend Request */
+  /*****************************************************************************/
+  async getFriendList(user: User): Promise<SecureUser[]> {
+    const friendList : SecureUser[] = [];
+    const friendEmailList: string[] = user.friends;
+    for (let email of friendEmailList) {
+      const user = await this.getUserByEmail(email);
+      const secureUser: SecureUser = {
+        userName: user.userName,
+        avatar: user.avatar,
+        status: user.status,
+        gamesWon: user.gamesWon,
+        gamesLost: user.gamesLost,
+      }
+      await friendList.push(secureUser);
+    }
+
+    return friendList;
+  }
+
+  /*****************************************************************************/
+  /* send friend Request */
+  /*****************************************************************************/
+  async addFriend(
+    user: User,
+    payload: { userName: string },
+    res: Response,
+  ) {
+    // check user/payload data
+    const checkData = await this.checkWithUsername(user, payload);
+    if (checkData !== '') {
+      throw new BadRequestException(checkData);
+    }
+
+    const sender: User = user;
+    const receiver: User = await this.getUserByUsername(payload.userName);
+    if (!receiver) {
+      throw new BadRequestException('Receiver not found.');
+    }
+
+    const senderEmail: string = sender.email;
+    const receiverEmail: string = receiver.email;
+
+    // check if they are already friends
+    if (
+      sender.friends.includes(receiverEmail) ||
+      receiver.friends.includes(senderEmail)
+    ) {
+      throw new BadRequestException('You are already friends.');
+    }
+
+
+    // update/add sender to receiver's friends list
+    try {
+      const addFriendResult = await this.prisma.user.update({
+        where: {
+          email: receiverEmail,
+        },
+        data: {
+          friends: {
+            push: senderEmail,
+          },
+        },
+      });
+      if (addFriendResult.friends.length === 1) {
+        console.log('Added my first friend.');
+        // Add FRIEND achievement.
+        // Should probably create an achievement module for this.
+      }
+    } catch (error) {
+      throw new ServiceUnavailableException('Server unavailable.');
+    }
+
+    // update/add receiver to sender's friends list
+    try {
+      const addFriendResult = await this.prisma.user.update({
+        where: {
+          email: senderEmail,
+        },
+        data: {
+          friends: {
+            push: receiverEmail,
+          },
+        },
+      });
+      if (addFriendResult.friends.length === 1) {
+        console.log('Added my first friend.');
+        // Add FRIEND achievement.
+        // Should probably create an achievement module for this.
+      }
+    } catch (error) {
+      throw new ServiceUnavailableException('Server unavailable.');
+    }
+
+    return {
+      status: 'OK',
+      statusCode: 200,
+      message: 'Friend request successufly accepted.',
+    };
+  }
 
   /*****************************************************************************/
   /* send friend Request */
@@ -383,6 +486,20 @@ export class FriendService {
   /*****************************************************************************/
   // helper functions
   /*****************************************************************************/
+  async checkWithUsername(user: User, payload: { userName: string }) {
+    let result: string = '';
+    // check data integrity
+    if (!user || !user.userName || !payload || !payload.userName) {
+      result = 'Bad data.';
+    }
+
+    if (user.userName === payload.userName) {
+      result = 'You are always your own best friend!';
+    }
+
+    return result;
+  }
+
   async checkSenderAndReceiver(user: User, payload: { userEmail: string }) {
     let result: string = '';
     // check data integrity
@@ -441,6 +558,21 @@ export class FriendService {
       user = await this.prisma.user.findUnique({
         where: {
           email: email,
+        },
+      });
+    } catch (error) {
+      console.log(error);
+      throw new ServiceUnavailableException('Server unavailable.');
+    }
+    return user;
+  }
+
+  async getUserByUsername(userName: string): Promise<User> {
+    let user: User = null;
+    try {
+      user = await this.prisma.user.findUnique({
+        where: {
+          userName: userName,
         },
       });
     } catch (error) {

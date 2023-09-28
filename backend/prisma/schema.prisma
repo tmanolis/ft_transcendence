@@ -27,8 +27,8 @@ model User {
 
   /// community
   friends               String[]
-  frienRequestsSent     String[]
-  friendReqestsReceived String[]
+  friendRequestsSent     String[]
+  friendRequestsReceived String[]
   rooms                 UserInRoom[] @relation("connecting User to UserInRoom")
 
   /// statistics
