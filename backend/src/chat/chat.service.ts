@@ -20,7 +20,6 @@ import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import crypto from 'crypto';
 
 @Injectable()
 export class ChatService {
