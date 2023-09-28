@@ -26,4 +26,3 @@ export class adminDTO {
   @IsString()
   userName: string;
 }
-

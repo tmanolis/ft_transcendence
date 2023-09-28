@@ -1,7 +1,11 @@
 import { Controller, Patch, Body, UseGuards, Res } from '@nestjs/common';
 import { ChatService } from './chat.service';
-import { ApiTags } from '@nestjs/swagger';
-import { toPublicDTO, changePassDTO, adminDTO } from './channel.dto';
+import {
+  ApiTags,
+  ApiOkResponse,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { toPublicDTO, changePassDTO, adminDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
 import { User } from '@prisma/client';
@@ -14,6 +18,8 @@ export class ChatController {
   constructor(private chatService: ChatService) {}
 
   @Patch('toPublic')
+  @ApiOkResponse({ description: 'Channel has been set to public' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleToPublic(
     @GetUser() user: User,
     @Body() dto: toPublicDTO,
@@ -24,6 +30,8 @@ export class ChatController {
   }
 
   @Patch('toPrivate')
+  @ApiOkResponse({ description: 'Channel has been set to private' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleToPrivate(
     @GetUser() user: User,
     @Body() dto: changePassDTO,
@@ -34,6 +42,8 @@ export class ChatController {
   }
 
   @Patch('changePass')
+  @ApiOkResponse({ description: 'Password has been updated' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleChangePass(
     @GetUser() user: User,
     @Body() dto: changePassDTO,
@@ -44,22 +54,30 @@ export class ChatController {
   }
 
   @Patch('addAdmin')
+  @ApiOkResponse({ description: 'User is now channel admin' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleAddAdmin(
     @GetUser() user: User,
     @Body() dto: adminDTO,
     @Res() res: Response,
   ) {
     await this.chatService.addAdmin(user, dto);
-    return res.status(200).send({ message: dto.userName + ' is now channel admin' });
-	}
+    return res
+      .status(200)
+      .send({ message: dto.userName + ' is now channel admin' });
+  }
 
-	@Patch('removeAdmin')
+  @Patch('removeAdmin')
+  @ApiOkResponse({ description: 'User is no longer channel admin' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleRemoveAdmin(
     @GetUser() user: User,
     @Body() dto: adminDTO,
     @Res() res: Response,
   ) {
     await this.chatService.removeAdmin(user, dto);
-    return res.status(200).send({ message: dto.userName + ' is removed from channel admins' });
-	}
+    return res
+      .status(200)
+      .send({ message: dto.userName + ' is removed from channel admins' });
+  }
 }

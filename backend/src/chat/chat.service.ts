@@ -16,21 +16,15 @@ import {
   createRoomDTO,
   joinRoomDTO,
   ChatMessage,
+  adminDTO,
+  changePassDTO,
+  toPublicDTO,
 } from 'src/dto';
-import {
-  User,
-  Message,
-  RoomStatus,
-  Room,
-  UserInRoom,
-  Status,
-} from '@prisma/client';
+import { User, RoomStatus, Room, UserInRoom } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { userInfo } from 'os';
-import { adminDTO, changePassDTO, toPublicDTO } from './channel.dto';
 
 @Injectable()
 export class ChatService {
@@ -334,7 +328,7 @@ export class ChatService {
   /****************************************************************************/
 
   async toPublic(user: User, dto: toPublicDTO) {
-    const room = await this.ownerCheck(user, dto);
+    const room: Room = await this.ownerCheck(user, dto);
 
     if (room) {
       await this.prisma.room.update({
@@ -343,15 +337,16 @@ export class ChatService {
         },
         data: {
           status: 'PUBLIC',
+          password: '',
         },
       });
     }
   }
 
   async toPrivate(user: User, dto: changePassDTO) {
-    const room = await this.ownerCheck(user, dto);
+    const room: Room = await this.ownerCheck(user, dto);
 
-    const hash = await argon.hash(dto.password);
+    const hash: string = await argon.hash(dto.password);
     if (room) {
       await this.prisma.room.update({
         where: {
@@ -366,9 +361,10 @@ export class ChatService {
   }
 
   async changePass(user: User, dto: changePassDTO) {
-    const room = await this.ownerCheck(user, dto);
+    const room: Room = await this.ownerCheck(user, dto);
+    const oldpass: string = room.password;
 
-    const hash = await argon.hash(dto.password);
+    const hash: string = await argon.hash(dto.password);
     if (room) {
       await this.prisma.room.update({
         where: {
@@ -381,42 +377,75 @@ export class ChatService {
     }
   }
 
-	async addAdmin(user: User, dto: adminDTO){
-		const room = await this.ownerCheck(user, dto);
+  async addAdmin(user: User, dto: adminDTO) {
+    const room = await this.ownerCheck(user, dto);
 
-		if (room){
-			// somehow fetch email here
-			const email = 'a@a.com';
-			const userInRoom = room.users.find(
-				(userInRoom: UserInRoom) => userInRoom.email === email
-			);
+    if (room) {
+      // get the user that needs to change status
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userName: dto.userName,
+        },
+      });
 
-			if (!userInRoom) throw new NotFoundException('User to be admin is not in this room');
+      const userInRoom: UserInRoom = room.users.find(
+        (userInRoom: UserInRoom) => userInRoom.email === user.email,
+      );
 
-			if (userInRoom.role === 'OWNER') throw new BadRequestException('Can not downgrade room owner');
+      // few checks
+      if (!userInRoom) throw new NotFoundException('User is not in this room');
+      else if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not downgrade room owner');
+      else if (userInRoom.role === 'ADMIN')
+        throw new BadRequestException('User is already admin');
+      // change status
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            role: 'ADMIN',
+          },
+        });
+      }
+    }
+  }
 
-			else if (userInRoom.role === 'ADMIN') throw new BadRequestException('This user is already admin');
+  async removeAdmin(user: User, dto: adminDTO) {
+    const room = await this.ownerCheck(user, dto);
 
-			else {
-				await this.prisma.userInRoom.update({
-					where: {
-						id: userInRoom.id,
-					},
-					data: {
-						role: 'ADMIN',
-					},
-				});		
-			}
-		}
-	}
+    if (room) {
+      // get the user that needs to change status
+      const user = await this.prisma.user.findUnique({
+        where: {
+          userName: dto.userName,
+        },
+      });
 
-	async removeAdmin(user: User, dto: adminDTO){
-		const room = await this.ownerCheck(user, dto);
+      const userInRoom: UserInRoom = room.users.find(
+        (userInRoom: UserInRoom) => userInRoom.email === user.email,
+      );
 
-		if (room){
-			// give user in room user role
-		}
-	}
+      // few checks
+      if (!userInRoom) throw new NotFoundException('User is not in this room');
+      else if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not downgrade room owner');
+      else if (userInRoom.role === 'USER')
+        throw new BadRequestException('User is not admin');
+      // change status
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            role: 'USER',
+          },
+        });
+      }
+    }
+  }
 
   async ownerCheck(user: User, dto: toPublicDTO) {
     const room = await this.prisma.room.findUnique({
@@ -430,8 +459,8 @@ export class ChatService {
 
     if (!room) throw new NotFoundException('Room not found');
 
-    const userInRoom = room.users.find(
-      (userInRoom) => userInRoom.email === user.email,
+    const userInRoom: UserInRoom = room.users.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
     );
 
     if (!userInRoom) throw new NotFoundException('User is not in this room');
