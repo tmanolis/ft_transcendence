@@ -14,7 +14,11 @@ describe('GameService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [PrismaModule, JwtModule],
-      providers: [GameService,{ provide: CACHE_MANAGER, useValue: {} }, JwtService],
+      providers: [
+        GameService,
+        { provide: CACHE_MANAGER, useValue: {} },
+        JwtService,
+      ],
     }).compile();
 
     gameService = module.get<GameService>(GameService);
