@@ -121,7 +121,7 @@ export class ChatService {
   }
 
   /****************************************************************************/
-  /* channels												                                          */
+  /* create/join channel						                                          */
   /****************************************************************************/
 
   async createChannel(client: Socket, roomDTO: createRoomDTO) {
@@ -203,8 +203,11 @@ export class ChatService {
       );
     }
 
-    //check if room exists
+    // check if room exists
     if (existingRoom) throw new ConflictException('Room already exists');
+
+		// check room naming convention
+		if (roomDTO.name && roomDTO.name.includes("@")) throw new BadRequestException('Room name has invalid character (@)')
 
     // check password for private room
     if (roomDTO.status === RoomStatus.PRIVATE) {
@@ -319,6 +322,24 @@ export class ChatService {
       if (!passwordMatches) throw new ForbiddenException('Password incorrect');
     }
   }
+
+	/****************************************************************************/
+  /* channel info											                                        */
+  /****************************************************************************/
+
+	async getRooms(user: User): Promise<string[]>{
+		const userRooms = await this.prisma.user
+		.findUnique({
+			where: {
+				id: user.id,
+			},
+		})
+		.rooms();
+
+		const roomNames = userRooms.map((userRoom) => userRoom.roomID);
+
+		return roomNames;	
+	}
 
   /****************************************************************************/
   /* messages													                                        */
