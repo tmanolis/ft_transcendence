@@ -28,7 +28,7 @@ const FriendsList: React.FC = () => {
 
   useEffect(() => {
     getFriendsList();
-  }, [FriendsList]); // Add an empty dependency array to run this effect only once
+  }, []); // Add an empty dependency array to run this effect only once
 
   return (
     <FriendsListWrapper>
