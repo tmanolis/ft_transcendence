@@ -15,12 +15,12 @@ import {
   joinRoomDTO,
   ChatMessage,
 } from 'src/dto';
-import { User, Message, RoomStatus, Room, UserInRoom } from '@prisma/client';
+import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { userInfo } from 'os';
+import crypto from 'crypto';
 
 @Injectable()
 export class ChatService {
@@ -43,37 +43,19 @@ export class ChatService {
     const email: string = this.getEmailFromJWT(client);
     if (!email) return;
 
-    // update and reconnect user if they are in the cache already
-    const existingUser: ChatUser = await this.fetchChatuser(email);
-    if (existingUser) {
-      this.reconnectChatuser(existingUser, client);
-      return existingUser;
-    }
+    // update cache and join socket to rooms
+    const chatUser = await this.reconnectUser(email, client);
 
-    // check if user exists in prisma
-    const prismaUser: User = await this.fetchPrismaUser(email);
-
-    // create new user or disconnect
-    if (!prismaUser) {
-      client.emit('chat', 'accessDenied', {
+    // send error message if not found
+    if (!chatUser) {
+      client.emit('accessDenied', {
         message: 'Account not found, please reconnect.',
       });
       client.disconnect();
       return;
-    } else {
-      const newChatUser = new ChatUser(
-        prismaUser.email,
-        client.id,
-        prismaUser.userName,
-        [],
-      );
-      console.log('creating new chat user:', prismaUser.email);
-      await this.cacheManager.set(
-        'chat' + prismaUser.email,
-        JSON.stringify(newChatUser),
-      );
-      return newChatUser;
     }
+
+    return chatUser;
   }
 
   getEmailFromJWT(client: Socket) {
@@ -108,16 +90,53 @@ export class ChatService {
       where: {
         email: email,
       },
+      include: {
+        rooms: true,
+      },
     });
   }
 
-  async reconnectChatuser(user: ChatUser, socket: Socket) {
-    user.socketID = socket.id;
-    for (const room in user.rooms) {
-      socket.join(room);
+  async reconnectUser(email: string, socket: Socket) {
+    // find user in prisma including connected rooms
+    const prismaUser = await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+      include: {
+        rooms: true,
+      },
+    });
+
+    if (!prismaUser) {
+      return null;
     }
-    await this.cacheManager.set('chat' + user.email, JSON.stringify(user));
-    console.log('updating existing chat user:', user.email);
+
+    // find user in cache
+    let chatUser: ChatUser = await this.fetchChatuser(email);
+
+    // update socketID or create new cache user
+    if (chatUser) {
+      chatUser.socketID = socket.id;
+      console.log('update existing chat user:', email);
+    } else {
+      chatUser = new ChatUser(
+        prismaUser.email,
+        socket.id,
+        prismaUser.userName,
+        // [],
+      );
+      console.log('creating new chat user:', email);
+    }
+
+    // rejoin all rooms
+    for (const room of prismaUser.rooms) {
+      socket.join(room.roomID);
+    }
+
+    // set or update cache
+    await this.cacheManager.set('chat' + email, JSON.stringify(chatUser));
+
+    return chatUser;
   }
 
   /****************************************************************************/
@@ -140,7 +159,7 @@ export class ChatService {
 
     // create new room
     try {
-      const newRoom = await this.prisma.room.create({
+      await this.prisma.room.create({
         data: {
           ...roomDTO,
           owner: chatuser.email,
@@ -160,17 +179,12 @@ export class ChatService {
         },
       });
     } catch (error) {
-      console.log(error);
+      throw new BadRequestException(
+        'Channel could not be created, did you send the right variables?',
+      );
     }
 
-    // updating cache
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
-
-    // sending a little welcome message
+    // send a little welcome message
     const welcomeMessage: messageDTO = {
       room: roomDTO.name,
       sender: 'PongStoryShort',
@@ -178,8 +192,7 @@ export class ChatService {
     };
     this.handleMessage(welcomeMessage);
 
-    // still missing:
-    // * way to make a temp room for direct messaging
+    return roomDTO.name;
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
@@ -231,7 +244,7 @@ export class ChatService {
     client.join(roomDTO.name);
 
     // adding roomuser in prisma
-    const updatedRoom = await this.prisma.room.update({
+    await this.prisma.room.update({
       where: {
         name: roomDTO.name,
       },
@@ -250,13 +263,6 @@ export class ChatService {
         users: true,
       },
     });
-
-    // updating cache
-    chatuser.rooms.push(joinRoomDTO.name);
-    await this.cacheManager.set(
-      'chat' + chatuser.email,
-      JSON.stringify(chatuser),
-    );
 
     // sending a little welcome message
     const welcomeMessage: messageDTO = {
@@ -321,6 +327,118 @@ export class ChatService {
   }
 
   /****************************************************************************/
+  /* dm room												                                          */
+  /****************************************************************************/
+
+  async createDirectMessage(
+    client: Socket,
+    roomDTO: createRoomDTO,
+  ): Promise<string> {
+    const email: string = this.getEmailFromJWT(client);
+    const chatuser: ChatUser = await this.fetchChatuser(email);
+    const prismaUser = await this.fetchPrismaUser(chatuser.email);
+    let otherPrismaUser: User;
+    let roomName: string;
+
+    try {
+      otherPrismaUser = await this.prismaCheckOtherUser(
+        roomDTO.name,
+        prismaUser,
+      );
+      roomName = this.unqiueRoomName(prismaUser.id, otherPrismaUser.id);
+      roomDTO.name = roomName;
+      this.securityCheckCreateChannel(prismaUser, roomDTO);
+    } catch (error) {
+      throw error;
+    }
+
+    // create a new room that is connected to both users
+    try {
+      await this.prisma.room.create({
+        data: {
+          ...roomDTO,
+          owner: email,
+          name: roomName,
+          users: {
+            create: [
+              {
+                user: {
+                  connect: { email: email },
+                },
+                role: 'USER',
+              },
+              {
+                user: {
+                  connect: { email: otherPrismaUser.email },
+                },
+                role: 'USER',
+              },
+            ],
+          },
+        },
+        include: {
+          users: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Channel could not be created, did you send the right variables?',
+      );
+    }
+
+    // join socket to room
+    client.join(roomName);
+
+    // notify other chatuser
+    const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
+    if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
+      this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+        message:
+          'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
+      });
+    }
+
+    // send a little welcome message
+    const welcomeMessage: messageDTO = {
+      room: roomDTO.name,
+      sender: 'PongStoryShort',
+      text:
+        'Welcome to this conversation, ' +
+        prismaUser.userName +
+        ' and ' +
+        otherPrismaUser.userName,
+    };
+    await this.handleMessage(welcomeMessage);
+
+    return roomName;
+  }
+
+  unqiueRoomName(uid1: string, uid2: string) {
+    const sortedIDs = [uid1, uid2].sort();
+    const concatenatedIDs = sortedIDs.join();
+    return concatenatedIDs;
+  }
+
+  async prismaCheckOtherUser(
+    username: string,
+    currentUser: User,
+  ): Promise<User> {
+    if (username === currentUser.userName)
+      throw new BadRequestException('Can not open chat with yourself');
+
+    const otherPrismaUser = await this.prisma.user.findUnique({
+      where: {
+        userName: username,
+      },
+    });
+    if (!otherPrismaUser) {
+      throw new BadRequestException('Other user not found');
+    }
+
+    return otherPrismaUser;
+  }
+
+  /****************************************************************************/
   /* messages													                                        */
   /****************************************************************************/
 
@@ -345,34 +463,4 @@ export class ChatService {
 
     this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
   }
-
-  // async roomMessageHistory(roomName: string): Promise<Message[]> {
-  // 	return this.prisma.message.findMany({
-  // 		where: {
-  // 			roomID: roomName,
-  // 		}
-  // 	})
-  // }
-
-  // async userMessageHistory(user: ChatUser){
-  // 	const prismaUser = await this.prisma.user.findUnique({
-  // 		where: {
-  // 			email: user.email,
-  // 		}
-  // 	})
-  // 	const rooms = await this.prisma.roomUser.findMany({
-  // 		where : {
-  // 			email: prismaUser.email,
-  // 		}
-  // 	})
-
-  // 	const messageHistory: Record<string, Message[]> = {};
-
-  // 	for (const room of rooms){
-  // 		const messages = await this.roomMessageHistory(room.roomID);
-  // 		messageHistory[room.roomID] = messages;
-  // 	}
-
-  // 	return messageHistory;
-  // }
 }
