@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { GetUserByUsernameDTO, UpdateDto, GetUserByEmailDTO } from 'src/dto';
+import { GetUserByUsernameDTO, UpdateDto, GetUserByEmailDTO, SecureUser } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
@@ -85,15 +85,14 @@ export class UserService {
     return otpauthUrl;
   }
 
-  async getAllUsers(): Promise<Object> {
-    const allUserData = await this.prisma.user.findMany({
+  async getAllUsers(): Promise<SecureUser[]> {
+    const allUserData: SecureUser[] = await this.prisma.user.findMany({
       select: {
         userName: true,
         avatar: true,
         status: true,
         gamesWon: true,
         gamesLost: true,
-        ranking: true,
       },
     });
     return allUserData;
@@ -106,4 +105,57 @@ export class UserService {
 	async getUserByEmail(dot: GetUserByEmailDTO){
 		// promise is secure u
 	}
+  async getLeaderboard() {
+    const allUsers: SecureUser[] = await this.getAllUsers();
+
+    const sortedUsers = allUsers.sort((a, b) => {
+      const winRateA =
+        a.gamesWon + a.gamesLost === 0
+          ? 0
+          : a.gamesWon / (a.gamesWon + a.gamesLost);
+      const winRateB =
+        b.gamesWon + b.gamesLost === 0
+          ? 0
+          : b.gamesWon / (b.gamesWon + b.gamesLost);
+
+      if (winRateA > winRateB) return -1;
+      if (winRateA < winRateB) return 1;
+      return 0;
+    });
+
+    let currentWinRate = null;
+    let currentPlace = 0;
+    const leaderboard = sortedUsers.map((user, index) => {
+      const winRate =
+        user.gamesWon + user.gamesLost === 0
+          ? 0
+          : user.gamesWon / (user.gamesWon + user.gamesLost);
+
+      if (winRate !== currentWinRate) {
+        currentWinRate = winRate;
+        currentPlace = index + 1;
+      }
+
+      return {
+        place: currentPlace,
+        userName: user.userName,
+        avatar: user.avatar,
+        gamesWon: user.gamesWon,
+        gamesPlayed: user.gamesWon + user.gamesLost,
+      };
+    });
+    return leaderboard;
+  }
+
+  async addGames(payload, user) {
+    await this.prisma.user.update({
+      where: {
+        email: user.email,
+      },
+      data: {
+        gamesWon: payload.won,
+        gamesLost: payload.lost,
+      },
+    });
+  }
 }
