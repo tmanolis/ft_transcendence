@@ -4,8 +4,13 @@ export const FriendsListWrapper = styled.div`
 	margin: 15px;
 	padding: 15px;
 	height: 477px;
-	overflow: auto; // Add overflow to allow scrolling if content overflows
-	font-family: "JetBrains Mono",monospace;
+	width: 900px;
+	overflow-y: auto; /* Enable vertical scrolling if content overflows vertically */
+	font-family: "JetBrains Mono", monospace;
+
+	display: flex;
+	flex-wrap: wrap; /* Allow children to wrap to the next line when they don't fit */
+	justify-content: space-between;
 
 	/* Add scrollbar styles for WebKit browsers */
   &::-webkit-scrollbar {
@@ -37,6 +42,7 @@ export const FriendContainer = styled.div`
 	box-shadow: -1px -1px 0px 0px #5A5A5A inset;
 
 	display: flex; // Align children horizontally
+	flex-direction: row;
   	align-items: center; // Vertically center-align children
 	gap: 15px; /* Add the gap property to control spacing between components */
 
