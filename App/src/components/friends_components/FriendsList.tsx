@@ -2,25 +2,25 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Avatar, FriendsListWrapper, FriendContainer, UserInfos, ProfileButton } from './styles/FriendsList.styled';
 
-interface Profile {
+interface Friend {
 	avatar: string;
-	gamesPlayed: number;
+	gamesLost: number;
 	gamesWon: number;
-	place: number;
+	status: string;
 	userName: string;
 }
 
 const FriendsList: React.FC = () => {
-  const [FriendsList, setFriendsList] = useState<Profile[]>([]);
+  const [FriendsList, setFriendsList] = useState<Friend[]>([]);
 
   const getFriendsList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/user/leaderboard`,
+        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`,
         { withCredentials: true }
       );
       console.log(response);
-      setFriendsList(response.data);
+      setFriendsList(response.data.friendList);
     } catch (error) {
       console.log(error);
     }
@@ -28,7 +28,7 @@ const FriendsList: React.FC = () => {
 
   useEffect(() => {
     getFriendsList();
-  }, []); // Add an empty dependency array to run this effect only once
+  }, [FriendsList]); // Add an empty dependency array to run this effect only once
 
   return (
     <FriendsListWrapper>
@@ -39,7 +39,7 @@ const FriendsList: React.FC = () => {
 
 export default FriendsList;
 
-function Item(data: Profile[]) {
+function Item(data: Friend[]) {
 
 	const handleClick = (username: string) => {
 		console.log("See profile: " + username);
@@ -53,7 +53,7 @@ function Item(data: Profile[]) {
           <div className="avatar">
             <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
           </div>
-          <UserInfos>{value.userName}<span>status</span></UserInfos>
+          <UserInfos>{value.userName}<span>{value.status.toLowerCase()}</span></UserInfos>
           <ProfileButton onClick={() => handleClick(value.userName)}>See profile</ProfileButton>
         </FriendContainer>
       ))}

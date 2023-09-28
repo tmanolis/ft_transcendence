@@ -52,11 +52,6 @@ export const FriendContainer = styled.div`
 	letter-spacing: 0.36px;
 `;
 
-export const CodeBar = styled.img`
-	width: 92px;
-	height: 45px;
-`;
-
 export const Avatar = styled.img`
 	width: 58px;
 	height: 58px;
@@ -68,9 +63,10 @@ export const UserInfos = styled.div`
 
 	display: flex;
 	flex-direction: column;
+	gap: 5px;
 
 	span {
-		font-size: 14px;
+		font-size: 12px;
 	}
 `;
 
