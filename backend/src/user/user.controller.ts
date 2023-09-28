@@ -11,7 +11,7 @@ import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
-import { UpdateDto } from 'src/dto';
+import { GetUserByEmailDTO, GetUserByUsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -27,7 +27,7 @@ export class UserController {
   @Get('me')
   // GetUser custom decorator, because Request is error prone
   // and like this we can return a prisma type user.
-  getMe(@GetUser() user: User) {
+  handleGetMe(@GetUser() user: User) {
     return user;
   }
 
@@ -39,7 +39,7 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: 'Update failed. Please try again!' })
   @UseInterceptors(FilesInterceptor('avatar'))
-  async edit(
+  async handleUpdateUser(
     @GetUser() user: User,
     @Body() updateDto: UpdateDto,
     @UploadedFiles() files: any[],
@@ -56,7 +56,27 @@ export class UserController {
   @ApiOkResponse({
     description: 'Returns all users public data',
   })
-  async getAllUsers() {
+  async handlegetAllUsers() {
     return await this.userService.getAllUsers();
   }
+
+	@Get('userByUsername')
+  @ApiOkResponse({
+    description: 'Returns public data of one user',
+  })
+	async handleGetUserByUsername(
+		@Body() dto: GetUserByUsernameDTO,
+	){
+		return await this.userService.getUserByUsername(dto);
+	}
+
+	@Get('usernameByEmail')
+  @ApiOkResponse({
+    description: 'Returns public data of one user',
+  })
+	async handleGetUserByEmail(
+		@Body() dto: GetUserByEmailDTO,
+	){
+		return await this.userService.getUserByEmail(dto);
+	}
 }

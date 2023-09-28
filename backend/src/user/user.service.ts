@@ -1,7 +1,7 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { UpdateDto } from 'src/dto';
+import { GetUserByUsernameDTO, UpdateDto, GetUserByEmailDTO } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
@@ -98,4 +98,12 @@ export class UserService {
     });
     return allUserData;
   }
+
+	async getUserByUsername(dot: GetUserByUsernameDTO){
+		// promise is secure u
+	}
+
+	async getUserByEmail(dot: GetUserByEmailDTO){
+		// promise is secure u
+	}
 }
