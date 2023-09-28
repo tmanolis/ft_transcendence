@@ -15,12 +15,10 @@ import { User } from '@prisma/client';
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
-	@Get('rooms')
+  @Get('rooms')
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-	async handleGetRooms(
-		@GetUser() user: User,
-	){
-		return await this.chatService.getRooms(user);
-	}
+  async handleGetRooms(@GetUser() user: User) {
+    return await this.chatService.getRooms(user);
+  }
 }

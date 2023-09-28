@@ -8,6 +8,6 @@ import { ChatController } from './chat.controller';
   imports: [JwtModule],
   providers: [ChatService, PrismaService, JwtService],
   exports: [ChatService],
-	controllers: [ChatController],
+  controllers: [ChatController],
 })
 export class ChatModule {}

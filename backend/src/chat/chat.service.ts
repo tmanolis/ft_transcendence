@@ -195,11 +195,13 @@ export class ChatService {
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
-		// check naming conventions
-		if (roomDTO.name
-			&& roomDTO.name.includes('@')
-			&& roomDTO.status !== RoomStatus.DIRECT) 
-			throw new BadRequestException('Room name has invalid character (@)')	
+    // check naming conventions
+    if (
+      roomDTO.name &&
+      roomDTO.name.includes('@') &&
+      roomDTO.status !== RoomStatus.DIRECT
+    )
+      throw new BadRequestException('Room name has invalid character (@)');
 
     // check if user exists
     if (!prismaUser)
@@ -331,23 +333,23 @@ export class ChatService {
     }
   }
 
-	/****************************************************************************/
+  /****************************************************************************/
   /* channel info											                                        */
   /****************************************************************************/
 
-	async getRooms(user: User): Promise<string[]>{
-		const userRooms = await this.prisma.user
-		.findUnique({
-			where: {
-				id: user.id,
-			},
-		})
-		.rooms();
+  async getRooms(user: User): Promise<string[]> {
+    const userRooms = await this.prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .rooms();
 
-		const roomNames = userRooms.map((userRoom) => userRoom.roomID);
+    const roomNames = userRooms.map((userRoom) => userRoom.roomID);
 
-		return roomNames;	
-	}
+    return roomNames;
+  }
 
   /****************************************************************************/
   /* dm room												                                          */
