@@ -1,4 +1,6 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { RoomStatus } from '@prisma/client';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class messageDTO {
   room: string;
@@ -18,9 +20,11 @@ export class joinRoomDTO {
 }
 
 export class channelDTO {
-  channel: string;
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 }
-
 
 export class ChatUser {
   constructor(

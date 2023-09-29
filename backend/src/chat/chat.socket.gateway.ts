@@ -90,18 +90,18 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-	@SubscribeMessage('leaveChannel')
-	async handleLeaveChannel(
-		@ConnectedSocket() client: Socket,
-		@MessageBody() dto: channelDTO,
-	) {
-		try{
-			await this.chatService.leaveChannel(client, dto);
+  @SubscribeMessage('leaveChannel')
+  async handleLeaveChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: channelDTO,
+  ) {
+    try {
+      await this.chatService.leaveChannel(client, dto);
       client.emit('leaveChannelSuccess', {
-        message: `You are no longer a member of channel ${dto.channel}`
-			});
-		} catch (error) {
-			client.emit('leaveChannelError', { message: error.message });
-		}
-	}
+        message: `You are no longer a member of channel ${dto.name}`,
+      });
+    } catch (error) {
+      client.emit('leaveChannelError', { message: error.message });
+    }
+  }
 }
