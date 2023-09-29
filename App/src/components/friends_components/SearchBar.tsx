@@ -33,7 +33,6 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 	}
 
 	const handleAddFriend = async () => {
-		console.log("add friend button");
 		setFilteredData([]);
     	setWordEntered("");
 
@@ -49,6 +48,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 			);
 			console.log(response);
 			console.log(wordEntered + " succesfully added.");
+			window. location. reload();
 		  } catch (error) {
 			console.log(error);
 			setAddFriendError("Can't add " + wordEntered)

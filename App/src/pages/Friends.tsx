@@ -5,6 +5,7 @@ import { FriendsWrapper } from "../components/friends_components/styles/FriendsW
 import Landing from "../pages/Landing";
 
 const Friends = () => {
+  
   return (
     <>
       <Landing />
