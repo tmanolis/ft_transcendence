@@ -5,6 +5,7 @@ export const ClassicPongButton = styled.button`
   background: url(${classic_pong});
   border-radius: 5px;
   border: none;
+  box-shadow:5px 5px 5px white;
   cursor: pointer;
   margin: 20px;
   width: 433px;
