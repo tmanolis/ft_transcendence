@@ -22,7 +22,7 @@ const App = () => {
           <Route path="/auth" element={React.createElement(Authentification)} />
           <Route path="/auth/register" element={React.createElement(Register)} />
           <Route path="/auth/verify2fa-42api" element={React.createElement(Verify2FA)} />
-          <Route path="/" element={React.createElement(Landing)} />
+          <Route path="/landing" element={React.createElement(Landing)} />
           <Route
             path="/leaderboard"
             element={React.createElement(Leaderboard)}
