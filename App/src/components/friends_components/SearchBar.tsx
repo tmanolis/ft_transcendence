@@ -68,14 +68,14 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 		  <ConfirmButton type="submit" onClick={handleAddFriend}>Add Friend</ConfirmButton>
 		</div>
 		{addFriendError && (
-            <div style={{ color: "red", fontSize: "12px" }}>{addFriendError}</div>
+            <div style={{ color: "red", fontSize: "12px", margin: "10px" }}>{addFriendError}</div>
           )}
 		<div className="dataResultContainer">
 		{filteredData.length != 0 && (
 		  <div className="dataResult">
 			{filteredData.slice(0, 15).map((value, key) => {
 			  return (
-				  <p onClick={() => handleAutofill(value.userName)} key={key}>{value.userName} </p>
+				  <p style={{ margin: "3px"}} onClick={() => handleAutofill(value.userName)} key={key}>{value.userName} </p>
 			  );
 			})}
 		</div>
