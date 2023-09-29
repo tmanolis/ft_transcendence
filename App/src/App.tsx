@@ -29,7 +29,7 @@ const App = () => {
           />
           <Route path="/settings" element={React.createElement(Settings)} />
           <Route path="/profile" element={React.createElement(Profile)} />
-          <Route path="/chat" element={React.createElement(Friends)} />
+          <Route path="/friends" element={React.createElement(Friends)} />
           <Route path="/play" element={React.createElement(Play)} />
           <Route path="/pong" element={React.createElement(Pong)} />
           <Route path="/hello" element={React.createElement(Hello)} />
