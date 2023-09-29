@@ -382,15 +382,7 @@ export class ChatService {
 
     if (room) {
       // get the user that needs to change status
-      const user = await this.prisma.user.findUnique({
-        where: {
-          userName: dto.userName,
-        },
-      });
-
-      const userInRoom: UserInRoom = room.users.find(
-        (userInRoom: UserInRoom) => userInRoom.email === user.email,
-      );
+      const userInRoom = await this.getRoomUserByUsername(dto.userName);
 
       // few checks
       if (!userInRoom) throw new NotFoundException('User is not in this room');
@@ -417,19 +409,10 @@ export class ChatService {
 
     if (room) {
       // get the user that needs to change status
-      const user = await this.prisma.user.findUnique({
-        where: {
-          userName: dto.userName,
-        },
-      });
-
-      const userInRoom: UserInRoom = room.users.find(
-        (userInRoom: UserInRoom) => userInRoom.email === user.email,
-      );
+      const userInRoom = await this.getRoomUserByUsername(dto.userName);
 
       // few checks
-      if (!userInRoom) throw new NotFoundException('User is not in this room');
-      else if (userInRoom.role === 'OWNER')
+      if (userInRoom.role === 'OWNER')
         throw new BadRequestException('Can not downgrade room owner');
       else if (userInRoom.role === 'USER')
         throw new BadRequestException('User is not admin');
@@ -463,12 +446,31 @@ export class ChatService {
       (userInRoom: UserInRoom) => userInRoom.email === user.email,
     );
 
-    if (!userInRoom) throw new NotFoundException('User is not in this room');
+    if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (userInRoom.role !== 'OWNER')
-      throw new UnauthorizedException('You are not the owner of this room');
+      throw new UnauthorizedException('You are not the channel owner');
 
     return room;
+  }
+
+  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userName: username,
+      },
+      include: {
+        rooms: true,
+      },
+    });
+
+    const userInRoom: UserInRoom = user.rooms.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('User is not in this room');
+
+    return userInRoom;
   }
 
   /****************************************************************************/
