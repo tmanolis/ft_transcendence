@@ -32,7 +32,7 @@ const App = () => {
           <Route path="/friends" element={React.createElement(Friends)} />
           <Route path="/play" element={React.createElement(Play)} />
           <Route path="/pong" element={React.createElement(Pong)} />
-          <Route path="/home" element={React.createElement(Home)} />
+          <Route path="/" element={React.createElement(Home)} />
         </Routes>
       </Router>
     </>
