@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Users } from './SearchUser';
 import { SearchBarWrapper } from './styles/SearchBar.styled';
 import axios from 'axios';
+import ConfirmButton from '../settings_components/styles/ConfirmButton.styled';
 
 interface SearchBarProps {
   placeholder: string;
@@ -48,7 +49,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 			);
 			console.log(response);
 			console.log(wordEntered + " succesfully added.");
-			window. location. reload();
+			window.location.reload();
 		  } catch (error) {
 			console.log(error);
 			setAddFriendError("Can't add " + wordEntered)
@@ -64,7 +65,7 @@ const SearchBar: React.FC<SearchBarProps> = ({placeholder, data}) => {
 			value={wordEntered}
 			onChange={handleFilter}
 		  />
-		  <button onClick={handleAddFriend}>Add Friend</button>
+		  <ConfirmButton type="submit" onClick={handleAddFriend}>Add Friend</ConfirmButton>
 		</div>
 		{addFriendError && (
             <div style={{ color: "red", fontSize: "12px" }}>{addFriendError}</div>
