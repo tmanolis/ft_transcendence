@@ -1,4 +1,4 @@
-import { Controller, Patch, Body, UseGuards, Res } from '@nestjs/common';
+import { Controller, Patch, Body, UseGuards, Res, Get } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   ApiTags,
@@ -51,5 +51,13 @@ export class ChatController {
   ) {
     await this.chatService.kick(user, dto);
     return res.status(200).send({ message: 'User kicked from channel' });
+	}
+
+	
+  @Get('rooms')
+  @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetRooms(@GetUser() user: User) {
+    return await this.chatService.getRooms(user);
   }
 }
