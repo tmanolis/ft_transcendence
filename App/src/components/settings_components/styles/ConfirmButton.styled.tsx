@@ -9,8 +9,9 @@ export type ConfirmButtonProps = {
 };
 
 const StyledConfirmButton = styled.button<{}>`
-  width: 68px;
   height: 23px;
+  padding-left: 13px;
+  padding-right: 14px;
   margin-top: auto; /* Align the button at the bottom */
   margin-right: 10px; /* Add margin on the right side */
   margin-left: 10px; /* Add margin on the left side */

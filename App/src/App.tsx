@@ -8,10 +8,10 @@ import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Play from "./pages/Play";
-import Chat from "./pages/Chat";
 import GlobalStyle from "./theme/GlobalStyle";
 import Hello from "./pages/Hello";
 import Verify2FA from "./pages/Verify2FA";
+import Friends from "./pages/Friends";
 
 const App = () => {
   return (
@@ -29,7 +29,7 @@ const App = () => {
           />
           <Route path="/settings" element={React.createElement(Settings)} />
           <Route path="/profile" element={React.createElement(Profile)} />
-          <Route path="/chat" element={React.createElement(Chat)} />
+          <Route path="/friends" element={React.createElement(Friends)} />
           <Route path="/play" element={React.createElement(Play)} />
           <Route path="/pong" element={React.createElement(Pong)} />
           <Route path="/hello" element={React.createElement(Hello)} />
