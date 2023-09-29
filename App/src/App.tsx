@@ -9,9 +9,9 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Play from "./pages/Play";
 import GlobalStyle from "./theme/GlobalStyle";
-import Hello from "./pages/Hello";
 import Verify2FA from "./pages/Verify2FA";
 import Friends from "./pages/Friends";
+import Home from "./pages/Home";
 
 const App = () => {
   return (
@@ -32,7 +32,7 @@ const App = () => {
           <Route path="/friends" element={React.createElement(Friends)} />
           <Route path="/play" element={React.createElement(Play)} />
           <Route path="/pong" element={React.createElement(Pong)} />
-          <Route path="/hello" element={React.createElement(Hello)} />
+          <Route path="/home" element={React.createElement(Home)} />
         </Routes>
       </Router>
     </>
