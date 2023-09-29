@@ -519,7 +519,7 @@ export class ChatService {
     // unjoin socket
     client.leave(dto.name);
 
-    // user in room
+    // remove room user
     await this.prisma.userInRoom.delete({
       where: {
         id: userInRoom.id,
