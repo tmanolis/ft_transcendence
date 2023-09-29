@@ -26,7 +26,7 @@ export class ChatController {
     @Res() res: Response,
   ) {
     await this.chatService.mute(user, dto);
-    return res.status(200).send({ message: 'User muted for one hour' });
+    return res.status(200).send({ message: 'User muted for 30 minutes' });
   }
 
   @Patch('ban')

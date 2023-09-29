@@ -23,6 +23,7 @@ import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
+import { RoomWithMessages, RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
 @Injectable()
 export class ChatService {
@@ -88,6 +89,14 @@ export class ChatService {
   }
 
   async fetchPrismaUser(email: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      }
+    });
+  }
+
+	async fetchPrismaUserWithRooms(email: string): Promise<UserWithRooms | null> {
     return await this.prisma.user.findUnique({
       where: {
         email: email,
@@ -192,7 +201,7 @@ export class ChatService {
       sender: 'PongStoryShort',
       text: 'Congratulations! You have successfully created a channel.',
     };
-    this.handleMessage(welcomeMessage);
+		this.server.to(roomDTO.name).emit('newMessage', JSON.stringify(welcomeMessage));
 
     return roomDTO.name;
   }
@@ -274,13 +283,13 @@ export class ChatService {
       },
     });
 
-    // sending a little welcome message
-    const welcomeMessage: messageDTO = {
-      room: roomDTO.name,
-      sender: 'PongStoryShort',
+		// send a little welcome message
+		const welcomeMessage: messageDTO = {
+			room: roomDTO.name,
+			sender: 'PongStoryShort',
       text: 'Please welcome ' + prismaUser.userName + ' to this channel!',
-    };
-    await this.handleMessage(welcomeMessage);
+		};
+		this.server.to(roomDTO.name).emit('newMessage', JSON.stringify(welcomeMessage));
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
@@ -358,10 +367,11 @@ export class ChatService {
             isMuted: true,
           },
         });
+				console.log('user now muted');
 
         const thirtyMinutes: number = 1800000;
         setTimeout(async () => {
-          await this.prisma.userInRoom.update({
+          const unmuted = await this.prisma.userInRoom.update({
             where: {
               id: userInRoom.id,
             },
@@ -369,8 +379,8 @@ export class ChatService {
               isMuted: false,
             },
           });
-        }),
-          thirtyMinutes;
+					console.log('unmuted', unmuted);
+        }, thirtyMinutes);
       }
     }
   }
@@ -572,7 +582,7 @@ export class ChatService {
         ' and ' +
         otherPrismaUser.userName,
     };
-    await this.handleMessage(welcomeMessage);
+		this.server.to(roomDTO.name).emit('newMessage', JSON.stringify(welcomeMessage));		
 
     return roomName;
   }
@@ -606,25 +616,74 @@ export class ChatService {
   /* messages													                                        */
   /****************************************************************************/
 
-  async handleMessage(message: messageDTO) {
-    const date: number = Date.now();
-    const newMessage: ChatMessage = {
-      room: message.room,
-      date: date,
-      sender: message.sender,
-      text: message.text,
-    };
+  async handleMessage(client: Socket, message: messageDTO) {
+		const email: string = this.getEmailFromJWT(client);
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(email);
+		let room: Room;
+		let userInRoom: UserInRoom
 
-    // check if room exists?
-    // check if user is in room?
+		try {
+			room = await this.checkUserRoom(prismaUser, message);
+			userInRoom = await this.allowedToSend(room, prismaUser);
+	
+			// Create the new message in the database
+			await this.prisma.message.create({
+				data: {
+					...message,
+					room: {
+						connect: {
+							name: room.name,
+						},
+					},
+				},
+			});	
+		} catch (error) {
+			throw error;
+		}
 
-    const roomHistory: string = await this.cacheManager.get(
-      'room' + message.room,
-    );
-    const newRoomhistory: string =
-      JSON.stringify(newMessage) + roomHistory || '';
-    await this.cacheManager.set('room', newRoomhistory);
-
-    this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
+		// broadcast message to room
+		this.server.to(room.name).emit('newMessage', JSON.stringify(message));
   }
+
+	async checkUserRoom(user: UserWithRooms, message: ChatMessage): Promise<Room>{
+		// check if user is connected
+		if (!user) throw new NotFoundException('User not found');
+
+		// check if room exists
+		const room: Room | null = await this.prisma.room.findUnique({
+			where: {
+				name: message.room,
+			}
+		})
+		
+		if (!room) throw new NotFoundException('Room not found');
+
+		return room;
+	}
+
+	async allowedToSend(room: Room, user: UserWithRooms): Promise<UserInRoom>{
+		// check if user is in room
+		const userInRoom = await user.rooms.find((roomUser: UserInRoom) => {
+			return roomUser.roomID === room.name;
+		});
+
+		if (!userInRoom) throw new NotFoundException('You are not in this room');
+
+		if (room.status !== RoomStatus.DIRECT){
+			console.log(userInRoom);
+			// check if user has been muted
+			if (userInRoom.isMuted) throw new ForbiddenException(
+				'You have been temporarily muted by a channel admin. Retry sending your message later.'
+				)
+	
+			if (userInRoom.isBanned) throw new ForbiddenException(
+				"You have been banned from this channel, so don't even try..."
+				)
+		} else {
+			// check if user has been blocked.
+		}
+
+		return userInRoom;
+	}
+
 }

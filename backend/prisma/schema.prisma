@@ -82,7 +82,7 @@ model Message {
   sendtime DateTime @default(now())
   sender   String 	// this is the username
   room     Room     @relation("message", fields: [roomID], references: [name])
-  roomID   String   @unique
+  roomID   String
 }
 
 enum Role {
