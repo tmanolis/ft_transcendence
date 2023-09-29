@@ -34,9 +34,9 @@ const AvatarBar: React.FC = () => {
 
   return (
     <AvatarBarStyled>
-      <AvatarNavButton to="/profile" buttonName="Profile" />
-      <AvatarNavButton to="/settings" buttonName="Settings" />
-      <AvatarNavButton to="/auth" buttonName="Logout" onClick={handleLogout} />
+      <AvatarNavButton to="/profile" buttonName="./Profile" />
+      <AvatarNavButton to="/settings" buttonName="./Settings" />
+      <AvatarNavButton to="/auth" buttonName="./Logout" onClick={handleLogout} />
     </AvatarBarStyled>
   );
 };
