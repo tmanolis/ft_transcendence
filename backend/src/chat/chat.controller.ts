@@ -13,7 +13,7 @@ import { Response } from 'express';
 
 @UseGuards(JwtGuard)
 @ApiTags('Channel')
-@Controller('chat')
+@Controller('channel')
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
@@ -51,9 +51,8 @@ export class ChatController {
   ) {
     await this.chatService.kick(user, dto);
     return res.status(200).send({ message: 'User kicked from channel' });
-	}
+  }
 
-	
   @Get('rooms')
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })

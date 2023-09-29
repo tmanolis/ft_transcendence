@@ -341,14 +341,15 @@ export class ChatService {
   /****************************************************************************/
 
   async mute(user: User, dto: AdminDTO) {
-    const room = await this.adminCheck(user, dto);
+    const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (room) {
-      const userInRoom = await this.getRoomUserByUsername(dto.username);
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
 
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not mute room owner');
-      else {
+      if (ok) {
         await this.prisma.userInRoom.update({
           where: {
             id: userInRoom.id,
@@ -357,21 +358,34 @@ export class ChatService {
             isMuted: true,
           },
         });
+
+        const thirtyMinutes: number = 1800000;
+        setTimeout(async () => {
+          await this.prisma.userInRoom.update({
+            where: {
+              id: userInRoom.id,
+            },
+            data: {
+              isMuted: false,
+            },
+          });
+        }),
+          thirtyMinutes;
       }
     }
-
-    // find a way that the user is unmuted after one hour
   }
 
   async ban(user: User, dto: AdminDTO) {
-    const room = await this.adminCheck(user, dto);
+    const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (room) {
-      const userInRoom = await this.getRoomUserByUsername(dto.username);
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
 
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not ban room owner');
-      else {
+      if (ok) {
+        // set room user to banned to exclude them from channel events
         await this.prisma.userInRoom.update({
           where: {
             id: userInRoom.id,
@@ -385,19 +399,26 @@ export class ChatService {
   }
 
   async kick(user: User, dto: AdminDTO) {
-    const room = await this.adminCheck(user, dto);
+    const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (room) {
-      const userInRoom = await this.getRoomUserByUsername(dto.username);
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
 
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not kick room owner');
-
-      // remove user from channel
+      if (ok) {
+        // remove room user
+        await this.prisma.userInRoom.delete({
+          where: {
+            id: userInRoom.id,
+          },
+        });
+      }
     }
   }
 
-  async adminCheck(user: User, dto: AdminDTO): Promise<Room> {
+  async adminCheck(user: User, dto: AdminDTO): Promise<UserInRoom> {
     const room = await this.prisma.room.findUnique({
       where: {
         name: dto.channel,
@@ -413,7 +434,7 @@ export class ChatService {
       (userInRoom: UserInRoom) => userInRoom.email === user.email,
     );
 
-    if (!userInRoom) throw new NotFoundException('User is not in this room');
+    if (!userInRoom) throw new NotFoundException('You are not this room');
 
     if (!(userInRoom.role === 'OWNER' || userInRoom.role === 'ADMIN'))
       throw new UnauthorizedException(
@@ -440,9 +461,18 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('User is not in this room');
 
     return userInRoom;
-	}
+  }
 
-	/****************************************************************************/
+  relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
+    if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
+      throw new ForbiddenException('Can not ' + action + ' other admin');
+    } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
+      throw new ForbiddenException('Can not ' + action + ' owner');
+    }
+    return true;
+  }
+
+  /****************************************************************************/
   /* channel info											                                        */
   /****************************************************************************/
 
