@@ -82,6 +82,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     try {
       await this.chatService.joinChannel(client, joinDTO);
+      client.emit('joinChannelSuccess', {
+        message: 'Join channel succesfull ',
+      });
     } catch (error) {
       client.emit('joinChannelError', { message: error.message });
     }

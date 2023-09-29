@@ -196,6 +196,14 @@ export class ChatService {
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
+    // check naming conventions
+    if (
+      roomDTO.name &&
+      roomDTO.name.includes('@') &&
+      roomDTO.status !== RoomStatus.DIRECT
+    )
+      throw new BadRequestException('Room name has invalid character (@)');
+
     // check if user exists
     if (!prismaUser)
       throw new BadRequestException(
@@ -218,7 +226,7 @@ export class ChatService {
       );
     }
 
-    //check if room exists
+    // check if room exists
     if (existingRoom) throw new ConflictException('Room already exists');
 
     // check password for private room
@@ -229,6 +237,24 @@ export class ChatService {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
     }
+  }
+
+  /****************************************************************************/
+  /* channel info											                                        */
+  /****************************************************************************/
+
+  async getRooms(user: User): Promise<string[]> {
+    const userRooms = await this.prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .rooms();
+
+    const roomNames = userRooms.map((userRoom) => userRoom.roomID);
+
+    return roomNames;
   }
 
   /****************************************************************************/
@@ -250,9 +276,9 @@ export class ChatService {
         roomDTO.name,
         prismaUser,
       );
-      roomName = this.unqiueRoomName(prismaUser.id, otherPrismaUser.id);
+      roomName = this.uniqueRoomName(prismaUser.email, otherPrismaUser.email);
       roomDTO.name = roomName;
-      this.securityCheckCreateChannel(prismaUser, roomDTO);
+      await this.securityCheckCreateChannel(prismaUser, roomDTO);
     } catch (error) {
       throw error;
     }
@@ -314,9 +340,9 @@ export class ChatService {
     return roomName;
   }
 
-  unqiueRoomName(uid1: string, uid2: string) {
-    const sortedIDs = [uid1, uid2].sort();
-    const concatenatedIDs = sortedIDs.join();
+  uniqueRoomName(email1: string, email2: string) {
+    const sortedIDs = [email1, email2].sort();
+    const concatenatedIDs = sortedIDs.join('/');
     return concatenatedIDs;
   }
 
