@@ -29,7 +29,7 @@ export default function RegisterForm() {
 				{ withCredentials: true }
       );
       console.log(response);
-      navigate("/landing");
+      navigate("/");
     } catch (error) {
       handleLoginError(error as AxiosError);
     }
