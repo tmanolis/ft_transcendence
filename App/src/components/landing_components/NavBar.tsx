@@ -35,7 +35,7 @@ const NavBar: React.FC = () => {
 
   return (
     <NavBarStyled>
-      <NavButton to="/landing" iconSrc="../../public/icon/Home.svg" alt="Home" />
+      <NavButton to="/" iconSrc="../../public/icon/Home.svg" alt="Home" />
       <NavButton to="/play" iconSrc="../../public/icon/Play.svg" alt="Play" />
       <NavButton
         to="/friends"

@@ -1,11 +1,13 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import BarCodeImg from "../../assets/code-barre.png";
 import {
   ProfileAvatarStyled,
   AvatarImage,
   ProfileInfoBlock,
   UserStatus,
+  CodeBar,
 } from "./styles/ProfileAvatar.styled";
 
 function toTitleCase(input: string) {
@@ -49,6 +51,7 @@ const ProfileAvatarBlock: React.FC = () => {
         <h1>{username}</h1>
         <UserStatus status={userstatus}>{EditedUserStatus}</UserStatus>
       </ProfileInfoBlock>
+      <CodeBar src={`${BarCodeImg}`} alt="code-barre" />
     </ProfileAvatarStyled>
   );
 };

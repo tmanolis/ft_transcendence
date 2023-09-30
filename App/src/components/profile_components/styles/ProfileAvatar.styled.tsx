@@ -13,6 +13,7 @@ export const ProfileAvatarStyled = styled.div`
   justify-content: flex-start;
   align-items: flex-start;
   margin: 50px;
+  margin-bottom: 5px;
 `;
 
 export const AvatarImage = styled.img`
@@ -55,6 +56,7 @@ export const ProfileInfoBlock = styled.div`
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  flex: 1;
 
   h1 {
     color: white;
@@ -66,4 +68,10 @@ export const ProfileInfoBlock = styled.div`
     letter-spacing: 0.6px;
     margin: 0;
   }
+`;
+
+export const CodeBar = styled.img`
+  display: flex-end
+	width: 260px;
+	height: 140px;
 `;

@@ -32,7 +32,7 @@ interface Modal2FAProps {
 		{ withCredentials: true }
 		);
 		console.log(response);
-		navigate("/landing");
+		navigate("/");
 		
 	} catch (error) {
 		handleUpdateError(error as AxiosError);
