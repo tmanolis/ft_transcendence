@@ -16,7 +16,7 @@ const ChatList: React.FC = () => {
   const getChatList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`,
+        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`, // using friends list to test front
         { withCredentials: true }
       );
       console.log(response);
@@ -40,11 +40,21 @@ const ChatList: React.FC = () => {
 export default ChatList;
 
 function Item(data: Chat[]) {
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+  const openConversation = (username: string) => {
+    console.log(username + ": j'ai click pour ouvrir une conv");
+    setSelectedChat(username);
+  }
 
   return (
     <>
       {data.map((value, index) => (
-        <ChatContainer key={index}>
+        <ChatContainer 
+        key={index} 
+        onClick={() => openConversation(value.userName)}
+        isSelected={selectedChat === value.userName}
+        >
           <div className="avatar">
             <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
           </div>

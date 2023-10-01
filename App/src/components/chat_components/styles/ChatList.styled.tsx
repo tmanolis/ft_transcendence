@@ -1,5 +1,12 @@
 import styled from 'styled-components';
 
+interface ChatContainerProps {
+	key: number;
+	onClick: () => void;
+	isSelected: boolean;
+  }
+  
+
 export const ChatListWrapper = styled.div`
 	height: 549px;
 	overflow: auto; // Add overflow to allow scrolling if content overflows
@@ -23,7 +30,7 @@ export const ChatListWrapper = styled.div`
   }
 `;
 
-export const ChatContainer = styled.div`
+export const ChatContainer = styled.div<ChatContainerProps>`
 	margin: 5px;
 	padding: 10px; /* Add padding to create space between the content and the border */
 
@@ -40,6 +47,9 @@ export const ChatContainer = styled.div`
 	font-style: normal;
 	font-weight: 500;
 	letter-spacing: 0.36px;
+
+	border: ${(props) => (props.isSelected ? '1px solid #007bff' : 'none')};
+	/* Additional styles based on the isSelected prop */
 `;
 
 export const Avatar = styled.img`
