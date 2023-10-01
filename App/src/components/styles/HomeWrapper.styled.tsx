@@ -42,16 +42,15 @@ export const HomeWrapper = styled.div`
 		background: #FAF2F2;
 	}
 
-	button {
+	Button {
 		width: 222px;
 		padding: 10px;
-		margin: 100px;
-		gap: 10px;
+		margin: 65px;
 		border-radius: 3px;
 		background: rgba(255, 255, 255, 0.92);
 		box-shadow: -3px -10px 0px 0px rgba(0, 0, 0, 0.3) inset;
 
-		font-family: JetBrains Mono;
+		/* font-family: JetBrains Mono; */
 		color: #1E1E1E;
 		font-size: 55px;
 		font-style: normal;
