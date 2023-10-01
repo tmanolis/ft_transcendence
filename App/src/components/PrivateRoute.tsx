@@ -1,19 +1,16 @@
 import React from "react";
-import { Route, Navigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
-interface PrivateRouteProps {
-  path: string;
-  element: React.ReactNode;
-}
-
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ path, element }) => {
-  const isAuthenticated = !!localStorage.getItem("jwt"); // Check if JWT exists in localStorage or cookie
-
-  return isAuthenticated ? (
-    <Route path={path} element={element} />
-  ) : (
-    <Navigate to="/auth" replace state={{ from: path }} />
-  );
+const PrivateRoute: React.FC<{ component: React.ReactElement }> = ({ component }) => {
+  let isAuthenticated = Cookies.get('jwt');
+  
+  if (isAuthenticated) {
+    return component;
+  } else {
+    // Redirect the user to the login page if not authenticated
+    return <Navigate to="/auth" />;
+  }
 };
 
 export default PrivateRoute;
