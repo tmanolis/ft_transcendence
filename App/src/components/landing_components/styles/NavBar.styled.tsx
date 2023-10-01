@@ -9,10 +9,14 @@ export type NavProps = {
 
 const NavBarStyled = styled.div`
   display: flex;
-  width: 100%;
-  height: 100%;
+  width: 130px;
+  height: 643px;
+  margin-top: 120px;
   position: absolute;
   z-index: 1;
+
+  background-image: url(${NavBarPNG});
+  /* background-size: contain; */
 `;
 
 const NavButton = styled.div`
@@ -20,15 +24,12 @@ const NavButton = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  align-items: flex-end;
   height: 450px;
   width: 80px;
-  margin-top: 120px;
   left: 5px;
   gap: 45px;
-  flex-shrink: 0;
-
-  background-image: url(${NavBarPNG});
-  background-size: contain;
+  /* flex-shrink: 0; */
 
   img {
     transition:
@@ -51,3 +52,4 @@ const NavBar: React.FC<NavProps> = ({ children }) => {
 };
 
 export default NavBar;
+
