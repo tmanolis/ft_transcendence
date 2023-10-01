@@ -10,6 +10,8 @@ const PageContainerStyled = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+
+  overflow: hidden; /* Hide content that overflows the container */
 `;
 
 const PopUpPage = styled.div`
@@ -20,10 +22,11 @@ const PopUpPage = styled.div`
   box-shadow: 1px 3px 1px 0px #fff;
   font-family: "JetBrains Mono", monospace;
 
+  overflow: auto; /* Add scrolling when content overflows */
+
   @media screen and (max-width: 960px) {
     width: 70%;
   }
-
 `;
 
 const PageContainer: React.FC<PagesContProps> = ({ children, type }) => {
