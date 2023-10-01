@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { UserStatsStyled, UserStatsBlock, Rank, WinRateBlock } from './styles/UserStats.styled';
+import { UserStatsStyled, UserStatsBlock, Rank, WinRateBlock, WinLossBar } from './styles/UserStats.styled';
 
 interface Profile {
 	avatar: string;
@@ -70,8 +70,7 @@ const UserStats: React.FC = () => {
               <p>Match Won : {profileData.gamesWon}</p>
               <p>Match Lost : {profileData.gamesPlayed - profileData.gamesWon}</p>
             </div>
-            <>
-            </>
+            <WinLossBar winRatio={profileData.gamesWon / profileData.gamesPlayed} />
           </WinRateBlock>
         </UserStatsBlock>
       </>
