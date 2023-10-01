@@ -10,13 +10,12 @@ export type NavProps = {
 const NavBarStyled = styled.div`
   display: flex;
   width: 130px;
-  height: 643px;
+  height: 508px;
   margin-top: 120px;
   position: absolute;
   z-index: 1;
 
   background-image: url(${NavBarPNG});
-  /* background-size: contain; */
 `;
 
 const NavButton = styled.div`
