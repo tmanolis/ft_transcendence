@@ -14,6 +14,13 @@ export const ProfileAvatarStyled = styled.div`
   align-items: flex-start;
   margin: 50px;
   margin-bottom: 5px;
+
+  /* Media query for screens less than 400px wide */
+  @media (max-width: 960px) {
+    flex-direction: column; /* Switch to a column layout */
+    align-items: center; /* Center items horizontally */
+    margin: 5%;
+  }
 `;
 
 export const AvatarImage = styled.img`

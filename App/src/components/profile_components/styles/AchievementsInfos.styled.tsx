@@ -21,6 +21,13 @@ export const AchievementsStyled = styled.div`
 		margin: 3px;
 		text-align: right;
 	}
+
+  @media (max-width: 960px) {
+    margin-left: 0;
+	  margin-right: 0;
+    margin-bottom: 30%;
+    align-items: center;
+  }
 `;
 
 export const AchievementsBlock = styled.div`
@@ -31,6 +38,12 @@ export const AchievementsBlock = styled.div`
 	width: 530px;
 	height: 130px;
 	flex-shrink: 0;
+  
+  @media (max-width: 960px) {
+  	display: flex;
+    flex-direction: column; /* Switch to a column layout */
+    justify-content: flex-start;
+  }
 `
 
 export const AchievementImage = styled.img`

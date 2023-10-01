@@ -10,6 +10,15 @@ export const UserStatsStyled = styled.div`
 	margin-left: 60px;
 	margin-right: 35px;
 	flex-shrink: 0; 
+
+	/* Media query for screens less than 400px wide */
+	@media (max-width: 960px) {
+    flex-direction: column; /* Switch to a column layout */
+    align-items: center; /* Center items horizontally */
+	justify-content: center;
+	margin: 1%;
+	margin-bottom: 100px;
+  }
 `;
 
 export const UserStatsBlock = styled.div`
@@ -30,6 +39,10 @@ export const UserStatsBlock = styled.div`
 		margin: 1px;
 		text-align: center;
 	}
+
+	@media (max-width: 850px) {
+		height: 110%;
+  	}
 `;
 
 export const WinRateBlock = styled.div`
@@ -42,6 +55,11 @@ export const WinRateBlock = styled.div`
 		display: flex;
 		flex-direction: row;
 		width: 80%;
+
+		@media (max-width: 850px) {
+		flex-direction: column; /* Switch to a column layout */
+		align-items: center; /* Center items horizontally */
+  		}
 	}
 
 	p{
@@ -51,8 +69,8 @@ export const WinRateBlock = styled.div`
 		font-weight: 500;
 		letter-spacing: 0.2px;
 		margin: 1%;
-    margin-top: 2%;
-    margin-bottom: 2%;
+		margin-top: 2%;
+		margin-bottom: 2%;
 		padding: 10px;
 		border: 1px solid #fff;
 		border-radius: 1px;
