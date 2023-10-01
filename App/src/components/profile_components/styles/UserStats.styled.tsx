@@ -1,4 +1,3 @@
-import React from "react";
 import styled from "styled-components";
 
 export const UserStatsStyled = styled.div`
@@ -27,7 +26,8 @@ export const UserStatsBlock = styled.div`
 		font-style: normal;
 		font-weight: 500;
 		letter-spacing: 0.4px;
-		margin: 0;
+		padding-top: 1%;
+		margin: 1px;
 		text-align: center;
 	}
 `;
@@ -35,21 +35,29 @@ export const UserStatsBlock = styled.div`
 export const WinRateBlock = styled.div`
 	display: flex;
 	flex-direction: column;
-	justify-content : space-between;
+	align-items: center;
+	justify-content: space-between;
 
 	div{
-		width: 265px;
-		margin: 2px;
+		display: flex;
+		flex-direction: row;
+		width: 80%;
 	}
 
 	p{
-		color: #FFF;
-		font-size: 20px;
+		color: #fff;
+		font-size: 11px;
 		font-style: normal;
 		font-weight: 500;
 		letter-spacing: 0.2px;
-		margin: 0;
-		padding: 5px;
+		margin: 1%;
+    margin-top: 2%;
+    margin-bottom: 2%;
+		padding: 10px;
+		border: 1px solid #fff;
+		border-radius: 1px;
+		flex: 1; /* To evenly distribute space among the p elements */
+		text-align: center; /* To center the text */
 	}
 `
 
@@ -61,3 +69,45 @@ export const Rank = styled.div`
 	line-height: 70px; /* 175% */
 	letter-spacing: 0.8px;
 `;
+
+interface WinLossBarProps {
+	winRatio: number;
+	type?: "won" | "loss";
+  }
+  
+  const WinLossBarContainer = styled.div`
+	width: 80%;
+	margin: 5px;
+	height: 20px;
+	background: #000;
+	display: flex;
+	align-items: center;
+  border: 1px solid #fff;
+	overflow: hidden;
+  `;
+  
+  const Bar = styled.div<WinLossBarProps>`
+	flex-grow: ${(props) => props.winRatio};
+	width: 100%;
+	height: 100%;
+	background-color: ${(props) => (props.winRatio > 0.5 ? 'green' : 'red')};
+	background-image: linear-gradient(
+	to right,
+    ${(props) =>
+      (props.winRatio === 0.5 || Number.isNaN(props.winRatio))
+        ? props.type == 'loss' ? 'red' : 'green'
+        : props.winRatio > 0.5
+        ? 'green'
+        : 'red'
+    } 50%,
+    #000 50%
+	);
+	background-size: 2px 100%;
+  `;
+  
+  export const WinLossBar: React.FC<WinLossBarProps> = ({ winRatio }) => (
+	<WinLossBarContainer>
+	  <Bar winRatio={winRatio} type="loss"/>
+	  <Bar winRatio={1 - winRatio} type= 'won'/>
+	</WinLossBarContainer>
+  );
