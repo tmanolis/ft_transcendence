@@ -80,14 +80,6 @@ const App = () => {
             path="/settings" 
             element={<PrivateRoute component={React.createElement(Settings)} />}
           />
-          <Route
-            path="/leaderboard"
-            element={<PrivateRoute component={React.createElement(Leaderboard)} />}
-          />
-          <Route 
-            path="/friends" 
-            element={<PrivateRoute component={React.createElement(Friends)} />}
-          />
           <Route 
             path="/play" 
             element={<PrivateRoute component={React.createElement(Play)} />}
@@ -95,6 +87,14 @@ const App = () => {
           <Route 
             path="/pong" 
             element={<PrivateRoute component={React.createElement(Pong)} />}
+          />
+          <Route
+            path="/leaderboard"
+            element={<PrivateRoute component={React.createElement(Leaderboard)} />}
+          />
+          <Route 
+            path="/friends" 
+            element={<PrivateRoute component={React.createElement(Friends)} />}
           />
         </Routes>
       </Router>
