@@ -54,7 +54,7 @@ function Item(data: Profile[]) {
           <Username>{value.userName}</Username>
           <GamesWinned>{value.gamesWon} <span>Wins</span></GamesWinned>
           <GamesPlayed>{value.gamesPlayed} <span>Played</span></GamesPlayed>
-          <Rank>#Rank {value.place}</Rank>
+          <Rank>{typeof window !== 'undefined' && window.innerWidth >= 960 ? `#Rank ${value.place}` : `#${value.place}`}</Rank>
         </ProfileContainer>
       ))}
     </>

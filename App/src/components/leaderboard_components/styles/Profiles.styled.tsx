@@ -44,6 +44,13 @@ export const ProfileContainer = styled.div`
 	font-style: normal;
 	font-weight: 500;
 	letter-spacing: 0.36px;
+
+	@media (max-width: 960px) {
+  	display: flex;
+    justify-content: flex-start;
+	overflow: auto; /* Hide content that overflows the container */
+	font-size: 18px;
+  }
 `;
 
 export const CodeBar = styled.img`
@@ -84,4 +91,8 @@ export const Rank = styled.div`
 	font-size: 45px;
 	font-style: normal;
 	font-weight: 550; /* Set the font weight to make it bold */
+
+	@media (max-width: 960px) {
+	font-size: 25px;
+  }
 `;

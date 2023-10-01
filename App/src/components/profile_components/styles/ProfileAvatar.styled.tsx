@@ -78,7 +78,42 @@ export const ProfileInfoBlock = styled.div`
 `;
 
 export const CodeBar = styled.img`
-  display: flex-end
+  display: flex-end;
 	width: 260px;
 	height: 140px;
+`;
+
+export const SocialOption = styled.div`
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  margin-top: 2%;
+
+  button {
+    display: flex;
+    align-items: center; /* Center button content vertically and horizontally */
+    border-top: 1px solid #FFF;
+    border-left: 1px solid #FFF;
+    background: #000;
+    box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
+    margin: 5%;
+    color: #FFF;
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 200%; /* 700% */
+    letter-spacing: 0.2px;
+    min-width: auto; /* Adjust width to fit content */
+    white-space: nowrap; /* Prevent text from wrapping */
+
+    .icon-before::before {
+      content: "";
+      display: inline-block;
+      width: 8px; /* Adjust the size of the icon */
+      height: 8px; /* Adjust the size of the icon */
+      background-image: url("/icon/Challenge.svg"); /* Set the correct URL for the background image */
+      background-size: cover;
+      margin-right: 5px; /* Add some spacing between the icon and text */
+    }
+  }
 `;

@@ -25,11 +25,27 @@ export const HistoryScrollingList = styled.div`
   overflow-y: auto; /* Add a vertical scrollbar when content overflows */
   padding: 5px; /* Add some padding to keep content away from the container edges */
   box-sizing: border-box; /* Ensure padding is included in the container's dimensions */
+
+  &::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #555;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
 `;
 
 export const MatchElement = styled.div`
-  width: 285px;
-  height: 40px;
+  width: 95%;
+  height: 13%;
   flex-shrink: 0;
   border-top: 1px solid #FFF;
   border-left: 1px solid #FFF;

@@ -2,12 +2,14 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import BarCodeImg from "../../assets/code-barre.png";
+import ChallengeIcon from "../../public/icon/Challenge.svg"; // Import the challenge icon
 import {
   ProfileAvatarStyled,
   AvatarImage,
   ProfileInfoBlock,
   UserStatus,
   CodeBar,
+  SocialOption,
 } from "./styles/ProfileAvatar.styled";
 
 function toTitleCase(input: string) {
@@ -50,6 +52,13 @@ const ProfileAvatarBlock: React.FC = () => {
       <ProfileInfoBlock>
         <h1>{username}</h1>
         <UserStatus status={userstatus}>{EditedUserStatus}</UserStatus>
+        <SocialOption>
+          <button>+ Add</button>
+          <button>x Block</button>
+          <button>
+            <span className="icon-before" /> Challenge Player
+          </button>
+        </SocialOption>
       </ProfileInfoBlock>
       <CodeBar src={`${BarCodeImg}`} alt="code-barre" />
     </ProfileAvatarStyled>
