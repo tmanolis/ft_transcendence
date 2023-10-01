@@ -1,4 +1,5 @@
 import PageContainer from "../components/PageContainer";
+import ChatNavigation from "../components/chat_components/ChatNavigation";
 import { ChatWrapper } from "../components/chat_components/styles/ChatWrapper.styled";
 import Landing from "../pages/Landing";
 
@@ -8,13 +9,7 @@ const Chat = () => {
       <Landing />
       <PageContainer type="other">
 		<ChatWrapper>
-        <div className="chat_navigation">
-			<div className="chat_list" />
-			<div className="buttons">
-				<button>New chat</button>
-				<button>New Channel</button>
-			</div>
-		</div>
+			<ChatNavigation />
 		<div className="messages_area" />
 		</ChatWrapper>
       </PageContainer>
