@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { AchievementsBlock, AchievementsStyled } from './styles/AchievementsInfos.styled';
+import { AchievementsBlock, AchievementsStyled, AchievementImage, AchievementMessage } from './styles/AchievementsInfos.styled';
 
 interface Achievement {
   id: number;
+  name: string;
   imagePath1: string;
   imagePath2: string;
   message: string;
@@ -14,18 +15,40 @@ const AchievementsInfos: React.FC = () => {
   const badges: Achievement[] = [
     {
       id: 1,
-      imagePath1: '/path-to-image-1.svg',
-      imagePath2: '/path-to-image-1.svg',
-      message: 'Achievement 1 message',
+      name: "FRIEND",
+      imagePath1: '/icon/Friend_Lock.svg',
+      imagePath2: '/icon/Friend_Unock.svg',
+      message: 'Invite your first friend',
     },
     {
       id: 2,
-      imagePath1: '/path-to-image-1.svg',
-      imagePath2: '/path-to-image-1.svg',
-      message: 'Achievement 2 message',
+      name: "JOIN",
+      imagePath1: '/icon/Join_Lock.svg',
+      imagePath2: '/icon/Join_Unock.svg',
+      message: 'Join your first channel',
     },
-    // Add more achievement objects as needed
-  ];
+    {
+      id: 3,
+      name: "TWOFA",
+      imagePath1: '/icon/twofa_Lock.svg',
+      imagePath2: '/icon/twofa_Unock.svg',
+      message: 'Secure your account with 2FA authentification',
+    },
+    {
+      id: 4,
+      name: "FIRST",
+      imagePath1: '/icon/First_Lock.svg',
+      imagePath2: '/icon/First_Unock.svg',
+      message: 'Be the first of the matrix',
+    },
+    {
+      id: 5,
+      name: "WINNER",
+      imagePath1: '/icon/Winner_Lock.svg',
+      imagePath2: '/icon/Winner_Unock.svg',
+      message: 'Win a game',
+    },
+    ];
 
   const [achievements, setAchievements] = useState<[]>([]);
 
@@ -43,18 +66,24 @@ const AchievementsInfos: React.FC = () => {
 
     fetchUserData();
   }, [achievements]);
-  
+
+  const getImagePath = (name: string) => {
+    const matchingAchievement = badges.find((badge) => badge.name === name);
+    return matchingAchievement ? matchingAchievement.imagePath1 : matchingAchievement.imagePath2;
+  };
+
   return (
     <AchievementsStyled>
         <h1>Achievements</h1>
         <AchievementsBlock>
-          {achievements.map((badges) => (
-            <img
-              key={badges.id}
-              src={profileData ? profileData.gamesPlayed > badges.id ? badges.imagePath : '/default-image.svg' : '/default-image.svg'}
-              alt={`Achievement ${achievement.id}`}
-              title={badges.message}
-            />
+          {badges.map((badge) => (
+            <div key={badge.id}>
+              <AchievementImage
+                src={getImagePath(badge.name)}
+                alt={`Achievement ${badge.id}`}
+              />
+              <AchievementMessage><h1>{badge.name}</h1>{badge.message}</AchievementMessage>
+            </div>
           ))}
         </AchievementsBlock>
     </AchievementsStyled>

@@ -31,7 +31,42 @@ export const AchievementsBlock = styled.div`
 	width: 530px;
 	height: 130px;
 	flex-shrink: 0;
-	border: 1px solid #FFF;
-	background: #000;
-	box-shadow: 1px 2px 1px 0px rgba(255, 255, 255, 0.90);
 `
+
+export const AchievementImage = styled.img`
+  &:hover + div {
+    display: block;
+  }
+`;
+
+export const AchievementMessage = styled.div`
+  display: none; /* Initially hide the message */
+
+	/* Add styles for visibility */
+  width: 98px;
+  height: max-content;
+  flex-shrink: 0;
+  border: 1px solid #FFF;
+  background: #000;
+
+  color: #D8D8D8;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px; /* 150% */
+
+  &:hover {
+    display: block;
+  }
+
+  h1{
+    margin: 0;
+    padding: 0;
+    color: #FFF;
+    text-align: center;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 500;
+    letter-spacing: 0.24px;
+  }
+`;
