@@ -48,7 +48,7 @@ export const ChatContainer = styled.div<ChatContainerProps>`
 	font-weight: 500;
 	letter-spacing: 0.36px;
 
-	border: ${(props) => (props.isSelected ? '1px solid #007bff' : 'none')};
+	border: ${(props) => (props.isSelected ? 'border: 2px solid #FFFFFF; background: rgba(255, 255, 255, 0.50);' : 'none')};
 	/* Additional styles based on the isSelected prop */
 `;
 
