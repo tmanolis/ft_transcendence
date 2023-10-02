@@ -5,7 +5,11 @@ import { ChatNavigationStyled } from "./styles/ChatNavigation.styled";
 import { NewChannelModal } from "./NewChannelModal";
 import { useState } from "react";
 
-const ChatNavigation: React.FC = () => {
+interface ChatNavigationProps {
+	openChat: (newChatName: string) => void;
+}
+
+const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat }) => {
 	const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
 
 	const handleNewChannel = () => {
@@ -18,7 +22,7 @@ const ChatNavigation: React.FC = () => {
 
 	return (
 		<ChatNavigationStyled>
-			<ChatList />
+			<ChatList openChat={openChat}/>
 			<div className="buttons">
 				<ConfirmButton type="button">New Chat</ConfirmButton>
 				<ConfirmButton type="button" onClick={handleNewChannel}>New Channel</ConfirmButton>

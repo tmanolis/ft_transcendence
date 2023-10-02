@@ -10,7 +10,11 @@ interface Chat {
 	userName: string;
 }
 
-const ChatList: React.FC = () => {
+interface ChatListProps {
+  openChat: (newChatName: string) => void;
+}
+
+const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
   const [ChatList, setChatList] = useState<Chat[]>([]);
 
   const getChatList = async () => {
@@ -32,19 +36,20 @@ const ChatList: React.FC = () => {
 
   return (
     <ChatListWrapper>
-        {Item(ChatList)}
+        {Item(ChatList, openChat)}
     </ChatListWrapper>
   );
 }
 
 export default ChatList;
 
-function Item(data: Chat[]) {
+function Item(data: Chat[], openChat: (newChatName: string) => void) {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   const openConversation = (username: string) => {
     console.log(username + ": j'ai click pour ouvrir une conv");
     setSelectedChat(username);
+    openChat(username);
   }
 
   return (

@@ -26,7 +26,7 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 		console.log("channelName: " + channelName);
 		console.log("password: " + password);
 		const updateDTO = {
-			name: channelName,
+			name: "#" + channelName,
 			status: status
 		};
 
