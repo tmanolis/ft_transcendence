@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link as RouterLink } from 'react-router-dom'; // Import Link from react-router-dom
 
 export const ProfilesListWrapper = styled.div`
 	margin: 15px;
@@ -51,6 +52,12 @@ export const ProfileContainer = styled.div`
 	overflow: auto; /* Hide content that overflows the container */
 	font-size: 18px;
   }
+`;
+
+export const CustomLink = styled(RouterLink)`
+  text-decoration: none; /* Remove underline */
+  color: inherit; /* Inherit the color */
+  /* Add any additional styles here */
 `;
 
 export const CodeBar = styled.img`
