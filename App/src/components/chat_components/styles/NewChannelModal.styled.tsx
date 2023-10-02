@@ -1,15 +1,16 @@
 import styled from "styled-components";
 
 export const ModalContainer = styled.div` // blur behind popup
-position: fixed;
-left: 0;
-top: 0;
-width: 100%;
-height: 100%;
-display: flex;
-align-items: center;
-justify-content: center;
-background-color: rgba(0, 0, 0, 0.5);
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(1.5px); 
 `;
 
 export const PopUpWrapper = styled.div`
