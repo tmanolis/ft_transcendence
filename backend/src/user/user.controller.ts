@@ -94,12 +94,4 @@ export class UserController {
   async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
     return await this.userService.getUserByEmail(dto);
   }
-
-  @Get('myGameHistory')
-  @ApiOkResponse({
-    description: 'Returns the game history of the logged in user.',
-  })
-  async handleGetMyGameHistory(@GetUser() user: User) {
-    return await this.userService.getMyGameHistory(user);
-  }
 }
