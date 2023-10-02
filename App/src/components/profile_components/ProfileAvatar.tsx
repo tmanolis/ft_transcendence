@@ -34,7 +34,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({username, avatarPath,
       <AvatarImage src={userImageSrc} />
       <ProfileInfoBlock>
         <h1>{username}</h1>
-        <UserStatus status={userstatus}>{EditedUserStatus}</UserStatus>
+        <UserStatus $userstatus={userstatus}>{EditedUserStatus}</UserStatus>
         <SocialOption>
           <button>+ Add</button>
           <button>x Block</button>

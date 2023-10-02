@@ -20,7 +20,7 @@ const UserStats: React.FC<UserStatsProps> = ({gamesPlayed, gamesWon, place}) => 
             <p>Match Won : {gamesWon}</p>
             <p>Match Lost : {gamesPlayed - gamesWon}</p>
           </div>
-          <WinLossBar winRatio={gamesWon / gamesPlayed} />
+          <WinLossBar $winRatio={gamesWon / gamesPlayed} />
         </WinRateBlock>
       </UserStatsBlock>
     </UserStatsStyled>

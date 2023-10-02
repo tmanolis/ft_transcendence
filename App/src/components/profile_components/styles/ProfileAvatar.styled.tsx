@@ -5,7 +5,7 @@ export type ProfileAvatar = {
   children?: React.ReactNode;
   User?: () => void;
   userImageSrc?: string;
-  status: string;
+  $userstatus: string;
 };
 
 export const ProfileAvatarStyled = styled.div`
@@ -53,7 +53,7 @@ export const UserStatus: React.FC<ProfileAvatar> = styled.div`
   line-height: 100%; /* 466.667% */
   letter-spacing: 0.3px;
   color: ${(props) =>
-    statusColors[props.status as keyof typeof statusColors] || "white"};
+    statusColors[props.$userstatus as keyof typeof statusColors] || "white"};
 `;
 
 export const ProfileInfoBlock = styled.div`

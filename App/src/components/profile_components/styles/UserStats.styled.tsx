@@ -89,7 +89,7 @@ export const Rank = styled.div`
 `;
 
 interface WinLossBarProps {
-	winRatio: number;
+	$winRatio: number;
 	type?: "won" | "loss";
   }
   
@@ -105,16 +105,16 @@ interface WinLossBarProps {
   `;
   
   const Bar = styled.div<WinLossBarProps>`
-	flex-grow: ${(props) => props.winRatio};
+	flex-grow: ${(props) => props.$winRatio};
 	width: 100%;
 	height: 100%;
-	background-color: ${(props) => (props.winRatio > 0.5 ? 'green' : 'red')};
+	background-color: ${(props) => (props.$winRatio > 0.5 ? 'green' : 'red')};
 	background-image: linear-gradient(
 	to right,
     ${(props) =>
-      (props.winRatio === 0.5 || Number.isNaN(props.winRatio))
+      (props.$winRatio === 0.5 || Number.isNaN(props.$winRatio))
         ? props.type == 'loss' ? 'red' : 'blue'
-        : props.winRatio > 0.5
+        : props.$winRatio > 0.5
         ? 'blue'
         : 'red'
     } 50%,
@@ -123,9 +123,9 @@ interface WinLossBarProps {
 	background-size: 2px 100%;
   `;
   
-  export const WinLossBar: React.FC<WinLossBarProps> = ({ winRatio }) => (
+  export const WinLossBar: React.FC<WinLossBarProps> = ({ $winRatio }) => (
 	<WinLossBarContainer>
-	  <Bar winRatio={winRatio} type="loss"/>
-	  <Bar winRatio={1 - winRatio} type= 'won'/>
+	  <Bar $winRatio={$winRatio} type="loss"/>
+	  <Bar $winRatio={1 - $winRatio} type= 'won'/>
 	</WinLossBarContainer>
   );

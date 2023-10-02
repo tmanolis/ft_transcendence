@@ -106,7 +106,6 @@ const Profile: React.FC = () => {
       const profilePlace = profilesList.find((profile: profileLead) => profile.userName === profileData.userName);
 
       if (profilePlace) {
-        // If found, set profileData to the profile data with the updated place
         setProfileData((prevProfileData) => ({
           ...prevProfileData,
           place: profilePlace.place,
