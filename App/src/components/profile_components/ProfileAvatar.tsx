@@ -1,6 +1,4 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import axios from "axios";
 import BarCodeImg from "../../assets/code-barre.png";
 import {
   ProfileAvatarStyled,
@@ -11,6 +9,12 @@ import {
   SocialOption,
 } from "./styles/ProfileAvatar.styled";
 
+type ProfileAvatarProps = {
+  avatarPath: string;
+  username: string;
+  userstatus: string;
+};
+
 function toTitleCase(input: string) {
   return `• ${input
     .toLowerCase()
@@ -19,28 +23,8 @@ function toTitleCase(input: string) {
     .join(" ")}`;
 }
 
-const ProfileAvatarBlock: React.FC = () => {
-  const [avatarPath, setAvatarPath] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
-  const [userstatus, setUserstatus] = useState<string>("");
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
-          withCredentials: true,
-        });
-        setAvatarPath(response.data.avatar);
-        setUsername(response.data.userName);
-        setUserstatus(response.data.status);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchUserData();
-  }, [username, avatarPath]);
-
+const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({username, avatarPath, userstatus}) => {
+  
   const userImageSrc = `data:image/png;base64,${avatarPath}`;
 
   const EditedUserStatus = toTitleCase(userstatus);
