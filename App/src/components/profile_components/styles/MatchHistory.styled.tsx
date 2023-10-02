@@ -1,22 +1,22 @@
 import styled from "styled-components";
 
 export const MatchHistoryStyled = styled.div`
-	width: 317px;
-    height: 417px;
-    border: 1px solid #FFF;
-    background: #000;
-    box-shadow: 1px 2px 1px 0px rgba(255, 255, 255, 0.90);
+  width: 317px;
+  height: 417px;
+  border: 1px solid #fff;
+  background: #000;
+  box-shadow: 1px 2px 1px 0px rgba(255, 255, 255, 0.9);
 
-	h1{
-        margin: 0;
-        padding-left: 5%;
-        color: #FFF;
-        font-size: 20px;
-        font-style: normal;
-        font-weight: 500;
-        line-height: 70px; /* 350% */
-        letter-spacing: 0.4px;
-	}
+  h1 {
+    margin: 0;
+    padding-left: 5%;
+    color: #fff;
+    font-size: 20px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 70px; /* 350% */
+    letter-spacing: 0.4px;
+  }
 `;
 
 export const HistoryScrollingList = styled.div`
@@ -47,10 +47,9 @@ export const MatchElement = styled.div`
   width: 95%;
   height: 13%;
   flex-shrink: 0;
-  border-top: 1px solid #FFF;
-  border-left: 1px solid #FFF;
+  border-top: 1px solid #fff;
+  border-left: 1px solid #fff;
   background: #000;
   box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
   margin-bottom: 5px; /* Add margin to separate MatchElement components */
 `;
-

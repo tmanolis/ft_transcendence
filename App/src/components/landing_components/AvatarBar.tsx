@@ -11,9 +11,13 @@ type AvatarMenuProps = {
 
 type AvatarBarProps = {
   userName?: string;
-}
+};
 
-const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName, onClick }) => {
+const AvatarNavButton: React.FC<AvatarMenuProps> = ({
+  to,
+  buttonName,
+  onClick,
+}) => {
   return (
     <Link to={to}>
       <h1 onClick={onClick}>{buttonName}</h1>
@@ -21,15 +25,17 @@ const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName, onClick })
   );
 };
 
-const AvatarBar: React.FC<AvatarBarProps> = ( {userName} ) => {
-  
+const AvatarBar: React.FC<AvatarBarProps> = ({ userName }) => {
   const handleLogout = async () => {
     console.log("Logout button clicked");
 
     try {
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/logout`,
+        {
+          withCredentials: true,
+        }
+      );
       console.log(response);
     } catch (error) {
       console.error(error);
@@ -40,7 +46,11 @@ const AvatarBar: React.FC<AvatarBarProps> = ( {userName} ) => {
     <AvatarBarStyled>
       <AvatarNavButton to={`/profile/${userName}`} buttonName="./Profile" />
       <AvatarNavButton to="/settings" buttonName="./Settings" />
-      <AvatarNavButton to="/auth" buttonName="./Logout" onClick={handleLogout} />
+      <AvatarNavButton
+        to="/auth"
+        buttonName="./Logout"
+        onClick={handleLogout}
+      />
     </AvatarBarStyled>
   );
 };

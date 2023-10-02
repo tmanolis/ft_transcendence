@@ -15,9 +15,12 @@ const Landing: React.FC = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/me`,
+          {
+            withCredentials: true,
+          }
+        );
         setAvatarPath(response.data.avatar);
         setUserName(response.data.userName);
       } catch (error) {
@@ -51,7 +54,7 @@ const Landing: React.FC = () => {
         />
       </LandingContainer>
       {menuBarIsShown && <NavBar />}
-      {avatarBarIsShown && <AvatarBar userName={userName}/>}
+      {avatarBarIsShown && <AvatarBar userName={userName} />}
     </>
   );
 };
