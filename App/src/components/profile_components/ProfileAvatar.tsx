@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import BarCodeImg from "../../assets/code-barre.png";
 import {
   ProfileAvatarStyled,
@@ -8,6 +8,7 @@ import {
   CodeBar,
   SocialOption,
 } from "./styles/ProfileAvatar.styled";
+import axios from "axios";
 
 type ProfileAvatarProps = {
   avatarPath: string;
@@ -23,11 +24,34 @@ function toTitleCase(input: string) {
     .join(" ")}`;
 }
 
-const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({username, avatarPath, userstatus}) => {
-  
+const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
+  username,
+  avatarPath,
+  userstatus,
+}) => {
+  const [userName, setUserName] = useState<string>("");
   const userImageSrc = `data:image/png;base64,${avatarPath}`;
-
   const EditedUserStatus = toTitleCase(userstatus);
+
+  const isOwnProfile = username === userName;
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/me`,
+          {
+            withCredentials: true,
+          }
+        );
+        setUserName(response.data.userName);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <ProfileAvatarStyled>
@@ -35,13 +59,17 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({username, avatarPath,
       <ProfileInfoBlock>
         <h1>{username}</h1>
         <UserStatus $userstatus={userstatus}>{EditedUserStatus}</UserStatus>
-        <SocialOption>
-          <button>+ Add</button>
-          <button>x Block</button>
-          <button>
-            <span className="icon-before" /> Challenge Player
-          </button>
-        </SocialOption>
+        <>
+          {!isOwnProfile && (
+            <SocialOption>
+              <button>+ Add</button>
+              <button>x Block</button>
+              <button>
+                <span className="icon-before" /> Challenge Player
+              </button>
+            </SocialOption>
+          )}
+        </>
       </ProfileInfoBlock>
       <CodeBar src={`${BarCodeImg}`} alt="code-barre" />
     </ProfileAvatarStyled>

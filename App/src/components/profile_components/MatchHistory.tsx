@@ -1,33 +1,36 @@
-import React from 'react';
-import { MatchHistoryStyled, HistoryScrollingList, MatchElement } from './styles/MatchHistory.styled';
+import React from "react";
+import {
+  MatchHistoryStyled,
+  HistoryScrollingList,
+  MatchElement,
+} from "./styles/MatchHistory.styled";
 
 const MatchHistory: React.FC = () => {
-
   return (
     <MatchHistoryStyled>
-        <h1>Match History</h1>
-        <HistoryScrollingList>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-            <MatchElement></MatchElement>
-        </HistoryScrollingList>
+      <h1>Match History</h1>
+      <HistoryScrollingList>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+        <MatchElement></MatchElement>
+      </HistoryScrollingList>
     </MatchHistoryStyled>
   );
 };

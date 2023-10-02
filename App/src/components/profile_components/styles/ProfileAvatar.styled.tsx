@@ -30,9 +30,7 @@ export const AvatarImage = styled.img`
   object-fit: cover;
   border-radius: 139.809px;
   border: 2px solid var(--linear-white, #faf2f2);
-  background:
-    url(<path-to-image>),
-    lightgray 50% / cover no-repeat;
+  background: url(<path-to-image>), lightgray 50% / cover no-repeat;
 
   margin-right: 20px;
 `;
@@ -79,8 +77,8 @@ export const ProfileInfoBlock = styled.div`
 
 export const CodeBar = styled.img`
   display: flex-end;
-	width: 260px;
-	height: 140px;
+  width: 260px;
+  height: 140px;
 `;
 
 export const SocialOption = styled.div`
@@ -92,12 +90,12 @@ export const SocialOption = styled.div`
   button {
     display: flex;
     align-items: center; /* Center button content vertically and horizontally */
-    border-top: 1px solid #FFF;
-    border-left: 1px solid #FFF;
+    border-top: 1px solid #fff;
+    border-left: 1px solid #fff;
     background: #000;
     box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
     margin: 5%;
-    color: #FFF;
+    color: #fff;
     font-size: 10px;
     font-style: normal;
     font-weight: 400;
