@@ -42,7 +42,7 @@ export const PopUpWrapper = styled.div`
   label {
     margin-top: 10px;
     margin-bottom: 10px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
     line-height: normal;
   }
@@ -55,7 +55,7 @@ export const PopUpWrapper = styled.div`
 		text-align: center;
 		background-color: black; /* Inner background color */
 		font-family: "JetBrains Mono",monospace;
-		font-size: 13px;
+		font-size: 12px;
 	}
 
 	input::placeholder {

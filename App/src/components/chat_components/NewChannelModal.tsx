@@ -16,31 +16,40 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 	const navigate = useNavigate();
 
 	const handleConfirmClick = async () => {
+		let status: string;
 
-	console.log("channelName: " + channelName);
-	const updateDTO = {
-		code: channelName,
-	};
+		if (password === "")
+			status = 'PUBLIC';
+		else
+			status = 'PRIVATE';
 
-	try {
-		const response = await axios.post(
-		`${import.meta.env.VITE_BACKEND_URL}/auth/2fa-verify`,
-		updateDTO,
-		{ withCredentials: true }
-		);
-		console.log(response);
-		navigate("/landing");
-		
-	} catch (error) {
-		handleUpdateError(error as AxiosError, "This channel name already exist or the name is not valid");
-	}
-	};
+		console.log("channelName: " + channelName);
+		console.log("password: " + password);
+		const updateDTO = {
+			name: channelName,
+			status: status
+		};
 
-	const handleUpdateError = (error: AxiosError, errorMessage: string) => {
+		try {
+			const response = await axios.post(
+			`${import.meta.env.VITE_BACKEND_URL}/auth/2fa-verify`,
+			updateDTO,
+			{ withCredentials: true }
+			);
+			console.log(response);
+			navigate("/chat");
+			
+		} catch (error) {
+			handleUpdateError(error as AxiosError);
+		}
+		};
+
+	const handleUpdateError = (error: AxiosError) => {
 	console.log(error.response)
 	if (error.response) {
-		setErrorResponse(errorMessage);
+		setErrorResponse("This channel name already exist or the name is not valid");
 		setChannelName("");
+		setPassword("");
 	};
 	};
 
@@ -56,8 +65,6 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 					onChange={(e) => setChannelName(e.target.value)} // Update channelName
 					placeholder="<type name here>"
 					/>
-					{errorResponse && (
-					<div style={{ color: "red", fontSize: "12px", padding: "5px" }}>{errorResponse}</div>)}
 					<label style = {{marginTop: "20px"}}>Password</label>
 					<input
 					type="text"
