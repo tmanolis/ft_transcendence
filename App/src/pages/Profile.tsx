@@ -15,9 +15,9 @@ interface Profile {
 	gamesPlayed: number;
 	gamesWon: number;
   gamesLost: number;
-	place: number;
   achievements: [];
-  matchHistory: [];
+	place: number;
+  // matchHistory: [];
 }
 
 interface profileLead {
@@ -49,8 +49,18 @@ const RightColumn = styled.div`
 `;
 
 const Profile: React.FC = () => {
-    const [profileData, setProfileData] = useState<Profile>();
-    const [profilesList, setProfilesList] = useState<profileLead[]>([])
+  const [profileData, setProfileData] = useState<Profile>({
+    avatarPath: '', // Provide a default value for avatarPath
+    userName: '',   // Provide a default value for userName
+    userstatus: '', // Provide a default value for userstatus
+    gamesPlayed: 0, // Provide a default value for gamesPlayed
+    gamesWon: 0,    // Provide a default value for gamesWon
+    gamesLost: 0,   // Provide a default value for gamesLost
+    achievements: [], // Provide a default value for achievements
+    place: 0,       // Provide a default value for place
+    // matchHistory: [], // Provide a default value for matchHistory
+  });    
+  const [profilesList, setProfilesList] = useState<profileLead[]>([])
 
     useEffect(() => {
       const fetchUserData = async () => {
@@ -59,22 +69,17 @@ const Profile: React.FC = () => {
             withCredentials: true,
           });
           const userData = response.data;
-          setProfileData((prevProfileData) => {
-            if (prevProfileData) {
-              return {
-                ...prevProfileData,
-                avatarPath: userData.avatar,
-                userName: userData.userName,
-                userstatus: userData.status,
-                gamesLost: userData.gamesLost,
-                gamesWon: userData.gamesWon,
-                gamesPlayed: userData.gamesLost + userData.gamesWon,
-                achievements: userData.achievements,
-              };
-            } else {
-              return null;
-            }
-          });
+          setProfileData((prevProfileData) => ({
+            ...prevProfileData,
+            avatarPath: userData.avatar,
+            userName: userData.userName,
+            userstatus: userData.status,
+            gamesLost: userData.gamesLost,
+            gamesWon: userData.gamesWon,
+            gamesPlayed: userData.gamesLost + userData.gamesWon,
+            achievements: userData.achievements,
+          }));
+          
         } catch (error) {
           console.error(error);
         }
@@ -82,34 +87,6 @@ const Profile: React.FC = () => {
   
       fetchUserData();
     }, [profileData]);
-
-    // useEffect(() => {
-    //   const fetchUserData = async () => {
-    //     try {
-    //       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
-    //         withCredentials: true,
-    //       });
-    //       const userData = response.data;
-    //       setProfileData({
-    //         ...profileData,
-    //         avatarPath: userData.avatar,
-    //         userName: userData.userName,
-    //         userstatus: userData.status,
-    //         gamesLost: userData.gamesLost,
-    //         gamesWon: userData.gamesWon,
-    //         gamesPlayed: userData.gamesLost + userData.gamesWon,
-    //         achievements: userData.achievements,
-    //         place: userData.place || 0, // Provide a default value of 0 if place is undefined
-    //         matchHistory: userData.matchHistory || [], // Provide an empty array if matchHistory is undefined
-    //       });
-          
-    //     } catch (error) {
-    //       console.error(error);
-    //     }
-    //   };
-  
-    //   fetchUserData();
-    // }, [profileData]);
   
     const getProfilesList = async () => {
       try {
@@ -126,23 +103,17 @@ const Profile: React.FC = () => {
     };
     
     useEffect(() => {
-      const profilePlace = profilesList.find((profile: profileLead) => profile.userName === profileData?.userName);
-    
+      const profilePlace = profilesList.find((profile: profileLead) => profile.userName === profileData.userName);
+
       if (profilePlace) {
-        // If found, set profileData to the profile data
-        setProfileData((prevProfileData) => {
-          if (prevProfileData) {
-            return {
-              ...prevProfileData,
-              place: profilePlace,
-            };
-          } else {
-            return null;
-          }
-          })
+        // If found, set profileData to the profile data with the updated place
+        setProfileData((prevProfileData) => ({
+          ...prevProfileData,
+          place: profilePlace.place,
+        }));
       }
-    }, [profilesList, profileData?.userName]);
-  
+    }, [profilesList, profileData.userName]);
+    
     useEffect(() => {
       getProfilesList();
     }, []);
