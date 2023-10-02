@@ -6,6 +6,6 @@ export const ConversationWindowWrapper = styled.div`
 	width: 570px;
 
 	.conversation_body {
-		height: 490px;
+		height: 485px;
 	}
 `;

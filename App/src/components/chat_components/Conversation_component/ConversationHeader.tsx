@@ -1,5 +1,5 @@
-import { ConversationHeaderWrapper } from "./styles/ConversationHeader.styled";
-
+import { ConversationHeaderWrapper, RoomName } from "./styles/ConversationHeader.styled";
+import iconSrc from "../../../../public/icon/Settings.svg";
 
 interface ConversationHeaderProps {
 	chatName: string;
@@ -7,9 +7,14 @@ interface ConversationHeaderProps {
 
 const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatName }) => {
   
+	const onClick =() => {
+
+	};
+
 	return (
 	  <ConversationHeaderWrapper>
-		{chatName}
+		<RoomName>{chatName}</RoomName>
+		<img src={iconSrc} alt="settings_icon" onClick={onClick}/>
 	  </ConversationHeaderWrapper>
 	)
   };

@@ -1,4 +1,6 @@
 import React, { useState, FormEvent } from 'react';
+import ConfirmButton from '../../settings_components/styles/ConfirmButton.styled';
+import { ConversationFooterWrapper } from './styles/ConversationFooter.styled';
 
 const ConversationFooter: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
@@ -8,17 +10,21 @@ const ConversationFooter: React.FC = () => {
 
     // Handle form submission action here
     console.log('Form Submitted with value: ', inputValue);
+    setInputValue("");
   };
 
   return (
-    <form onSubmit={handleOnSubmit}>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-      />
-      <button type="submit">Submit</button>
-    </form>
+    <ConversationFooterWrapper>
+      <form onSubmit={handleOnSubmit}>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          placeholder="type your message"
+        />
+        <ConfirmButton type="submit">Send</ConfirmButton>
+      </form>
+    </ConversationFooterWrapper>
   );
 };
 
