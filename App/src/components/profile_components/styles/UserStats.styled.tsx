@@ -115,11 +115,7 @@ interface WinLossBarProps {
 	background-image: linear-gradient(
 	to right,
     ${(props) =>
-      (props.$winRatio === 0.5 || Number.isNaN(props.$winRatio))
-        ? props.type == 'loss' ? 'red' : 'blue'
-        : props.$winRatio > 0.5
-        ? 'blue'
-        : 'red'
+      (props.type == 'loss' ? 'red' : 'blue')
     } 50%,
     #000 50%
 	);
@@ -128,7 +124,7 @@ interface WinLossBarProps {
   
   export const WinLossBar: React.FC<WinLossBarProps> = ({ $winRatio }) => (
 	<WinLossBarContainer>
-	  <Bar $winRatio={$winRatio} type="loss"/>
-	  <Bar $winRatio={1 - $winRatio} type= 'won'/>
+	  <Bar $winRatio={1 - $winRatio} type="loss"/>
+	  <Bar $winRatio={$winRatio} type= 'won'/>
 	</WinLossBarContainer>
   );
