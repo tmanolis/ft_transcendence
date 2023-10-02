@@ -68,8 +68,8 @@ const AchievementsInfos: React.FC = () => {
   }, [achievements]);
 
   const getImagePath = (name: string) => {
-    const matchingAchievement = badges.find((badge) => badge.name === name);
-    return matchingAchievement ? matchingAchievement.imagePath1 : matchingAchievement.imagePath2;
+    const matchingAchievement  = badges.find((badge) => badge.name === name);
+    return matchingAchievement?.imagePath1 ?? matchingAchievement?.imagePath2;
   };
 
   return (

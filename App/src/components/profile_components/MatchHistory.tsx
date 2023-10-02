@@ -1,5 +1,4 @@
-import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { MatchHistoryStyled, HistoryScrollingList, MatchElement } from './styles/MatchHistory.styled';
 
 const MatchHistory: React.FC = () => {

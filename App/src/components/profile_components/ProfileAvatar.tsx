@@ -2,7 +2,6 @@ import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import BarCodeImg from "../../assets/code-barre.png";
-import ChallengeIcon from "../../public/icon/Challenge.svg"; // Import the challenge icon
 import {
   ProfileAvatarStyled,
   AvatarImage,
