@@ -9,9 +9,7 @@ import LandingContainer from "../components/landing_components/styles/LandingCon
 const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);
   const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
-  const [avatarPath, setAvatarPath] = useState<string>(
-    "../../public/icon/Avatar.svg",
-  );
+  const [avatarPath, setAvatarPath] = useState<string>("");
 
   useEffect(() => {
     const fetchUserData = async () => {
