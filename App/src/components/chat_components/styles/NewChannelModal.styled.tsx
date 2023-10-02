@@ -62,7 +62,7 @@ export const PopUpWrapper = styled.div`
 		color: rgba(250, 242, 242, 0.7)
 	}
 
-  text {
+  span {
     margin: 5px;
     margin-top: 10px;
     color: rgba(129, 129, 129, 0.83);

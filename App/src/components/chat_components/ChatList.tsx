@@ -53,7 +53,7 @@ function Item(data: Chat[]) {
         <ChatContainer 
         key={index} 
         onClick={() => openConversation(value.userName)}
-        isSelected={selectedChat === value.userName}
+        selected={selectedChat === value.userName}
         >
           <div className="avatar">
             <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />

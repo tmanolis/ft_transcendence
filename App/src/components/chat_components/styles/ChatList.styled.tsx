@@ -1,10 +1,4 @@
 import styled from 'styled-components';
-
-interface ChatContainerProps {
-	key: number;
-	onClick: () => void;
-	isSelected: boolean;
-  }
   
 
 export const ChatListWrapper = styled.div`
@@ -30,7 +24,11 @@ export const ChatListWrapper = styled.div`
   }
 `;
 
-export const ChatContainer = styled.div<ChatContainerProps>`
+interface StyledChatContainerProps {
+	selected?: boolean;
+  }
+  
+  export const StyledChatContainer = styled.div<StyledChatContainerProps>`
 	margin: 5px;
 	padding: 10px; /* Add padding to create space between the content and the border */
 
@@ -48,9 +46,24 @@ export const ChatContainer = styled.div<ChatContainerProps>`
 	font-weight: 500;
 	letter-spacing: 0.36px;
 
-	border: ${(props) => (props.isSelected ? 'border: 2px solid #FFFFFF; background: rgba(255, 255, 255, 0.50);' : 'none')};
-	/* Additional styles based on the isSelected prop */
+	border: ${(props) => (props.selected ? '2px solid #FFFFFF' : 'none')};
+  	background: ${(props) =>
+    props.selected ? 'rgba(255, 255, 255, 0.50)' : 'transparent'};
 `;
+
+interface ChatContainerProps {
+	onClick?: () => void;
+	selected?: boolean;
+	children?: React.ReactNode;
+ }
+
+export const ChatContainer: React.FC<ChatContainerProps> = ({ onClick, selected, children }) => {
+	return (
+	  <StyledChatContainer selected={selected} onClick={onClick}>
+		{children}
+	  </StyledChatContainer>
+	);
+  };
 
 export const Avatar = styled.img`
 	width: 45px;

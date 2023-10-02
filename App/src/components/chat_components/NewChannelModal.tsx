@@ -45,12 +45,12 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 		};
 
 	const handleUpdateError = (error: AxiosError) => {
-	console.log(error.response)
-	if (error.response) {
-		setErrorResponse("This channel name already exist or the name is not valid");
-		setChannelName("");
-		setPassword("");
-	};
+		console.log(error.response)
+		if (error.response) {
+			setErrorResponse("This channel name already exist or the name is not valid");
+			setChannelName("");
+			setPassword("");
+		};
 	};
 
 	return (
@@ -72,7 +72,7 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 					onChange={(e) => setPassword(e.target.value)} // Update channelName
 					placeholder="<type password here>"
 					/>
-					<text>only to create a private channel<br></br>&gt; no password: channel = public</text>
+					<span>only to create a private channel<br></br>&gt; no password: channel = public</span>
 					{errorResponse && (
 					<div style={{ color: "red", fontSize: "12px", padding: "5px" }}>{errorResponse}</div>)}
 				</div>
