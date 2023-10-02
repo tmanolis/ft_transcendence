@@ -7,6 +7,7 @@ import AchievementsInfos from "../components/profile_components/AchievementsInfo
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useParams } from "react-router";
 
 interface Profile {
 	avatarPath: string;
@@ -49,6 +50,7 @@ const RightColumn = styled.div`
 `;
 
 const Profile: React.FC = () => {
+  const { username } = useParams<{ username: string }>(); // Get the username from the URL
   const [profileData, setProfileData] = useState<Profile>({
     avatarPath: '', // Provide a default value for avatarPath
     userName: '',   // Provide a default value for userName
@@ -65,7 +67,7 @@ const Profile: React.FC = () => {
     useEffect(() => {
       const fetchUserData = async () => {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
+          const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/userByUsername?userName=${username}`, {
             withCredentials: true,
           });
           const userData = response.data;
@@ -77,7 +79,7 @@ const Profile: React.FC = () => {
             gamesLost: userData.gamesLost,
             gamesWon: userData.gamesWon,
             gamesPlayed: userData.gamesLost + userData.gamesWon,
-            achievements: userData.achievements,
+            // achievements: userData.achievements,
           }));
           
         } catch (error) {
@@ -94,7 +96,6 @@ const Profile: React.FC = () => {
           `${import.meta.env.VITE_BACKEND_URL}/user/leaderboard`,
           { withCredentials: true }
         );
-        console.log(response);
         setProfilesList(response.data);
       }
       catch (error) {

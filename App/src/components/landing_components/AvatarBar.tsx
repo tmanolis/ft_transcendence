@@ -9,6 +9,10 @@ type AvatarMenuProps = {
   onClick?: () => void; // Add optional onClick prop
 };
 
+type AvatarBarProps = {
+  userName?: string;
+}
+
 const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName, onClick }) => {
   return (
     <Link to={to}>
@@ -17,7 +21,7 @@ const AvatarNavButton: React.FC<AvatarMenuProps> = ({ to, buttonName, onClick })
   );
 };
 
-const AvatarBar: React.FC = () => {
+const AvatarBar: React.FC<AvatarBarProps> = ( {userName} ) => {
   
   const handleLogout = async () => {
     console.log("Logout button clicked");
@@ -34,7 +38,7 @@ const AvatarBar: React.FC = () => {
 
   return (
     <AvatarBarStyled>
-      <AvatarNavButton to="/profile" buttonName="./Profile" />
+      <AvatarNavButton to={`/profile/${userName}`} buttonName="./Profile" />
       <AvatarNavButton to="/settings" buttonName="./Settings" />
       <AvatarNavButton to="/auth" buttonName="./Logout" onClick={handleLogout} />
     </AvatarBarStyled>
