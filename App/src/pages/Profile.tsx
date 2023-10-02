@@ -15,7 +15,7 @@ interface Profile {
 	gamesPlayed: number;
 	gamesWon: number;
   gamesLost: number;
-  achievements: [];
+  achievements: string[];
 	place: number;
   // matchHistory: [];
 }

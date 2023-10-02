@@ -10,7 +10,7 @@ interface Achievement {
 }
 
 type AchievementInfosProps = {
-  achievements: [];
+  achievements: string[];
 };
 
 const AchievementsInfos: React.FC<AchievementInfosProps> = ({ achievements }) => {
@@ -20,43 +20,38 @@ const AchievementsInfos: React.FC<AchievementInfosProps> = ({ achievements }) =>
         id: 1,
         name: "FRIEND",
         imagePath1: '/icon/Friend_Lock.svg',
-        imagePath2: '/icon/Friend_Unock.svg',
+        imagePath2: '/icon/Friend_Unlock.svg',
         message: 'Invite your first friend',
       },
       {
         id: 2,
         name: "JOIN",
         imagePath1: '/icon/Join_Lock.svg',
-        imagePath2: '/icon/Join_Unock.svg',
+        imagePath2: '/icon/Join_Unlock.svg',
         message: 'Join your first channel',
       },
       {
         id: 3,
         name: "TWOFA",
         imagePath1: '/icon/twofa_Lock.svg',
-        imagePath2: '/icon/twofa_Unock.svg',
+        imagePath2: '/icon/twofa_Unlock.svg',
         message: 'Secure your account with 2FA authentification',
       },
       {
         id: 4,
         name: "FIRST",
         imagePath1: '/icon/First_Lock.svg',
-        imagePath2: '/icon/First_Unock.svg',
+        imagePath2: '/icon/First_Unlock.svg',
         message: 'Be the first of the matrix',
       },
       {
         id: 5,
         name: "WINNER",
         imagePath1: '/icon/Winner_Lock.svg',
-        imagePath2: '/icon/Winner_Unock.svg',
+        imagePath2: '/icon/Winner_Unlock.svg',
         message: 'Win a game',
       },
     ];
-
-  const getImagePath = (name: string) => {
-    const matchingAchievement  = badges.find((badge) => badge.name === name);
-    return matchingAchievement?.imagePath1 ?? matchingAchievement?.imagePath2;
-  };
 
   return (
     <AchievementsStyled>
@@ -65,8 +60,8 @@ const AchievementsInfos: React.FC<AchievementInfosProps> = ({ achievements }) =>
           {badges.map((badge) => (
             <div key={badge.id}>
               <AchievementImage
-                src={getImagePath(badge.name)}
-                alt={`Achievement ${badge.id}`}
+              src={achievements.includes(badge.name) ? badge.imagePath2 : badge.imagePath1}
+              alt={`Achievement ${badge.id}`}
               />
               <AchievementMessage><h1>{badge.name}</h1>{badge.message}</AchievementMessage>
             </div>
