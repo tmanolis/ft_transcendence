@@ -113,9 +113,9 @@ interface WinLossBarProps {
 	to right,
     ${(props) =>
       (props.winRatio === 0.5 || Number.isNaN(props.winRatio))
-        ? props.type == 'loss' ? 'red' : 'green'
+        ? props.type == 'loss' ? 'red' : 'blue'
         : props.winRatio > 0.5
-        ? 'green'
+        ? 'blue'
         : 'red'
     } 50%,
     #000 50%
