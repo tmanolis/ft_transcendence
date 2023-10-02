@@ -51,13 +51,13 @@ export const WinRateBlock = styled.div`
 	align-items: center;
 	justify-content: space-between;
 
-	div{
+	span{
 		display: flex;
 		flex-direction: row;
 		width: 80%;
 
 		@media (max-width: 850px) {
-		flex-direction: column; /* Switch to a column layout */
+		flex-direction: column;
 		align-items: center; /* Center items horizontally */
   		}
 	}
@@ -100,13 +100,16 @@ interface WinLossBarProps {
 	background: #000;
 	display: flex;
 	align-items: center;
-  border: 1px solid #fff;
+  	border: 1px solid #fff;
 	overflow: hidden;
+
+	@media (max-width: 850px) {
+		width: 50%;
+	}
   `;
   
   const Bar = styled.div<WinLossBarProps>`
 	flex-grow: ${(props) => props.$winRatio};
-	width: 100%;
 	height: 100%;
 	background-color: ${(props) => (props.$winRatio > 0.5 ? 'green' : 'red')};
 	background-image: linear-gradient(
@@ -120,7 +123,7 @@ interface WinLossBarProps {
     } 50%,
     #000 50%
 	);
-	background-size: 2px 100%;
+	background-size: 3px 100%;
   `;
   
   export const WinLossBar: React.FC<WinLossBarProps> = ({ $winRatio }) => (
