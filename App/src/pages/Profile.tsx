@@ -86,7 +86,7 @@ const Profile: React.FC = () => {
       };
   
       fetchUserData();
-    }, [profileData]);
+    }, []);
   
     const getProfilesList = async () => {
       try {
