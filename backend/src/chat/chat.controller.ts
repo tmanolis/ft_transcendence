@@ -1,25 +1,16 @@
-<<<<<<< HEAD
-import { Controller, Patch, Body, UseGuards, Res } from '@nestjs/common';
-=======
-import { Controller, UseGuards, Res, Get } from '@nestjs/common';
->>>>>>> 1c8ddf50251285217c8e7a1ff0543099b41be44f
+import { Controller, UseGuards, Body, Get, Res, Patch } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   ApiTags,
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-<<<<<<< HEAD
 import { toPublicDTO, changePassDTO, adminDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
 import { User } from '@prisma/client';
+import { channelDTO } from 'src/dto';
 import { Response } from 'express';
-=======
-import { JwtGuard } from 'src/auth/guard';
-import { GetUser } from 'src/decorator';
-import { User } from '@prisma/client';
->>>>>>> 1c8ddf50251285217c8e7a1ff0543099b41be44f
 
 @UseGuards(JwtGuard)
 @ApiTags('Channel')
@@ -27,7 +18,6 @@ import { User } from '@prisma/client';
 export class ChatController {
   constructor(private chatService: ChatService) {}
 
-<<<<<<< HEAD
   @Patch('toPublic')
   @ApiOkResponse({ description: 'Channel has been set to public' })
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
@@ -90,12 +80,24 @@ export class ChatController {
     return res
       .status(200)
       .send({ message: dto.userName + ' is removed from channel admins' });
-=======
-  @Get('rooms')
+	}
+
+	@Get('rooms')
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetRooms(@GetUser() user: User) {
     return await this.chatService.getRooms(user);
->>>>>>> 1c8ddf50251285217c8e7a1ff0543099b41be44f
+  }
+
+  @Get('channelMembers')
+  @ApiOkResponse({
+    description: 'Returns usernames of users connected to a room',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetChannelMembers(
+    @GetUser() user: User,
+    @Body() dto: channelDTO,
+  ) {
+    return await this.chatService.getChannelMembers(dto);
   }
 }
