@@ -410,7 +410,6 @@ export class ChatService {
             select: {
               name: true,
               status: true,
-              owner: true,
             },
           },
 					role: true,
@@ -420,7 +419,6 @@ export class ChatService {
     const roomData = userRooms.map((userRoom) => ({
       name: userRoom.room.name,
       status: userRoom.room.status,
-      owner: userRoom.room.owner,
 			role: userRoom.role,
     }));
 

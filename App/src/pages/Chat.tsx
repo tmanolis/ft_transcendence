@@ -12,7 +12,6 @@ export interface Room {
 	name: string,
   status: string,
   role: string,
-  owner: string
 }
 
 const Chat = () => {
