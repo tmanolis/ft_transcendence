@@ -25,8 +25,12 @@ const PopUpPage = styled.div`
 
   overflow: auto; /* Add scrolling when content overflows */
 
-  @media screen and (max-width: 960px) {
-    width: 70%;
+  @media screen and (max-width: 1480px) {
+    width: 50%;
+  }
+
+  @media screen and (max-width: 1000px) {
+    z-index: 0;
   }
 `;
 

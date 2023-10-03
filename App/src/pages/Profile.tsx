@@ -34,7 +34,7 @@ const ProfileContainer = styled.div`
   justify-content: flex-start;
   align-items: flex-start;
 
-  @media (max-width: 960px) {
+  @media (max-width: 1480px) {
     display: flex;
     flex-direction: column; /* Switch to a column layout */
     align-items: center;

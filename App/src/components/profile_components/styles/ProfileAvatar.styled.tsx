@@ -16,7 +16,7 @@ export const ProfileAvatarStyled = styled.div`
   margin-bottom: 5px;
 
   /* Media query for screens less than 400px wide */
-  @media (max-width: 960px) {
+  @media (max-width: 1150px) {
     flex-direction: column; /* Switch to a column layout */
     align-items: center; /* Center items horizontally */
     margin: 5%;
