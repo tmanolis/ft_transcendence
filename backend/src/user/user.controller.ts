@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   UploadedFiles,
   Post,
+  Query,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
@@ -81,15 +82,26 @@ export class UserController {
   @ApiOkResponse({
     description: 'Returns public data of one user',
   })
-  async handleGetUserByUsername(@Body() dto: GetUserByUsernameDTO) {
+  async handleGetUserByUsername(@Query() dto: GetUserByUsernameDTO) {
     return await this.userService.getUserByUsername(dto);
+  }
+
+  @Get('gameHistory')
+  @ApiOkResponse({
+    description: 'Returns game history of one user',
+  })
+  async handleGetGameHistory(
+    @Query() dto: GetUserByUsernameDTO,
+    @GetUser() user: User,
+  ) {
+    return await this.userService.getGameHistory(dto, user);
   }
 
   @Get('usernameByEmail')
   @ApiOkResponse({
     description: 'Returns public data of one user',
   })
-  async handleGetUserByEmail(@Body() dto: GetUserByEmailDTO) {
+  async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
     return await this.userService.getUserByEmail(dto);
   }
 }
