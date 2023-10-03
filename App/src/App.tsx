@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
 import Register from "./pages/Register";
-// import Pong from "./pages/Pong";
+import Pong from "./pages/Pong";
 import Landing from "./pages/Landing";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
@@ -41,10 +41,10 @@ const App = () => {
             path="/play" 
             element={<PrivateRoute component={React.createElement(Play)} />}
           />
-          {/* <Route 
+          <Route 
             path="/pong" 
             element={<PrivateRoute component={React.createElement(Pong)} />}
-          /> */}
+          />
           <Route
             path="/leaderboard"
             element={<PrivateRoute component={React.createElement(Leaderboard)} />}
