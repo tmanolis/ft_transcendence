@@ -21,6 +21,7 @@ const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket_chat }
 
 	const handleCancelClick = () => {
 		setNewChannelModalOpen(false);
+		window.location.reload();
 	  };
 
 	return (
