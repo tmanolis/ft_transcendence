@@ -27,6 +27,7 @@ export class FriendService {
         status: user.status,
         gamesWon: user.gamesWon,
         gamesLost: user.gamesLost,
+        achievements: user.achievements,
       }
       await friendList.push(secureUser);
     }

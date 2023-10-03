@@ -98,6 +98,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
     return allUserData;
@@ -150,6 +151,7 @@ export class UserService {
         avatar: user.avatar,
         gamesWon: user.gamesWon,
         gamesPlayed: user.gamesWon + user.gamesLost,
+        achievement: user.achievements,
       };
     });
     return leaderboard;
@@ -166,6 +168,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
   }
@@ -181,6 +184,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
   }
