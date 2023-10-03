@@ -54,9 +54,10 @@ function Item(data: Room[], openChat: (room: Room) => void) {
         selected={selectedChat === value.name}
         >
           <div className="avatar">
-            <Avatar src="../../../public/img/Web_img.jpg" alt="user_avatar" />
+            <Avatar src="../../../public/img/Web_img.jpg" alt="room_avatar" />
           </div>
           <Username>{value.name}</Username>
+          {value.status === 'PRIVATE' && <img src="../../../public/icon/Lock.svg" alt="lock_icon" />}
         </ChatContainer>
       ))}
     </>

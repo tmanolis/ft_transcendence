@@ -28,7 +28,7 @@ interface StyledChatContainerProps {
 	selected?: boolean;
   }
   
-  export const StyledChatContainer = styled.div<StyledChatContainerProps>`
+export const StyledChatContainer = styled.div<StyledChatContainerProps>`
 	margin: 5px;
 	padding: 10px; /* Add padding to create space between the content and the border */
 
@@ -49,6 +49,10 @@ interface StyledChatContainerProps {
 	border: ${(props) => (props.selected ? '2px solid #FFFFFF' : 'none')};
   	background: ${(props) =>
     props.selected ? 'rgba(255, 255, 255, 0.50)' : 'transparent'};
+
+	img {
+		margin-left: auto;
+	}
 `;
 
 interface ChatContainerProps {
