@@ -19,7 +19,7 @@ interface Profile {
   gamesLost: number;
   achievements: string[];
   place: number;
-  matchHistory: GameListInter[]; 
+  matchHistory: GameListInter[];
 }
 
 interface profileLead {
@@ -70,8 +70,7 @@ const Profile: React.FC = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(
-          `${
-            import.meta.env.VITE_BACKEND_URL
+          `${import.meta.env.VITE_BACKEND_URL
           }/user/gameHistory?userName=${username}`,
           {
             withCredentials: true,
@@ -147,7 +146,7 @@ const Profile: React.FC = () => {
                 <AchievementsInfos achievements={profileData.achievements} />
               </LeftColumn>
               <RightColumn>
-                <MatchHistory gameList={profileData.matchHistory} profileUser={profileUsername}/>
+                <MatchHistory gameList={profileData.matchHistory} profileUser={profileUsername} />
               </RightColumn>
             </ProfileContainer>
           </>

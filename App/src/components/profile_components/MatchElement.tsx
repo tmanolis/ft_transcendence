@@ -35,14 +35,15 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser }) => {
 	useEffect(() => {
 		const fetchUserData = async () => {
 			try {
-				const response = await axios.get(
-					`${import.meta.env.VITE_BACKEND_URL
-					}/user/gameHistory?userName=${versUsername}`,
-					{
-						withCredentials: true,
-					}
-				);
-				setVersusAvatar(response.data.avatar);
+				if (versUsername) { // Check if versUsername is defined
+					const response = await axios.get(
+						`${import.meta.env.VITE_BACKEND_URL}/user/gameHistory?userName=${versUsername}`,
+						{
+							withCredentials: true,
+						}
+					);
+					setVersusAvatar(response.data.avatar);
+				}
 			} catch (error) {
 				console.error(error);
 			}
@@ -50,24 +51,24 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser }) => {
 		fetchUserData();
 	}, [versUsername]);
 
-  return (
-    <MarginContainer>
-      <MatchElementStyled>
-        <VersusInfo>
-          <img
-            src={`data:image/png;base64,${versusAvatar}`}
-            alt={`Avatar of ${versUsername}`}
-          />
-          <p>{versUsername}</p>
-        </VersusInfo>
-        {game.userWon ? (
-          <WinBadge/>
-        ) : (
-          <LostBadge/>
-        )}
-      </MatchElementStyled>
-    </MarginContainer>
-  );
+	return (
+		<MarginContainer>
+			<MatchElementStyled>
+				<VersusInfo>
+					<img
+						src={`data:image/png;base64,${versusAvatar}`}
+						alt={`Avatar of ${versUsername}`}
+					/>
+					<p>{versUsername}</p>
+				</VersusInfo>
+				{game.userWon ? (
+					<WinBadge />
+				) : (
+					<LostBadge />
+				)}
+			</MatchElementStyled>
+		</MarginContainer>
+	);
 };
 
 export default MatchElement;
