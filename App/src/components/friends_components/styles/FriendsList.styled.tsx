@@ -66,7 +66,18 @@ export const Avatar = styled.img`
 	border-radius: 58px;
 `;
 
-export const UserInfos = styled.div`
+const statusColors = {
+	online: "green",
+	offline: "red",
+	playing: "blue",
+	away: "orange",
+  };
+
+type UserInfosProps = {
+	status: string;
+};
+
+export const UserInfos: React.FC<UserInfosProps> = styled.div`
 	width: 200px;
 
 	display: flex;
@@ -75,6 +86,8 @@ export const UserInfos = styled.div`
 
 	span {
 		font-size: 12px;
+		color: ${(props) =>
+    		statusColors[props.status as keyof typeof statusColors] || "white"};
 	}
 `;
 
