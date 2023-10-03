@@ -16,6 +16,7 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, sock
 	useEffect(() => {
 	const handleCreateChannelSuccess = () => {
 		onCancel();
+		window.location.reload();
 	};
 
 	const handleCreateChannelError = (error: any) => {
