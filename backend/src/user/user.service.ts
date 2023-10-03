@@ -159,45 +159,45 @@ export class UserService {
   }
 
   // async getUserByUsername(dto: GetUserByUsernameDTO): Promise<UserWithGames> {
-	// 	const user: UserWithGames = await this.prisma.user.findUnique({
-	// 		where: {
-	// 			userName: dto.userName,
-	// 		},
-	// 		select: {
-	// 			userName: true,
-	// 			avatar: true,
-	// 			status: true,
-	// 			gamesWon: true,
-	// 			gamesLost: true,
-	// 			achievements: true,
-	// 			games: {
-	// 				select: {
-	// 					gameId: true,
-	// 					players: {
-	// 						select: {
-	// 							userName: true,
-	// 						}
-	// 					},
-	// 					winnerId: true,
-	// 					createdAt: true,
-	// 					updatedAt: true,
-	// 				}
-	// 			}
-	// 		},
-	// 	});
+  // 	const user: UserWithGames = await this.prisma.user.findUnique({
+  // 		where: {
+  // 			userName: dto.userName,
+  // 		},
+  // 		select: {
+  // 			userName: true,
+  // 			avatar: true,
+  // 			status: true,
+  // 			gamesWon: true,
+  // 			gamesLost: true,
+  // 			achievements: true,
+  // 			games: {
+  // 				select: {
+  // 					gameId: true,
+  // 					players: {
+  // 						select: {
+  // 							userName: true,
+  // 						}
+  // 					},
+  // 					winnerId: true,
+  // 					createdAt: true,
+  // 					updatedAt: true,
+  // 				}
+  // 			}
+  // 		},
+  // 	});
 
-	// 	user.games = user.games.map((game: UserGame) => {
-	// 		const isWinner = game.winnerId === user.userName;
-	// 		return {
-	// 			...game,
-	// 			userWon: isWinner,
-	// 		};
-	// 	});
+  // 	user.games = user.games.map((game: UserGame) => {
+  // 		const isWinner = game.winnerId === user.userName;
+  // 		return {
+  // 			...game,
+  // 			userWon: isWinner,
+  // 		};
+  // 	});
 
-	// 	return user;
+  // 	return user;
   // }
 
-	async getUserByUsername(dto: GetUserByUsernameDTO): Promise<SecureUser> {
+  async getUserByUsername(dto: GetUserByUsernameDTO): Promise<SecureUser> {
     return await this.prisma.user.findUnique({
       where: {
         userName: dto.userName,
@@ -208,47 +208,53 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
-				achievements: true,
+        achievements: true,
       },
     });
   }
 
-	async getGameHistory(dto: GetUserByUsernameDTO, requestingUser: User): Promise<UserWithGames> {
-		const user: UserWithGames = await this.prisma.user.findUnique({
-			where: {
-				userName: dto.userName,
-			},
-			select: {
-				userName: true,
-				avatar: true,
-				status: true,
-				gamesWon: true,
-				gamesLost: true,
-				achievements: true,
-				games: {
-					select: {
-						gameId: true,
-						players: {
-							select: {
-								userName: true,
-							},
-						},
-						winnerId: true,
-						createdAt: true,
-						updatedAt: true,
-					},
-				},
-			},
-		});
-	
-		// Calculate userWon for each game based on the requesting user's username
-		user.games = user.games.map((game) => {
-			const isWinner = game.winnerId === requestingUser.userName;
-			return { ...game, userWon: isWinner };
-		});
-	
-		return user;
-	}
+  async getGameHistory(
+    dto: GetUserByUsernameDTO,
+    requestingUser: User,
+  ): Promise<UserWithGames> {
+    const user: UserWithGames = await this.prisma.user.findUnique({
+      where: {
+        userName: dto.userName,
+      },
+      select: {
+        userName: true,
+        avatar: true,
+        status: true,
+        gamesWon: true,
+        gamesLost: true,
+        achievements: true,
+        games: {
+          select: {
+            gameId: true,
+            players: {
+              select: {
+                userName: true,
+              },
+            },
+            winnerId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    // Calculate userWon for each game based on the requesting user's username
+    user.games = user.games.map((game) => {
+      console.log(requestingUser.id);
+      console.log(game.winnerId);
+      const isWinner = game.winnerId === requestingUser.id;
+      console.log('is winner', isWinner);
+      return { ...game, userWon: isWinner };
+    });
+
+    return user;
+  }
 
   async getUserByEmail(dto: GetUserByEmailDTO): Promise<SecureUser> {
     return await this.prisma.user.findUnique({
