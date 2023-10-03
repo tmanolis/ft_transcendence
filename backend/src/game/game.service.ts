@@ -85,10 +85,12 @@ export class GameService {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
     const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
+    console.log('DISCONNECT PENDING P:   ', pendingPlayer);
     if (pendingPlayer) {
       try {
         const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
         if (pendingPlayerObject.email === playerEmail) {
+          console.log('CLEARING THE PENDING PLAYER AND GAME!!!!');
           await this.cacheManager.del('pendingPlayer');
           await this.cacheManager.del(`game${playerEmail}`);
           await this.cacheManager.del(pendingPlayerObject.gameID);
@@ -236,7 +238,6 @@ export class GameService {
           pausingPlayerObject.email,
         );
         gameID = pausingPlayerObject.gameID;
-        this.joinGameAndLaunch(pausingPlayerObject, pausingPlayerObject.gameID);
       }
     }
     console.log('has paused game: ', gameID);
@@ -308,7 +309,7 @@ export class GameService {
         pendingPlayer = undefined;
       }
       if (otherPlayer.userName === player.userName) {
-        console.log('other p:', player);
+        console.log('It is the same Player:', player);
         this.cacheManager.set('pendingPlayer', JSON.stringify(player));
         return [false, player.gameID];
       }
@@ -668,6 +669,7 @@ export class GameService {
     });
     const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
     const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    console.log('this games is won by', winner.id, winner.userName);
 
     const dbGame = await this.prisma.game.create({
       data: {

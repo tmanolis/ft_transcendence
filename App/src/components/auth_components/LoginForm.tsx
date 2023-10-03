@@ -39,7 +39,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
         openModal2FA(response.data.nonce);
       }
       else
-        navigate("/");
+        navigate("/landing");
       console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {

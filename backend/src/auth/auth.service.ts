@@ -156,7 +156,7 @@ export class AuthService {
       return res
         .cookie('jwt', token)
         .status(200)
-        .redirect(`${process.env.FRONTEND_URL}`);
+        .redirect(`${process.env.FRONTEND_URL}/landing`);
     } else {
       return res.cookie('jwt', token).status(200).json({ status: 'logged in' });
     }

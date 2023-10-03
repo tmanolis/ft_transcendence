@@ -8,7 +8,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
-import { createRoomDTO, joinRoomDTO, messageDTO } from 'src/dto';
+import { createRoomDTO, joinRoomDTO, messageDTO, channelDTO } from 'src/dto';
 import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
@@ -91,6 +91,21 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
     } catch (error) {
       client.emit('joinChannelError', { message: error.message });
+    }
+  }
+
+  @SubscribeMessage('leaveChannel')
+  async handleLeaveChannel(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() dto: channelDTO,
+  ) {
+    try {
+      await this.chatService.leaveChannel(client, dto);
+      client.emit('leaveChannelSuccess', {
+        message: `You are no longer a member of channel ${dto.name}`,
+      });
+    } catch (error) {
+      client.emit('leaveChannelError', { message: error.message });
     }
   }
 }

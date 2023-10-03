@@ -27,8 +27,8 @@ model User {
 
   /// community
   friends               String[]
-  frienRequestsSent     String[]
-  friendReqestsReceived String[]
+  friendRequestsSent     String[]
+  friendRequestsReceived String[]
   rooms                 UserInRoom[] @relation("connecting User to UserInRoom")
 
   /// statistics
@@ -59,7 +59,6 @@ model Room {
   name      String     		@id @unique @default(uuid())
   status    RoomStatus
   password  String?
-  owner     String 				// this is user e-mail (because they can not change it)
   createdAt DateTime   		@default(now())
   messages  Message[]  		@relation("message")
   users     UserInRoom[] 	@relation("connecting Room to UserInRoom")

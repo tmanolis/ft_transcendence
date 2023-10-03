@@ -1,5 +1,5 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { Game, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import {
   GetUserByUsernameDTO,
@@ -10,6 +10,7 @@ import {
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
+import { UserWithGames } from 'src/interfaces/prisma.interfaces';
 
 @Injectable()
 export class UserService {
@@ -98,9 +99,20 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
     return allUserData;
+  }
+
+  async getAllUsernames(): Promise<string[]> {
+    const objectUsernames = await this.prisma.user.findMany({
+      select: {
+        userName: true,
+      },
+    });
+    const usernames: string[] = objectUsernames.map((user) => user.userName);
+    return usernames;
   }
 
   async getLeaderboard() {
@@ -140,6 +152,7 @@ export class UserService {
         avatar: user.avatar,
         gamesWon: user.gamesWon,
         gamesPlayed: user.gamesWon + user.gamesLost,
+        achievement: user.achievements,
       };
     });
     return leaderboard;
@@ -156,8 +169,52 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
+  }
+
+  async getGameHistory(
+    dto: GetUserByUsernameDTO,
+    requestingUser: User,
+  ): Promise<UserWithGames> {
+    const user: UserWithGames = await this.prisma.user.findUnique({
+      where: {
+        userName: dto.userName,
+      },
+      select: {
+        userName: true,
+        avatar: true,
+        status: true,
+        gamesWon: true,
+        gamesLost: true,
+        achievements: true,
+        games: {
+          select: {
+            gameId: true,
+            players: {
+              select: {
+                userName: true,
+              },
+            },
+            winnerId: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
+      },
+    });
+
+    // Calculate userWon for each game based on the requesting user's username
+    user.games = user.games.map((game) => {
+      console.log(requestingUser.id);
+      console.log(game.winnerId);
+      const isWinner = game.winnerId === requestingUser.id;
+      console.log('is winner', isWinner);
+      return { ...game, userWon: isWinner };
+    });
+
+    return user;
   }
 
   async getUserByEmail(dto: GetUserByEmailDTO): Promise<SecureUser> {
@@ -171,6 +228,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
   }
