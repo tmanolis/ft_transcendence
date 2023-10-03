@@ -51,7 +51,8 @@ const RightColumn = styled.div`
 `;
 
 const Profile: React.FC = () => {
-  const { username } = useParams<{ username: string }>(); // Get the username from the URL
+  const { username } = useParams<{ username?: string }>();
+  const profileUsername = username ?? '';
   const [profileData, setProfileData] = useState<Profile>({
     avatarPath: "", // Provide a default value for avatarPath
     userName: "", // Provide a default value for userName
@@ -146,7 +147,7 @@ const Profile: React.FC = () => {
                 <AchievementsInfos achievements={profileData.achievements} />
               </LeftColumn>
               <RightColumn>
-                <MatchHistory gameList={profileData.matchHistory} profileUser={username}/>
+                <MatchHistory gameList={profileData.matchHistory} profileUser={profileUsername}/>
               </RightColumn>
             </ProfileContainer>
           </>
