@@ -2,7 +2,6 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import backgroundImg from "../../assets/code-barre.png";
 import { Avatar, CodeBar, GamesPlayed, GamesWinned, ProfileContainer, ProfilesListWrapper, Rank, Username, CustomLink } from './styles/Profiles.styled';
-import { Link } from 'react-router-dom';
 
 interface Profile {
 	avatar: string;
