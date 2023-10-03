@@ -6,6 +6,8 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import {
@@ -14,6 +16,9 @@ import {
   createRoomDTO,
   joinRoomDTO,
   ChatMessage,
+  adminDTO,
+  changePassDTO,
+  toPublicDTO,
 } from 'src/dto';
 import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
@@ -161,7 +166,6 @@ export class ChatService {
       await this.prisma.room.create({
         data: {
           ...roomDTO,
-          owner: chatuser.email,
           users: {
             create: [
               {
@@ -334,6 +338,156 @@ export class ChatService {
   }
 
   /****************************************************************************/
+  /* owner options										                                        */
+  /****************************************************************************/
+
+  async toPublic(user: User, dto: toPublicDTO) {
+    const room: Room = await this.ownerCheck(user, dto);
+
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PUBLIC',
+          password: '',
+        },
+      });
+    }
+  }
+
+  async toPrivate(user: User, dto: changePassDTO) {
+    const room: Room = await this.ownerCheck(user, dto);
+
+    const hash: string = await argon.hash(dto.password);
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PRIVATE',
+          password: hash,
+        },
+      });
+    }
+  }
+
+  async changePass(user: User, dto: changePassDTO) {
+    const room: Room = await this.ownerCheck(user, dto);
+    const oldpass: string = room.password;
+
+    const hash: string = await argon.hash(dto.password);
+    if (room) {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          password: hash,
+        },
+      });
+    }
+  }
+
+  async addAdmin(user: User, dto: adminDTO) {
+    const room = await this.ownerCheck(user, dto);
+
+    if (room) {
+      // get the user that needs to change status
+      const userInRoom = await this.getRoomUserByUsername(dto.userName);
+
+      // few checks
+      if (!userInRoom) throw new NotFoundException('User is not in this room');
+      else if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not downgrade room owner');
+      else if (userInRoom.role === 'ADMIN')
+        throw new BadRequestException('User is already admin');
+      // change status
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            role: 'ADMIN',
+          },
+        });
+      }
+    }
+  }
+
+  async removeAdmin(user: User, dto: adminDTO) {
+    const room = await this.ownerCheck(user, dto);
+
+    if (room) {
+      // get the user that needs to change status
+      const userInRoom = await this.getRoomUserByUsername(dto.userName);
+
+      // few checks
+      if (userInRoom.role === 'OWNER')
+        throw new BadRequestException('Can not downgrade room owner');
+      else if (userInRoom.role === 'USER')
+        throw new BadRequestException('User is not admin');
+      // change status
+      else {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            role: 'USER',
+          },
+        });
+      }
+    }
+  }
+
+  async ownerCheck(user: User, dto: toPublicDTO) {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.channel,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!room) throw new NotFoundException('Room not found');
+
+    const userInRoom: UserInRoom = room.users.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('You are not in this room');
+
+    if (userInRoom.role !== 'OWNER')
+      throw new UnauthorizedException('You are not the channel owner');
+
+    return room;
+  }
+
+  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        userName: username,
+      },
+      include: {
+        rooms: true,
+      },
+    });
+
+    const userInRoom: UserInRoom = user.rooms.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('User is not in this room');
+
+    return userInRoom;
+	}
+
+	/****************************************************************************/
   /* channel info											                                        */
   /****************************************************************************/
 
