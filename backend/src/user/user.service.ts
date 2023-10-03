@@ -99,6 +99,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
     return allUserData;
@@ -167,6 +168,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
   }
@@ -225,6 +227,7 @@ export class UserService {
         status: true,
         gamesWon: true,
         gamesLost: true,
+        achievements: true,
       },
     });
   }
