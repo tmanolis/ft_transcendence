@@ -17,7 +17,7 @@ export class FriendService {
   /* send friend Request */
   /*****************************************************************************/
   async getFriendList(user: User): Promise<SecureUser[]> {
-    const friendList : SecureUser[] = [];
+    const friendList: SecureUser[] = [];
     const friendEmailList: string[] = user.friends;
     for (let email of friendEmailList) {
       const user = await this.getUserByEmail(email);
@@ -28,7 +28,7 @@ export class FriendService {
         gamesWon: user.gamesWon,
         gamesLost: user.gamesLost,
         achievements: user.achievements,
-      }
+      };
       await friendList.push(secureUser);
     }
 
@@ -38,11 +38,7 @@ export class FriendService {
   /*****************************************************************************/
   /* send friend Request */
   /*****************************************************************************/
-  async addFriend(
-    user: User,
-    payload: { userName: string },
-    res: Response,
-  ) {
+  async addFriend(user: User, payload: { userName: string }, res: Response) {
     // check user/payload data
     const checkData = await this.checkWithUsername(user, payload);
     if (checkData !== '') {
@@ -65,7 +61,6 @@ export class FriendService {
     ) {
       throw new BadRequestException('You are already friends.');
     }
-
 
     // update/add sender to receiver's friends list
     try {

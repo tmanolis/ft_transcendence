@@ -85,12 +85,12 @@ export class GameService {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
     const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    console.log("DISCONNECT PENDING P:   ", pendingPlayer);
+    console.log('DISCONNECT PENDING P:   ', pendingPlayer);
     if (pendingPlayer) {
       try {
         const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
         if (pendingPlayerObject.email === playerEmail) {
-          console.log("CLEARING THE PENDING PLAYER AND GAME!!!!");
+          console.log('CLEARING THE PENDING PLAYER AND GAME!!!!');
           await this.cacheManager.del('pendingPlayer');
           await this.cacheManager.del(`game${playerEmail}`);
           await this.cacheManager.del(pendingPlayerObject.gameID);
