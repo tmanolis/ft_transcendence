@@ -397,18 +397,32 @@ export class ChatService {
   /* channel info											                                        */
   /****************************************************************************/
 
-  async getRooms(user: User): Promise<string[]> {
+  async getRooms(user: User) {
     const userRooms = await this.prisma.user
       .findUnique({
         where: {
           id: user.id,
         },
       })
-      .rooms();
+      .rooms({
+        select: {
+          room: {
+            select: {
+              name: true,
+              status: true,
+            },
+          },
+					role: true,
+        },
+      });
 
-    const roomNames = userRooms.map((userRoom) => userRoom.roomID);
+    const roomData = userRooms.map((userRoom) => ({
+      name: userRoom.room.name,
+      status: userRoom.room.status,
+			role: userRoom.role,
+    }));
 
-    return roomNames;
+    return roomData;
   }
 
   async getChannelMembers(dto: channelDTO) {

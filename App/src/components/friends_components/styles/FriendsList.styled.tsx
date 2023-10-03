@@ -28,6 +28,10 @@ export const FriendsListWrapper = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+
+  @media screen and (max-width: 960px) {
+	width : 100%;
+  }
 `;
 
 export const FriendContainer = styled.div`
@@ -50,6 +54,10 @@ export const FriendContainer = styled.div`
 	font-style: normal;
 	font-weight: 500;
 	letter-spacing: 0.36px;
+
+	@media screen and (max-width: 640px) {
+		width : 20%;
+  }
 `;
 
 export const Avatar = styled.img`
