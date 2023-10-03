@@ -10,12 +10,14 @@ export type NavProps = {
 const NavBarStyled = styled.div`
   display: flex;
   width: 130px;
-  height: 508px;
-  margin-top: 120px;
+  height: 550px;
+  margin-top: 90px;
   position: absolute;
   z-index: 1;
 
   background-image: url(${NavBarPNG});
+  background-size: cover; /* Ensure the background image covers the entire container */
+  background-repeat: no-repeat; /* Prevent background image from repeating */
 `;
 
 const NavButton = styled.div`
@@ -24,10 +26,10 @@ const NavButton = styled.div`
   align-items: center;
   justify-content: center;
   align-items: flex-end;
-  height: 450px;
+  height: 535px;
   width: 80px;
   left: 5px;
-  gap: 45px;
+  gap: 40px;
   flex-shrink: 0;
 
   background-image: url(${NavBarPNG});
