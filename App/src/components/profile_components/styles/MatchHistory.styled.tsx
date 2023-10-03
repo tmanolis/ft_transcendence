@@ -42,14 +42,3 @@ export const HistoryScrollingList = styled.div`
     background: #555;
   }
 `;
-
-export const MatchElement = styled.div`
-  width: 95%;
-  height: 13%;
-  flex-shrink: 0;
-  border-top: 1px solid #fff;
-  border-left: 1px solid #fff;
-  background: #000;
-  box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
-  margin-bottom: 5px; /* Add margin to separate MatchElement components */
-`;

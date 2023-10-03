@@ -8,6 +8,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router";
+import { GameListInter } from "../components/profile_components/MatchElement";
 
 interface Profile {
   avatarPath: string;
@@ -18,7 +19,7 @@ interface Profile {
   gamesLost: number;
   achievements: string[];
   place: number;
-  // matchHistory: [];
+  matchHistory: GameListInter[]; 
 }
 
 interface profileLead {
@@ -60,7 +61,7 @@ const Profile: React.FC = () => {
     gamesLost: 0, // Provide a default value for gamesLost
     achievements: [], // Provide a default value for achievements
     place: 0, // Provide a default value for place
-    // matchHistory: [], // Provide a default value for matchHistory
+    matchHistory: [] as GameListInter[], // Provide a default empty array of GameListInter
   });
   const [profilesList, setProfilesList] = useState<profileLead[]>([]);
 
@@ -70,7 +71,7 @@ const Profile: React.FC = () => {
         const response = await axios.get(
           `${
             import.meta.env.VITE_BACKEND_URL
-          }/user/userByUsername?userName=${username}`,
+          }/user/gameHistory?userName=${username}`,
           {
             withCredentials: true,
           }
@@ -85,14 +86,16 @@ const Profile: React.FC = () => {
           gamesWon: userData.gamesWon,
           gamesPlayed: userData.gamesLost + userData.gamesWon,
           achievements: userData.achievements,
+          matchHistory: userData.games,
         }));
+        console.log("hey dude",userData.games);
+
       } catch (error) {
         console.error(error);
       }
     };
-
     fetchUserData();
-  }, []);
+  }, [username]);
 
   const getProfilesList = async () => {
     try {
@@ -121,7 +124,7 @@ const Profile: React.FC = () => {
 
   useEffect(() => {
     getProfilesList();
-  }, []);
+  }, [username]);
 
   return (
     <>
@@ -144,7 +147,7 @@ const Profile: React.FC = () => {
                 <AchievementsInfos achievements={profileData.achievements} />
               </LeftColumn>
               <RightColumn>
-                <MatchHistory />
+                <MatchHistory gameList={profileData.matchHistory} profileUser={username}/>
               </RightColumn>
             </ProfileContainer>
           </>

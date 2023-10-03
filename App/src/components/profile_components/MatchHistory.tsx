@@ -1,35 +1,23 @@
-import React from "react";
 import {
   MatchHistoryStyled,
   HistoryScrollingList,
-  MatchElement,
 } from "./styles/MatchHistory.styled";
+import MatchElement, { GameListInter } from "./MatchElement";
 
-const MatchHistory: React.FC = () => {
+type MatchHistoryProps = {
+  gameList: GameListInter[];
+  profileUser: string;
+};
+
+const MatchHistory: React.FC<MatchHistoryProps> = ({ gameList, profileUser }) => {
+
   return (
     <MatchHistoryStyled>
       <h1>Match History</h1>
       <HistoryScrollingList>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
-        <MatchElement></MatchElement>
+        {gameList.map((game, index) => (
+          <MatchElement key={index} game={game} profileUser={profileUser} />
+        ))}
       </HistoryScrollingList>
     </MatchHistoryStyled>
   );
