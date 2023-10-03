@@ -348,15 +348,21 @@ export class ChatService {
         select: {
           room: {
             select: {
-              name: true, 
-              status: true, 
+              name: true,
+              status: true,
               owner: true,
             },
           },
         },
       });
 
-    return userRooms;
+    const roomData = userRooms.map((userRoom) => ({
+      name: userRoom.room.name,
+      status: userRoom.room.status,
+      owner: userRoom.room.owner,
+    }));
+
+    return roomData;
   }
 
   /****************************************************************************/
