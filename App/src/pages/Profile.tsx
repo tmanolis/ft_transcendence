@@ -84,7 +84,7 @@ const Profile: React.FC = () => {
           gamesLost: userData.gamesLost,
           gamesWon: userData.gamesWon,
           gamesPlayed: userData.gamesLost + userData.gamesWon,
-          // achievements: userData.achievements,
+          achievements: userData.achievements,
         }));
       } catch (error) {
         console.error(error);

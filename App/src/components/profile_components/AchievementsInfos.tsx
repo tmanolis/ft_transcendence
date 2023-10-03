@@ -19,7 +19,7 @@ type AchievementInfosProps = {
 };
 
 const AchievementsInfos: React.FC<AchievementInfosProps> = ({
-  achievements,
+  achievements
 }) => {
   const badges: Achievement[] = [
     {

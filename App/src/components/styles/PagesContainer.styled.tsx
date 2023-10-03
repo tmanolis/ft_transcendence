@@ -21,6 +21,7 @@ const PopUpPage = styled.div`
   background: #000;
   box-shadow: 1px 3px 1px 0px #fff;
   font-family: "JetBrains Mono", monospace;
+  z-index: 2;
 
   overflow: auto; /* Add scrolling when content overflows */
 
