@@ -60,7 +60,7 @@ export const ProfileInfoBlock = styled.div`
     color: white;
     /* display: flex; */
     font-size: 30px;
-    font-style: normal;o
+    font-style: normal;
     font-weight: 500;
     line-height: 200%; /* 233.333% */
     letter-spacing: 0.6px;
