@@ -27,7 +27,7 @@ See Swagger at http://localhost:3000/api
 | event name          | parameters  				| description        																		|
 | ------------------- | ------------------- | ----------------------------------------------------- |
 |	sendMessage					|	messageDTO					| broadcasts message if no block is active							|
-| createChannel					|	createRoomDTO				| returns full message history every time, can be used  |
+| createChannel				|	createRoomDTO				| returns full message history every time, can be used  |
 |	joinChannel					|	joinRoomDTO					|	to refresh chat page																	|
 | ------------------- | ------------------- | ----------------------------------------------------- |
 
@@ -43,7 +43,7 @@ See Swagger at http://localhost:3000/api
 | ------------- |	-------------	| --------------------------------------------------- |
 |	createRoomDTO	| name					|	channel name (private/public) or username	(direct)	|
 | 							|	status				|	'PRIVATE', 'PUBLIC' or 'DIRECT'						  				|
-|								| pasword?			|	mandatory for private rooms													|
+|								| password?			|	mandatory for private rooms													|
 | ------------- |	-------------	| --------------------------------------------------- |
 |	joinRoomDTO		| name					|	channel name 																				|
 | 							|	password?			|	mandatory for private rooms								  				|
