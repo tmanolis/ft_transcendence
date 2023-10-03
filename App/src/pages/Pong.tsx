@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { useNavigate } from "react-router";
 import Cookies from "js-cookie";
 
 import Landing from "../pages/Landing";
@@ -13,7 +14,6 @@ const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/game`, {
     Authorization: access_token,
   },
 });
-socket.connect();
 
 interface Position {
   x: number;
@@ -34,12 +34,20 @@ const Pong = () => {
     canvasHeight / 2 - paddleHeight / 2,
   );
   const [ball, setBall] = useState<Position>({ x: 0, y: 0 });
-  const [isLanding, setIsLanding] = useState<boolean>(true);
   const [isWaiting, setIsWaiting] = useState<boolean>(true);
-  const [countdown, setCountdown] = useState<number>(3);
+  const [countdown, setCountdown] = useState<number>(0);
   const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
   const [gameID, setGameID] = useState<string>("");
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    socket.connect();
+    socket?.emit("findGame");
+    return () => {
+      socket.disconnect();
+    }
+  }, [])
   useEffect(() => {
     socket.on("connect", () => {
       console.log("connected: ", socket?.id);
@@ -70,21 +78,15 @@ const Pong = () => {
     });
 
     socket.on("rejoinGame", (gameData: any) => {
-      setIsLanding(false);
+      setIsWaiting(false);
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
       console.log(gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
-    // still testing
-    socket.on("gameRunning", (gameState: Object) => {
-      console.log(gameState);
-    });
 
-    console.log(isWaiting, countdown);
     if (!isWaiting && countdown < 1) {
-      console.log("game start!");
       socket.emit("startGame");
     }
 
@@ -114,6 +116,9 @@ const Pong = () => {
 
   useEffect(() => {
     socket.on("updateGame", (gameData: any) => {
+      if (gameData.status === "ended") {
+        navigate("/play");
+      }
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
@@ -140,24 +145,6 @@ const Pong = () => {
     };
   }, [isWaiting]);
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      console.log(event.key);
-      if (isLanding) {
-        if (event.key === "Enter") {
-          console.log("enter pressed");
-          socket?.emit("findGame");
-          setIsLanding(false);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isLanding]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -214,17 +201,7 @@ const Pong = () => {
         context.fillText(score[1].toString(), canvas.width * 0.75, 20);
       }
 
-      if (context && isLanding) {
-        context.font = "30px 'JetBrains Mono', monospace";
-        context.fillStyle = "white";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillText(
-          "Press Enter to start a game.",
-          canvas.width / 2,
-          canvas.height / 2,
-        );
-      } else if (context && isWaiting) {
+      if (context && isWaiting) {
         context.font = "30px 'JetBrains Mono', monospace";
         context.fillStyle = "white";
         context.textAlign = "center";
@@ -246,7 +223,7 @@ const Pong = () => {
         );
       }
     }
-  }, [leftPaddleY, rightPaddleY, ball, isWaiting, isLanding, countdown, score]);
+  }, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown, score]);
 
   return (
     <>

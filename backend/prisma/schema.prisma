@@ -27,15 +27,14 @@ model User {
 
   /// community
   friends               String[]
-  frienRequestsSent     String[]
-  friendReqestsReceived String[]
+  friendRequestsSent     String[]
+  friendRequestsReceived String[]
   rooms                 UserInRoom[] @relation("connecting User to UserInRoom")
 
   /// statistics
-  gamesWon     Int?
-  gamesLost    Int?
-  ranking      Int?
-  achievements Achievement[] @unique
+  gamesWon    	Int		@default(0)
+  gamesLost   	Int		@default(0)
+  achievements  Achievement[] @unique
 
   ///historics
   games Game[] @relation("player")

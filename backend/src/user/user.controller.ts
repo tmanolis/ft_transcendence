@@ -6,12 +6,14 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
+  Post,
+  Query,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
-import { UpdateDto } from 'src/dto';
+import { GetUserByEmailDTO, GetUserByUsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
@@ -27,7 +29,7 @@ export class UserController {
   @Get('me')
   // GetUser custom decorator, because Request is error prone
   // and like this we can return a prisma type user.
-  getMe(@GetUser() user: User) {
+  handleGetMe(@GetUser() user: User) {
     return user;
   }
 
@@ -39,7 +41,7 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: 'Update failed. Please try again!' })
   @UseInterceptors(FilesInterceptor('avatar'))
-  async edit(
+  async handleUpdateUser(
     @GetUser() user: User,
     @Body() updateDto: UpdateDto,
     @UploadedFiles() files: any[],
@@ -51,12 +53,55 @@ export class UserController {
     return await this.userService.updateUser(user, updateDto);
   }
 
-  // get all active user on the server
-  @Get('allUsers')
+  @Get('all-users')
   @ApiOkResponse({
-    description: 'Returns all users public data',
+    description: 'Returns public data of all users',
   })
-  async getAllUsers() {
+  async handlegetAllUsers() {
     return await this.userService.getAllUsers();
+  }
+
+  @Get('allUsernames')
+  @ApiOkResponse({
+    description: 'Returns username of all users',
+  })
+  async handleGetAllUsernames() {
+    return await this.userService.getAllUsernames();
+  }
+
+  // get all active users in order of win rate
+  @Get('leaderboard')
+  @ApiOkResponse({
+    description: 'Returns ranked list of all users',
+  })
+  async getLeaderboard() {
+    return await this.userService.getLeaderboard();
+  }
+
+  @Get('userByUsername')
+  @ApiOkResponse({
+    description: 'Returns public data of one user',
+  })
+  async handleGetUserByUsername(@Query() dto: GetUserByUsernameDTO) {
+    return await this.userService.getUserByUsername(dto);
+  }
+
+  @Get('gameHistory')
+  @ApiOkResponse({
+    description: 'Returns game history of one user',
+  })
+  async handleGetGameHistory(
+    @Query() dto: GetUserByUsernameDTO,
+    @GetUser() user: User,
+  ) {
+    return await this.userService.getGameHistory(dto, user);
+  }
+
+  @Get('usernameByEmail')
+  @ApiOkResponse({
+    description: 'Returns public data of one user',
+  })
+  async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
+    return await this.userService.getUserByEmail(dto);
   }
 }
