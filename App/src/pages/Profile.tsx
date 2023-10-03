@@ -88,7 +88,6 @@ const Profile: React.FC = () => {
           achievements: userData.achievements,
           matchHistory: userData.games,
         }));
-        console.log("hey dude",userData.games);
 
       } catch (error) {
         console.error(error);

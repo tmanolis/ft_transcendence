@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LostBadge, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
+import { LostBadge, MarginContainer, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
 import React, { useEffect, useState } from "react";
 
 export interface GameListInter {
@@ -51,20 +51,22 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser }) => {
 	}, [versUsername]);
 
   return (
-    <MatchElementStyled>
-      <VersusInfo>
-        <img
-          src={`data:image/png;base64,${versusAvatar}`}
-          alt={`Avatar of ${versUsername}`}
-        />
-        <p>{versUsername}</p>
-      </VersusInfo>
-      {game.userWon ? (
-        <WinBadge>Win</WinBadge>
-      ) : (
-        <LostBadge>Lost</LostBadge>
-      )}
-    </MatchElementStyled>
+    <MarginContainer>
+      <MatchElementStyled>
+        <VersusInfo>
+          <img
+            src={`data:image/png;base64,${versusAvatar}`}
+            alt={`Avatar of ${versUsername}`}
+          />
+          <p>{versUsername}</p>
+        </VersusInfo>
+        {game.userWon ? (
+          <WinBadge/>
+        ) : (
+          <LostBadge/>
+        )}
+      </MatchElementStyled>
+    </MarginContainer>
   );
 };
 

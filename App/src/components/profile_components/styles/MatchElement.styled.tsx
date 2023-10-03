@@ -1,8 +1,8 @@
 import styled from "styled-components";
 
 export const MatchElementStyled = styled.div`
-  width: 95%;
-  height: 13%;
+  width: 90%;
+  height: 40px;
   flex-shrink: 0;
   border-top: 1px solid #fff;
   border-left: 1px solid #fff;
@@ -21,7 +21,7 @@ export const VersusInfo = styled.div`
   align-items: center;
 
   img {
-    max-width: 40px;
+    max-width: 30px;
     height: auto;
     border-radius: 50%;
     margin-right: 10px; /* Increase margin for more spacing */
@@ -29,13 +29,13 @@ export const VersusInfo = styled.div`
 
   p {
     margin: 0;
-    font-size: 16px;
+    font-size: 12px;
   }
 `;
 
 export const ResultBadge = styled.div`
-  width: 30px; /* Adjust the size as needed */
-  height: 30px; /* Adjust the size as needed */
+  width: 8px; /* Increase the size as needed */
+  height: 8px; /* Increase the size as needed */
   border-radius: 50%; /* Make it a circle */
   display: flex;
   align-items: center;
@@ -52,4 +52,8 @@ export const WinBadge = styled(ResultBadge)`
 
 export const LostBadge = styled(ResultBadge)`
   background-color: red; /* Red circle for Lost */
+`;
+
+export const MarginContainer = styled.div`
+  margin: 5%
 `;
