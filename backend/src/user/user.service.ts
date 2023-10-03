@@ -158,45 +158,6 @@ export class UserService {
     return leaderboard;
   }
 
-  // async getUserByUsername(dto: GetUserByUsernameDTO): Promise<UserWithGames> {
-  // 	const user: UserWithGames = await this.prisma.user.findUnique({
-  // 		where: {
-  // 			userName: dto.userName,
-  // 		},
-  // 		select: {
-  // 			userName: true,
-  // 			avatar: true,
-  // 			status: true,
-  // 			gamesWon: true,
-  // 			gamesLost: true,
-  // 			achievements: true,
-  // 			games: {
-  // 				select: {
-  // 					gameId: true,
-  // 					players: {
-  // 						select: {
-  // 							userName: true,
-  // 						}
-  // 					},
-  // 					winnerId: true,
-  // 					createdAt: true,
-  // 					updatedAt: true,
-  // 				}
-  // 			}
-  // 		},
-  // 	});
-
-  // 	user.games = user.games.map((game: UserGame) => {
-  // 		const isWinner = game.winnerId === user.userName;
-  // 		return {
-  // 			...game,
-  // 			userWon: isWinner,
-  // 		};
-  // 	});
-
-  // 	return user;
-  // }
-
   async getUserByUsername(dto: GetUserByUsernameDTO): Promise<SecureUser> {
     return await this.prisma.user.findUnique({
       where: {
