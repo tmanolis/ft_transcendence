@@ -43,7 +43,7 @@ See Swagger at http://localhost:3000/api
 | ------------- |	-------------	| --------------------------------------------------- |
 |	createRoomDTO	| name					|	channel name (private/public) or username	(direct)	|
 | 							|	status				|	'PRIVATE', 'PUBLIC' or 'DIRECT'						  				|
-|								| pasword?			|	mandatory for private rooms													|
+|								| password?			|	mandatory for private rooms													|
 | ------------- |	-------------	| --------------------------------------------------- |
 |	joinRoomDTO		| name					|	channel name 																				|
 | 							|	password?			|	mandatory for private rooms								  				|
