@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes, useMatch } from "react-router-dom";
 import Authentification from "./pages/Authentification";
 import Register from "./pages/Register";
 import Pong from "./pages/Pong";
@@ -15,50 +15,63 @@ import Home from "./pages/Home";
 import PrivateRoute from "./components/PrivateRoute";
 import Chat from "./pages/Chat";
 
+import { GameSocket } from "./components/GameSocket";
+
 const App = () => {
+
+  // This part is for detecting if user is on /pong page
+  const match = useMatch("/pong");
+  if (match) {
+    GameSocket.emit("enterGamePage");
+  } else {
+    GameSocket.emit("leaveGamePage");
+  }
+
+  GameSocket.on("disconnect", () => {
+    GameSocket.emit("leaveGamePage");
+  })
+
   return (
     <>
       <GlobalStyle />
-      <Router>
-        <Routes>
-          <Route path="/" element={React.createElement(Home)} />
-          <Route path="/auth" element={React.createElement(Authentification)} />
-          <Route path="/auth/register" element={React.createElement(Register)} />
-          <Route path="/auth/verify2fa-42api" element={React.createElement(Verify2FA)} />
-          <Route 
-            path="/landing" 
-            element={<PrivateRoute component={React.createElement(Landing)} />}
-          />
-          <Route 
-            path="/profile" 
-            element={<PrivateRoute component={React.createElement(Profile)} />}
-          />
-          <Route 
-            path="/settings" 
-            element={<PrivateRoute component={React.createElement(Settings)} />}
-          />
-          <Route 
-            path="/play" 
-            element={<PrivateRoute component={React.createElement(Play)} />}
-          />
-          <Route 
-            path="/pong" 
-            element={<PrivateRoute component={React.createElement(Pong)} />}
-          />
-          <Route
-            path="/leaderboard"
-            element={<PrivateRoute component={React.createElement(Leaderboard)} />}
-          />
-          <Route 
-            path="/chat" 
-            element={<PrivateRoute component={React.createElement(Chat)} />}
-          />
-          <Route 
-            path="/friends" 
-            element={<PrivateRoute component={React.createElement(Friends)} />}
-          />
-        </Routes>
-      </Router>
+      <Routes>
+        <Route path="/" element={React.createElement(Home)} />
+        <Route path="/auth" element={React.createElement(Authentification)} />
+        <Route path="/auth/register" element={React.createElement(Register)} />
+        <Route path="/auth/verify2fa-42api" element={React.createElement(Verify2FA)} />
+        <Route 
+          path="/landing" 
+          element={<PrivateRoute component={React.createElement(Landing)} />}
+        />
+        <Route 
+          path="/profile" 
+          element={<PrivateRoute component={React.createElement(Profile)} />}
+        />
+        <Route 
+          path="/settings" 
+          element={<PrivateRoute component={React.createElement(Settings)} />}
+        />
+        <Route 
+          path="/play" 
+          element={<PrivateRoute component={React.createElement(Play)} />}
+        />
+        <Route 
+          path="/pong" 
+          element={<PrivateRoute component={React.createElement(Pong)} />}
+        />
+        <Route
+          path="/leaderboard"
+          element={<PrivateRoute component={React.createElement(Leaderboard)} />}
+        />
+        <Route
+          path="/chat"
+          element={<PrivateRoute component={React.createElement(Chat)} />}
+        />
+        <Route 
+          path="/friends" 
+          element={<PrivateRoute component={React.createElement(Friends)} />}
+        />
+      </Routes>
     </>
   );
 };
