@@ -39,8 +39,8 @@ const AchievementsInfos: React.FC<AchievementInfosProps> = ({
     {
       id: 3,
       name: "TWOFA",
-      imagePath1: "/icon/twofa_Lock.svg",
-      imagePath2: "/icon/twofa_Unlock.svg",
+      imagePath1: "/icon/Twofa_Lock.svg",
+      imagePath2: "/icon/Twofa_Unlock.svg",
       message: "Secure your account with 2FA authentification",
     },
     {
