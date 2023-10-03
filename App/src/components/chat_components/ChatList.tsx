@@ -3,11 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/ChatList.styled';
 
 interface Chat {
-	avatar: string;
-	gamesLost: number;
-	gamesWon: number;
-	status: string;
-	userName: string;
+	name: string,
+  status: string, 
+  owner: string
 }
 
 interface ChatListProps {
@@ -20,11 +18,11 @@ const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
   const getChatList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`, // using friends list to test front: /chat/rooms
+        `${import.meta.env.VITE_BACKEND_URL}/chat/rooms`, // using friends list to test front: /chat/rooms
         { withCredentials: true }
       );
       console.log(response);
-      setChatList(response.data.friendList);
+      setChatList(response.data);
     } catch (error) {
       console.log(error);
     }
@@ -57,13 +55,13 @@ function Item(data: Chat[], openChat: (newChatName: string) => void) {
       {data.map((value, index) => (
         <ChatContainer 
         key={index} 
-        onClick={() => openConversation(value.userName)}
-        selected={selectedChat === value.userName}
+        onClick={() => openConversation(value.name)}
+        selected={selectedChat === value.name}
         >
           <div className="avatar">
-            <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
+            <Avatar src="../../../public/img/Web_img.jpg" alt="user_avatar" />
           </div>
-          <Username>{value.userName}</Username>
+          <Username>{value.name}</Username>
         </ChatContainer>
       ))}
     </>
