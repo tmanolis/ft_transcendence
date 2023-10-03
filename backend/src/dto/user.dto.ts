@@ -64,5 +64,6 @@ export class SecureUser {
     public status: Status,
     public gamesWon: number,
     public gamesLost: number,
+    public achievements: string[],
   ) {}
 }
