@@ -20,11 +20,11 @@ const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
   const getChatList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`, // using friends list to test front
+        `${import.meta.env.VITE_BACKEND_URL}/chat/rooms`, // using friends list to test front
         { withCredentials: true }
       );
       console.log(response);
-      setChatList(response.data.friendList);
+      // setChatList(response.data.friendList);
     } catch (error) {
       console.log(error);
     }

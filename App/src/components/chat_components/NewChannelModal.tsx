@@ -1,21 +1,19 @@
-import React, { useState } from "react";
-import axios, { AxiosError } from "axios";
-import { useNavigate } from "react-router";
+import React, { useEffect, useState } from "react";
 import { ModalContainer, PopUpWrapper } from "./styles/NewChannelModal.styled";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
+import { Socket } from "socket.io-client";
 
 interface NewChannelModalProps {
 	onCancel: () => void;
+	socket: Socket
   }
   
-export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) => {
+export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, socket }) => {
 	const [channelName, setChannelName] = useState("");
 	const [password, setPassword] = useState("");
   	const [errorResponse, setErrorResponse] = useState("");
 
-	const navigate = useNavigate();
-
-	const handleConfirmClick = async () => {
+	const handleConfirmClick = () => {
 		let status: string;
 
 		if (password === "")
@@ -25,33 +23,41 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel }) =>
 
 		console.log("channelName: " + channelName);
 		console.log("password: " + password);
+		
 		const updateDTO = {
 			name: "#" + channelName,
-			status: status
+			status: status,
+			password: password
 		};
 
 		try {
-			const response = await axios.post(
-			`${import.meta.env.VITE_BACKEND_URL}/auth/2fa-verify`,
-			updateDTO,
-			{ withCredentials: true }
-			);
-			console.log(response);
-			navigate("/chat");
-			
-		} catch (error) {
-			handleUpdateError(error as AxiosError);
-		}
+			socket.emit("createChannel", updateDTO);
+			onCancel();
+			} catch (error) {
+				// console.log(error);
+			// handleUpdateError(error);
+			}
 		};
 
-	const handleUpdateError = (error: AxiosError) => {
-		console.log(error.response)
-		if (error.response) {
-			setErrorResponse("This channel name already exist or the name is not valid");
-			setChannelName("");
-			setPassword("");
-		};
-	};
+		useEffect(() => {
+			socket.on("createChannelSuccess", (error) => {
+				console.log(": ", error);
+			});
+
+			socket.on("createChannelError", (error) => {
+				console.log(": ", error);
+			});
+
+		}, []);
+
+	// const handleUpdateError = (error) => {
+	// 	console.log(error.response)
+	// 	if (error.response) {
+	// 		setErrorResponse("This channel name already exist or the name is not valid");
+	// 		setChannelName("");
+	// 		setPassword("");
+	// 	};
+	// };
 
 	return (
 		<ModalContainer>

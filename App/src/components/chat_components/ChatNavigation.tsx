@@ -4,12 +4,14 @@ import ChatList from "./ChatList";
 import { ChatNavigationStyled } from "./styles/ChatNavigation.styled";
 import { NewChannelModal } from "./NewChannelModal";
 import { useState } from "react";
+import { Socket } from "socket.io-client";
 
 interface ChatNavigationProps {
 	openChat: (newChatName: string) => void;
+	socket: Socket
 }
 
-const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat }) => {
+const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket }) => {
 	const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
 
 	const handleNewChannel = () => {
@@ -29,7 +31,7 @@ const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat }) => {
 			</div>
 			{newChannelModalOpen &&
 			createPortal(
-			<NewChannelModal onCancel={handleCancelClick} />,
+			<NewChannelModal onCancel={handleCancelClick} socket={socket} />,
 			document.body
 			)}
 		</ChatNavigationStyled>
