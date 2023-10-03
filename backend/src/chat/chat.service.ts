@@ -353,6 +353,7 @@ export class ChatService {
               owner: true,
             },
           },
+					role: true,
         },
       });
 
@@ -360,6 +361,7 @@ export class ChatService {
       name: userRoom.room.name,
       status: userRoom.room.status,
       owner: userRoom.room.owner,
+			role: userRoom.role,
     }));
 
     return roomData;
