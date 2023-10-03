@@ -33,6 +33,14 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
   const userImageSrc = `data:image/png;base64,${avatarPath}`;
   const EditedUserStatus = toTitleCase(userstatus);
 
+  interface Friend {
+    avatar: string;
+    gamesLost: number;
+    gamesWon: number;
+    status: string;
+    userName: string;
+  }
+
   const isOwnProfile = username === userName;
 
   useEffect(() => {
@@ -53,6 +61,44 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     fetchUserData();
   }, []);
 
+  const handleAddFriend = async () => {
+
+    const updateDTO = {
+      userName: username
+    };
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/friend/addFriend`,
+        updateDTO,
+        { withCredentials: true },
+      );
+      console.log(response);
+      console.log(username + " succesfully added.");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUnfriend = async () => {
+
+    const updateDTO = {
+      userName: username
+    };
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/friend/unfriend`,
+        updateDTO,
+        { withCredentials: true },
+      );
+      console.log(response);
+      console.log(username + " succesfully unfriended.");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ProfileAvatarStyled>
       <AvatarImage src={userImageSrc} />
@@ -62,7 +108,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
         <>
           {!isOwnProfile && (
             <SocialOption>
-              <button>+ Add</button>
+              <button onClick={handleAddFriend}>+ Add</button>
+              <button onClick={handleUnfriend}>- Unfriend</button>
               <button>x Block</button>
               <button>
                 <span className="icon-before" /> Challenge Player
@@ -76,4 +123,30 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
   );
 };
 
-export default ProfileAvatarBlock;
+interface Friend {
+	avatar: string;
+	gamesLost: number;
+	gamesWon: number;
+	status: string;
+	userName: string;
+}
+
+const FriendsList: React.FC = () => {
+  const [FriendsList, setFriendsList] = useState<Friend[]>([]);
+
+  const getFriendsList = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/friend/friendList`,
+        { withCredentials: true }
+      );
+      console.log(response);
+      setFriendsList(response.data.friendList);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getFriendsList();
+  }, []); // Add an empty dependency array to run this effect only once
