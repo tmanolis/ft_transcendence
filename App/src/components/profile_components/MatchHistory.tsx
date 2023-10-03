@@ -11,11 +11,16 @@ type MatchHistoryProps = {
 
 const MatchHistory: React.FC<MatchHistoryProps> = ({ gameList, profileUser }) => {
 
+  const uniqueGameList = gameList.filter((game, index, self) => {
+    const createdAtString = new Date(game.createdAt).toISOString();
+    return self.findIndex((g) => new Date(g.createdAt).toISOString() === createdAtString) === index;
+  });
+
   return (
     <MatchHistoryStyled>
       <h1>Match History</h1>
       <HistoryScrollingList>
-        {gameList.map((game, index) => (
+        {uniqueGameList.map((game, index) => (
           <MatchElement key={index} game={game} profileUser={profileUser} />
         ))}
       </HistoryScrollingList>
@@ -24,3 +29,4 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ gameList, profileUser }) =>
 };
 
 export default MatchHistory;
+
