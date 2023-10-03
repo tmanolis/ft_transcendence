@@ -1,19 +1,14 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/ChatList.styled';
-
-interface Chat {
-	name: string,
-  status: string, 
-  owner: string
-}
+import { Room } from '../../pages/Chat';
 
 interface ChatListProps {
-  openChat: (newChatName: string) => void;
+  openChat: (room: Room) => void;
 }
 
 const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
-  const [ChatList, setChatList] = useState<Chat[]>([]);
+  const [ChatList, setChatList] = useState<Room[]>([]);
 
   const getChatList = async () => {
     try {
@@ -41,13 +36,13 @@ const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
 
 export default ChatList;
 
-function Item(data: Chat[], openChat: (newChatName: string) => void) {
+function Item(data: Room[], openChat: (room: Room) => void) {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
-  const openConversation = (username: string) => {
-    console.log(username + ": j'ai click pour ouvrir une conv");
-    setSelectedChat(username);
-    openChat(username);
+  const openConversation = (room: Room) => {
+    console.log(room + ": j'ai click pour ouvrir une conv");
+    setSelectedChat(room.name);
+    openChat(room);
   }
 
   return (
@@ -55,7 +50,7 @@ function Item(data: Chat[], openChat: (newChatName: string) => void) {
       {data.map((value, index) => (
         <ChatContainer 
         key={index} 
-        onClick={() => openConversation(value.name)}
+        onClick={() => openConversation(value)}
         selected={selectedChat === value.name}
         >
           <div className="avatar">

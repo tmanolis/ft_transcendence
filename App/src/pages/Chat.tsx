@@ -8,6 +8,12 @@ import { ConversationWindowWrapper } from "../components/chat_components/Convers
 import { Socket, io } from "socket.io-client";
 import Cookies from "js-cookie";
 
+export interface Room {
+	name: string,
+  status: string,
+  role: string,
+  owner: string
+}
 
 const Chat = () => {
   // ouverture de socket
@@ -20,8 +26,8 @@ const Chat = () => {
 
   const [chatName, setChatName] = useState("");
 
-  const openChat = (newChatName: string) => {
-    setChatName(newChatName);
+  const openChat = (room: Room) => {
+    setChatName(room.name);
   }
 
 	useEffect(() => {

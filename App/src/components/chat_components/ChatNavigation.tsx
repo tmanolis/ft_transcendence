@@ -5,9 +5,10 @@ import { ChatNavigationStyled } from "./styles/ChatNavigation.styled";
 import { NewChannelModal } from "./NewChannelModal";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
+import { Room } from "../../pages/Chat";
 
 interface ChatNavigationProps {
-	openChat: (newChatName: string) => void;
+	openChat: (room: Room) => void;
 	socket_chat: Socket
 }
 
