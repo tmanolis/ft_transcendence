@@ -669,6 +669,7 @@ export class GameService {
     });
     const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
     const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    console.log('this games is won by', winner.id, winner.userName);
 
     const dbGame = await this.prisma.game.create({
       data: {

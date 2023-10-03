@@ -38,12 +38,14 @@
 		- sets creator as channel owner
 		- sets channel to either public, private or direct
 		- if private, sets password
+		DONE
 	
 		joinChannel(room)
 		- checks if channel exists
 		- checks if its public/private/direct
 		- joins channel
 		- emits a message that user has joined the channel
+		DONE
 
 		leaveChannel(room)
 		- removes user from channel
@@ -55,19 +57,21 @@
 		- unjoin all users from room  
 
 		setChannelPassword()
-		- checks if user is administrator
+		- checks if user is owner
 		- creates a password
 		- sets channel status to private
+		DONE
 	
 		addAdministrator(user2Badmin)
-		- checks if user is administrator themselves
-		- check if there's no active block or mute
+		- checks if user is owner
 		- gives the user2Badmin permissions
+		DONE
 
 		removeAdministrator(admin)
-		- checks if user is administrator themselves
+		- checks if user is owner
 		- checks if admin is not the channel owner (creator)
 		- if not, takes away admin's permissions
+		DONE
 		
 		kickUser(user2Bkicked)
 		- checks if user is administrator
