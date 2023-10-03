@@ -88,7 +88,7 @@ export class UserController {
 
   @Get('gameHistory')
   @ApiOkResponse({
-    description: 'Returns public data of one user',
+    description: 'Returns game history of one user',
   })
   async handleGetGameHistory(
     @Query() dto: GetUserByUsernameDTO,
