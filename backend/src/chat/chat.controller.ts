@@ -118,9 +118,9 @@ export class ChatController {
     return res
       .status(200)
       .send({ message: dto.userName + ' is removed from channel admins' });
-	}
+  }
 
-	@Get('rooms')
+  @Get('rooms')
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetRooms(@GetUser() user: User) {

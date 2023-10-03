@@ -48,11 +48,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() message: messageDTO,
   ) {
-		try{
-			await this.chatService.handleMessage(client, message);
-		} catch (error){
+    try {
+      await this.chatService.handleMessage(client, message);
+    } catch (error) {
       client.emit('sendMessageError', { message: error.message });
-		}
+    }
   }
 
   /****************************************************************************/

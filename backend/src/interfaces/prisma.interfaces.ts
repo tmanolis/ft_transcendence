@@ -9,7 +9,7 @@ export interface UserWithRooms extends User {
 }
 
 export interface RoomWithMessages extends Room {
-	rooms: Message[];
+  rooms: Message[];
 }
 export interface UserWithGames {
   userName: string;
