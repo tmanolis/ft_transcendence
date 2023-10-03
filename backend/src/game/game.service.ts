@@ -44,7 +44,7 @@ export class GameService {
     jwtData = this.jwtService.decode(jwt);
     if (!jwtData || typeof jwtData !== 'object') {
       return 'failed';
-    }Socket
+    }
     const user: User = await this.getUserByEmail(jwtData.email);
     if (!user) {
       return 'failed';
