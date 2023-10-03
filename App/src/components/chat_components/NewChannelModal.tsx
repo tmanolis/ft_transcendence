@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ModalContainer, PopUpWrapper } from "./styles/NewChannelModal.styled";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
 import { Socket } from "socket.io-client";
 
 interface NewChannelModalProps {
 	onCancel: () => void;
-	socket: Socket
+	socket_chat: Socket
   }
   
-export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, socket }) => {
+export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, socket_chat }) => {
 	const [channelName, setChannelName] = useState("");
 	const [password, setPassword] = useState("");
   	const [errorResponse, setErrorResponse] = useState("");
@@ -31,24 +31,25 @@ export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, sock
 		};
 
 		try {
-			socket.emit("createChannel", updateDTO);
+			socket_chat.emit("createChannel", updateDTO);
 			onCancel();
 			} catch (error) {
+				setErrorResponse("lol");
 				// console.log(error);
 			// handleUpdateError(error);
 			}
 		};
 
-		useEffect(() => {
-			socket.on("createChannelSuccess", (error) => {
-				console.log(": ", error);
-			});
+		// useEffect(() => {
+		// 	socket.on("createChannelSuccess", (error) => {
+		// 		console.log(": ", error);
+		// 	});
 
-			socket.on("createChannelError", (error) => {
-				console.log(": ", error);
-			});
+		// 	socket.on("createChannelError", (error) => {
+		// 		console.log(": ", error);
+		// 	});
 
-		}, []);
+		// }, []);
 
 	// const handleUpdateError = (error) => {
 	// 	console.log(error.response)

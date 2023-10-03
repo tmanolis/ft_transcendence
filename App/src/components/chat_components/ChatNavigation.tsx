@@ -8,10 +8,10 @@ import { Socket } from "socket.io-client";
 
 interface ChatNavigationProps {
 	openChat: (newChatName: string) => void;
-	socket: Socket
+	socket_chat: Socket
 }
 
-const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket }) => {
+const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket_chat }) => {
 	const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
 
 	const handleNewChannel = () => {
@@ -31,7 +31,7 @@ const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket }) => 
 			</div>
 			{newChannelModalOpen &&
 			createPortal(
-			<NewChannelModal onCancel={handleCancelClick} socket={socket} />,
+			<NewChannelModal onCancel={handleCancelClick} socket_chat={socket_chat} />,
 			document.body
 			)}
 		</ChatNavigationStyled>

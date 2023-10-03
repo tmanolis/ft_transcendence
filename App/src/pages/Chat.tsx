@@ -8,15 +8,16 @@ import { ConversationWindowWrapper } from "../components/chat_components/Convers
 import { Socket, io } from "socket.io-client";
 import Cookies from "js-cookie";
 
-// ouverture de socket
-const access_token: string = Cookies.get("jwt")!;
-const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/chat`, {
-extraHeaders: {
-	Authorization: access_token,
-	},
-});
 
 const Chat = () => {
+  // ouverture de socket
+  const access_token: string = Cookies.get("jwt")!;
+  const socket_chat: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/chat`, {
+  extraHeaders: {
+    Authorization: access_token,
+    },
+  });
+
   const [chatName, setChatName] = useState("");
 
   const openChat = (newChatName: string) => {
@@ -24,10 +25,10 @@ const Chat = () => {
   }
 
 	useEffect(() => {
-    socket.connect();
-    // socket?.emit("updateHistory");
+    socket_chat.connect();
+    // socket_chat?.emit("updateHistory");
     return () => {
-      socket.disconnect();
+      socket_chat.disconnect();
     }
   }, [])
 
@@ -37,7 +38,7 @@ const Chat = () => {
       <Landing />
       <PageContainer type="other">
       <ChatWrapper>
-        <ChatNavigation openChat={openChat} socket={socket}/>
+        <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
         <ConversationWindowWrapper>
           {chatName && <ConversationWindow chatName={chatName} />}
         </ConversationWindowWrapper>
