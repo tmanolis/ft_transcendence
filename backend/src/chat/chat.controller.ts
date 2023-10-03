@@ -124,7 +124,7 @@ export class ChatController {
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetRooms(@GetUser() user: User) {
-    return await this.chatService.getRooms(user);
+    return this.chatService.getRooms(user);
   }
 
   @Get('channelMembers')

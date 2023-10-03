@@ -13,6 +13,7 @@ import Verify2FA from "./pages/Verify2FA";
 import Friends from "./pages/Friends";
 import Home from "./pages/Home";
 import PrivateRoute from "./components/PrivateRoute";
+import Chat from "./pages/Chat";
 
 const App = () => {
   return (
@@ -47,6 +48,10 @@ const App = () => {
           <Route
             path="/leaderboard"
             element={<PrivateRoute component={React.createElement(Leaderboard)} />}
+          />
+          <Route 
+            path="/chat" 
+            element={<PrivateRoute component={React.createElement(Chat)} />}
           />
           <Route 
             path="/friends" 
