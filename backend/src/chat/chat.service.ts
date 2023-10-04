@@ -140,7 +140,7 @@ export class ChatService {
 
     // rejoin all rooms
     for (const room of prismaUser.rooms) {
-			if (!room.isBanned) socket.join(room.roomID);
+      if (!room.isBanned) socket.join(room.roomID);
     }
 
     // set or update cache
@@ -193,10 +193,10 @@ export class ChatService {
     }
 
     // send a little welcome message
-		await this.sendServerMessage(
-			{room: roomDTO.name,
-				text: 'Congratulations! You have successfully created a channel.',
-			})
+    await this.sendServerMessage({
+      room: roomDTO.name,
+      text: 'Congratulations! You have successfully created a channel.',
+    });
 
     return roomDTO.name;
   }
@@ -222,7 +222,7 @@ export class ChatService {
       existingRoom = await this.prisma.room.findUnique({
         where: {
           name: roomDTO.name,
-        }
+        },
       });
     } catch (error) {
       throw new BadRequestException(
@@ -309,16 +309,15 @@ export class ChatService {
     const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
     if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
       this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-        message:
-					`DM ${roomName} created with user ${otherPrismaUser.userName}`
+        message: `DM ${roomName} created with user ${otherPrismaUser.userName}`,
       });
     }
 
     // send a little welcome message
-		await this.sendServerMessage(
-			{room: roomDTO.name,
-				text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
-			})
+    await this.sendServerMessage({
+      room: roomDTO.name,
+      text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
+    });
 
     return roomName;
   }
@@ -390,19 +389,19 @@ export class ChatService {
     });
 
     // sending a little welcome message
-		await this.sendServerMessage(
-			{room: roomDTO.name,
-				text: `Please welcome ${prismaUser.userName} to this channel!`,
-			})
+    await this.sendServerMessage({
+      room: roomDTO.name,
+      text: `Please welcome ${prismaUser.userName} to this channel!`,
+    });
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
-		// check if user exists
+    // check if user exists
     if (!prismaUser)
-		throw new BadRequestException(
-	'Your account has been deleted. Please register again.',
-	);
-	
+      throw new BadRequestException(
+        'Your account has been deleted. Please register again.',
+      );
+
     // catch prisma error when variables are not correct
     let room: RoomWithUsers;
     try {
@@ -429,9 +428,9 @@ export class ChatService {
     });
     if (userInRoom && userInRoom.isBanned)
       throw new ForbiddenException('Oh oh, you are banned from this channel');
-		// check if user is already in channel
+    // check if user is already in channel
     else if (userInRoom)
-			throw new ForbiddenException('You are already in this room');
+      throw new ForbiddenException('You are already in this room');
 
     // check if room is joinable
     if (room.status === RoomStatus.DIRECT)
@@ -439,10 +438,12 @@ export class ChatService {
         'Not possible to join a private conversation',
       );
 
-		// check if password is correct for private room
+    // check if password is correct for private room
     if (room.status === RoomStatus.PRIVATE) {
-			if (!roomDTO.password)
-				throw new ForbiddenException('This channel is private, please provide a password');
+      if (!roomDTO.password)
+        throw new ForbiddenException(
+          'This channel is private, please provide a password',
+        );
       const passwordMatches = await argon.verify(
         room.password,
         roomDTO.password,
@@ -481,10 +482,10 @@ export class ChatService {
     });
 
     // update channel that user has left
-		await this.sendServerMessage(
-			{room: dto.name,
-				text: `User ${prismaUser.userName} has left this channel.`,
-			})
+    await this.sendServerMessage({
+      room: dto.name,
+      text: `User ${prismaUser.userName} has left this channel.`,
+    });
   }
 
   async securityCheckLeaveChannel(prismaUser: User, dto: channelDTO) {
@@ -543,9 +544,16 @@ export class ChatService {
       const room: Room = await this.checkUserRoom(prismaUser, message);
       const userInRoom: UserInRoom = await this.allowedToSend(room, prismaUser);
 
-			// check format message and add sender name
-			const checkedMessage = new ChatMessage(room.name, prismaUser.userName, message.text);
-			if (!checkedMessage) throw new BadRequestException('Message could not be sent, did you add the right variables?');
+      // check format message and add sender name
+      const checkedMessage = new ChatMessage(
+        room.name,
+        prismaUser.userName,
+        message.text,
+      );
+      if (!checkedMessage)
+        throw new BadRequestException(
+          'Message could not be sent, did you add the right variables?',
+        );
 
       // Create the new message in the database
       await this.prisma.message.create({
@@ -559,21 +567,23 @@ export class ChatService {
         },
       });
 
-			this.server.to(room.name).emit('newMessage', JSON.stringify(checkedMessage));
+      this.server
+        .to(room.name)
+        .emit('newMessage', JSON.stringify(checkedMessage));
     } catch (error) {
       throw error;
     }
-		
+
     // broadcast message to room
   }
 
-	async sendServerMessage(message: messageDTO) {
+  async sendServerMessage(message: messageDTO) {
     try {
       // Create the new message in the database
       await this.prisma.message.create({
         data: {
           ...message,
-					sender: 'PongStoryShort',
+          sender: 'PongStoryShort',
           room: {
             connect: {
               name: message.room,
@@ -585,34 +595,35 @@ export class ChatService {
       throw error;
     }
 
-		const newMessage = new ChatMessage(message.room, 'PongStoryShort', message.text);
+    const newMessage = new ChatMessage(
+      message.room,
+      'PongStoryShort',
+      message.text,
+    );
 
-		this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
-	}
+    this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
+  }
 
-  async checkUserRoom(
-    user: UserWithRooms,
-    message: messageDTO,
-  ): Promise<Room> {
+  async checkUserRoom(user: UserWithRooms, message: messageDTO): Promise<Room> {
     // check if user is connected
     if (!user) throw new NotFoundException('User not found');
 
     // check if room exists
-		try {
-			const room: Room | null = await this.prisma.room.findUnique({
-				where: {
-					name: message.room,
-				},
-			});
+    try {
+      const room: Room | null = await this.prisma.room.findUnique({
+        where: {
+          name: message.room,
+        },
+      });
 
-			if (!room) throw new NotFoundException('Room not found');
+      if (!room) throw new NotFoundException('Room not found');
 
-			return room;
-		} catch (error) {
-			throw new BadRequestException(
+      return room;
+    } catch (error) {
+      throw new BadRequestException(
         'Channel not found, did you send the right variables?',
-      );		
-		}
+      );
+    }
   }
 
   async allowedToSend(room: Room, user: UserWithRooms): Promise<UserInRoom> {
@@ -832,14 +843,13 @@ export class ChatService {
           },
         });
 
-				// make roomuser reconnect so they leave the socket room
-				const otherChatUser = await this.fetchChatuser(userInRoom.email);
-				if (otherChatUser) {
-					this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-						message:
-							`Reconnection needed after ban from channel ${dto.channel}`
-					});
-				}
+        // make roomuser reconnect so they leave the socket room
+        const otherChatUser = await this.fetchChatuser(userInRoom.email);
+        if (otherChatUser) {
+          this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+            message: `Reconnection needed after ban from channel ${dto.channel}`,
+          });
+        }
       }
     }
   }
@@ -864,14 +874,13 @@ export class ChatService {
           },
         });
 
-				// make roomuser reconnect so they join the socket room
-				const otherChatUser = await this.fetchChatuser(userInRoom.email);
-				if (otherChatUser) {
-					this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-						message:
-							`Reconnection needed after ban from ${dto.channel} has been lifted`
-					});
-				}
+        // make roomuser reconnect so they join the socket room
+        const otherChatUser = await this.fetchChatuser(userInRoom.email);
+        if (otherChatUser) {
+          this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+            message: `Reconnection needed after ban from ${dto.channel} has been lifted`,
+          });
+        }
       }
     }
   }
@@ -969,14 +978,14 @@ export class ChatService {
               status: true,
             },
           },
-					role: true,
+          role: true,
         },
       });
 
     const roomData = userRooms.map((userRoom) => ({
       name: userRoom.room.name,
       status: userRoom.room.status,
-			role: userRoom.role,
+      role: userRoom.role,
     }));
 
     return roomData;
@@ -1009,5 +1018,4 @@ export class ChatService {
 
     return usernames;
   }
-
 }

@@ -43,7 +43,7 @@ export class ChatController {
     return res.status(200).send({ message: 'User banned from channel' });
   }
 
-	@Patch('unban')
+  @Patch('unban')
   @ApiOkResponse({ description: 'Usr ban llifted' })
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleUnban(
