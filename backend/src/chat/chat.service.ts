@@ -844,6 +844,9 @@ export class ChatService {
         });
 
         // make roomuser reconnect so they leave the socket room
+				// I think this won't be necessary at a later point, because
+				// I want to try and make the front fetch messages from a room,
+				// in which case I can check for bans
         const otherChatUser = await this.fetchChatuser(userInRoom.email);
         if (otherChatUser) {
           this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
@@ -875,6 +878,9 @@ export class ChatService {
         });
 
         // make roomuser reconnect so they join the socket room
+				// I think this won't be necessary at a later point, because
+				// I want to try and make the front fetch messages from a room,
+				// in which case I can check for bans
         const otherChatUser = await this.fetchChatuser(userInRoom.email);
         if (otherChatUser) {
           this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
