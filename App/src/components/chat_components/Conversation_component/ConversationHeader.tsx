@@ -8,7 +8,7 @@ interface ConversationHeaderProps {
 const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatName }) => {
   
 	const onClick =() => {
-
+		console.log("click on settings icon");
 	};
 
 	return (

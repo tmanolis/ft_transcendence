@@ -42,12 +42,12 @@ const Chat = () => {
     <>
       <Landing />
       <PageContainer type="other">
-      <ChatWrapper>
-        <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
-        <ConversationWindowWrapper>
-          {chatName && <ConversationWindow chatName={chatName} />}
-        </ConversationWindowWrapper>
-      </ChatWrapper >
+        <ChatWrapper>
+          <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
+          <ConversationWindowWrapper>
+            {chatName && <ConversationWindow chatName={chatName} />}
+          </ConversationWindowWrapper>
+        </ChatWrapper >
       </PageContainer>
     </>
   )

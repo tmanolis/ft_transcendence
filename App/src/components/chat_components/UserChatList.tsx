@@ -1,13 +1,13 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/ChatList.styled';
+import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/UserChatList.styled';
 import { Room } from '../../pages/Chat';
 
-interface ChatListProps {
+interface UserChatListProps {
   openChat: (room: Room) => void;
 }
 
-const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
+const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
   const [ChatList, setChatList] = useState<Room[]>([]);
 
   const getChatList = async () => {
@@ -34,7 +34,7 @@ const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
   );
 }
 
-export default ChatList;
+export default UserChatList;
 
 function Item(data: Room[], openChat: (room: Room) => void) {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
