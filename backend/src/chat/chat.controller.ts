@@ -1,10 +1,11 @@
-import { Controller, UseGuards, Body, Get, Res, Patch } from '@nestjs/common';
+import { Controller, Patch, Body, UseGuards, Res, Get } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   ApiTags,
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { AdminDTO } from '../dto';
 import { toPublicDTO, changePassDTO, adminDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
@@ -14,9 +15,57 @@ import { Response } from 'express';
 
 @UseGuards(JwtGuard)
 @ApiTags('Channel')
-@Controller('chat')
+@Controller('channel')
 export class ChatController {
   constructor(private chatService: ChatService) {}
+
+  @Patch('mute')
+  @ApiOkResponse({ description: 'User has been muted for the coming hour' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleMute(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.mute(user, dto);
+    return res.status(200).send({ message: 'User muted for 30 minutes' });
+  }
+
+  @Patch('ban')
+  @ApiOkResponse({ description: 'User banned from channel' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleBan(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.ban(user, dto);
+    return res.status(200).send({ message: 'User banned from channel' });
+  }
+
+  @Patch('unban')
+  @ApiOkResponse({ description: 'Usr ban llifted' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleUnban(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.unban(user, dto);
+    return res.status(200).send({ message: 'User ban lifted' });
+  }
+
+  @Patch('kick')
+  @ApiOkResponse({ description: 'User kicked from channel' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleKick(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.kick(user, dto);
+    return res.status(200).send({ message: 'User kicked from channel' });
+  }
 
   @Patch('toPublic')
   @ApiOkResponse({ description: 'Channel has been set to public' })
@@ -80,9 +129,9 @@ export class ChatController {
     return res
       .status(200)
       .send({ message: dto.userName + ' is removed from channel admins' });
-	}
+  }
 
-	@Get('rooms')
+  @Get('rooms')
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetRooms(@GetUser() user: User) {
