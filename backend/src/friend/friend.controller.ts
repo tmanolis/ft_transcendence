@@ -148,7 +148,7 @@ export class FriendController {
   }
 
   // unfriend directly(Don't care if he/she wants~~~)
-  @Delete('unfriend')
+  @Patch('unfriend')
   @ApiOperation({
     description: 'unfriend by providing and object like { userName: abc }',
   })

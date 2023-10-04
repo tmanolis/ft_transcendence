@@ -106,7 +106,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     };
 
     try {
-      const response = await axios.post(
+      const response = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/friend/unfriend`,
         updateDTO,
         { withCredentials: true },
