@@ -17,11 +17,11 @@ type ProfileAvatarProps = {
 };
 
 interface Friend {
-	avatar: string;
-	gamesLost: number;
-	gamesWon: number;
-	status: string;
-	userName: string;
+  avatar: string;
+  gamesLost: number;
+  gamesWon: number;
+  status: string;
+  userName: string;
 }
 
 function toTitleCase(input: string) {
@@ -63,6 +63,10 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     fetchUserData();
   }, []);
 
+  useEffect(() => {
+    getFriendsList();
+  }, []); // Add an empty dependency array to run this effect only once
+
   const getFriendsList = async () => {
     try {
       const response = await axios.get(
@@ -75,10 +79,6 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    getFriendsList();
-  }, [FriendsList]); // Add an empty dependency array to run this effect only once
 
   const handleAddFriend = async () => {
 
@@ -94,6 +94,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       );
       console.log(response);
       console.log(username + " succesfully added.");
+      setFriendsList([...FriendsList, { userName: username, /* other friend properties */ }]);
     } catch (error) {
       console.log(error);
     }
@@ -113,6 +114,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       );
       console.log(response);
       console.log(username + " succesfully unfriended.");
+      setFriendsList(FriendsList.filter((friend) => friend.userName !== username));
     } catch (error) {
       console.log(error);
     }
