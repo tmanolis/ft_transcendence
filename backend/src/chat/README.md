@@ -38,7 +38,6 @@ See Swagger at http://localhost:3000/api
 | DTO name 			| variable name | descirption  																				|
 | ------------- |	-------------	| --------------------------------------------------- |
 |	messageDTO		| room					|	destination room name																|
-| 							|	sender				|	username of sender												 					|
 |								| text					|	message text (max 128 characters)										|
 | ------------- |	-------------	| --------------------------------------------------- |
 |	createRoomDTO	| name					|	channel name (private/public) or username	(direct)	|
@@ -55,11 +54,15 @@ See Swagger at http://localhost:3000/api
 
 | event name       			| body            | description 																		|
 | --------------------- | ---------------	| ----------------------------------------------- |
-| accessDenied		 			| messageBody			| error when connection fails 										|
+| accessDenied		 			| messageBody			| connection to gateway failed										|
 | reconnectNeeded  			| messageBody		  | prompt to refresh chat socket upon DM creation	|
 | createChannelSuccess	| messageBody			|	channel has been created succesfully						|
 | createChannelError		| messageBody			|	error creating channel													|
 | joinChannelSuccess		| messageBody			|	user has joined channel succesfully							|
 | joinChannelError			| messageBody			|	error joining channel														|
+| leaveChannelSuccess		| messageBody			|	user has left channel succesfully								|
+| leaveChannelError			| messageBody			|	error leaving channel														|
+| newMessage						| messageBody			|	new message in a channel (will be replaced)			|
+| sendMessageError			| messageBody			|	error sending message														|
 | --------------------- | ---------------	| ----------------------------------------------- |
 
