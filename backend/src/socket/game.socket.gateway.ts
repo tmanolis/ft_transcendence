@@ -6,7 +6,6 @@ import {
 } from '@nestjs/websockets';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
@@ -270,16 +269,5 @@ export class GameGateway implements OnGatewayConnection {
         await this.cacheManager.del(`invite${invitingPlayer.email}`);
       }
     }
-  }
-
-  /****************************************************************************/
-  /* CHAT                                                                     */
-  /****************************************************************************/
-
-  @SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object): Object {
-    console.log(payload);
-    console.log('Message received!!!');
-    return { event: 'player message receivedt ', socketID: client.id };
   }
 }
