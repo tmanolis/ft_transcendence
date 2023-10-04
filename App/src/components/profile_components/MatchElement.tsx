@@ -16,9 +16,10 @@ export interface GameListInter {
 type MatchElementProps = {
 	game: GameListInter;
 	profileUser: string;
+	isMyProfile: boolean;
 };
 
-const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser }) => {
+const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser, isMyProfile }) => {
 	const [versUsername, setVersUsername] = useState("");
 	const [versusAvatar, setVersusAvatar] = useState("")
 
@@ -61,10 +62,10 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser }) => {
 					/>
 					<p>{versUsername}</p>
 				</VersusInfo>
-				{game.userWon ? (
-					<WinBadge />
+				{isMyProfile ? (
+					game.userWon ? <WinBadge /> : <LostBadge />
 				) : (
-					<LostBadge />
+					game.userWon ? <LostBadge /> : <WinBadge />
 				)}
 			</MatchElementStyled>
 		</MarginContainer>

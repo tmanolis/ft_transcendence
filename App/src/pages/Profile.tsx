@@ -71,7 +71,7 @@ const Profile: React.FC = () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL
-          }/user/gameHistory?userName=${username}`,
+          }/user/gameHistory?userName=${profileUsername}`,
           {
             withCredentials: true,
           }
