@@ -47,11 +47,21 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({ onCancel, socket_cha
 					<h2>&gt; New Chat</h2>
 					<img src={iconSrc} alt="settings_icon" onClick={onCancel} />
 				</div>
-				<div className="join_channel">
-					<AllChannelsList />
-					<div className="buttons_container">
-						<input></input>
-						<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
+				<div className="lists_container">
+					<div className="channel_container">
+						<p>Send Direct Message</p>
+						<AllChannelsList />
+						<div className="buttons_container">
+							<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
+						</div>
+					</div>
+					<div className="channel_container">
+						<p>Join Channel</p>
+						<AllChannelsList />
+						<div className="buttons_container">
+							<input></input>
+							<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
+						</div>
 					</div>
 				</div>
 			</PopUpWrapper>

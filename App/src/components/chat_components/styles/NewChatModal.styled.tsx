@@ -47,12 +47,26 @@ export const PopUpWrapper = styled.div`
     }
   }
 
-  .join_channel {
+  .lists_container {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .channel_container {
     width: 400px;
 
     margin: 15px;
     border: 1px solid #FFF;
   }
+
+  .channel_container p {
+    margin-left: 15px;
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    
+}
+
 
   .buttons_container {
     display: flex;
@@ -63,7 +77,7 @@ export const PopUpWrapper = styled.div`
 `;
 
 export const ChatListWrapper = styled.div`
-	height: 400px;
+	height: 380px;
 	overflow: auto; // Add overflow to allow scrolling if content overflows
 	font-family: "JetBrains Mono",monospace;
 
