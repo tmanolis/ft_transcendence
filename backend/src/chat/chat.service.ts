@@ -648,7 +648,5 @@ export class ChatService {
 			// not sure if I shouldn't save the message when sender has been blocked
 			// because the subject says we have to 'hide' messages of blocked users
     }
-
-    return userInRoom;
   }
 }
