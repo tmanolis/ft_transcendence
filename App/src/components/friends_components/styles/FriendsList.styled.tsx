@@ -73,40 +73,36 @@ const statusColors = {
 	away: "orange",
   };
 
-type StyledUserInfosProps = {
-	status: string;
+  interface StyledUserInfosProps {
+	$status: string; // Use $status with the dollar sign prefix
 	children?: React.ReactNode;
-};
-
-const StyledUserInfos = styled.div<StyledUserInfosProps>`
+  }
+  
+  const StyledUserInfos = styled.div<StyledUserInfosProps>`
 	width: 200px;
-
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
-
+  
 	span {
-		font-size: 12px;
-		color: ${(props) =>
-    		statusColors[props.status as keyof typeof statusColors] || "white"};
+	  font-size: 12px;
+	  color: ${(props) =>
+		statusColors[props.$status as keyof typeof statusColors] || 'white'};
 	}
-`;
-
-interface UserInfosProps {
+  `;
+  
+  interface UserInfosProps {
 	status: string;
-	userName: string;
+	children: React.ReactNode;
   }
-
-export const UserInfos: React.FC<UserInfosProps> = ({ status, userName }) => {
+  
+  export const UserInfos: React.FC<UserInfosProps> = ({ status, children }) => {
 	return (
-		<StyledUserInfos status={status}>
-		  {userName}<span>{status}</span>
-		</StyledUserInfos>
-	  );
-}
-
-
-
+	  <StyledUserInfos $status={status}>
+		{children}
+	  </StyledUserInfos>
+	);
+  };
 
 export const ProfileButton = styled.button`
 	padding: 5px;
