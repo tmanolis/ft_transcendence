@@ -50,6 +50,7 @@ export class GameService {
       return 'failed';
     }
     await this.cacheManager.set(client.id, user.email);
+    // update user status in databse to "online" (since this socket is open through out the app.)
     return 'OK';
   }
 
@@ -150,6 +151,54 @@ export class GameService {
   /****************************************************************************/
   // Create, Update Player(before finding a game)
   /****************************************************************************/
+  async createPlayer(client: Socket): Promise<Player> {
+    const pausingPlayer = await this.findPausingPlayer(client);
+    console.log('has pausing player: ', pausingPlayer);
+    if (pausingPlayer) return pausingPlayer;
+
+    const user: User = await this.getSocketUser(client);
+    if (!user)
+      return null;
+    const newPlayer = new Player(
+      '',
+      user.email,
+      client.id,
+      user.userName,
+      this.startPaddle,
+    );
+    // save the new Player in redis
+    await this.cacheManager.set(`game${user.email}`, JSON.stringify(newPlayer));
+    return newPlayer;
+  }
+
+  async findPausingPlayer(client: Socket): Promise<Player> {
+    let playerData:Player | null = await this.getSocketPlayer(client);
+    // check if there is a gameID in playerData
+    // need to check if the game has 2 players.
+    if (playerData && playerData.gameID !== '') {
+      const gameData = await this.getGameByID(playerData.gameID);
+      if (
+        gameData.status === GameStatus.Pause &&
+        gameData.leftPlayer &&
+        gameData.rightPlayer
+      ) {
+        playerData = await this.updatePausingPlayer(client, playerData);
+        return playerData;
+      }
+    }
+    return null;
+  }
+
+  async updatePausingPlayer(client: Socket, player: Player): Promise<Player> {
+      player.socketID = client.id;
+      await this.cacheManager.set(
+        `game${player.email}`,
+        JSON.stringify(player),
+      );
+    return player;
+  }
+
+
   async getPlayerByEmail(email: string): Promise<Player> {
     let player: Player;
     const playerString: string = await this.cacheManager.get(`game${email}`);
@@ -173,73 +222,17 @@ export class GameService {
     return player;
   }
 
-  async createPlayer(client: Socket): Promise<Player> {
-    const pausingPlayer = await this.updatePausingPlayer(client);
-    console.log('has pausing player: ', pausingPlayer);
-    if (pausingPlayer) return pausingPlayer;
-
-    const user: User = await this.getSocketUser(client);
-    if (!user) return;
-    const newPlayer = new Player(
-      '',
-      user.email,
-      client.id,
-      user.userName,
-      this.startPaddle,
-    );
-    // save the new Player in redis
-    await this.cacheManager.set(`game${user.email}`, JSON.stringify(newPlayer));
-    return newPlayer;
-  }
-
-  async updatePausingPlayer(client: Socket): Promise<Player> {
-    const pausingPlayer = await this.getSocketPlayer(client);
-
-    if (pausingPlayer && pausingPlayer.gameID !== '') {
-      pausingPlayer.socketID = client.id;
-      await this.cacheManager.set(
-        `game${pausingPlayer.email}`,
-        JSON.stringify(pausingPlayer),
-      );
-    }
-    return pausingPlayer;
-  }
-
   /****************************************************************************/
   // find, create, join game
   /****************************************************************************/
-  async getGameByID(gameID: string): Promise<Game> {
-    let game: Game;
-    const gameString: string = await this.cacheManager.get(gameID);
-    if (gameString && gameString !== '') game = JSON.parse(gameString);
-    return game;
-  }
-
   async findPausedGame(client: Socket): Promise<string> {
-    let gameID: string;
+    let gameID: string = '';
     const user: User = await this.getSocketUser(client);
-    if (!user) {
+    if (!user)
       return '';
-    }
-    const pausingPlayer: string = await this.cacheManager.get(
-      `game${user.email}`,
-    );
-    if (pausingPlayer) {
-      let pausingPlayerObject: Player = JSON.parse(pausingPlayer);
-      if (pausingPlayerObject.gameID !== '') {
-        pausingPlayerObject.socketID = client.id;
-        await this.cacheManager.set(
-          `game${user.email}`,
-          JSON.stringify(pausingPlayerObject),
-        );
-        console.log(pausingPlayerObject);
-        console.log(
-          'Socket: existing player updated: ',
-          pausingPlayerObject.email,
-        );
-        gameID = pausingPlayerObject.gameID;
-      }
-    }
+    const pausingPlayer = await this.findPausingPlayer(client);
+    if (pausingPlayer)
+      gameID = pausingPlayer.gameID;
     console.log('has paused game: ', gameID);
     return gameID;
   }
@@ -363,6 +356,13 @@ export class GameService {
     } else {
       return false;
     }
+  }
+
+  async getGameByID(gameID: string): Promise<Game> {
+    let game: Game;
+    const gameString: string = await this.cacheManager.get(gameID);
+    if (gameString && gameString !== '') game = JSON.parse(gameString);
+    return game;
   }
 
   /****************************************************************************/

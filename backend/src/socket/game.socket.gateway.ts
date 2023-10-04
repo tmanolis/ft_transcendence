@@ -40,6 +40,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       `\x1b[32m Socket: ${client.id} connect to Game Socket! \x1b[0m`,
     );
     if ((await this.gameService.identifyUser(client)) === 'failed') {
+      this.server.to(client.id).emit('error', "Forbidden");
       client.disconnect();
     }
   }
@@ -57,15 +58,48 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   /****************************************************************************/
+  // handle enter game page 
+  /****************************************************************************/
+  @SubscribeMessage('enterGamePage')
+  async handleEnterGamePage(client:Socket) {
+    const createdPlayer: Player = await this.gameService.getSocketPlayer(client);
+    console.log("enter game: ||", createdPlayer);
+    const pausedGameID = await this.gameService.findPausedGame(client);
+    if (!createdPlayer && pausedGameID === '')
+      this.server.to(client.id).emit('error', "Can't enter game page.");
+  }
+
+  /****************************************************************************/
+  // handle leave game page 
+  /****************************************************************************/
+  @SubscribeMessage('leaveGamePage')
+  async handleLeaveGamePage(client:Socket) {
+    await this.gameService.cancelPendingGame(client);
+    await this.gameService.clearData(client);
+    console.log(
+      `\x1b[31m ${client.id} left game page! \x1b[0m`,
+    );
+  }
+
+  /****************************************************************************/
   // Find game
   /****************************************************************************/
   @SubscribeMessage('findGame')
   async handleFindGame(client: Socket) {
-    let currentPlayer = await this.gameService.createPlayer(client);
-    if (!currentPlayer) return;
+    console.log("game socket find game");
 
+    // find the player by it's client.id or create a new one if not existant
+    let currentPlayer: Player;
+    currentPlayer = await this.gameService.createPlayer(client);
+    if (!currentPlayer) {
+      this.server.to(client.id).emit('error', "Can't create user.");
+      return ;
+    }
+    console.log("Player created in findGame:");
+
+    // find if there is a paused game
     const pausedGameID = await this.gameService.findPausedGame(client);
-    if (pausedGameID) currentPlayer.gameID = pausedGameID;
+    if (pausedGameID !== '') currentPlayer.gameID = pausedGameID;
 
     let newGame: Game = await this.gameService.createGame(client);
     if (newGame) currentPlayer.gameID = newGame.gameID;
