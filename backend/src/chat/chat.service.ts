@@ -570,18 +570,19 @@ export class ChatService {
     const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       email,
     );
-    let room: Room;
-    let userInRoom: UserInRoom;
 
     try {
-      room = await this.checkUserRoom(prismaUser, message);
-      userInRoom = await this.allowedToSend(room, prismaUser);
+      const room: Room = await this.checkUserRoom(prismaUser, message);
+      const userInRoom: UserInRoom = await this.allowedToSend(room, prismaUser);
+
+			// check format message and add sender name
+			const checkedMessage = new ChatMessage(room.name, prismaUser.userName, message.text);
+			if (!checkedMessage) throw new BadRequestException('Message could not be sent, did you add the right variables?');
 
       // Create the new message in the database
       await this.prisma.message.create({
         data: {
-          ...message,
-					sender: prismaUser.userName,
+          ...checkedMessage,
           room: {
             connect: {
               name: room.name,
@@ -589,12 +590,13 @@ export class ChatService {
           },
         },
       });
+
+			this.server.to(room.name).emit('newMessage', JSON.stringify(checkedMessage));
     } catch (error) {
       throw error;
     }
 		
     // broadcast message to room
-    this.server.to(room.name).emit('newMessage', JSON.stringify(message));
   }
 
 	async sendServerMessage(message: messageDTO) {
@@ -603,7 +605,7 @@ export class ChatService {
       await this.prisma.message.create({
         data: {
           ...message,
-					sender: 'PonStoryShort',
+					sender: 'PongStoryShort',
           room: {
             connect: {
               name: message.room,
@@ -615,12 +617,14 @@ export class ChatService {
       throw error;
     }
 
-		this.server.to(message.room).emit('newMessage', JSON.stringify(message));
+		const newMessage = new ChatMessage(message.room, 'PongStoryShort', message.text);
+
+		this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
 	}
 
   async checkUserRoom(
     user: UserWithRooms,
-    message: ChatMessage,
+    message: messageDTO,
   ): Promise<Room> {
     // check if user is connected
     if (!user) throw new NotFoundException('User not found');

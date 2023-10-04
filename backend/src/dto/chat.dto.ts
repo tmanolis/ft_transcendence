@@ -48,6 +48,7 @@ export class ChatUser {
 export class ChatMessage {
   constructor(
     public room: string,
+		public sender: string,
     public text: string,
   ) {}
 }
