@@ -88,7 +88,7 @@ export class FriendService {
         // Add FRIEND achievement.
         await this.prisma.user.update({
           where: {
-            email: receiverEmail,
+            email: senderEmail,
           },
           data: {
             achievements: {

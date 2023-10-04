@@ -78,7 +78,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
 
   useEffect(() => {
     getFriendsList();
-  }, []); // Add an empty dependency array to run this effect only once
+  }, [FriendsList]); // Add an empty dependency array to run this effect only once
 
   const handleAddFriend = async () => {
 
