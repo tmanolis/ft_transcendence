@@ -28,6 +28,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { NotFoundError } from 'rxjs';
+import { all } from 'axios';
 
 @Injectable()
 export class ChatService {
@@ -391,38 +392,24 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('User is not in this room');
 
     return userInRoom;
-	}
+  }
 
-	/****************************************************************************/
+  /****************************************************************************/
   /* channel info											                                        */
   /****************************************************************************/
 
-  async getRooms(user: User) {
-    const userRooms = await this.prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .rooms({
-        select: {
-          room: {
-            select: {
-              name: true,
-              status: true,
-            },
-          },
-					role: true,
-        },
-      });
-
-    const roomData = userRooms.map((userRoom) => ({
-      name: userRoom.room.name,
-      status: userRoom.room.status,
-			role: userRoom.role,
-    }));
-
-    return roomData;
+  async getAllRooms() {
+    const allRooms = await this.prisma.room.findMany({
+      where: {
+        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
+      },
+      select: {
+        name: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+    return allRooms;
   }
 
   async getChannelMembers(dto: channelDTO) {

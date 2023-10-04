@@ -1,4 +1,12 @@
-import { Controller, UseGuards, Body, Get, Res, Patch } from '@nestjs/common';
+import {
+  Controller,
+  UseGuards,
+  Body,
+  Get,
+  Res,
+  Patch,
+  Query,
+} from '@nestjs/common';
 import { ChatService } from './chat.service';
 import {
   ApiTags,
@@ -80,13 +88,15 @@ export class ChatController {
     return res
       .status(200)
       .send({ message: dto.userName + ' is removed from channel admins' });
-	}
+  }
 
-	@Get('rooms')
-  @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
+  @Get('allChannels')
+  @ApiOkResponse({
+    description: 'Returns all available public and private channels',
+  })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetRooms(@GetUser() user: User) {
-    return this.chatService.getRooms(user);
+  async handleGetAllRooms(@GetUser() user: User) {
+    return await this.chatService.getAllRooms();
   }
 
   @Get('channelMembers')
@@ -94,10 +104,7 @@ export class ChatController {
     description: 'Returns usernames of users connected to a room',
   })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetChannelMembers(
-    @GetUser() user: User,
-    @Body() dto: channelDTO,
-  ) {
+  async handleGetChannelMembers(@Query() dto: channelDTO) {
     return await this.chatService.getChannelMembers(dto);
   }
 }
