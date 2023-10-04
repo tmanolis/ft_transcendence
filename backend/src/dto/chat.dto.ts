@@ -4,7 +4,6 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class messageDTO {
   room: string;
-  sender: string;
   text: string;
 }
 
@@ -49,7 +48,6 @@ export class ChatUser {
 export class ChatMessage {
   constructor(
     public room: string,
-    public sender: string,
     public text: string,
   ) {}
 }

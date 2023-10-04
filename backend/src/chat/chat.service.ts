@@ -193,14 +193,18 @@ export class ChatService {
     }
 
     // send a little welcome message
-    const welcomeMessage: messageDTO = {
-      room: roomDTO.name,
-      sender: 'PongStoryShort',
-      text: 'Congratulations! You have successfully created a channel.',
-    };
-    this.server
-      .to(roomDTO.name)
-      .emit('newMessage', JSON.stringify(welcomeMessage));
+		await this.sendServerMessage(
+			{room: roomDTO.name,
+				text: 'Congratulations! You have successfully created a channel.',
+			})
+    // const welcomeMessage: messageDTO = {
+    //   room: roomDTO.name,
+    //   sender: 'PongStoryShort',
+    //   text: 'Congratulations! You have successfully created a channel.',
+    // };
+    // this.server
+    //   .to(roomDTO.name)
+    //   .emit('newMessage', JSON.stringify(welcomeMessage));
 
     return roomDTO.name;
   }
@@ -319,14 +323,19 @@ export class ChatService {
     }
 
     // send a little welcome message
-    const welcomeMessage: messageDTO = {
-      room: roomDTO.name,
-      sender: 'PongStoryShort',
-      text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
-    };
-    this.server
-      .to(roomDTO.name)
-      .emit('newMessage', JSON.stringify(welcomeMessage));
+		await this.sendServerMessage(
+			{room: roomDTO.name,
+				text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
+			})
+
+		// const welcomeMessage: messageDTO = {
+    //   room: roomDTO.name,
+    //   sender: 'PongStoryShort',
+      // text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
+    // };
+    // this.server
+    //   .to(roomDTO.name)
+    //   .emit('newMessage', JSON.stringify(welcomeMessage));
 
     return roomName;
   }
@@ -398,23 +407,28 @@ export class ChatService {
     });
 
     // sending a little welcome message
-    const welcomeMessage: messageDTO = {
-      room: roomDTO.name,
-      sender: 'PongStoryShort',
-      text: `Please welcome ${prismaUser.userName} to this channel!`,
-    };
-    this.server
-      .to(roomDTO.name)
-      .emit('newMessage', JSON.stringify(welcomeMessage));
+		await this.sendServerMessage(
+			{room: roomDTO.name,
+				text: `Please welcome ${prismaUser.userName} to this channel!`,
+			})
+		
+    // const welcomeMessage: messageDTO = {
+    //   room: roomDTO.name,
+    //   sender: 'PongStoryShort',
+    //   text: `Please welcome ${prismaUser.userName} to this channel!`,
+    // };
+    // this.server
+    //   .to(roomDTO.name)
+    //   .emit('newMessage', JSON.stringify(welcomeMessage));
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
-    // check if user exists
+		// check if user exists
     if (!prismaUser)
-      throw new BadRequestException(
-        'Your account has been deleted. Please register again.',
-      );
-
+		throw new BadRequestException(
+	'Your account has been deleted. Please register again.',
+	);
+	
     // catch prisma error when variables are not correct
     let room: RoomWithUsers;
     try {
@@ -441,9 +455,9 @@ export class ChatService {
     });
     if (userInRoom && userInRoom.isBanned)
       throw new ForbiddenException('Oh oh, you are banned from this channel');
-    // check if user is already in channel
+		// check if user is already in channel
     else if (userInRoom)
-      throw new ForbiddenException('You are already in this room');
+			throw new ForbiddenException('You are already in this room');
 
     // check if room is joinable
     if (room.status === RoomStatus.DIRECT)
@@ -451,132 +465,16 @@ export class ChatService {
         'Not possible to join a private conversation',
       );
 
-    // check if password is correct for private room
+		// check if password is correct for private room
     if (room.status === RoomStatus.PRIVATE) {
+			if (!roomDTO.password)
+				throw new ForbiddenException('This channel is private, please provide a password');
       const passwordMatches = await argon.verify(
         room.password,
         roomDTO.password,
       );
       if (!passwordMatches) throw new ForbiddenException('Password incorrect');
     }
-  }
-
-  /****************************************************************************/
-  /* admin options										                                        */
-  /****************************************************************************/
-
-  async mute(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
-
-      if (ok) {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isMuted: true,
-          },
-        });
-        console.log('user now muted');
-
-        const thirtyMinutes: number = 1800000;
-        setTimeout(async () => {
-          const unmuted = await this.prisma.userInRoom.update({
-            where: {
-              id: userInRoom.id,
-            },
-            data: {
-              isMuted: false,
-            },
-          });
-          console.log('unmuted', unmuted);
-        }, thirtyMinutes);
-      }
-    }
-  }
-
-  async ban(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
-
-      if (ok) {
-        // set room user to banned to exclude them from channel events
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isBanned: true,
-          },
-        });
-      }
-    }
-  }
-
-  async kick(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
-
-      if (ok) {
-        // remove room user
-        await this.prisma.userInRoom.delete({
-          where: {
-            id: userInRoom.id,
-          },
-        });
-      }
-    }
-  }
-
-  async adminCheck(user: User, dto: AdminDTO): Promise<UserInRoom> {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!room) throw new NotFoundException('Room not found');
-
-    const userInRoom: UserInRoom = room.users.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('You are not this room');
-
-    if (!(userInRoom.role === 'OWNER' || userInRoom.role === 'ADMIN'))
-      throw new UnauthorizedException(
-        'You need to be admin or owner for this operation',
-      );
-
-    return userInRoom;
-  }
-
-  relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
-    if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
-      throw new ForbiddenException('Can not ' + action + ' other admin');
-    } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
-      throw new ForbiddenException('Can not ' + action + ' owner');
-    }
-    return true;
   }
 
   /****************************************************************************/
@@ -609,12 +507,16 @@ export class ChatService {
     });
 
     // update channel that user has left
-    const message: messageDTO = {
-      room: dto.name,
-      sender: 'PongStoryShort',
-      text: `User ${prismaUser.userName} has left this channel.`,
-    };
-    this.server.to(dto.name).emit('newMessage', JSON.stringify(message));
+		await this.sendServerMessage(
+			{room: dto.name,
+				text: `User ${prismaUser.userName} has left this channel.`,
+			})
+		// const message: messageDTO = {
+    //   room: dto.name,
+    //   sender: 'PongStoryShort',
+    //   text: `User ${prismaUser.userName} has left this channel.`,
+    // };
+    // this.server.to(dto.name).emit('newMessage', JSON.stringify(message));
   }
 
   async securityCheckLeaveChannel(prismaUser: User, dto: channelDTO) {
@@ -679,6 +581,7 @@ export class ChatService {
       await this.prisma.message.create({
         data: {
           ...message,
+					sender: prismaUser.userName,
           room: {
             connect: {
               name: room.name,
@@ -689,14 +592,31 @@ export class ChatService {
     } catch (error) {
       throw error;
     }
-    // check if room exists?
-    // check if user is in room?
-    // check block?
-    // for the message dto: maybe I don't need sender username
-
+		
     // broadcast message to room
     this.server.to(room.name).emit('newMessage', JSON.stringify(message));
   }
+
+	async sendServerMessage(message: messageDTO) {
+    try {
+      // Create the new message in the database
+      await this.prisma.message.create({
+        data: {
+          ...message,
+					sender: 'PonStoryShort',
+          room: {
+            connect: {
+              name: message.room,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+
+		this.server.to(message.room).emit('newMessage', JSON.stringify(message));
+	}
 
   async checkUserRoom(
     user: UserWithRooms,
@@ -726,7 +646,6 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
-      console.log(userInRoom);
       // check if user has been muted
       if (userInRoom.isMuted)
         throw new ForbiddenException(
@@ -743,7 +662,6 @@ export class ChatService {
 
     return userInRoom;
   }
-
 
   /****************************************************************************/
   /* owner options										                                        */
@@ -874,6 +792,124 @@ export class ChatService {
       throw new UnauthorizedException('You are not the channel owner');
 
     return room;
+  }
+
+  /****************************************************************************/
+  /* admin options										                                        */
+  /****************************************************************************/
+
+  async mute(user: User, dto: AdminDTO) {
+    const admin: UserInRoom = await this.adminCheck(user, dto);
+
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+
+      if (ok) {
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            isMuted: true,
+          },
+        });
+        console.log('user now muted');
+
+        const thirtyMinutes: number = 1800000;
+        setTimeout(async () => {
+          const unmuted = await this.prisma.userInRoom.update({
+            where: {
+              id: userInRoom.id,
+            },
+            data: {
+              isMuted: false,
+            },
+          });
+          console.log('unmuted', unmuted);
+        }, thirtyMinutes);
+      }
+    }
+  }
+
+  async ban(user: User, dto: AdminDTO) {
+    const admin: UserInRoom = await this.adminCheck(user, dto);
+
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+
+      if (ok) {
+        // set room user to banned to exclude them from channel events
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            isBanned: true,
+          },
+        });
+      }
+    }
+  }
+
+  async kick(user: User, dto: AdminDTO) {
+    const admin: UserInRoom = await this.adminCheck(user, dto);
+
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+
+      if (ok) {
+        // remove room user
+        await this.prisma.userInRoom.delete({
+          where: {
+            id: userInRoom.id,
+          },
+        });
+      }
+    }
+  }
+
+  async adminCheck(user: User, dto: AdminDTO): Promise<UserInRoom> {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.channel,
+      },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!room) throw new NotFoundException('Room not found');
+
+    const userInRoom: UserInRoom = room.users.find(
+      (userInRoom: UserInRoom) => userInRoom.email === user.email,
+    );
+
+    if (!userInRoom) throw new NotFoundException('You are not this room');
+
+    if (!(userInRoom.role === 'OWNER' || userInRoom.role === 'ADMIN'))
+      throw new UnauthorizedException(
+        'You need to be admin or owner for this operation',
+      );
+
+    return userInRoom;
+  }
+
+  relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
+    if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
+      throw new ForbiddenException('Can not ' + action + ' other admin');
+    } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
+      throw new ForbiddenException('Can not ' + action + ' owner');
+    }
+    return true;
   }
 
   /****************************************************************************/

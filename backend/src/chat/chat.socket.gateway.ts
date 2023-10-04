@@ -84,6 +84,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() joinDTO: joinRoomDTO,
   ) {
+		console.log('dto join channel:', joinDTO);
     try {
       await this.chatService.joinChannel(client, joinDTO);
       client.emit('joinChannelSuccess', {

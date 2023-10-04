@@ -13,7 +13,7 @@ const ChatList: React.FC<ChatListProps> = ({ openChat }) => {
   const getChatList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/chat/rooms`, // using friends list to test front: /chat/rooms
+        `${import.meta.env.VITE_BACKEND_URL}/channel/rooms`, // using friends list to test front: /chat/rooms
         { withCredentials: true }
       );
       console.log(response);

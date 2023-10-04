@@ -55,7 +55,7 @@ export class ChatController {
     return res.status(200).send({ message: 'User kicked from channel' });
   }
 
-  @Get('rooms')
+  @Get('toPublic')
   @Patch('toPublic')
   @ApiOkResponse({ description: 'Channel has been set to public' })
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
