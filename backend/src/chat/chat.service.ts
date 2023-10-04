@@ -140,7 +140,7 @@ export class ChatService {
 
     // rejoin all rooms
     for (const room of prismaUser.rooms) {
-      socket.join(room.roomID);
+			if (!room.isBanned) socket.join(room.roomID);
     }
 
     // set or update cache
@@ -197,14 +197,6 @@ export class ChatService {
 			{room: roomDTO.name,
 				text: 'Congratulations! You have successfully created a channel.',
 			})
-    // const welcomeMessage: messageDTO = {
-    //   room: roomDTO.name,
-    //   sender: 'PongStoryShort',
-    //   text: 'Congratulations! You have successfully created a channel.',
-    // };
-    // this.server
-    //   .to(roomDTO.name)
-    //   .emit('newMessage', JSON.stringify(welcomeMessage));
 
     return roomDTO.name;
   }
@@ -318,7 +310,7 @@ export class ChatService {
     if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
       this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
         message:
-          'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
+					`DM ${roomName} created with user ${otherPrismaUser.userName}`
       });
     }
 
@@ -327,15 +319,6 @@ export class ChatService {
 			{room: roomDTO.name,
 				text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
 			})
-
-		// const welcomeMessage: messageDTO = {
-    //   room: roomDTO.name,
-    //   sender: 'PongStoryShort',
-      // text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
-    // };
-    // this.server
-    //   .to(roomDTO.name)
-    //   .emit('newMessage', JSON.stringify(welcomeMessage));
 
     return roomName;
   }
@@ -411,15 +394,6 @@ export class ChatService {
 			{room: roomDTO.name,
 				text: `Please welcome ${prismaUser.userName} to this channel!`,
 			})
-		
-    // const welcomeMessage: messageDTO = {
-    //   room: roomDTO.name,
-    //   sender: 'PongStoryShort',
-    //   text: `Please welcome ${prismaUser.userName} to this channel!`,
-    // };
-    // this.server
-    //   .to(roomDTO.name)
-    //   .emit('newMessage', JSON.stringify(welcomeMessage));
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
@@ -511,12 +485,6 @@ export class ChatService {
 			{room: dto.name,
 				text: `User ${prismaUser.userName} has left this channel.`,
 			})
-		// const message: messageDTO = {
-    //   room: dto.name,
-    //   sender: 'PongStoryShort',
-    //   text: `User ${prismaUser.userName} has left this channel.`,
-    // };
-    // this.server.to(dto.name).emit('newMessage', JSON.stringify(message));
   }
 
   async securityCheckLeaveChannel(prismaUser: User, dto: channelDTO) {
@@ -630,15 +598,21 @@ export class ChatService {
     if (!user) throw new NotFoundException('User not found');
 
     // check if room exists
-    const room: Room | null = await this.prisma.room.findUnique({
-      where: {
-        name: message.room,
-      },
-    });
+		try {
+			const room: Room | null = await this.prisma.room.findUnique({
+				where: {
+					name: message.room,
+				},
+			});
 
-    if (!room) throw new NotFoundException('Room not found');
+			if (!room) throw new NotFoundException('Room not found');
 
-    return room;
+			return room;
+		} catch (error) {
+			throw new BadRequestException(
+        'Channel not found, did you send the right variables?',
+      );		
+		}
   }
 
   async allowedToSend(room: Room, user: UserWithRooms): Promise<UserInRoom> {
@@ -809,7 +783,7 @@ export class ChatService {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
       );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'mute');
 
       if (ok) {
         await this.prisma.userInRoom.update({
@@ -845,7 +819,7 @@ export class ChatService {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
       );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'ban');
 
       if (ok) {
         // set room user to banned to exclude them from channel events
@@ -857,6 +831,47 @@ export class ChatService {
             isBanned: true,
           },
         });
+
+				// make roomuser reconnect so they leave the socket room
+				const otherChatUser = await this.fetchChatuser(userInRoom.email);
+				if (otherChatUser) {
+					this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+						message:
+							`Reconnection needed after ban from channel ${dto.channel}`
+					});
+				}
+      }
+    }
+  }
+
+  async unban(user: User, dto: AdminDTO) {
+    const admin: UserInRoom = await this.adminCheck(user, dto);
+
+    if (admin) {
+      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+        dto.username,
+      );
+      const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
+
+      if (ok) {
+        // unban room user
+        await this.prisma.userInRoom.update({
+          where: {
+            id: userInRoom.id,
+          },
+          data: {
+            isBanned: false,
+          },
+        });
+
+				// make roomuser reconnect so they join the socket room
+				const otherChatUser = await this.fetchChatuser(userInRoom.email);
+				if (otherChatUser) {
+					this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
+						message:
+							`Reconnection needed after ban from ${dto.channel} has been lifted`
+					});
+				}
       }
     }
   }

@@ -43,6 +43,18 @@ export class ChatController {
     return res.status(200).send({ message: 'User banned from channel' });
   }
 
+	@Patch('unban')
+  @ApiOkResponse({ description: 'Usr ban llifted' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleUnban(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.chatService.unban(user, dto);
+    return res.status(200).send({ message: 'User ban lifted' });
+  }
+
   @Patch('kick')
   @ApiOkResponse({ description: 'User kicked from channel' })
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
