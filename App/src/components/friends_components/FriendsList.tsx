@@ -50,7 +50,9 @@ function Item(data: Friend[]) {
           <UserInfos status={value.status.toLowerCase()}>
             {value.userName}<span>{value.status.toLowerCase()}</span>
           </UserInfos>
-          <ProfileButton onClick={() => handleClick(value.userName)}>See profile</ProfileButton>
+          <CustomLink to={`/profile/${value.userName}`}>
+            <ProfileButton>See profile</ProfileButton>
+          </CustomLink>
         </FriendContainer>
       ))}
     </>
