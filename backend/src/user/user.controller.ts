@@ -16,6 +16,7 @@ import { UserService } from './user.service';
 import { GetUserByEmailDTO, GetUserByUsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { UserWithGames } from 'src/interfaces';
 
 @ApiTags('User')
 @Controller('user')
