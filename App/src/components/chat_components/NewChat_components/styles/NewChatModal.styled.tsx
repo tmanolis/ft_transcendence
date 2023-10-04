@@ -54,6 +54,7 @@ export const PopUpWrapper = styled.div`
 
   .channel_container {
     width: 400px;
+    height: 484px;
 
     margin: 15px;
     border: 1px solid #FFF;
