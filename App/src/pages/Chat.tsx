@@ -3,8 +3,8 @@ import PageContainer from "../components/PageContainer";
 import ChatNavigation from "../components/chat_components/ChatNavigation";
 import { ChatWrapper } from "../components/chat_components/styles/ChatWrapper.styled";
 import Landing from "../pages/Landing";
-import ConversationWindow from "../components/chat_components/Conversation_component/ConversationWindow";
-import { ConversationWindowWrapper } from "../components/chat_components/Conversation_component/styles/ConversationWindow.styled";
+import ConversationWindow from "../components/chat_components/Conversation_components/ConversationWindow";
+import { ConversationWindowWrapper } from "../components/chat_components/Conversation_components/styles/ConversationWindow.styled";
 import { Socket, io } from "socket.io-client";
 import Cookies from "js-cookie";
 

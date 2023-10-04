@@ -6,7 +6,7 @@ import { CreateChannelModal } from "./CreateChannelModal";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
 import { Room } from "../../pages/Chat";
-import { NewChatModal } from "./NewChatModal";
+import { NewChatModal } from "./NewChat_components/NewChatModal";
 
 interface ChatNavigationProps {
 	openChat: (room: Room) => void;

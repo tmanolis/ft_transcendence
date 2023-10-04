@@ -1,6 +1,6 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/NewChatModal.styled';
+import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/ListsContainers.styled';
 
 interface Channel {
 	name: string,
@@ -57,7 +57,7 @@ function Item(data: Channel[]) {
             <Avatar src="../../../public/img/Web_img.jpg" alt="room_avatar" />
           </div>
           <Username>{value.name}</Username>
-          {value.status === 'PRIVATE' && <img src="../../../public/icon/Lock.svg" alt="lock_icon" />}
+          {value.status === 'PRIVATE' && <img src="../../../../public/icon/Lock.svg" alt="lock_icon" />}
         </ChatContainer>
       ))}
     </>
