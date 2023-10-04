@@ -161,20 +161,4 @@ export class FriendController {
       .status(result.statusCode)
       .send({ status: result.status, message: result.message });
   }
-
-  // unfriend directly(Don't care if he/she wants~~~)
-  @Patch('unfriend')
-  @ApiOperation({
-    description: 'unfriend by providing and object like { userName: abc }',
-  })
-  async handleUnfriend(
-    @GetUser() user: User,
-    @Body() payload: { userName: string },
-    @Res() res: Response,
-  ) {
-    const result = await this.friendService.unfriend(user, payload, res);
-    res
-      .status(result.statusCode)
-      .send({ status: result.status, message: result.message });
-  }
 }

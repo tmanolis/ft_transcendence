@@ -94,7 +94,15 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       );
       console.log(response);
       console.log(username + " succesfully added.");
-      setFriendsList([...FriendsList, { userName: username, /* other friend properties */ }]);
+      const newFriend: Friend = {
+        avatar: "",       // Add your default values here
+        gamesLost: 0,     // Add your default values here
+        gamesWon: 0,      // Add your default values here
+        status: "",       // Add your default values here
+        userName: username,
+      };
+
+      setFriendsList([...FriendsList, newFriend]);
     } catch (error) {
       console.log(error);
     }
