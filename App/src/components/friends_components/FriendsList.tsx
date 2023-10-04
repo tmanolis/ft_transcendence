@@ -53,7 +53,9 @@ function Item(data: Friend[]) {
           <div className="avatar">
             <Avatar src={`data:image/png;base64,${value.avatar}`} alt="user_avatar" />
           </div>
-          <UserInfos>{value.userName}<span>{value.status.toLowerCase()}</span></UserInfos>
+          <UserInfos status={value.status.toLowerCase()}>
+            {value.userName}<span>{value.status.toLowerCase()}</span>
+          </UserInfos>
           <ProfileButton onClick={() => handleClick(value.userName)}>See profile</ProfileButton>
         </FriendContainer>
       ))}
