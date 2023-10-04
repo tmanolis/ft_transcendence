@@ -12,7 +12,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminDTO } from '../dto';
+import { AdminDTO, dmDTO } from '../dto';
 import { toPublicDTO, changePassDTO, adminDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
@@ -27,6 +27,28 @@ import { UserWithRooms } from 'src/interfaces';
 @Controller('channel')
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
+
+	@Patch('block')
+  @ApiOkResponse({ description: 'User is blocked' })
+	@ApiUnauthorizedResponse({ description: 'Room modification not possible' })
+	async handleBlock(
+		@GetUser() user: User,
+		@Body() dto: dmDTO,
+		@Res() res: Response,
+	){
+		await this.channelService.block(user, dto);
+	}
+
+	@Patch('unblock')
+  @ApiOkResponse({ description: 'User is blocked' })
+	@ApiUnauthorizedResponse({ description: 'Room modification not possible' })
+	async handleUnblock(
+		@GetUser() user: User,
+		@Body() dto: dmDTO,
+		@Res() res: Response,
+	){
+		await this.channelService.unblock(user, dto);
+	}
 
   @Patch('mute')
   @ApiOkResponse({ description: 'User has been muted for the coming hour' })

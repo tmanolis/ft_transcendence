@@ -15,6 +15,7 @@ import {
   adminDTO,
   changePassDTO,
   toPublicDTO,
+	dmDTO,
 } from 'src/dto';
 import { User, Room, UserInRoom, RoomStatus, Message } from '@prisma/client';
 import * as argon from 'argon2';
@@ -39,19 +40,24 @@ export class ChannelService {
   /* channel info											                                        */
   /****************************************************************************/
 
-  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-      include: {
-        rooms: true,
-      },
-    });
-
-    const userInRoom: UserInRoom = user.rooms.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
+  async getRoomUserByUsername(username: string, roomname: string): Promise<UserInRoom> {
+		const user: UserWithRooms = await this.prisma.user.findUnique({
+			where: {
+				userName: username,
+			},
+			include: {
+				rooms: true,
+			},
+		});
+	
+		if (!user) {
+			throw new NotFoundException('User not found');
+		}
+	
+		const userInRoom: UserInRoom | undefined = user.rooms.find(
+			(userRoom: UserInRoom) => userRoom.room.name === roomname,
+		);
+	
 
     if (!userInRoom) throw new NotFoundException('User is not in this room');
 
@@ -201,6 +207,65 @@ export class ChannelService {
     return userInRoom;
   }
 
+	/****************************************************************************/
+  /* dm options												                                        */
+  /****************************************************************************/
+
+  async block(user: User, dto: dmDTO) {
+		if (!user) throw new UnauthorizedException('You are not logged in');
+
+		const otherUser: User = await this.prisma.user.findUnique({
+			where: {
+				userName: dto.userName,
+			}
+		})
+
+		if (!otherUser) throw new NotFoundException('User not found');
+
+		const room: Room = await this.prisma.room.findFirst({
+			where: {
+				AND: [
+					{ status: 'DIRECT' },
+					{
+						users: {
+							some: {
+								email: { in: [user.email, otherUser.email] },
+							},
+						},
+					},
+				],
+			},
+		});
+
+		if (!room) throw new NotFoundException('DM room not found');
+
+
+		// block user in room
+  }
+
+  async unblock(user: User, dto: dmDTO) {
+    // const admin: UserInRoom = await this.adminCheck(user, dto);
+
+    // if (admin) {
+    //   const userInRoom: UserInRoom = await this.getRoomUserByUsername(
+    //     dto.username,
+    //   );
+    //   const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
+
+    //   if (ok) {
+    //     // unban room user
+    //     await this.prisma.userInRoom.update({
+    //       where: {
+    //         id: userInRoom.id,
+    //       },
+    //       data: {
+    //         isBanned: false,
+    //       },
+    //     });
+    //   }
+    // }
+  }
+
   /****************************************************************************/
   /* owner options										                                        */
   /****************************************************************************/
@@ -260,7 +325,7 @@ export class ChannelService {
 
     if (room) {
       // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
+      const userInRoom = await this.getRoomUserByUsername(dto.userName, room.name);
 
       // few checks
       if (!userInRoom) throw new NotFoundException('User is not in this room');
@@ -342,6 +407,7 @@ export class ChannelService {
     if (admin) {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
+				dto.channel,
       );
       const ok: boolean = this.relationCheck(admin, userInRoom, 'mute');
 
@@ -376,6 +442,7 @@ export class ChannelService {
     if (admin) {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
+				dto.channel,
       );
       const ok: boolean = this.relationCheck(admin, userInRoom, 'ban');
 
@@ -399,6 +466,7 @@ export class ChannelService {
     if (admin) {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
+				dto.channel,
       );
       const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
 
@@ -422,6 +490,7 @@ export class ChannelService {
     if (admin) {
       const userInRoom: UserInRoom = await this.getRoomUserByUsername(
         dto.username,
+				dto.channel,
       );
       const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
 

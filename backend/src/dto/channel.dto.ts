@@ -26,3 +26,9 @@ export class adminDTO {
   @IsString()
   userName: string;
 }
+
+export class dmDTO {
+  @ApiProperty({ description: 'User name' })
+  @IsString()
+  userName: string;
+}
