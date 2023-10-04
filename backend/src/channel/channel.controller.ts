@@ -168,9 +168,8 @@ export class ChannelController {
 	})
 	@ApiOkResponse({ description: 'Authentification failed' })
 	async handleGetFullHistory(
-		@GetUser() user: User,
-		@Query() dto: channelDTO,
+		@GetUser() user: User
 	) {
-		return await this.channelService.getFullHistory(user, dto);
+		return await this.channelService.getFullHistory(user);
 	}
 }

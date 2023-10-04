@@ -16,10 +16,10 @@ import {
   changePassDTO,
   toPublicDTO,
 } from 'src/dto';
-import { User, Room, UserInRoom, RoomStatus } from '@prisma/client';
+import { User, Room, UserInRoom, RoomStatus, Message } from '@prisma/client';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { RoomWithUsers } from 'src/interfaces';
+import { RoomHistory, RoomWithMessages, RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
 @Injectable()
 export class ChannelService {
@@ -110,19 +110,57 @@ export class ChannelService {
     return usernames;
   }
 
-	async getChannelHistory(user: User, dto: channelDTO){
+  /****************************************************************************/
+  /* get history									 			                                      */
+  /****************************************************************************/
+
+	async getChannelHistory(user: User, dto: channelDTO): Promise<RoomHistory>{
 		const room: RoomWithUsers = await this.checkRoom(dto);
 		const userInRoom: UserInRoom = await this.allowedToReceive(user, room);
 
 		if (userInRoom){
-			return await this.prisma.message.findMany({
+			const messages: Message[] = await this.prisma.message.findMany({
 				where: {
 					roomID: room.name,
 				}
 			})
+			return { room: room.name, messages };
 		}
+		return null;
 	}
 
+	async getFullHistory(user: User): Promise<RoomHistory[]> {
+		const userRooms: UserWithRooms | null = await this.prisma.user.findUnique({
+			where: {
+				email: user.email,
+			},
+			include: {
+				rooms: true,
+			},
+		});
+
+		if (!userRooms) {
+			throw new NotFoundException('User not found');
+		}	
+
+		let history: RoomHistory[] = [];
+
+		for (const room of userRooms.rooms) {
+			const messages = await this.prisma.message.findMany({
+				where: {
+					roomID: room.roomID,
+				},
+			});
+	
+			history.push({
+				room: room.roomID,
+				messages: messages,
+			});
+		}
+		
+		return history;
+	}
+	
 	async checkRoom(dto: channelDTO): Promise<RoomWithUsers> {
     // check if room exists
 		const room: RoomWithUsers = await this.prisma.room.findUnique({
@@ -156,10 +194,6 @@ export class ChannelService {
 
     return userInRoom;
   }
-
-	async getFullHistory(user: User, dto: channelDTO){
-		console.log('dto full', dto);
-	}
 
   /****************************************************************************/
   /* owner options										                                        */

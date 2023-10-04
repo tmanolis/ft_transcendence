@@ -1,4 +1,4 @@
-import { Room, User, UserInRoom, Message, Game } from '@prisma/client';
+import { Room, User, UserInRoom, Message } from '@prisma/client';
 
 export interface RoomWithUsers extends Room {
   users: UserInRoom[];
@@ -27,4 +27,9 @@ export interface UserWithGames {
     updatedAt: Date;
     winnerId: string;
   }[];
+}
+
+export interface RoomHistory {
+	room: string;
+	messages: Message[];
 }
