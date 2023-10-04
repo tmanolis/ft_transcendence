@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ConfirmButton from "../../settings_components/styles/ConfirmButton.styled";
-import AllChannelsList from "./AllChannelsList";
 import { Socket } from "socket.io-client";
+import AllUsersList from "./AllUsersList";
 
 interface JoinDirectMessageProps {
 	onCancel: () => void;
@@ -23,13 +23,13 @@ const JoinDirectMessage: React.FC<JoinDirectMessageProps> = ({ onCancel, socket_
 		setErrorResponse(error.message); // Assuming error.message contains the error message
 	};
 
-	socket_chat.on("CreateChannelSuccess", handleCreateChannelSuccess);
-	socket_chat.on("CreateChannelError", handleCreateChannelError);
+	socket_chat.on("createChannelSuccess", handleCreateChannelSuccess);
+	socket_chat.on("createChannelError", handleCreateChannelError);
 
 	// Clean up event listeners when the component is unmounted
 	return () => {
-		socket_chat.off("CreateChannelSuccess", handleCreateChannelSuccess);
-		socket_chat.off("CreateChannelError", handleCreateChannelError);
+		socket_chat.off("createChannelSuccess", handleCreateChannelSuccess);
+		socket_chat.off("createChannelError", handleCreateChannelError);
 	};
 	}, [socket_chat]); // not sure
 	
@@ -41,7 +41,7 @@ const JoinDirectMessage: React.FC<JoinDirectMessageProps> = ({ onCancel, socket_
 		
 		const updateDTO = {
 			name: channelName,
-			status: 'PRIVATE'
+			status: 'DIRECT'
 		};
 
 		socket_chat.emit("createChannel", updateDTO);
@@ -50,9 +50,9 @@ const JoinDirectMessage: React.FC<JoinDirectMessageProps> = ({ onCancel, socket_
 	return (
 		<div className="channel_container">
 			<p>Send Direct Message</p>
-			<AllChannelsList getChannel={getChannelSelected}/>
+			<AllUsersList getUser={getChannelSelected}/>
 			<div className="buttons_container">
-			<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
+				<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
 			</div>
 			{errorResponse && (
 			<div style={{ color: "red", fontSize: "12px", padding: "5px" }}>{errorResponse}</div>)}
