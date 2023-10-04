@@ -2,7 +2,6 @@ import React from "react";
 import { ModalContainer, PopUpWrapper } from "./styles/NewChatModal.styled";
 import iconSrc from "../../../../public/icon/Cross.svg";
 import { Socket } from "socket.io-client";
-import AllChannelsList from "./AllChannelsList";
 import JoinChannel from "./JoinChannel";
 import ConfirmButton from "../../settings_components/styles/ConfirmButton.styled";
 
@@ -23,7 +22,7 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({ onCancel, socket_cha
 				<div className="lists_container">
 					<div className="channel_container">
 						<p>Send Direct Message</p>
-						<AllChannelsList />
+						{/* <AllChannelsList /> */}
 						<div className="buttons_container">
 							<ConfirmButton type="submit">Confirm</ConfirmButton>
 						</div>

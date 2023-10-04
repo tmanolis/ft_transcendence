@@ -3,12 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/ListsContainers.styled';
 
 interface Channel {
-	name: string,
-  	status: string,
-  	createdAt: string
+    name: string,
+    status: string,
+    createdAt: string
 }
 
-const AllChannelsList: React.FC = () => {
+interface AllChannelsListProps {
+  getChannel: (name: string) => void;
+}
+
+const AllChannelsList: React.FC<AllChannelsListProps> = ({ getChannel }) => {
   const [allChannelList, setAllChannelList] = useState<Channel[]>([]);
 
   const getAllChannelList = async () => {
@@ -30,19 +34,20 @@ const AllChannelsList: React.FC = () => {
 
   return (
     <ChatListWrapper>
-        {Item(allChannelList)}
+        {Item(allChannelList, getChannel)}
     </ChatListWrapper>
   );
 }
 
 export default AllChannelsList;
 
-function Item(data: Channel[]) {
+function Item(data: Channel[], getChannel: (name: string) => void) {
 	const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
-	const openConversation = (channel: Channel) => {
-	console.log(channel + ": j'ai click pour ouvrir une conv");
-	setSelectedChat(channel.name);
+	const selectChannel = (channel: Channel) => {
+    
+    setSelectedChat(channel.name);
+    getChannel(channel.name);
 	}
 
   return (
@@ -50,8 +55,8 @@ function Item(data: Channel[]) {
       {data.map((value, index) => (
         <ChatContainer 
         key={index} 
-        onClick={() => openConversation(value)}
-		selected={selectedChat === value.name}
+        onClick={() => selectChannel(value)}
+		    selected={selectedChat === value.name}
         >
           <div className="avatar">
             <Avatar src="../../../public/img/Web_img.jpg" alt="room_avatar" />

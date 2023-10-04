@@ -11,7 +11,7 @@ import Cookies from "js-cookie";
 export interface Room {
 	name: string,
   status: string,
-  role: string,
+  role?: string,
 }
 
 const Chat = () => {
