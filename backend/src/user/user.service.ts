@@ -152,7 +152,6 @@ export class UserService {
         avatar: user.avatar,
         gamesWon: user.gamesWon,
         gamesPlayed: user.gamesWon + user.gamesLost,
-        achievement: user.achievements,
       };
     });
     return leaderboard;
