@@ -23,10 +23,10 @@ const Chat = () => {
     },
   });
 
-  const [chatName, setChatName] = useState("");
+  const [chatRoom, setChatRoom] = useState<Room | null>(null);
 
   const openChat = (room: Room) => {
-    setChatName(room.name);
+    setChatRoom(room);
   }
 
 	useEffect(() => {
@@ -45,7 +45,7 @@ const Chat = () => {
         <ChatWrapper>
           <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
           <ConversationWindowWrapper>
-            {chatName && <ConversationWindow chatName={chatName} />}
+            {chatRoom && <ConversationWindow chatRoom={chatRoom} />}
           </ConversationWindowWrapper>
         </ChatWrapper >
       </PageContainer>

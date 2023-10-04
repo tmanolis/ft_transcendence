@@ -38,18 +38,20 @@ const AllChannelsList: React.FC = () => {
 export default AllChannelsList;
 
 function Item(data: Channel[]) {
+	const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
-//   const openConversation = (room: Room) => {
-//     console.log(room + ": j'ai click pour ouvrir une conv");
-//     setSelectedChat(room.name);
-//   }
+	const openConversation = (channel: Channel) => {
+	console.log(channel + ": j'ai click pour ouvrir une conv");
+	setSelectedChat(channel.name);
+	}
 
   return (
     <>
       {data.map((value, index) => (
         <ChatContainer 
         key={index} 
-        // onClick={() => openConversation(value)}
+        onClick={() => openConversation(value)}
+		selected={selectedChat === value.name}
         >
           <div className="avatar">
             <Avatar src="../../../public/img/Web_img.jpg" alt="room_avatar" />

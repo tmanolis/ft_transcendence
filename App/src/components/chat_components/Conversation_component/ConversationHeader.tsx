@@ -1,11 +1,12 @@
 import { ConversationHeaderWrapper, RoomName } from "./styles/ConversationHeader.styled";
 import iconSrc from "../../../../public/icon/Settings.svg";
+import { Room } from "../../../pages/Chat";
 
 interface ConversationHeaderProps {
-	chatName: string;
+	chatRoom: Room;
 }
 
-const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatName }) => {
+const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom }) => {
   
 	const onClick =() => {
 		console.log("click on settings icon");
@@ -13,7 +14,7 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatName }) => 
 
 	return (
 	  <ConversationHeaderWrapper>
-		<RoomName>{chatName}</RoomName>
+		<RoomName>{chatRoom.name}</RoomName>
 		<img src={iconSrc} alt="settings_icon" onClick={onClick}/>
 	  </ConversationHeaderWrapper>
 	)
