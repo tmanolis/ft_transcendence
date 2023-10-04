@@ -8,6 +8,6 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
   imports: [JwtModule],
   providers: [ChannelService, PrismaService, JwtService],
   exports: [ChannelService],
-	controllers: [ChannelController]
+  controllers: [ChannelController],
 })
 export class ChannelModule {}

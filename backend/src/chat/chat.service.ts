@@ -568,10 +568,10 @@ export class ChatService {
     );
 
     try {
-			// check if user and room exist
+      // check if user and room exist
       const room: Room = await this.checkUserRoom(prismaUser, message);
 
-			// check if user is allowed to send a message to this channel
+      // check if user is allowed to send a message to this channel
       await this.allowedToSend(room, prismaUser);
 
       // check message format and add sender name
@@ -638,15 +638,15 @@ export class ChatService {
           'You have been temporarily muted by a channel admin. Retry sending your message later.',
         );
 
-			// check if sender is banned
+      // check if sender is banned
       if (userInRoom.isBanned)
         throw new ForbiddenException(
           "You have been banned from this channel, so don't even try...",
         );
     } else {
       // check if user has been blocked.
-			// not sure if I shouldn't save the message when sender has been blocked
-			// because the subject says we have to 'hide' messages of blocked users
+      // not sure if I shouldn't save the message when sender has been blocked
+      // because the subject says we have to 'hide' messages of blocked users
     }
   }
 }

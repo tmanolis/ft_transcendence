@@ -50,7 +50,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     try {
       await this.chatService.stockMessage(client, message);
-			client.emit('sendMessageSuccess', 'We received the message well')
+      client.emit('sendMessageSuccess', 'We received the message well');
     } catch (error) {
       client.emit('sendMessageError', { message: error.message });
     }

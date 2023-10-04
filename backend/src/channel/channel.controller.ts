@@ -1,4 +1,12 @@
-import { Controller, Patch, Body, UseGuards, Res, Get, Query } from '@nestjs/common';
+import {
+  Controller,
+  Patch,
+  Body,
+  UseGuards,
+  Res,
+  Get,
+  Query,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOkResponse,
@@ -144,32 +152,28 @@ export class ChannelController {
     description: 'Returns usernames of users connected to a room',
   })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetChannelMembers(
-    @Query() dto: channelDTO,
-  ) {
+  async handleGetChannelMembers(@Query() dto: channelDTO) {
     return await this.channelService.getChannelMembers(dto);
   }
 
-	@Get('history')
-	@ApiOkResponse({
-		description: 'Returns message history channel',
-	})
-	@ApiOkResponse({ description: 'Authentification failed' })
-	async handleGetChannelHistory(
-		@GetUser() user: User,
-		@Query() dto: channelDTO,
-	) {
-		return await this.channelService.getChannelHistory(user, dto);
-	}
+  @Get('history')
+  @ApiOkResponse({
+    description: 'Returns message history channel',
+  })
+  @ApiOkResponse({ description: 'Authentification failed' })
+  async handleGetChannelHistory(
+    @GetUser() user: User,
+    @Query() dto: channelDTO,
+  ) {
+    return await this.channelService.getChannelHistory(user, dto);
+  }
 
-	@Get('fullHistory')
-	@ApiOkResponse({
-		description: 'Returns message history channel',
-	})
-	@ApiOkResponse({ description: 'Authentification failed' })
-	async handleGetFullHistory(
-		@GetUser() user: User
-	) {
-		return await this.channelService.getFullHistory(user);
-	}
+  @Get('fullHistory')
+  @ApiOkResponse({
+    description: 'Returns message history channel',
+  })
+  @ApiOkResponse({ description: 'Authentification failed' })
+  async handleGetFullHistory(@GetUser() user: User) {
+    return await this.channelService.getFullHistory(user);
+  }
 }

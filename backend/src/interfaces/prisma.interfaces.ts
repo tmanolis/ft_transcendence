@@ -30,6 +30,6 @@ export interface UserWithGames {
 }
 
 export interface RoomHistory {
-	room: string;
-	messages: Message[];
+  room: string;
+  messages: Message[];
 }
