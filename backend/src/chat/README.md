@@ -26,9 +26,9 @@ See Swagger at http://localhost:3000/api
 
 | event name          | parameters  				| description        																		|
 | ------------------- | ------------------- | ----------------------------------------------------- |
-|	sendMessage					|	messageDTO					| broadcasts message if no block is active							|
-| createChannel				|	createRoomDTO				| returns full message history every time, can be used  |
-|	joinChannel					|	joinRoomDTO					|	to refresh chat page																	|
+|	sendMessage					|	messageDTO					| save message in the database													|
+| createChannel				|	createRoomDTO				| create a public or private channel, or a DM room		  |
+|	joinChannel					|	joinRoomDTO					|	join a public or private channel											|
 | ------------------- | ------------------- | ----------------------------------------------------- |
 
 
@@ -62,7 +62,7 @@ See Swagger at http://localhost:3000/api
 | joinChannelError			| messageBody			|	error joining channel														|
 | leaveChannelSuccess		| messageBody			|	user has left channel succesfully								|
 | leaveChannelError			| messageBody			|	error leaving channel														|
-| newMessage						| messageBody			|	new message in a channel (will be replaced)			|
+| sendMessageSuccess		| messageBody			|	message has been saved in the database					|
 | sendMessageError			| messageBody			|	error sending message														|
 | --------------------- | ---------------	| ----------------------------------------------- |
 

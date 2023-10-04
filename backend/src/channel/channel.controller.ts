@@ -1,5 +1,4 @@
-import { Controller, Patch, Body, UseGuards, Res, Get } from '@nestjs/common';
-import { ChatService } from './chat.service';
+import { Controller, Patch, Body, UseGuards, Res, Get, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOkResponse,
@@ -12,12 +11,14 @@ import { GetUser } from 'src/decorator';
 import { User } from '@prisma/client';
 import { channelDTO } from 'src/dto';
 import { Response } from 'express';
+import { ChannelService } from './channel.service';
+import { UserWithRooms } from 'src/interfaces';
 
 @UseGuards(JwtGuard)
 @ApiTags('Channel')
 @Controller('channel')
-export class ChatController {
-  constructor(private chatService: ChatService) {}
+export class ChannelController {
+  constructor(private channelService: ChannelService) {}
 
   @Patch('mute')
   @ApiOkResponse({ description: 'User has been muted for the coming hour' })
@@ -27,7 +28,7 @@ export class ChatController {
     @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.mute(user, dto);
+    await this.channelService.mute(user, dto);
     return res.status(200).send({ message: 'User muted for 30 minutes' });
   }
 
@@ -39,7 +40,7 @@ export class ChatController {
     @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.ban(user, dto);
+    await this.channelService.ban(user, dto);
     return res.status(200).send({ message: 'User banned from channel' });
   }
 
@@ -51,7 +52,7 @@ export class ChatController {
     @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.unban(user, dto);
+    await this.channelService.unban(user, dto);
     return res.status(200).send({ message: 'User ban lifted' });
   }
 
@@ -63,7 +64,7 @@ export class ChatController {
     @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.kick(user, dto);
+    await this.channelService.kick(user, dto);
     return res.status(200).send({ message: 'User kicked from channel' });
   }
 
@@ -75,7 +76,7 @@ export class ChatController {
     @Body() dto: toPublicDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.toPublic(user, dto);
+    await this.channelService.toPublic(user, dto);
     return res.status(200).send({ message: 'Channel set to public' });
   }
 
@@ -87,7 +88,7 @@ export class ChatController {
     @Body() dto: changePassDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.toPrivate(user, dto);
+    await this.channelService.toPrivate(user, dto);
     return res.status(200).send({ message: 'Channel set to private' });
   }
 
@@ -99,7 +100,7 @@ export class ChatController {
     @Body() dto: changePassDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.changePass(user, dto);
+    await this.channelService.changePass(user, dto);
     return res.status(200).send({ message: 'Channel password changed' });
   }
 
@@ -111,7 +112,7 @@ export class ChatController {
     @Body() dto: adminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.addAdmin(user, dto);
+    await this.channelService.addAdmin(user, dto);
     return res
       .status(200)
       .send({ message: dto.userName + ' is now channel admin' });
@@ -125,7 +126,7 @@ export class ChatController {
     @Body() dto: adminDTO,
     @Res() res: Response,
   ) {
-    await this.chatService.removeAdmin(user, dto);
+    await this.channelService.removeAdmin(user, dto);
     return res
       .status(200)
       .send({ message: dto.userName + ' is removed from channel admins' });
@@ -135,30 +136,41 @@ export class ChatController {
   @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetRooms(@GetUser() user: User) {
-    return this.chatService.getRooms(user);
+    return this.channelService.getRooms(user);
   }
 
-  @Get('channelMembers')
+  @Get('members')
   @ApiOkResponse({
     description: 'Returns usernames of users connected to a room',
   })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
   async handleGetChannelMembers(
-    @GetUser() user: User,
-    @Body() dto: channelDTO,
+    @Query() dto: channelDTO,
   ) {
-    return await this.chatService.getChannelMembers(dto);
+    return await this.channelService.getChannelMembers(dto);
   }
 
-	@Get('channelMessages')
+	@Get('history')
 	@ApiOkResponse({
 		description: 'Returns message history channel',
 	})
 	@ApiOkResponse({ description: 'Authentification failed' })
-	async handleGetChannelMessages(
+	async handleGetChannelHistory(
 		@GetUser() user: User,
-		@Body() dto: channelDTO,
+		@Query() dto: channelDTO,
 	) {
-		return await this.chatService.getChannelMessages(user, dto);
+		return await this.channelService.getChannelHistory(user, dto);
+	}
+
+	@Get('fullHistory')
+	@ApiOkResponse({
+		description: 'Returns message history channel',
+	})
+	@ApiOkResponse({ description: 'Authentification failed' })
+	async handleGetFullHistory(
+		@GetUser() user: User,
+		@Query() dto: channelDTO,
+	) {
+		return await this.channelService.getFullHistory(user, dto);
 	}
 }

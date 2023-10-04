@@ -534,49 +534,6 @@ export class ChatService {
   /* messages													                                        */
   /****************************************************************************/
 
-  async handleMessage(client: Socket, message: messageDTO) {
-    const email: string = this.getEmailFromJWT(client);
-    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
-      email,
-    );
-
-    try {
-      const room: Room = await this.checkUserRoom(prismaUser, message);
-      const userInRoom: UserInRoom = await this.allowedToSend(room, prismaUser);
-
-      // check format message and add sender name
-      const checkedMessage = new ChatMessage(
-        room.name,
-        prismaUser.userName,
-        message.text,
-      );
-      if (!checkedMessage)
-        throw new BadRequestException(
-          'Message could not be sent, did you add the right variables?',
-        );
-
-      // Create the new message in the database
-      await this.prisma.message.create({
-        data: {
-          ...checkedMessage,
-          room: {
-            connect: {
-              name: room.name,
-            },
-          },
-        },
-      });
-
-      this.server
-        .to(room.name)
-        .emit('newMessage', JSON.stringify(checkedMessage));
-    } catch (error) {
-      throw error;
-    }
-
-    // broadcast message to room
-  }
-
   async sendServerMessage(message: messageDTO) {
     try {
       // Create the new message in the database
@@ -604,8 +561,48 @@ export class ChatService {
     this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
   }
 
+  async stockMessage(client: Socket, message: messageDTO) {
+    const email: string = this.getEmailFromJWT(client);
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
+      email,
+    );
+
+    try {
+			// check if user and room exist
+      const room: Room = await this.checkUserRoom(prismaUser, message);
+
+			// check if user is allowed to send a message to this channel
+      await this.allowedToSend(room, prismaUser);
+
+      // check message format and add sender name
+      const checkedMessage = new ChatMessage(
+        room.name,
+        prismaUser.userName,
+        message.text,
+      );
+      if (!checkedMessage)
+        throw new BadRequestException(
+          'Message could not be sent, did you add the right variables?',
+        );
+
+      // add message to room in database
+      await this.prisma.message.create({
+        data: {
+          ...checkedMessage,
+          room: {
+            connect: {
+              name: room.name,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async checkUserRoom(user: UserWithRooms, message: messageDTO): Promise<Room> {
-    // check if user is connected
+    // check if sender exists
     if (!user) throw new NotFoundException('User not found');
 
     // check if room exists
@@ -635,397 +632,23 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
-      // check if user has been muted
+      // check if sender is muted
       if (userInRoom.isMuted)
         throw new ForbiddenException(
           'You have been temporarily muted by a channel admin. Retry sending your message later.',
         );
 
+			// check if sender is banned
       if (userInRoom.isBanned)
         throw new ForbiddenException(
           "You have been banned from this channel, so don't even try...",
         );
     } else {
       // check if user has been blocked.
+			// not sure if I shouldn't save the message when sender has been blocked
+			// because the subject says we have to 'hide' messages of blocked users
     }
 
     return userInRoom;
   }
-
-  /****************************************************************************/
-  /* owner options										                                        */
-  /****************************************************************************/
-
-  async toPublic(user: User, dto: toPublicDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PUBLIC',
-          password: '',
-        },
-      });
-    }
-  }
-
-  async toPrivate(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PRIVATE',
-          password: hash,
-        },
-      });
-    }
-  }
-
-  async changePass(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-    const oldpass: string = room.password;
-
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          password: hash,
-        },
-      });
-    }
-  }
-
-  async addAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
-
-      // few checks
-      if (!userInRoom) throw new NotFoundException('User is not in this room');
-      else if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'ADMIN')
-        throw new BadRequestException('User is already admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'ADMIN',
-          },
-        });
-      }
-    }
-  }
-
-  async removeAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
-
-      // few checks
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'USER')
-        throw new BadRequestException('User is not admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'USER',
-          },
-        });
-      }
-    }
-  }
-
-  async ownerCheck(user: User, dto: toPublicDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!room) throw new NotFoundException('Room not found');
-
-    const userInRoom: UserInRoom = room.users.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('You are not in this room');
-
-    if (userInRoom.role !== 'OWNER')
-      throw new UnauthorizedException('You are not the channel owner');
-
-    return room;
-  }
-
-  /****************************************************************************/
-  /* admin options										                                        */
-  /****************************************************************************/
-
-  async mute(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'mute');
-
-      if (ok) {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isMuted: true,
-          },
-        });
-        console.log('user now muted');
-
-        const thirtyMinutes: number = 1800000;
-        setTimeout(async () => {
-          const unmuted = await this.prisma.userInRoom.update({
-            where: {
-              id: userInRoom.id,
-            },
-            data: {
-              isMuted: false,
-            },
-          });
-          console.log('unmuted', unmuted);
-        }, thirtyMinutes);
-      }
-    }
-  }
-
-  async ban(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'ban');
-
-      if (ok) {
-        // set room user to banned to exclude them from channel events
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isBanned: true,
-          },
-        });
-
-        // make roomuser reconnect so they leave the socket room
-				// I think this won't be necessary at a later point, because
-				// I want to try and make the front fetch messages from a room,
-				// in which case I can check for bans
-        const otherChatUser = await this.fetchChatuser(userInRoom.email);
-        if (otherChatUser) {
-          this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-            message: `Reconnection needed after ban from channel ${dto.channel}`,
-          });
-        }
-      }
-    }
-  }
-
-  async unban(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
-
-      if (ok) {
-        // unban room user
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isBanned: false,
-          },
-        });
-
-        // make roomuser reconnect so they join the socket room
-				// I think this won't be necessary at a later point, because
-				// I want to try and make the front fetch messages from a room,
-				// in which case I can check for bans
-        const otherChatUser = await this.fetchChatuser(userInRoom.email);
-        if (otherChatUser) {
-          this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-            message: `Reconnection needed after ban from ${dto.channel} has been lifted`,
-          });
-        }
-      }
-    }
-  }
-
-  async kick(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
-
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
-
-      if (ok) {
-        // remove room user
-        await this.prisma.userInRoom.delete({
-          where: {
-            id: userInRoom.id,
-          },
-        });
-      }
-    }
-  }
-
-  async adminCheck(user: User, dto: AdminDTO): Promise<UserInRoom> {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!room) throw new NotFoundException('Room not found');
-
-    const userInRoom: UserInRoom = room.users.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('You are not this room');
-
-    if (!(userInRoom.role === 'OWNER' || userInRoom.role === 'ADMIN'))
-      throw new UnauthorizedException(
-        'You need to be admin or owner for this operation',
-      );
-
-    return userInRoom;
-  }
-
-  relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
-    if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
-      throw new ForbiddenException('Can not ' + action + ' other admin');
-    } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
-      throw new ForbiddenException('Can not ' + action + ' owner');
-    }
-    return true;
-  }
-
-  /****************************************************************************/
-  /* channel info											                                        */
-  /****************************************************************************/
-
-  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-      include: {
-        rooms: true,
-      },
-    });
-
-    const userInRoom: UserInRoom = user.rooms.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('User is not in this room');
-
-    return userInRoom;
-  }
-
-  async getRooms(user: User) {
-    const userRooms = await this.prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .rooms({
-        select: {
-          room: {
-            select: {
-              name: true,
-              status: true,
-            },
-          },
-          role: true,
-        },
-      });
-
-    const roomData = userRooms.map((userRoom) => ({
-      name: userRoom.room.name,
-      status: userRoom.room.status,
-      role: userRoom.role,
-    }));
-
-    return roomData;
-  }
-
-  async getChannelMembers(dto: channelDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.name,
-      },
-    });
-    if (!room) throw new NotFoundException('Room not found');
-
-    const usersInRoom = await this.prisma.userInRoom.findMany({
-      where: {
-        room: {
-          name: dto.name,
-        },
-      },
-      select: {
-        user: {
-          select: {
-            userName: true,
-          },
-        },
-      },
-    });
-
-    const usernames = usersInRoom.map((userInRoom) => userInRoom.user.userName);
-
-    return usernames;
-  }
-
-	async getChannelMessages(user: User, dto: channelDTO){
-		
-	}
 }

@@ -14,6 +14,8 @@ import { SocketModule } from './socket/socket.module';
 import { GameModule } from './game/game.module';
 import { GameService } from './game/game.service';
 import { FriendModule } from './friend/friend.module';
+import { ChannelModule } from './channel/channel.module';
+
 
 const cacheConfig = {
   isGlobal: true,
@@ -36,6 +38,7 @@ const cacheConfig = {
     SocketModule,
     GameModule,
     FriendModule,
+		ChannelModule,
   ],
   providers: [AuthService, UserService, GameService, TwoFA],
   controllers: [UserController],
