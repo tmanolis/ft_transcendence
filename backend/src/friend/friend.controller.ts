@@ -147,11 +147,14 @@ export class FriendController {
       .send({ status: result.status, message: result.message });
   }
 
-  // Unfriend
+  // unfriend directly(Don't care if he/she wants~~~)
   @Delete('unfriend')
+  @ApiOperation({
+    description: 'unfriend by providing and object like { userName: abc }',
+  })
   async handleUnfriend(
     @GetUser() user: User,
-    @Body() payload: { userEmail: string },
+    @Body() payload: { userName: string },
     @Res() res: Response,
   ) {
     const result = await this.friendService.unfriend(user, payload, res);
