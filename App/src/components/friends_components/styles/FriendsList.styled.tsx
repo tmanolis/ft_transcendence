@@ -66,7 +66,19 @@ export const Avatar = styled.img`
 	border-radius: 58px;
 `;
 
-export const UserInfos = styled.div`
+const statusColors = {
+	online: "green",
+	offline: "red",
+	playing: "blue",
+	away: "orange",
+  };
+
+type StyledUserInfosProps = {
+	status: string;
+	children?: React.ReactNode;
+};
+
+const StyledUserInfos = styled.div<StyledUserInfosProps>`
 	width: 200px;
 
 	display: flex;
@@ -75,8 +87,26 @@ export const UserInfos = styled.div`
 
 	span {
 		font-size: 12px;
+		color: ${(props) =>
+    		statusColors[props.status as keyof typeof statusColors] || "white"};
 	}
 `;
+
+interface UserInfosProps {
+	status: string;
+	userName: string;
+  }
+
+export const UserInfos: React.FC<UserInfosProps> = ({ status, userName }) => {
+	return (
+		<StyledUserInfos status={status}>
+		  {userName}<span>{status}</span>
+		</StyledUserInfos>
+	  );
+}
+
+
+
 
 export const ProfileButton = styled.button`
 	padding: 5px;
