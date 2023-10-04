@@ -623,7 +623,7 @@ export class ChatService {
     }
   }
 
-  async allowedToSend(room: Room, user: UserWithRooms): Promise<UserInRoom> {
+  async allowedToSend(room: Room, user: UserWithRooms) {
     // check if user is in room
     const userInRoom = await user.rooms.find((roomUser: UserInRoom) => {
       return roomUser.roomID === room.name;

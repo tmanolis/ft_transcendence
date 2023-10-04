@@ -24,12 +24,12 @@ See Swagger at http://localhost:3000/api
 
 ### Listen
 
-| event name          | parameters  				| description        																		|
-| ------------------- | ------------------- | ----------------------------------------------------- |
-|	sendMessage					|	messageDTO					| save message in the database													|
-| createChannel				|	createRoomDTO				| create a public or private channel, or a DM room		  |
-|	joinChannel					|	joinRoomDTO					|	join a public or private channel											|
-| ------------------- | ------------------- | ----------------------------------------------------- |
+| event name       | parameters  				| description        																	|
+| ---------------- | ------------------ | --------------------------------------------------- |
+|	sendMessage			 |	messageDTO				| save message in the database												|
+| createChannel		 |	createRoomDTO			| create a public or private channel, or a DM room	  |
+|	joinChannel			 |	joinRoomDTO				|	join a public or private channel										|
+| ---------------- | ------------------ | --------------------------------------------------- |
 
 
 

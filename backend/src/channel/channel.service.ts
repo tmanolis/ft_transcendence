@@ -94,6 +94,7 @@ export class ChannelService {
         room: {
           name: dto.name,
         },
+				isBanned: false,
       },
       select: {
         user: {
