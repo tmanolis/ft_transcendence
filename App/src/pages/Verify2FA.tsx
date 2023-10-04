@@ -44,7 +44,7 @@ const Verify2FA = () => {
 		{ withCredentials: true }
 		);
 		console.log(response);
-    navigate("/");
+    	navigate("/landing");
 	} catch (error) {
 			handleUpdateError(error as AxiosError);
 	}
