@@ -73,11 +73,12 @@ const statusColors = {
 	away: "orange",
   };
 
-type UserInfosProps = {
+type StyledUserInfosProps = {
 	status: string;
+	children?: React.ReactNode;
 };
 
-export const UserInfos: React.FC<UserInfosProps> = styled.div`
+const StyledUserInfos = styled.div<StyledUserInfosProps>`
 	width: 200px;
 
 	display: flex;
@@ -90,6 +91,22 @@ export const UserInfos: React.FC<UserInfosProps> = styled.div`
     		statusColors[props.status as keyof typeof statusColors] || "white"};
 	}
 `;
+
+interface UserInfosProps {
+	status: string;
+	userName: string;
+  }
+
+export const UserInfos: React.FC<UserInfosProps> = ({ status, userName }) => {
+	return (
+		<StyledUserInfos status={status}>
+		  {userName}<span>{status}</span>
+		</StyledUserInfos>
+	  );
+}
+
+
+
 
 export const ProfileButton = styled.button`
 	padding: 5px;
