@@ -100,4 +100,16 @@ export class ChatController {
   ) {
     return await this.chatService.getChannelMembers(dto);
   }
+
+	@Get('channelMessages')
+	@ApiOkResponse({
+		description: 'Returns message history channel',
+	})
+	@ApiOkResponse({ description: 'Authentification failed' })
+	async handleGetChannelMessages(
+		@GetUser() user: User,
+		@Body() dto: channelDTO,
+	) {
+		return await this.chatService.getChannelMessages(user, dto);
+	}
 }

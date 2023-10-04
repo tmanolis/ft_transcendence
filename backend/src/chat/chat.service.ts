@@ -770,4 +770,8 @@ export class ChatService {
 
     this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
   }
+
+	async getChannelMessages(user: User, dto: channelDTO){
+		
+	}
 }
