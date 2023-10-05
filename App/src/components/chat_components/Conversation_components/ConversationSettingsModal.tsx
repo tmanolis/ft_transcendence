@@ -28,7 +28,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
     window.location.reload();
   }
 
-  const handleCheckboxChange = async () => {
+  const toggleChannelPrivacy = async () => {
     setIsPrivate(!isPrivate);
     const newStatus = isPrivate ? "PUBLIC" : "PRIVATE";
 
@@ -87,7 +87,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      return response; // Return the response for further handling if needed
+      return response;
     } catch (error) {
       console.log(error);
     }
@@ -109,7 +109,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
             <input
               type="checkbox"
               checked={isPrivate}
-              onChange={handleCheckboxChange}
+              onChange={toggleChannelPrivacy}
             />
             <p className="infos">Enable Password</p>
           </div>
