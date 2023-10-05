@@ -45,7 +45,7 @@ const Chat = () => {
         <ChatWrapper>
           <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
           <ConversationWindowWrapper>
-            {chatRoom && <ConversationWindow chatRoom={chatRoom} />}
+            {chatRoom && <ConversationWindow chatRoom={chatRoom} socket_chat={socket_chat}/>}
           </ConversationWindowWrapper>
         </ChatWrapper >
       </PageContainer>
