@@ -88,7 +88,7 @@ export class FriendService {
         // Add FRIEND achievement.
         await this.prisma.user.update({
           where: {
-            email: receiverEmail,
+            email: senderEmail,
           },
           data: {
             achievements: {
@@ -117,7 +117,7 @@ export class FriendService {
     if (checkData !== '') {
       throw new BadRequestException(checkData);
     }
-
+    console.log("unfriend")
     const sender: User = user;
     const receiver: User = await this.getUserByUsername(payload.userName);
     if (!receiver) {

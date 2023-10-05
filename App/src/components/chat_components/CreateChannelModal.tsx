@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { ModalContainer, PopUpWrapper } from "./styles/NewChannelModal.styled";
+import { ModalContainer, PopUpWrapper } from "./styles/CreateChannelModal.styled";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
 import { Socket } from "socket.io-client";
 
-interface NewChannelModalProps {
+interface CreateChannelModalProps {
 	onCancel: () => void;
 	socket_chat: Socket
 }
   
-export const NewChannelModal: React.FC<NewChannelModalProps> = ({ onCancel, socket_chat }) => {
+export const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ onCancel, socket_chat }) => {
 	const [channelName, setChannelName] = useState("");
 	const [password, setPassword] = useState("");
   	const [errorResponse, setErrorResponse] = useState("");

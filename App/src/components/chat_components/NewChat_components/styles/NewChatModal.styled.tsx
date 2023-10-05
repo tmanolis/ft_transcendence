@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 export const ModalContainer = styled.div` // blur behind popup
+	z-index:999;
   position: fixed;
   left: 0;
   top: 0;
@@ -17,7 +18,8 @@ export const PopUpWrapper = styled.div`
   display: flex;
   flex-direction: column; /* Stack children vertically */
   
-  width: 524px;
+  width: 898px;
+  height: 580px;
 
   padding: 10px;
 
@@ -33,24 +35,42 @@ export const PopUpWrapper = styled.div`
     letter-spacing: 0.5px; 
   }
 
-  .form_container {
+  .header {
     display: flex;
-    flex-direction: column;
+	  justify-content: space-between;
+    align-items: center;
+
+    padding: 10px;
+
+    img {
+      width: 35px;
+      height: 35px;
+    }
+  }
+
+  .lists_container {
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .channel_container {
+    width: 400px;
+    height: 484px;
 
     margin: 15px;
+    border: 1px solid #FFF;
   }
 
-  label {
-    margin-top: 10px;
-    margin-bottom: 10px;
+  .channel_container p {
+    margin-left: 15px;
+    font-style: normal;
+    font-weight: 700;
     font-size: 16px;
-    font-weight: 500;
-    line-height: normal;
   }
 
-  input {
+  .channel_container input {
 		height: 23px;
-		width: 215px;
+		width: 250px;
     border: 1px solid #FFF;
 		color: white;
 		text-align: center;
@@ -59,23 +79,15 @@ export const PopUpWrapper = styled.div`
 		font-size: 12px;
 	}
 
-	input::placeholder {
+	.channel_container input::placeholder {
 		color: rgba(250, 242, 242, 0.7)
 	}
 
-  span {
-    margin: 5px;
-    margin-top: 10px;
-    color: rgba(129, 129, 129, 0.83);
-    font-size: 12px;
-    font-style: normal;
-    letter-spacing: 0.32px;
-  }
 
   .buttons_container {
     display: flex;
     justify-content: space-between;
-    margin: 20px;
+    margin: 15px;
   }
 
 `;

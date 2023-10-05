@@ -24,6 +24,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
+
 @Injectable()
 export class ChatService {
   constructor(

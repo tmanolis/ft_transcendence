@@ -171,6 +171,22 @@ export class ChannelService {
     return channelMembers;
   }
 
+	async getAllRooms() {
+    const allRooms = await this.prisma.room.findMany({
+      where: {
+        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
+      },
+      select: {
+        name: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+    return allRooms;
+  }
+
+
+
   /****************************************************************************/
   /* get history									 			                                      */
   /****************************************************************************/

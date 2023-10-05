@@ -34,6 +34,7 @@ export class UserController {
     return user;
   }
 
+
   // update user data
   @Patch('update')
   @ApiOkResponse({
@@ -104,5 +105,11 @@ export class UserController {
   })
   async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
     return await this.userService.getUserByEmail(dto);
+  }
+
+  @Get('myRooms')
+  @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
+  async handleGetRooms(@GetUser() user: User) {
+    return this.userService.getRooms(user);
   }
 }
