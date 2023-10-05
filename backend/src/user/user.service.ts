@@ -1,16 +1,15 @@
-import { Injectable, ForbiddenException } from '@nestjs/common';
+import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { Game, User } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import {
-  GetUserByUsernameDTO,
+  UsernameDTO,
   UpdateDto,
-  GetUserByEmailDTO,
   SecureUser,
 } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
-import { UserWithGames } from 'src/interfaces/prisma.interfaces';
+import { UserWithBlocklist, UserWithGames } from 'src/interfaces/prisma.interfaces';
 
 @Injectable()
 export class UserService {
@@ -157,7 +156,7 @@ export class UserService {
     return leaderboard;
   }
 
-  async getUserByUsername(dto: GetUserByUsernameDTO): Promise<SecureUser> {
+  async getUserByUsername(dto: UsernameDTO): Promise<SecureUser> {
     return await this.prisma.user.findUnique({
       where: {
         userName: dto.userName,
@@ -174,7 +173,7 @@ export class UserService {
   }
 
   async getGameHistory(
-    dto: GetUserByUsernameDTO,
+    dto: UsernameDTO,
     requestingUser: User,
   ): Promise<UserWithGames> {
     const user: UserWithGames = await this.prisma.user.findUnique({
@@ -216,22 +215,6 @@ export class UserService {
     return user;
   }
 
-  async getUserByEmail(dto: GetUserByEmailDTO): Promise<SecureUser> {
-    return await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
-      select: {
-        userName: true,
-        avatar: true,
-        status: true,
-        gamesWon: true,
-        gamesLost: true,
-        achievements: true,
-      },
-    });
-  }
-
   async getRooms(user: User) {
     const userRooms = await this.prisma.user
       .findUnique({
@@ -259,4 +242,68 @@ export class UserService {
 
     return roomData;
   }
+
+	async block(user: User, dto: UsernameDTO){
+		// check if subject exists
+		const subject: User = await this.prisma.user.findUnique({
+			where: {
+				userName: dto.userName,
+			}
+		})
+
+		// check if subject is already blocked
+		const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			}, include: {
+				blockList: true,
+			}
+		})
+		
+		const blockedSubject = userWithBlock.blockList.find(
+      (blockedUser) => blockedUser.id === userWithBlock.id,
+    );
+		
+		if (blockedSubject) throw new BadRequestException('You have already blocked this person');
+
+		// add subject to block list user  
+		await this.prisma.blockedUser.create({
+			data: {
+				blocking: user.id,
+				blockedBy: subject.id,
+			},
+		});
+	}
+
+	async unblock(user: User, dto: UsernameDTO){
+		// check if subject exists
+		const subject: User = await this.prisma.user.findUnique({
+			where: {
+				userName: dto.userName,
+			}
+		})
+
+		// check if subject is blocked
+		const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
+			where: {
+				id: user.id,
+			}, include: {
+				blockList: true,
+			}
+		})
+
+		const blockedSubject = userWithBlock.blockList.find(
+      (blockedUser) => blockedUser.id === userWithBlock.id,
+    );
+
+		if (!blockedSubject) throw new BadRequestException('You have not blocked this person');
+
+		// remove subject from block list user
+		await this.prisma.blockedUser.delete({
+			where: {
+				id: blockedSubject.id,
+			},
+		});
+	}
+	
 }

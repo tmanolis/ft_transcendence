@@ -27,30 +27,6 @@ import { ChannelService } from './channel.service';
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
-  @Patch('block')
-  @ApiOkResponse({ description: 'User is blocked' })
-  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
-  async handleBlock(
-    @GetUser() user: User,
-    @Body() dto: dmDTO,
-    @Res() res: Response,
-  ) {
-    await this.channelService.block(user, dto);
-    return res.status(200).send({ message: 'User has been blocked' });
-  }
-
-  @Patch('unblock')
-  @ApiOkResponse({ description: 'User is blocked' })
-  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
-  async handleUnblock(
-    @GetUser() user: User,
-    @Body() dto: dmDTO,
-    @Res() res: Response,
-  ) {
-    await this.channelService.unblock(user, dto);
-    return res.status(200).send({ message: 'User has been unblocked' });
-  }
-
   @Patch('mute')
   @ApiOkResponse({ description: 'User has been muted for the coming hour' })
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })

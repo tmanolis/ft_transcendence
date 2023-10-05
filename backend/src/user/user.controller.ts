@@ -6,17 +6,18 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
-  Post,
+	Res,
   Query,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
 import { JwtGuard } from 'src/auth/guard';
 import { UserService } from './user.service';
-import { GetUserByEmailDTO, GetUserByUsernameDTO, UpdateDto } from 'src/dto';
+import { UsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { UserWithGames } from 'src/interfaces';
+import { Response } from 'express';
+
 
 @ApiTags('User')
 @Controller('user')
@@ -84,7 +85,7 @@ export class UserController {
   @ApiOkResponse({
     description: 'Returns public data of one user',
   })
-  async handleGetUserByUsername(@Query() dto: GetUserByUsernameDTO) {
+  async handleGetUserByUsername(@Query() dto: UsernameDTO) {
     return await this.userService.getUserByUsername(dto);
   }
 
@@ -93,18 +94,10 @@ export class UserController {
     description: 'Returns game history of one user',
   })
   async handleGetGameHistory(
-    @Query() dto: GetUserByUsernameDTO,
+    @Query() dto: UsernameDTO,
     @GetUser() user: User,
   ) {
     return await this.userService.getGameHistory(dto, user);
-  }
-
-  @Get('usernameByEmail')
-  @ApiOkResponse({
-    description: 'Returns public data of one user',
-  })
-  async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
-    return await this.userService.getUserByEmail(dto);
   }
 
   @Get('myRooms')
@@ -112,4 +105,32 @@ export class UserController {
   async handleGetRooms(@GetUser() user: User) {
     return this.userService.getRooms(user);
   }
+
+  @Patch('block')
+  @ApiOkResponse({ description: 'User is blocked' })
+  async handleBlock(
+    @GetUser() user: User,
+    @Body() dto: UsernameDTO,
+    @Res() res: Response,
+  ) {
+    await this.userService.block(user, dto);
+    return res.status(200).send({ message: 'User has been blocked' });
+  }
+
+  @Patch('unblock')
+  @ApiOkResponse({ description: 'User is unblocked' })
+  async handleUnblock(
+    @GetUser() user: User,
+    @Body() dto: UsernameDTO,
+    @Res() res: Response,
+  ) {
+    await this.userService.unblock(user, dto);
+    return res.status(200).send({ message: 'User has been unblocked' });
+  }
+
+	// @Get('blockList')
+	// @ApiOkResponse({ description: 'Returns usernames of blocked users' })
+  // async handleGetBlocklist(@GetUser() user: User) {
+  //   return this.userService.getBlocklist(user);
+  // }
 }

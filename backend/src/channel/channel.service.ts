@@ -86,29 +86,29 @@ export class ChannelService {
     return room;
   }
 
-  async getDMRoomWithUsers(
-    user: User,
-    username: string,
-  ): Promise<RoomWithUsers> {
-    const otherUser: User = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-    });
-    if (!otherUser) throw new NotFoundException('User not found');
+  // async getDMRoomWithUsers(
+  //   user: User,
+  //   username: string,
+  // ): Promise<RoomWithUsers> {
+  //   const otherUser: User = await this.prisma.user.findUnique({
+  //     where: {
+  //       userName: username,
+  //     },
+  //   });
+  //   if (!otherUser) throw new NotFoundException('User not found');
 
-    const roomName: string = this.chatService.uniqueRoomName(
-      user.email,
-      otherUser.email,
-    );
+  //   const roomName: string = this.chatService.uniqueRoomName(
+  //     user.email,
+  //     otherUser.email,
+  //   );
 
-    const room: RoomWithUsers = await this.getRoomWithUsers(roomName);
+  //   const room: RoomWithUsers = await this.getRoomWithUsers(roomName);
 
-    if (!room)
-      throw new NotFoundException('There is no active DM room with this user');
+  //   if (!room)
+  //     throw new NotFoundException('There is no active DM room with this user');
 
-    return room;
-  }
+  //   return room;
+  // }
 
   async getRooms(user: User) {
     const userRooms = await this.prisma.user
@@ -278,45 +278,50 @@ export class ChannelService {
   /****************************************************************************/
 
   async block(user: User, dto: dmDTO) {
-    const room: RoomWithUsers = await this.getDMRoomWithUsers(
-      user,
-      dto.userName,
-    );
-    const subject = await this.getRoomUserWithUsername(dto.userName, room);
+		// check if user exists
+		// check if user is already blocked
+		// create a user on the block list
 
-    if (subject.isBlocked)
-      throw new BadRequestException('You have already blocked this person');
 
-    // unban room user
-    await this.prisma.userInRoom.update({
-      where: {
-        id: subject.id,
-      },
-      data: {
-        isBlocked: true,
-      },
-    });
+    // const room: RoomWithUsers = await this.getRoomWithUsers(
+    //   user,
+    //   dto.userName,
+    // );
+    // const subject = await this.getRoomUserWithUsername(dto.userName, room);
+
+    // if (subject.isBlocked)
+    //   throw new BadRequestException('You have already blocked this person');
+
+    // // unban room user
+    // await this.prisma.userInRoom.update({
+    //   where: {
+    //     id: subject.id,
+    //   },
+    //   data: {
+    //     isBlocked: true,
+    //   },
+    // });
   }
 
   async unblock(user: User, dto: dmDTO) {
-    const room: RoomWithUsers = await this.getDMRoomWithUsers(
-      user,
-      dto.userName,
-    );
-    const subject = await this.getRoomUserWithUsername(dto.userName, room);
+    // const room: RoomWithUsers = await this.getDMRoomWithUsers(
+    //   user,
+    //   dto.userName,
+    // );
+    // const subject = await this.getRoomUserWithUsername(dto.userName, room);
 
-    if (!subject.isBlocked)
-      throw new BadRequestException('This user is not blocked');
+    // if (!subject.isBlocked)
+    //   throw new BadRequestException('This user is not blocked');
 
-    // unban room user
-    await this.prisma.userInRoom.update({
-      where: {
-        id: subject.id,
-      },
-      data: {
-        isBlocked: false,
-      },
-    });
+    // // unban room user
+    // await this.prisma.userInRoom.update({
+    //   where: {
+    //     id: subject.id,
+    //   },
+    //   data: {
+    //     isBlocked: false,
+    //   },
+    // });
   }
 
   /****************************************************************************/
