@@ -45,7 +45,7 @@ interface LoukoumProps {
   
       // Clean up interval when component is unmounted
       return () => clearInterval(intervalId);
-    }, []); // Add an empty dependency array to run this effect only once
+    }, [chatRoom]); // Add an empty dependency array to run this effect only once
   
     return (
       <ChatListWrapper>

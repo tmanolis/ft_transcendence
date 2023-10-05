@@ -31,8 +31,8 @@ export const StyledChatContainer = styled.div<StyledChatContainerProps>`
 	margin: 5px;
 	padding: 10px; /* Add padding to create space between the content and the border */
 
-	/* border-top: 1px solid #FFF;
-	border-left: 1px solid #FFF;
+	border-top: 1px solid #FFF;
+	/* border-left: 1px solid #FFF;
 	background: #000;
 	box-shadow: -1px -1px 0px 0px #5A5A5A inset; */
 
