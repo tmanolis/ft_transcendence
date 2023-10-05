@@ -1,10 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   SettingsModalStyled,
   ModalWrapper,
+  Head,
   ContentContainer,
-  Description,
+  Input,
+  ConfirmButton,
 } from "./styles/ConversationSettingsModal.styled";
+import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled";
 import { Room } from "../../../pages/Chat";
 import iconSrc from "/icon/Cross.svg";
 
@@ -15,6 +18,7 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, userName, chatRoom }) => {
+	const [newPassword, setNewPassword] = useState("");
 
   const handleButtonClick = () => {
     onClose();
@@ -23,23 +27,35 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, userName, chatRo
   return (
     <SettingsModalStyled>
       <ModalWrapper>
-        <div className="header">
+        <Head>
           <h1>&gt; Channel-Settings</h1>
           <img
             src={iconSrc}
             alt="cross_icon"
             onClick={handleButtonClick}
           />
-        </div>
+        </Head>
         <ContentContainer>
           <div className="enable-section">
             <input type="checkbox" />
-            <Description>Enable Password</Description>
+            <p className="infos">Enable Password</p>
           </div>
           <p className="description">
             A password will be needed in order<br/>to join this channel
           </p>
+          <p className="updatePass">Update Password</p>
         </ContentContainer>
+        <Input>
+          <input
+            type="text"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            placeholder="<type name here>"
+            />
+        <ConfirmButton>
+          <ButtonStyled>Confirm</ButtonStyled>
+        </ConfirmButton>
+        </Input>
       </ModalWrapper>
     </SettingsModalStyled>
   );
