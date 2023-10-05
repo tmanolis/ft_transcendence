@@ -2,6 +2,7 @@ import { Socket } from "socket.io-client";
 import { Room } from "../../../pages/Chat";
 import ConversationFooter from "./ConversationFooter";
 import ConversationHeader from "./ConversationHeader";
+import Loukoum from "./Loukoum";
 
 interface ConversationWindowProps {
 	chatRoom: Room;
@@ -13,7 +14,7 @@ const ConversationWindow: React.FC<ConversationWindowProps> = ({ chatRoom, socke
 	return (
 		<>
 			<ConversationHeader chatRoom={chatRoom} socket_chat={socket_chat} />
-			<div className="conversation_body" />
+			<Loukoum chatRoom={chatRoom} />
 			<ConversationFooter chatRoom={chatRoom} socket_chat={socket_chat} />
 		</>
 	)
