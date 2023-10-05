@@ -9,7 +9,7 @@ import {
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
-import { UserWithBlocklist, UserWithGames, UserWithBlockedUsers } from 'src/interfaces/prisma.interfaces';
+import { UserWithBlocklist, UserWithGames } from 'src/interfaces/prisma.interfaces';
 
 @Injectable()
 export class UserService {
@@ -321,6 +321,7 @@ export class UserService {
 
 	async getBlocklist(user: User){
 		const userWithBlock: UserWithBlocklist = await this.getUserWithBlocklist(user);
+
 		console.log('blocklist', userWithBlock.blockList);
 		console.log('blockedlist', userWithBlock.blockedList);
 

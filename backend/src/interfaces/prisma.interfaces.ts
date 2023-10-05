@@ -21,10 +21,9 @@ export interface UserWithBlocklist extends User {
 	blockedList: BlockedUser[];
 }
 
-export interface UserWithBlockedUsers extends User {
-	blocklist: {
-		usernames: string[];
-	}
+export interface BlockedUserWithUser extends BlockedUser {
+		blockedUser: User;
+		blockedByUser: User;
 }
 
 export interface UserWithGames {
