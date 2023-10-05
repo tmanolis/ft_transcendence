@@ -1,6 +1,6 @@
 import React from "react";
 import {
-  SettingsModalStyled,
+  UsersListModalStyled,
   ModalWrapper,
   Head,
 } from "./styles/ConversationUsersListModal.styled";
@@ -20,7 +20,7 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose }) => {
   }
 
   return (
-    <SettingsModalStyled>
+    <UsersListModalStyled>
       <ModalWrapper>
         <Head>
           <h1>&gt; Channel-Users</h1>
@@ -31,7 +31,7 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose }) => {
           />
         </Head>
       </ModalWrapper>
-    </SettingsModalStyled>
+    </UsersListModalStyled>
   );
 };
 
