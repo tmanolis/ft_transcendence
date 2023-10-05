@@ -7,14 +7,14 @@ interface ConversationWindowProps {
 }
 
 const ConversationWindow: React.FC<ConversationWindowProps> = ({ chatRoom }) => {
-  
+
 	return (
-	  <>
-		<ConversationHeader chatRoom={chatRoom} />
-		<div className="conversation_body" />
-		<ConversationFooter />
-	  </>
+		<>
+			<ConversationHeader chatRoom={chatRoom} />
+			<div className="conversation_body" />
+			<ConversationFooter />
+		</>
 	)
-  };
-  
+};
+
 export default ConversationWindow;
