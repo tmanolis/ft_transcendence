@@ -18,6 +18,13 @@ export interface UserInRoomWithUser extends UserInRoom {
 
 export interface UserWithBlocklist extends User {
 	blockList: BlockedUser[];
+	blockedList: BlockedUser[];
+}
+
+export interface UserWithBlockedUsers extends User {
+	blocklist: {
+		usernames: string[];
+	}
 }
 
 export interface UserWithGames {

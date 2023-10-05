@@ -8,6 +8,8 @@ import {
   UploadedFiles,
 	Res,
   Query,
+	Delete,
+	Post,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
@@ -106,7 +108,7 @@ export class UserController {
     return this.userService.getRooms(user);
   }
 
-  @Patch('block')
+  @Post('block')
   @ApiOkResponse({ description: 'User is blocked' })
   async handleBlock(
     @GetUser() user: User,
@@ -117,7 +119,7 @@ export class UserController {
     return res.status(200).send({ message: 'User has been blocked' });
   }
 
-  @Patch('unblock')
+  @Delete('unblock')
   @ApiOkResponse({ description: 'User is unblocked' })
   async handleUnblock(
     @GetUser() user: User,
@@ -128,9 +130,9 @@ export class UserController {
     return res.status(200).send({ message: 'User has been unblocked' });
   }
 
-	// @Get('blockList')
-	// @ApiOkResponse({ description: 'Returns usernames of blocked users' })
-  // async handleGetBlocklist(@GetUser() user: User) {
-  //   return this.userService.getBlocklist(user);
-  // }
+	@Get('blockList')
+	@ApiOkResponse({ description: 'Returns usernames of blocked users' })
+  async handleGetBlocklist(@GetUser() user: User) {
+    return this.userService.getBlocklist(user);
+  }
 }

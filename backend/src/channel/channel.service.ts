@@ -274,57 +274,6 @@ export class ChannelService {
   }
 
   /****************************************************************************/
-  /* dm options												                                        */
-  /****************************************************************************/
-
-  async block(user: User, dto: dmDTO) {
-		// check if user exists
-		// check if user is already blocked
-		// create a user on the block list
-
-
-    // const room: RoomWithUsers = await this.getRoomWithUsers(
-    //   user,
-    //   dto.userName,
-    // );
-    // const subject = await this.getRoomUserWithUsername(dto.userName, room);
-
-    // if (subject.isBlocked)
-    //   throw new BadRequestException('You have already blocked this person');
-
-    // // unban room user
-    // await this.prisma.userInRoom.update({
-    //   where: {
-    //     id: subject.id,
-    //   },
-    //   data: {
-    //     isBlocked: true,
-    //   },
-    // });
-  }
-
-  async unblock(user: User, dto: dmDTO) {
-    // const room: RoomWithUsers = await this.getDMRoomWithUsers(
-    //   user,
-    //   dto.userName,
-    // );
-    // const subject = await this.getRoomUserWithUsername(dto.userName, room);
-
-    // if (!subject.isBlocked)
-    //   throw new BadRequestException('This user is not blocked');
-
-    // // unban room user
-    // await this.prisma.userInRoom.update({
-    //   where: {
-    //     id: subject.id,
-    //   },
-    //   data: {
-    //     isBlocked: false,
-    //   },
-    // });
-  }
-
-  /****************************************************************************/
   /* owner options										                                        */
   /****************************************************************************/
 

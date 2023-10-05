@@ -1,5 +1,5 @@
-import { Injectable, ForbiddenException, BadRequestException } from '@nestjs/common';
-import { Game, User } from '@prisma/client';
+import { Injectable, ForbiddenException, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Game, User, BlockedUser } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import {
   UsernameDTO,
@@ -9,7 +9,7 @@ import {
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
-import { UserWithBlocklist, UserWithGames } from 'src/interfaces/prisma.interfaces';
+import { UserWithBlocklist, UserWithGames, UserWithBlockedUsers } from 'src/interfaces/prisma.interfaces';
 
 @Injectable()
 export class UserService {
@@ -244,66 +244,85 @@ export class UserService {
   }
 
 	async block(user: User, dto: UsernameDTO){
-		// check if subject exists
-		const subject: User = await this.prisma.user.findUnique({
-			where: {
-				userName: dto.userName,
-			}
-		})
+		const subject: User = await this.getSubject(user, dto.userName);
+		const userWithBlock = await this.getUserWithBlocklist(user);
+		const blockedUser = this.checkBlock(userWithBlock, subject);
 
-		// check if subject is already blocked
-		const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
-			where: {
-				id: user.id,
-			}, include: {
-				blockList: true,
-			}
-		})
-		
-		const blockedSubject = userWithBlock.blockList.find(
-      (blockedUser) => blockedUser.id === userWithBlock.id,
-    );
-		
-		if (blockedSubject) throw new BadRequestException('You have already blocked this person');
+		if (blockedUser) throw new BadRequestException('You have already blocked this person')
 
 		// add subject to block list user  
 		await this.prisma.blockedUser.create({
 			data: {
-				blocking: user.id,
-				blockedBy: subject.id,
+				blocked: subject.id,
+				blockedBy: user.id,
 			},
 		});
+
+		const blockeduser = this.checkBlock(userWithBlock, subject);
 	}
 
 	async unblock(user: User, dto: UsernameDTO){
-		// check if subject exists
+		const subject: User = await this.getSubject(user, dto.userName);
+		const userWithBlock = await this.getUserWithBlocklist(user);
+		const blockedUser = this.checkBlock(userWithBlock, subject);
+
+		if (!blockedUser) throw new BadRequestException('You have not blocked this person')
+
+		// remove subject from block list user
+		await this.prisma.blockedUser.delete({
+			where: {
+				id: blockedUser.id,
+			},
+		});
+		
+		const blockeduser = this.checkBlock(userWithBlock, subject);
+		console.log(blockeduser)
+	}
+
+	async getSubject(user: User, userName: string): Promise<User>{
+		// return subject if it exists
 		const subject: User = await this.prisma.user.findUnique({
 			where: {
-				userName: dto.userName,
+				userName: userName,
 			}
 		})
 
-		// check if subject is blocked
+		if (!subject) throw new NotFoundException('User not found');
+
+		if (subject.id === user.id) throw new ForbiddenException('Can not unblock yourself');
+		
+		return subject;
+	}
+
+	async getUserWithBlocklist(user: User): Promise<UserWithBlocklist>{
+		// return user with block list
 		const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
 			where: {
 				id: user.id,
 			}, include: {
 				blockList: true,
-			}
-		})
-
-		const blockedSubject = userWithBlock.blockList.find(
-      (blockedUser) => blockedUser.id === userWithBlock.id,
-    );
-
-		if (!blockedSubject) throw new BadRequestException('You have not blocked this person');
-
-		// remove subject from block list user
-		await this.prisma.blockedUser.delete({
-			where: {
-				id: blockedSubject.id,
+				blockedList: true,
 			},
 		});
+
+		if (!userWithBlock) throw new NotFoundException('Please register again');
+		
+		return userWithBlock;
 	}
-	
+
+	checkBlock(user: UserWithBlocklist, subject: User){
+		// check if subject has been blocked
+		const blockedSubject: BlockedUser = user.blockedList.find(
+			(blockedUser: BlockedUser) => blockedUser.blocked === subject.id,
+		);
+		
+		return blockedSubject;
+	}
+
+	async getBlocklist(user: User){
+		const userWithBlock: UserWithBlocklist = await this.getUserWithBlocklist(user);
+		console.log('blocklist', userWithBlock.blockList);
+		console.log('blockedlist', userWithBlock.blockedList);
+
+	}
 }

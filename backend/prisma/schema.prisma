@@ -19,8 +19,8 @@ model User {
   avatar             String   			@default("defaultAvatar.jpg")
   isFourtyTwoStudent Boolean  			@default(false)
   status             Status   			@default(ONLINE)
-	blockList					 BlockedUser[]	@relation("blocking")
-	blockedList				 BlockedUser[]	@relation("blockedBy")
+	blockList					 BlockedUser[]	@relation("user being blocked")
+	blockedList				 BlockedUser[]	@relation("blocking user")
 
   /// authentification
   password       String
@@ -44,10 +44,10 @@ model User {
 
 model BlockedUser {
   id             String   @id @unique @default(uuid())
-  blocking			 String
+  blocked				 String
   blockedBy			 String
-  blockingUser   User     @relation("blocking", fields: [blocking], references: [id])
-  blockedByUser  User     @relation("blockedBy", fields: [blockedBy], references: [id])
+  blockedUser    User     @relation("user being blocked", fields: [blocked], references: [id])
+  blockedByUser  User     @relation("blocking user", fields: [blockedBy], references: [id])
 }
 
 model jwtBlacklist {
