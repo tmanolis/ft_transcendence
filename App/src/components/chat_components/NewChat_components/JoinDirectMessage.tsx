@@ -51,7 +51,7 @@ const JoinDirectMessage: React.FC<JoinDirectMessageProps> = ({ onCancel, socket_
 		<div className="channel_container">
 			<p>Send Direct Message</p>
 			<AllUsersList getUser={getChannelSelected}/>
-			<div className="buttons_container">
+			<div className="buttons_container" style={{ justifyContent: "flex-end" }}>
 				<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
 			</div>
 			{errorResponse && (

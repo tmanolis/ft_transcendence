@@ -7,7 +7,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import {
@@ -17,18 +16,14 @@ import {
   joinRoomDTO,
   ChatMessage,
   channelDTO,
-  adminDTO,
-  changePassDTO,
-  toPublicDTO,
 } from 'src/dto';
-import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { NotFoundError } from 'rxjs';
-import { all } from 'axios';
+import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
+
 
 @Injectable()
 export class ChatService {
@@ -93,7 +88,15 @@ export class ChatService {
     return null;
   }
 
-  async fetchPrismaUser(email: string): Promise<UserWithRooms | null> {
+  async fetchPrismaUser(email: string): Promise<User | null> {
+    return await this.prisma.user.findUnique({
+      where: {
+        email: email,
+      },
+    });
+  }
+
+  async fetchPrismaUserWithRooms(email: string): Promise<UserWithRooms | null> {
     return await this.prisma.user.findUnique({
       where: {
         email: email,
@@ -133,7 +136,7 @@ export class ChatService {
 
     // rejoin all rooms
     for (const room of prismaUser.rooms) {
-      socket.join(room.roomID);
+      if (!room.isBanned) socket.join(room.roomID);
     }
 
     // set or update cache
@@ -149,7 +152,7 @@ export class ChatService {
   async createChannel(client: Socket, roomDTO: createRoomDTO) {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
-    const prismaUser: UserWithRooms = await this.fetchPrismaUser(
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       chatuser.email,
     );
 
@@ -178,9 +181,6 @@ export class ChatService {
             ],
           },
         },
-        include: {
-          users: true,
-        },
       });
     } catch (error) {
       throw new BadRequestException(
@@ -189,12 +189,10 @@ export class ChatService {
     }
 
     // send a little welcome message
-    const welcomeMessage: messageDTO = {
+    await this.sendServerMessage({
       room: roomDTO.name,
-      sender: 'PongStoryShort',
       text: 'Congratulations! You have successfully created a channel.',
-    };
-    this.handleMessage(welcomeMessage);
+    });
 
     return roomDTO.name;
   }
@@ -215,14 +213,11 @@ export class ChatService {
       );
 
     // catch prisma error when variables are not correct
-    let existingRoom: RoomWithUsers;
+    let existingRoom: Room;
     try {
       existingRoom = await this.prisma.room.findUnique({
         where: {
           name: roomDTO.name,
-        },
-        include: {
-          users: true,
         },
       });
     } catch (error) {
@@ -242,202 +237,6 @@ export class ChatService {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
     }
-  }
-
-  /****************************************************************************/
-  /* owner options										                                        */
-  /****************************************************************************/
-
-  async toPublic(user: User, dto: toPublicDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PUBLIC',
-          password: '',
-        },
-      });
-    }
-  }
-
-  async toPrivate(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PRIVATE',
-          password: hash,
-        },
-      });
-    }
-  }
-
-  async changePass(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-    const oldpass: string = room.password;
-
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          password: hash,
-        },
-      });
-    }
-  }
-
-  async addAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
-
-      // few checks
-      if (!userInRoom) throw new NotFoundException('User is not in this room');
-      else if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'ADMIN')
-        throw new BadRequestException('User is already admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'ADMIN',
-          },
-        });
-      }
-    }
-  }
-
-  async removeAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
-
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
-
-      // few checks
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'USER')
-        throw new BadRequestException('User is not admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'USER',
-          },
-        });
-      }
-    }
-  }
-
-  async ownerCheck(user: User, dto: toPublicDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!room) throw new NotFoundException('Room not found');
-
-    const userInRoom: UserInRoom = room.users.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('You are not in this room');
-
-    if (userInRoom.role !== 'OWNER')
-      throw new UnauthorizedException('You are not the channel owner');
-
-    return room;
-  }
-
-  async getRoomUserByUsername(username: string): Promise<UserInRoom> {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-      include: {
-        rooms: true,
-      },
-    });
-
-    const userInRoom: UserInRoom = user.rooms.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
-
-    if (!userInRoom) throw new NotFoundException('User is not in this room');
-
-    return userInRoom;
-  }
-
-  /****************************************************************************/
-  /* channel info											                                        */
-  /****************************************************************************/
-
-  async getAllRooms() {
-    const allRooms = await this.prisma.room.findMany({
-      where: {
-        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
-      },
-      select: {
-        name: true,
-        status: true,
-        createdAt: true,
-      },
-    });
-    return allRooms;
-  }
-
-  async getChannelMembers(dto: channelDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.name,
-      },
-    });
-    if (!room) throw new NotFoundException('Room not found');
-
-    const usersInRoom = await this.prisma.userInRoom.findMany({
-      where: {
-        room: {
-          name: dto.name,
-        },
-      },
-      select: {
-        user: {
-          select: {
-            userName: true,
-          },
-        },
-      },
-    });
-
-    const usernames = usersInRoom.map((userInRoom) => userInRoom.user.userName);
-
-    return usernames;
   }
 
   /****************************************************************************/
@@ -506,18 +305,15 @@ export class ChatService {
     const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
     if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
       this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-        message:
-          'DM ' + roomName + ' created with user ' + otherPrismaUser.userName,
+        message: `DM ${roomName} created with user ${otherPrismaUser.userName}`,
       });
     }
 
     // send a little welcome message
-    const welcomeMessage: messageDTO = {
+    await this.sendServerMessage({
       room: roomDTO.name,
-      sender: 'PongStoryShort',
       text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
-    };
-    await this.handleMessage(welcomeMessage);
+    });
 
     return roomName;
   }
@@ -554,7 +350,7 @@ export class ChatService {
   async joinChannel(client: Socket, roomDTO: joinRoomDTO) {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
-    const prismaUser: UserWithRooms = await this.fetchPrismaUser(
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       chatuser.email,
     );
 
@@ -589,12 +385,10 @@ export class ChatService {
     });
 
     // sending a little welcome message
-    const welcomeMessage: messageDTO = {
+    await this.sendServerMessage({
       room: roomDTO.name,
-      sender: 'PongStoryShort',
       text: `Please welcome ${prismaUser.userName} to this channel!`,
-    };
-    await this.handleMessage(welcomeMessage);
+    });
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
@@ -642,6 +436,10 @@ export class ChatService {
 
     // check if password is correct for private room
     if (room.status === RoomStatus.PRIVATE) {
+      if (!roomDTO.password)
+        throw new ForbiddenException(
+          'This channel is private, please provide a password',
+        );
       const passwordMatches = await argon.verify(
         room.password,
         roomDTO.password,
@@ -657,7 +455,7 @@ export class ChatService {
   async leaveChannel(client: Socket, dto: channelDTO) {
     const email: string = this.getEmailFromJWT(client);
     const chatuser: ChatUser = await this.fetchChatuser(email);
-    const prismaUser: UserWithRooms = await this.fetchPrismaUser(
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       chatuser.email,
     );
     let userInRoom: UserInRoom;
@@ -680,12 +478,10 @@ export class ChatService {
     });
 
     // update channel that user has left
-    const message: messageDTO = {
+    await this.sendServerMessage({
       room: dto.name,
-      sender: 'PongStoryShort',
       text: `User ${prismaUser.userName} has left this channel.`,
-    };
-    await this.handleMessage(message);
+    });
   }
 
   async securityCheckLeaveChannel(prismaUser: User, dto: channelDTO) {
@@ -734,27 +530,119 @@ export class ChatService {
   /* messages													                                        */
   /****************************************************************************/
 
-  async handleMessage(message: messageDTO) {
-    const date: number = Date.now();
-    const newMessage: ChatMessage = {
-      room: message.room,
-      date: date,
-      sender: message.sender,
-      text: message.text,
-    };
+  async sendServerMessage(message: messageDTO) {
+    try {
+      // Create the new message in the database
+      await this.prisma.message.create({
+        data: {
+          ...message,
+          sender: 'PongStoryShort',
+          room: {
+            connect: {
+              name: message.room,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
 
-    // check if room exists?
-    // check if user is in room?
-    // check block?
-    // for the message dto: maybe I don't need sender username
-
-    const roomHistory: string = await this.cacheManager.get(
-      'room' + message.room,
+    const newMessage = new ChatMessage(
+      message.room,
+      'PongStoryShort',
+      message.text,
     );
-    const newRoomhistory: string =
-      JSON.stringify(newMessage) + roomHistory || '';
-    await this.cacheManager.set('room', newRoomhistory);
 
     this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
+  }
+
+  async stockMessage(client: Socket, message: messageDTO) {
+    const email: string = this.getEmailFromJWT(client);
+    const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
+      email,
+    );
+
+    try {
+      // check if user and room exist
+      const room: Room = await this.checkUserRoom(prismaUser, message);
+
+      // check if user is allowed to send a message to this channel
+      await this.allowedToSend(room, prismaUser);
+
+      // check message format and add sender name
+      const checkedMessage = new ChatMessage(
+        room.name,
+        prismaUser.userName,
+        message.text,
+      );
+      if (!checkedMessage)
+        throw new BadRequestException(
+          'Message could not be sent, did you add the right variables?',
+        );
+
+      // add message to room in database
+      await this.prisma.message.create({
+        data: {
+          ...checkedMessage,
+          room: {
+            connect: {
+              name: room.name,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async checkUserRoom(user: UserWithRooms, message: messageDTO): Promise<Room> {
+    // check if sender exists
+    if (!user) throw new NotFoundException('User not found');
+
+    // check if room exists
+    try {
+      const room: Room | null = await this.prisma.room.findUnique({
+        where: {
+          name: message.room,
+        },
+      });
+
+      if (!room) throw new NotFoundException('Room not found');
+
+      return room;
+    } catch (error) {
+      throw new BadRequestException(
+        'Channel not found, did you send the right variables?',
+      );
+    }
+  }
+
+  async allowedToSend(room: Room, user: UserWithRooms) {
+    // check if user is in room
+    const userInRoom = await user.rooms.find((roomUser: UserInRoom) => {
+      return roomUser.roomID === room.name;
+    });
+
+    if (!userInRoom) throw new NotFoundException('You are not in this room');
+
+    if (room.status !== RoomStatus.DIRECT) {
+      // check if sender is muted
+      if (userInRoom.isMuted)
+        throw new ForbiddenException(
+          'You have been temporarily muted by a channel admin. Retry sending your message later.',
+        );
+
+      // check if sender is banned
+      if (userInRoom.isBanned)
+        throw new ForbiddenException(
+          "You have been banned from this channel, so don't even try...",
+        );
+    } else {
+      // check if user has been blocked.
+      // not sure if I shouldn't save the message when sender has been blocked
+      // because the subject says we have to 'hide' messages of blocked users
+    }
   }
 }

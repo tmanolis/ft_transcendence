@@ -18,7 +18,7 @@ const AllChannelsList: React.FC<AllChannelsListProps> = ({ getChannel }) => {
   const getAllChannelList = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/chat/allChannels`, // using friends list to test front: /chat/Channels
+        `${import.meta.env.VITE_BACKEND_URL}/channel/allChannels`, // using friends list to test front: /chat/Channels
         { withCredentials: true }
       );
       console.log(response);

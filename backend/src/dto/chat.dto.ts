@@ -4,7 +4,6 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class messageDTO {
   room: string;
-  sender: string;
   text: string;
 }
 
@@ -26,6 +25,18 @@ export class channelDTO {
   name: string;
 }
 
+export class AdminDTO {
+  @ApiProperty({ description: 'user to be muted/banned/kicked' })
+  @IsString()
+  @IsNotEmpty()
+  username: string;
+
+  @ApiProperty({ description: 'channel name' })
+  @IsString()
+  @IsNotEmpty()
+  channel: string;
+}
+
 export class ChatUser {
   constructor(
     public email: string,
@@ -37,7 +48,6 @@ export class ChatUser {
 export class ChatMessage {
   constructor(
     public room: string,
-    public date: number,
     public sender: string,
     public text: string,
   ) {}
