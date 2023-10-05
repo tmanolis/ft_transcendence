@@ -1,6 +1,10 @@
 import styled from "styled-components";
 
-export const ChanMenuBar = styled.div`
+interface ChanMenuBarProps {
+  isAdminOrOwner: boolean;
+}
+
+export const ChanMenuBar = styled.div<ChanMenuBarProps>`
   width: 206px;
   height: ${(props) => (props.isAdminOrOwner ? "214px" : "150px")}; /* Adjust height as needed */
   display: flex;
