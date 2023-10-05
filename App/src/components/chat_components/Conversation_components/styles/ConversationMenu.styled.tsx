@@ -1,12 +1,12 @@
 import styled from "styled-components";
 
 interface ChanMenuBarProps {
-  isAdminOrOwner: boolean;
+  $isAdminOrOwner: boolean;
 }
 
 export const ChanMenuBar = styled.div<ChanMenuBarProps>`
   width: 206px;
-  height: ${(props) => (props.isAdminOrOwner ? "214px" : "150px")}; /* Adjust height as needed */
+  height: ${(props) => (props.$isAdminOrOwner ? "214px" : "150px")}; /* Adjust height as needed */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
