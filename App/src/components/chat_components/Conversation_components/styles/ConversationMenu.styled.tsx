@@ -2,15 +2,15 @@ import styled from "styled-components";
 
 export const ChanMenuBar = styled.div`
   width: 206px;
-  height: 214px;
+  height: ${(props) => (props.isAdminOrOwner ? "214px" : "150px")}; /* Adjust height as needed */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border: 2px solid #FFF;
   background: #000;
   position: absolute;
-  top: 100%;
-  right: 0;
+  top: 48%;
+  right: 6.5%;
   z-index: 1;
   /* Hover styles */
   transition: background-color 0.3s, color 0.3s;
@@ -19,22 +19,24 @@ export const ChanMenuBar = styled.div`
 
 export const ChanMenuElement = styled.button`
   display: flex;
-  width: 100%; /* Full-width button */
-  height: calc(100% / 3); /* Divide the height into 3 equal parts */
-  flex-direction: column;
-  justify-content: center;
-  align-items: center; /* Center horizontally and vertically */
+  width: 100%;
+  flex-grow: 1; /* Use flex-grow to equally share the height */
   flex-shrink: 0;
-  background: #000; /* Full black background */
-  border: none; /* Remove button border */
+  flex-basis: 0;
+  padding-left: 5%;
+  justify-content: left;
+  align-items: center;
+  background: #000;
+  border: none;
   font-size: 19px;
+  font-weight: bold;
   font-style: normal;
   letter-spacing: 0.5px;
-  color: #FFF; /* Text color */
+  color: #FFF;
 
   &:hover {
-    background: #FFF; /* White background on hover */
-    color: #000; /* Black text on hover */
+    background: #FFF;
+    color: #000;
   }
 
   &:not(:last-child) {

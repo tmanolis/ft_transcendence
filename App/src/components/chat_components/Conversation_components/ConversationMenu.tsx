@@ -3,7 +3,7 @@ import { ChanMenuBar, ChanMenuElement, RedTextButton } from "./styles/Conversati
 import SettingsModal from "./ConversationSettingsModal";
 import UsersListModal from "./ConversationUsersListModal";
 import { Room } from "../../../pages/Chat";
-// import { createPortal } from "react-dom";
+import { createPortal } from "react-dom";
 
 interface ChannelMenuProps {
   onCloseMenu: () => void;
@@ -37,13 +37,15 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
     onCloseMenu();
   }
 
+  const isAdminOrOwner = chatRoom.role === "ADMIN" || chatRoom.role === "OWNER";
+
   return (
-    <ChanMenuBar>
-      <ChanMenuElement onClick={handleUsersButtonClick}>Users</ChanMenuElement>
-      {chatRoom.role === "ADMIN" || chatRoom.role === "OWNER" ? (
-        <ChanMenuElement onClick={handleSettingsButtonClick}>Settings</ChanMenuElement>
-      ) : null}
-      <RedTextButton onClick={handleLeaveButtonClick}>Leave Channel</RedTextButton>
+    <ChanMenuBar isAdminOrOwner={isAdminOrOwner}>
+      <ChanMenuElement onClick={handleUsersButtonClick}>&gt; Users</ChanMenuElement>
+      {isAdminOrOwner && (
+        <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
+      )}
+      <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
       {isSettingsModalVisible && (
         <SettingsModal
           chatRoom={chatRoom}
@@ -51,12 +53,12 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
           onClose={closeSettingsModal}
         />
       )}
-      {isUsersListModalVisible && (
+      {isUsersListModalVisible && createPortal(
         <UsersListModal
           chatRoom={chatRoom}
           userName={userName}
           onClose={closeUsersListModal}
-        />
+        />, document.body
       )}
     </ChanMenuBar>
   );
