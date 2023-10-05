@@ -36,6 +36,7 @@ export class ChannelController {
     @Res() res: Response,
   ) {
     await this.channelService.block(user, dto);
+    return res.status(200).send({ message: 'User has been blocked' });
   }
 
   @Patch('unblock')
@@ -47,6 +48,7 @@ export class ChannelController {
     @Res() res: Response,
   ) {
     await this.channelService.unblock(user, dto);
+    return res.status(200).send({ message: 'User has been unblocked' });
   }
 
   @Patch('mute')

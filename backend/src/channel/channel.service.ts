@@ -15,7 +15,12 @@ import {
 } from 'src/dto';
 import { User, UserInRoom, RoomStatus, Message } from '@prisma/client';
 import * as argon from 'argon2';
-import { RoomHistory, RoomWithUsers, UserWithRooms } from 'src/interfaces';
+import {
+  RoomHistory,
+  RoomWithUsers,
+  UserWithRooms,
+  UserInRoomWithUser,
+} from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
 
 @Injectable()
@@ -99,7 +104,8 @@ export class ChannelService {
 
     const room: RoomWithUsers = await this.getRoomWithUsers(roomName);
 
-    if (!room) throw new NotFoundException('Room not found');
+    if (!room)
+      throw new NotFoundException('There is no active DM room with this user');
 
     return room;
   }
@@ -140,25 +146,29 @@ export class ChannelService {
     });
     if (!room) throw new NotFoundException('Room not found');
 
-    const usersInRoom = await this.prisma.userInRoom.findMany({
-      where: {
-        room: {
-          name: dto.name,
-        },
-        isBanned: false,
-      },
-      select: {
-        user: {
-          select: {
-            userName: true,
+    const usersInRoom: UserInRoomWithUser[] =
+      await this.prisma.userInRoom.findMany({
+        where: {
+          room: {
+            name: dto.name,
           },
+          isBanned: false,
         },
-      },
-    });
+        include: {
+          user: true,
+        },
+      });
 
-    const usernames = usersInRoom.map((userInRoom) => userInRoom.user.userName);
+    const channelMembers = usersInRoom.map(
+      (userInRoom: UserInRoomWithUser) => ({
+        userName: userInRoom.user.userName,
+        isBanned: userInRoom.isBanned,
+        isMuted: userInRoom.isMuted,
+        isBlocked: userInRoom.isBlocked,
+      }),
+    );
 
-    return usernames;
+    return channelMembers;
   }
 
   /****************************************************************************/
