@@ -6,6 +6,7 @@ import {
   ContentContainer,
   Input,
   ConfirmButton,
+  PrivateInfo,
 } from "./styles/ConversationSettingsModal.styled";
 import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled";
 import { Room } from "../../../pages/Chat";
@@ -18,11 +19,19 @@ interface SettingsModalProps {
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, userName, chatRoom }) => {
-	const [newPassword, setNewPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [isPrivate, setIsPrivate] = useState(chatRoom.status === "PRIVATE");
 
   const handleButtonClick = () => {
     onClose();
   }
+
+  const handleCheckboxChange = () => {
+    setIsPrivate(!isPrivate);
+    const newStatus = isPrivate ? "PUBLIC" : "PRIVATE";
+
+    console.log("New Status:", newStatus);
+  };
 
   return (
     <SettingsModalStyled>
@@ -37,25 +46,33 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, userName, chatRo
         </Head>
         <ContentContainer>
           <div className="enable-section">
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={isPrivate}
+              onChange={handleCheckboxChange}
+            />
             <p className="infos">Enable Password</p>
           </div>
           <p className="description">
-            A password will be needed in order<br/>to join this channel
+            A password will be needed in order<br />to join this channel
           </p>
-          <p className="updatePass">Update Password</p>
+          {isPrivate ? (
+            <PrivateInfo>
+              <p className="updatePass">Update Password</p>
+              <Input>
+                <input
+                  type="text"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="<type name here>"
+                />
+                <ConfirmButton>
+                  <ButtonStyled>Confirm</ButtonStyled>
+                </ConfirmButton>
+              </Input>
+            </PrivateInfo>
+          ) : null}
         </ContentContainer>
-        <Input>
-          <input
-            type="text"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-            placeholder="<type name here>"
-            />
-        <ConfirmButton>
-          <ButtonStyled>Confirm</ButtonStyled>
-        </ConfirmButton>
-        </Input>
       </ModalWrapper>
     </SettingsModalStyled>
   );

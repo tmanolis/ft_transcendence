@@ -80,23 +80,30 @@ export const ContentContainer = styled.div`
     margin-left: 10px;
     color: white;
   }
+`;
+
+export const PrivateInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 130px;
 
   .updatePass{
     margin-top: 10%;
-    margin-bottom: 0;
-    line-height: 22px;
+    margin-bottom: 3%;
+    line-height: 21px;
+    width: fit-content;
     color: #FFF;
-    font-size: 18px;
+    font-size: 17px;
     font-style: normal;
     font-weight: 700;
     }
-`;
+`
 
 export const Input = styled.div`
-  width: 80%;
+  width: 90%;
   height: 70px;
   flex-shrink: 0;
-
+  
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -112,11 +119,18 @@ export const Input = styled.div`
     font-size: 15px;
     stroke-width: 1px;
     stroke: #FFF;
-    margin: 0% 10% 5% 10%;
+    margin: 3% 10% 0% 0%;
   }
 
   input::placeholder {
     color: rgba(250, 242, 242, 0.7)
+  }
+
+  button{
+    margin-top: 35%;
+    margin-left: 10%;
+
+    cursor: pointer;
   }
 
 	@media screen and (max-width: 500px) {
@@ -125,6 +139,6 @@ export const Input = styled.div`
 `;
 
 export const ConfirmButton = styled.div`
-  margin-top: 6.5%;
-  margin-left: 4%;
+  /* margin-top: 6.5%;
+  margin-left: 4%; */
 `;
