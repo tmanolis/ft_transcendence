@@ -28,8 +28,10 @@ const NavButton = styled.div`
   width: 80px;
   left: 5px;
   gap: 45px;
-  /* flex-shrink: 0; */
+  flex-shrink: 0;
 
+  background-image: url(${NavBarPNG});
+  background-size: cover;
   img {
     transition:
       transform 0.1s,
