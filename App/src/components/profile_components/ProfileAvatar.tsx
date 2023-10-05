@@ -95,10 +95,10 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       console.log(response);
       console.log(username + " succesfully added.");
       const newFriend: Friend = {
-        avatar: "",       // Add your default values here
-        gamesLost: 0,     // Add your default values here
-        gamesWon: 0,      // Add your default values here
-        status: "",       // Add your default values here
+        avatar: "",
+        gamesLost: 0,
+        gamesWon: 0,
+        status: "",
         userName: username,
       };
 
