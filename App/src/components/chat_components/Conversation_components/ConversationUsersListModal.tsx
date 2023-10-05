@@ -13,7 +13,7 @@ interface UsersListModalProps {
   userName: string;
 }
 
-const UsersListModal: React.FC<UsersListModalProps> = ({ onClose, userName, chatRoom }) => {
+const UsersListModal: React.FC<UsersListModalProps> = ({ onClose }) => {
 
   const handleButtonClick = () => {
     onClose();

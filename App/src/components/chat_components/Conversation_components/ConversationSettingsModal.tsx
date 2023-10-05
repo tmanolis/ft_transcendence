@@ -18,7 +18,7 @@ interface SettingsModalProps {
   userName: string;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, userName, chatRoom }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
   const [newPassword, setNewPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(chatRoom.status === "PRIVATE");
 
