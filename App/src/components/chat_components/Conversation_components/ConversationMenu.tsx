@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { ChanMenuBar, ChanMenuElement, RedTextButton } from "./styles/ConversationMenu.styled";
 import SettingsModal from "./ConversationSettingsModal";
+import { Room } from "../../../pages/Chat";
+// import { createPortal } from "react-dom";
 
 interface ChannelMenuProps {
   onCloseMenu: () => void;
@@ -11,13 +13,12 @@ interface ChannelMenuProps {
 const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userName }) => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState(false);
 
-  const handleUserButtonClick = () => {
-    setIsSettingsModalVisible(true);
+  const handleUsersButtonClick = () => {
     onCloseMenu();
   }
 
   const handleSettingsButtonClick = () => {
-    onCloseMenu();
+    setIsSettingsModalVisible(true);
   }
 
   const handleLeaveButtonClick = () => {
@@ -26,11 +27,12 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
 
   const closeSettingsModal = () => {
     setIsSettingsModalVisible(false);
+    onCloseMenu();
   }
 
   return (
     <ChanMenuBar>
-      <ChanMenuElement onClick={handleUserButtonClick}>Settings</ChanMenuElement>
+      <ChanMenuElement onClick={handleUsersButtonClick}>Users</ChanMenuElement>
       {chatRoom.role === "ADMIN" || chatRoom.role === "OWNER" ? (
         <ChanMenuElement onClick={handleSettingsButtonClick}>Settings</ChanMenuElement>
       ) : null}
