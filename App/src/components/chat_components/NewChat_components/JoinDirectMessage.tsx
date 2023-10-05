@@ -41,10 +41,9 @@ const JoinDirectMessage: React.FC<JoinDirectMessageProps> = ({ onCancel, socket_
 		
 		const updateDTO = {
 			name: channelName,
-			status: 'DIRECT'
 		};
 
-		socket_chat.emit("createChannel", updateDTO);
+		socket_chat.emit("leaveChannel", updateDTO);
 	};
 
 	return (
