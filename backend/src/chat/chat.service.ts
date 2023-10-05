@@ -68,18 +68,18 @@ export class ChatService {
   getEmailFromJWT(client: Socket) {
     const jwt = client.handshake.headers.authorization;
 
-    if (jwt === undefined || jwt === null) {
-      client.emit('accessDenied', {
-        message: 'Authentification failed, please log in again.',
-      });
-      client.disconnect();
-      return;
-    } else {
-      const jwtData:
-        | { sub: string; email: string; iat: string; exp: string }
-        | any = this.jwtService.decode(jwt);
-      return jwtData.email;
-    }
+		const jwtData:
+			| { sub: string; email: string; iat: string; exp: string }
+			| any = this.jwtService.decode(jwt);
+			
+		if (jwtData) return jwtData.email;
+		else {
+			client.emit('accessDenied', {
+				message: 'Authentification failed, please log in again.',
+			});
+			client.disconnect();
+			return;
+		}
   }
 
   async fetchChatuser(email: string): Promise<ChatUser | null> {
