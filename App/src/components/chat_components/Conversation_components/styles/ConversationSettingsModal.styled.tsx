@@ -11,7 +11,7 @@ export const SettingsModalStyled = styled.div`
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(1.5px);
-
+  z-index:999;
 `;
 
 export const ModalWrapper = styled.div`

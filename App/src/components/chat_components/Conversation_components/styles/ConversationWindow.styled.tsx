@@ -7,5 +7,13 @@ export const ConversationWindowWrapper = styled.div`
 
 	.conversation_body {
 		height: 485px;
+
+		@media screen and (max-width: 1480px) {
+			height: 345px;
+		}
+	}
+
+	@media screen and (max-width: 1480px) {
+		width: 92%;
 	}
 `;

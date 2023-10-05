@@ -19,11 +19,18 @@ export const ConversationHeaderWrapper = styled.div`
     transform-origin: center; /* Set the transform origin to the center */
 
 	cursor: pointer; /* Ensure the button remains clickable */
+	background-color: black;
+	z-index: 2;
+	border-radius: 50%; /* Make the image circular by setting border-radius to 50% */
   }
 
   &:hover img {
     transform: scale(1.2); /* Scale up on hover */
   }
+
+  @media screen and (max-width: 1480px) {
+		width: 93%;
+	}
 `;
 
 export const RoomName = styled.h2`
