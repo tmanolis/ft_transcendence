@@ -11,6 +11,7 @@ import {
 import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled";
 import { Room } from "../../../pages/Chat";
 import iconSrc from "/icon/Cross.svg";
+import axios from "axios";
 
 interface SettingsModalProps {
   onClose: () => void; // Callback to close the menu
@@ -24,13 +25,72 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
 
   const handleButtonClick = () => {
     onClose();
+    window.location.reload();
   }
 
-  const handleCheckboxChange = () => {
+  const handleCheckboxChange = async () => {
     setIsPrivate(!isPrivate);
     const newStatus = isPrivate ? "PUBLIC" : "PRIVATE";
 
     console.log("New Status:", newStatus);
+
+    if (newStatus === "PUBLIC") {
+      // If the channel is set to public, send a request to change it to public
+      try {
+        const response = await changeChanneltoPublic();
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const changeChanneltoPublic = async () => {
+    const updateDTO = {
+      channel: chatRoom.name,
+    };
+    console.log(updateDTO)
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/toPublic`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleConfirmButtonClick = async () => {
+    if (isPrivate) {
+      try {
+        const response = await changeChanneltoPrivate();
+        console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    onClose();
+    window.location.reload();
+  };
+
+  const changeChanneltoPrivate = async () => {
+    const updateDTO = {
+      channel: chatRoom.name,
+      password: newPassword,
+    };
+
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/toPrivate`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response; // Return the response for further handling if needed
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -67,7 +127,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
                   placeholder="<type name here>"
                 />
                 <ConfirmButton>
-                  <ButtonStyled>Confirm</ButtonStyled>
+                  <ButtonStyled onClick={handleConfirmButtonClick}>Confirm</ButtonStyled>
                 </ConfirmButton>
               </Input>
             </PrivateInfo>
