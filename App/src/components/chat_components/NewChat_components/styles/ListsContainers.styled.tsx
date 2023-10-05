@@ -1,8 +1,5 @@
 import styled from "styled-components";
 
-
-
-
 export const ChatListWrapper = styled.div`
 	height: 380px;
 	overflow: auto; // Add overflow to allow scrolling if content overflows

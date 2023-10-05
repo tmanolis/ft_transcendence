@@ -53,12 +53,12 @@ const JoinChannel: React.FC<JoinChannelProps> = ({ onCancel, socket_chat }) => {
 			<p>Join Channel</p>
 			<AllChannelsList getChannel={getChannelSelected}/>
 			<div className="buttons_container">
-			<input
-				type="text"
-				value={password}
-				onChange={(e) => setPassword(e.target.value)} // Update channelName
-				placeholder="<type password here>"
-			/>
+				<input
+					type="text"
+					value={password}
+					onChange={(e) => setPassword(e.target.value)}
+					placeholder="<type password here>"
+				/>
 				<ConfirmButton type="submit" onClick={handleConfirmClick}>Confirm</ConfirmButton>
 			</div>
 			{errorResponse && (

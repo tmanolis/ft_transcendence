@@ -66,8 +66,22 @@ export const PopUpWrapper = styled.div`
     font-style: normal;
     font-weight: 700;
     font-size: 16px;
-    
-}
+  }
+
+  .channel_container input {
+		height: 23px;
+		width: 250px;
+    border: 1px solid #FFF;
+		color: white;
+		text-align: center;
+		background-color: black; /* Inner background color */
+		font-family: "JetBrains Mono",monospace;
+		font-size: 12px;
+	}
+
+	.channel_container input::placeholder {
+		color: rgba(250, 242, 242, 0.7)
+	}
 
 
   .buttons_container {
