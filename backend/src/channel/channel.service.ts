@@ -40,29 +40,41 @@ export class ChannelService {
   /* channel info											                                        */
   /****************************************************************************/
 
-  async getRoomUserByUsername(username: string, roomname: string): Promise<UserInRoom> {
-		const user: UserWithRooms = await this.prisma.user.findUnique({
+  async getRoomUser(username: string, room: RoomWithUsers): Promise<UserInRoom> {
+		const user: User = await this.prisma.user.findUnique({
 			where: {
 				userName: username,
-			},
-			include: {
-				rooms: true,
-			},
-		});
-	
+			}
+		})
+
 		if (!user) {
 			throw new NotFoundException('User not found');
 		}
-	
-		const userInRoom: UserInRoom | undefined = user.rooms.find(
-			(userRoom: UserInRoom) => userRoom.room.name === roomname,
-		);
-	
-
+		
+		const userInRoom: UserInRoom = await this.prisma.userInRoom.findUnique({
+			where: {
+				email: user.email,
+				roomId: room.name,
+			},
+		});
+		
     if (!userInRoom) throw new NotFoundException('User is not in this room');
 
     return userInRoom;
   }
+
+	async getRoomWithUsers(dto: AdminDTO): Promise<RoomWithUsers>{
+		const room: RoomWithUsers = await this.prisma.room.findUnique({
+			where: {
+				name: dto.channel,
+			}, include: {
+				users: true,
+			}
+		})
+		if (!room) throw new NotFoundException('Room not found');
+
+		return room;
+	}
 
   async getRooms(user: User) {
     const userRooms = await this.prisma.user
@@ -211,312 +223,303 @@ export class ChannelService {
   /* dm options												                                        */
   /****************************************************************************/
 
-  async block(user: User, dto: dmDTO) {
-		if (!user) throw new UnauthorizedException('You are not logged in');
+  // async block(user: User, dto: dmDTO) {
+	// 	if (!user) throw new UnauthorizedException('You are not logged in');
 
-		const otherUser: User = await this.prisma.user.findUnique({
-			where: {
-				userName: dto.userName,
-			}
-		})
+	// 	const otherUser: User = await this.prisma.user.findUnique({
+	// 		where: {
+	// 			userName: dto.userName,
+	// 		}
+	// 	})
 
-		if (!otherUser) throw new NotFoundException('User not found');
+	// 	if (!otherUser) throw new NotFoundException('User not found');
 
-		const room: Room = await this.prisma.room.findFirst({
-			where: {
-				AND: [
-					{ status: 'DIRECT' },
-					{
-						users: {
-							some: {
-								email: { in: [user.email, otherUser.email] },
-							},
-						},
-					},
-				],
-			},
-		});
+	// 	const room: Room = await this.prisma.room.findFirst({
+	// 		where: {
+	// 			AND: [
+	// 				{ status: 'DIRECT' },
+	// 				{
+	// 					users: {
+	// 						some: {
+	// 							email: { in: [user.email, otherUser.email] },
+	// 						},
+	// 					},
+	// 				},
+	// 			],
+	// 		},
+	// 	});
 
-		if (!room) throw new NotFoundException('DM room not found');
+	// 	if (!room) throw new NotFoundException('DM room not found');
 
 
-		// block user in room
-  }
+	// 	// block user in room
+  // }
 
-  async unblock(user: User, dto: dmDTO) {
-    // const admin: UserInRoom = await this.adminCheck(user, dto);
+  // async unblock(user: User, dto: dmDTO) {
+  //   // const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    // if (admin) {
-    //   const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-    //     dto.username,
-    //   );
-    //   const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
+  //   // if (admin) {
+  //   //   const userInRoom: UserInRoom = await this.getRoomUser(
+  //   //     dto.username,
+  //   //   );
+  //   //   const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
 
-    //   if (ok) {
-    //     // unban room user
-    //     await this.prisma.userInRoom.update({
-    //       where: {
-    //         id: userInRoom.id,
-    //       },
-    //       data: {
-    //         isBanned: false,
-    //       },
-    //     });
-    //   }
-    // }
-  }
+  //   //   if (ok) {
+  //   //     // unban room user
+  //   //     await this.prisma.userInRoom.update({
+  //   //       where: {
+  //   //         id: userInRoom.id,
+  //   //       },
+  //   //       data: {
+  //   //         isBanned: false,
+  //   //       },
+  //   //     });
+  //   //   }
+  //   // }
+  // }
 
   /****************************************************************************/
   /* owner options										                                        */
   /****************************************************************************/
 
-  async toPublic(user: User, dto: toPublicDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
+  // async toPublic(user: User, dto: toPublicDTO) {
+  //   const room: Room = await this.ownerCheck(user, dto);
 
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PUBLIC',
-          password: '',
-        },
-      });
-    }
-  }
+  //   if (room) {
+  //     await this.prisma.room.update({
+  //       where: {
+  //         name: dto.channel,
+  //       },
+  //       data: {
+  //         status: 'PUBLIC',
+  //         password: '',
+  //       },
+  //     });
+  //   }
+  // }
 
-  async toPrivate(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
+  // async toPrivate(user: User, dto: changePassDTO) {
+  //   const room: Room = await this.ownerCheck(user, dto);
 
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          status: 'PRIVATE',
-          password: hash,
-        },
-      });
-    }
-  }
+  //   const hash: string = await argon.hash(dto.password);
+  //   if (room) {
+  //     await this.prisma.room.update({
+  //       where: {
+  //         name: dto.channel,
+  //       },
+  //       data: {
+  //         status: 'PRIVATE',
+  //         password: hash,
+  //       },
+  //     });
+  //   }
+  // }
 
-  async changePass(user: User, dto: changePassDTO) {
-    const room: Room = await this.ownerCheck(user, dto);
-    const oldpass: string = room.password;
+  // async changePass(user: User, dto: changePassDTO) {
+  //   const room: Room = await this.ownerCheck(user, dto);
+  //   const oldpass: string = room.password;
 
-    const hash: string = await argon.hash(dto.password);
-    if (room) {
-      await this.prisma.room.update({
-        where: {
-          name: dto.channel,
-        },
-        data: {
-          password: hash,
-        },
-      });
-    }
-  }
+  //   const hash: string = await argon.hash(dto.password);
+  //   if (room) {
+  //     await this.prisma.room.update({
+  //       where: {
+  //         name: dto.channel,
+  //       },
+  //       data: {
+  //         password: hash,
+  //       },
+  //     });
+  //   }
+  // }
 
-  async addAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
+  // async addAdmin(user: User, dto: adminDTO) {
+  //   const room = await this.ownerCheck(user, dto);
 
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName, room.name);
+  //   if (room) {
+  //     // get the user that needs to change status
+  //     const userInRoom = await this.getRoomUser(dto.userName, room.name);
 
-      // few checks
-      if (!userInRoom) throw new NotFoundException('User is not in this room');
-      else if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'ADMIN')
-        throw new BadRequestException('User is already admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'ADMIN',
-          },
-        });
-      }
-    }
-  }
+  //     // few checks
+  //     if (!userInRoom) throw new NotFoundException('User is not in this room');
+  //     else if (userInRoom.role === 'OWNER')
+  //       throw new BadRequestException('Can not downgrade room owner');
+  //     else if (userInRoom.role === 'ADMIN')
+  //       throw new BadRequestException('User is already admin');
+  //     // change status
+  //     else {
+  //       await this.prisma.userInRoom.update({
+  //         where: {
+  //           id: userInRoom.id,
+  //         },
+  //         data: {
+  //           role: 'ADMIN',
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
 
-  async removeAdmin(user: User, dto: adminDTO) {
-    const room = await this.ownerCheck(user, dto);
+  // async removeAdmin(user: User, dto: adminDTO) {
+  //   const room = await this.ownerCheck(user, dto);
 
-    if (room) {
-      // get the user that needs to change status
-      const userInRoom = await this.getRoomUserByUsername(dto.userName);
+  //   if (room) {
+  //     // get the user that needs to change status
+  //     const userInRoom = await this.getRoomUser(dto.userName);
 
-      // few checks
-      if (userInRoom.role === 'OWNER')
-        throw new BadRequestException('Can not downgrade room owner');
-      else if (userInRoom.role === 'USER')
-        throw new BadRequestException('User is not admin');
-      // change status
-      else {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            role: 'USER',
-          },
-        });
-      }
-    }
-  }
+  //     // few checks
+  //     if (userInRoom.role === 'OWNER')
+  //       throw new BadRequestException('Can not downgrade room owner');
+  //     else if (userInRoom.role === 'USER')
+  //       throw new BadRequestException('User is not admin');
+  //     // change status
+  //     else {
+  //       await this.prisma.userInRoom.update({
+  //         where: {
+  //           id: userInRoom.id,
+  //         },
+  //         data: {
+  //           role: 'USER',
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
 
-  async ownerCheck(user: User, dto: toPublicDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
+  // async ownerCheck(user: User, dto: toPublicDTO) {
+  //   const room = await this.prisma.room.findUnique({
+  //     where: {
+  //       name: dto.channel,
+  //     },
+  //     include: {
+  //       users: true,
+  //     },
+  //   });
 
-    if (!room) throw new NotFoundException('Room not found');
+  //   if (!room) throw new NotFoundException('Room not found');
 
-    const userInRoom: UserInRoom = room.users.find(
-      (userInRoom: UserInRoom) => userInRoom.email === user.email,
-    );
+  //   const userInRoom: UserInRoom = room.users.find(
+  //     (userInRoom: UserInRoom) => userInRoom.email === user.email,
+  //   );
 
-    if (!userInRoom) throw new NotFoundException('You are not in this room');
+  //   if (!userInRoom) throw new NotFoundException('You are not in this room');
 
-    if (userInRoom.role !== 'OWNER')
-      throw new UnauthorizedException('You are not the channel owner');
+  //   if (userInRoom.role !== 'OWNER')
+  //     throw new UnauthorizedException('You are not the channel owner');
 
-    return room;
-  }
+  //   return room;
+  // }
 
   /****************************************************************************/
   /* admin options										                                        */
   /****************************************************************************/
 
   async mute(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
+		const room: RoomWithUsers = await this.getRoomWithUsers(dto);
+		const admin: UserInRoom = await this.adminCheck(user, room);
+		const subject: UserInRoom = await this.getRoomUser(dto.username, room);
 
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-				dto.channel,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'mute');
+    // if (room && admin) {
+    //   // const userInRoom: UserInRoom = await this.getRoomUser(
+    //   //   dto.username,
+		// 	// 	room
+    //   // );
+    //   const ok: boolean = this.relationCheck(admin, userInRoom, 'mute');
 
-      if (ok) {
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isMuted: true,
-          },
-        });
+    //   if (ok) {
+    //     await this.prisma.userInRoom.update({
+    //       where: {
+    //         id: userInRoom.id,
+    //       },
+    //       data: {
+    //         isMuted: true,
+    //       },
+    //     });
 
-        const thirtyMinutes: number = 1800000;
-        setTimeout(async () => {
-          const unmuted = await this.prisma.userInRoom.update({
-            where: {
-              id: userInRoom.id,
-            },
-            data: {
-              isMuted: false,
-            },
-          });
-        }, thirtyMinutes);
-      }
-    }
+    //     const thirtyMinutes: number = 1800000;
+    //     setTimeout(async () => {
+    //       const unmuted = await this.prisma.userInRoom.update({
+    //         where: {
+    //           id: userInRoom.id,
+    //         },
+    //         data: {
+    //           isMuted: false,
+    //         },
+    //       });
+    //     }, thirtyMinutes);
+    //   }
+    // }
   }
 
-  async ban(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
+  // async ban(user: User, dto: AdminDTO) {
+  //   const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-				dto.channel,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'ban');
+  //   if (admin) {
+  //     const userInRoom: UserInRoom = await this.getRoomUser(
+  //       dto.username,
+	// 			dto.channel,
+  //     );
+  //     const ok: boolean = this.relationCheck(admin, userInRoom, 'ban');
 
-      if (ok) {
-        // set room user to banned to exclude them from channel events
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isBanned: true,
-          },
-        });
-      }
-    }
-  }
+  //     if (ok) {
+  //       // set room user to banned to exclude them from channel events
+  //       await this.prisma.userInRoom.update({
+  //         where: {
+  //           id: userInRoom.id,
+  //         },
+  //         data: {
+  //           isBanned: true,
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
 
-  async unban(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
+  // async unban(user: User, dto: AdminDTO) {
+  //   const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-				dto.channel,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
+  //   if (admin) {
+  //     const userInRoom: UserInRoom = await this.getRoomUser(
+  //       dto.username,
+	// 			dto.channel,
+  //     );
+  //     const ok: boolean = this.relationCheck(admin, userInRoom, 'unban');
 
-      if (ok) {
-        // unban room user
-        await this.prisma.userInRoom.update({
-          where: {
-            id: userInRoom.id,
-          },
-          data: {
-            isBanned: false,
-          },
-        });
-      }
-    }
-  }
+  //     if (ok) {
+  //       // unban room user
+  //       await this.prisma.userInRoom.update({
+  //         where: {
+  //           id: userInRoom.id,
+  //         },
+  //         data: {
+  //           isBanned: false,
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
 
-  async kick(user: User, dto: AdminDTO) {
-    const admin: UserInRoom = await this.adminCheck(user, dto);
+  // async kick(user: User, dto: AdminDTO) {
+  //   const admin: UserInRoom = await this.adminCheck(user, dto);
 
-    if (admin) {
-      const userInRoom: UserInRoom = await this.getRoomUserByUsername(
-        dto.username,
-				dto.channel,
-      );
-      const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
+  //   if (admin) {
+  //     const userInRoom: UserInRoom = await this.getRoomUser(
+  //       dto.username,
+	// 			dto.channel,
+  //     );
+  //     const ok: boolean = this.relationCheck(admin, userInRoom, 'kick');
 
-      if (ok) {
-        // remove room user
-        await this.prisma.userInRoom.delete({
-          where: {
-            id: userInRoom.id,
-          },
-        });
-      }
-    }
-  }
+  //     if (ok) {
+  //       // remove room user
+  //       await this.prisma.userInRoom.delete({
+  //         where: {
+  //           id: userInRoom.id,
+  //         },
+  //       });
+  //     }
+  //   }
+  // }
 
-  async adminCheck(user: User, dto: AdminDTO): Promise<UserInRoom> {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.channel,
-      },
-      include: {
-        users: true,
-      },
-    });
-
-    if (!room) throw new NotFoundException('Room not found');
-
+  async adminCheck(user: User, room: RoomWithUsers): Promise<UserInRoom> {
     const userInRoom: UserInRoom = room.users.find(
       (userInRoom: UserInRoom) => userInRoom.email === user.email,
     );
