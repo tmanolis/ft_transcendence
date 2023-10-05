@@ -140,13 +140,6 @@ export class ChannelController {
       .send({ message: dto.userName + ' is removed from channel admins' });
   }
 
-  @Get('rooms')
-  @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
-  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetRooms(@GetUser() user: User) {
-    return this.channelService.getRooms(user);
-  }
-
   @Get('members')
   @ApiOkResponse({
     description: 'Returns usernames of users connected to a room',
@@ -176,5 +169,13 @@ export class ChannelController {
   async handleGetFullHistory(@GetUser() user: User) {
     return await this.channelService.getFullHistory(user);
   }
-	
+
+	@Get('allChannels')
+  @ApiOkResponse({
+    description: 'Returns all available public and private channels',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetAllRooms(@GetUser() user: User) {
+    return await this.channelService.getAllRooms();
+  }
 }

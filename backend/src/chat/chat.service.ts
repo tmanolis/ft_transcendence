@@ -7,7 +7,6 @@ import {
   Inject,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import {
@@ -16,19 +15,15 @@ import {
   createRoomDTO,
   joinRoomDTO,
   ChatMessage,
-  AdminDTO,
   channelDTO,
-  adminDTO,
-  changePassDTO,
-  toPublicDTO,
 } from 'src/dto';
 import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
-import { NotFoundError } from 'rxjs';
-import { all } from 'axios';
+import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
+
 
 @Injectable()
 export class ChatService {
