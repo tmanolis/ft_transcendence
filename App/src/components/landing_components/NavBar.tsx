@@ -35,24 +35,24 @@ const NavBar: React.FC = () => {
 
   return (
     <NavBarStyled>
-      <NavButton to="/landing" iconSrc="../../public/icon/Home.svg" alt="Home" />
-      <NavButton to="/play" iconSrc="../../public/icon/Play.svg" alt="Play" />
+      <NavButton to="/landing" iconSrc="/src/assets/icon/Home.svg" alt="Home" />
+      <NavButton to="/play" iconSrc="/src/assets/icon/Play.svg" alt="Play" />
       <NavButton
         to="/leaderboard"
-        iconSrc="../../public/icon/Leaderboard.svg"
+        iconSrc="/src/assets/icon/Leaderboard.svg"
         alt="Leaderboard"
       />
       <NavButton
         to="/chat"
-        iconSrc="../../public/icon/Chat.svg"
+        iconSrc="/src/assets/icon/Chat.svg"
         alt="Chat"
       />
       <NavButton
         to="/friends"
-        iconSrc="../../public/icon/Friends.svg"
+        iconSrc="/src/assets/icon/Friends.svg"
         alt="Friends"
       />
-      <NavButton to="/" iconSrc="../../public/icon/Exit.svg" alt="Exit" onClick={handleLogout} />
+      <NavButton to="/" iconSrc="/src/assets/icon/Exit.svg" alt="Exit" onClick={handleLogout} />
     </NavBarStyled>
   );
 };
