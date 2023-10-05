@@ -30,7 +30,7 @@ const App = () => {
             element={<PrivateRoute component={React.createElement(Landing)} />}
           />
           <Route 
-            path="/profile" 
+            path="/profile/:username" 
             element={<PrivateRoute component={React.createElement(Profile)} />}
           />
           <Route 

@@ -65,14 +65,15 @@ model Room {
 }
 
 model UserInRoom {
-  id       String  @id @unique @default(uuid())
-  user     User    @relation("connecting User to UserInRoom", fields: [email], references: [email])
-  email    String
-  room     Room    @relation("connecting Room to UserInRoom", fields: [roomID], references: [name])
-  roomID   String
-  isMuted  Boolean @default(false)
-  isBanned Boolean @default(false)
-  role     Role    @default(USER)
+  id       	String  @id @unique @default(uuid())
+  user     	User    @relation("connecting User to UserInRoom", fields: [email], references: [email])
+  email    	String
+  room     	Room    @relation("connecting Room to UserInRoom", fields: [roomID], references: [name])
+  roomID   	String
+  isMuted  	Boolean @default(false)
+  isBanned 	Boolean @default(false)
+	isBlocked	Boolean @default(false)
+  role     	Role    @default(USER)
 }
 
 model Message {
@@ -81,7 +82,7 @@ model Message {
   sendtime DateTime @default(now())
   sender   String 	// this is the username
   room     Room     @relation("message", fields: [roomID], references: [name])
-  roomID   String   @unique
+  roomID   String
 }
 
 enum Role {

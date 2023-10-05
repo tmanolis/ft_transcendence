@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link as RouterLink } from 'react-router-dom'; // Import Link from react-router-dom
 
 export const FriendsListWrapper = styled.div`
 	margin: 15px;
@@ -118,4 +119,9 @@ export const ProfileButton = styled.button`
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: 0.2px;
+`;
+
+export const CustomLink = styled(RouterLink)`
+  text-decoration: none;
+  color: inherit;
 `;
