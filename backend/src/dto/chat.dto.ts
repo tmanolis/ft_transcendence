@@ -37,6 +37,28 @@ export class AdminDTO {
   channel: string;
 }
 
+export class toPublicDTO {
+  @ApiProperty({ description: 'Channel name' })
+  @IsString()
+  channel: string;
+}
+
+export class changePassDTO {
+  @ApiProperty({ description: 'Channel name' })
+  @IsString()
+  channel: string;
+
+  @ApiProperty({ description: 'New password' })
+  @IsString()
+  password: string;
+}
+
+export class dmDTO {
+  @ApiProperty({ description: 'User name' })
+  @IsString()
+  userName: string;
+}
+
 export class ChatUser {
   constructor(
     public email: string,

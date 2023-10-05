@@ -12,21 +12,44 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminDTO } from '../dto';
-import { toPublicDTO, changePassDTO, adminDTO } from '../dto';
+import { AdminDTO, dmDTO } from '../dto';
+import { toPublicDTO, changePassDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';
 import { User } from '@prisma/client';
 import { channelDTO } from 'src/dto';
 import { Response } from 'express';
 import { ChannelService } from './channel.service';
-import { UserWithRooms } from 'src/interfaces';
 
 @UseGuards(JwtGuard)
 @ApiTags('Channel')
 @Controller('channel')
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
+
+  @Patch('block')
+  @ApiOkResponse({ description: 'User is blocked' })
+  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
+  async handleBlock(
+    @GetUser() user: User,
+    @Body() dto: dmDTO,
+    @Res() res: Response,
+  ) {
+    await this.channelService.block(user, dto);
+    return res.status(200).send({ message: 'User has been blocked' });
+  }
+
+  @Patch('unblock')
+  @ApiOkResponse({ description: 'User is blocked' })
+  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
+  async handleUnblock(
+    @GetUser() user: User,
+    @Body() dto: dmDTO,
+    @Res() res: Response,
+  ) {
+    await this.channelService.unblock(user, dto);
+    return res.status(200).send({ message: 'User has been unblocked' });
+  }
 
   @Patch('mute')
   @ApiOkResponse({ description: 'User has been muted for the coming hour' })
@@ -117,13 +140,13 @@ export class ChannelController {
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleAddAdmin(
     @GetUser() user: User,
-    @Body() dto: adminDTO,
+    @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
     await this.channelService.addAdmin(user, dto);
     return res
       .status(200)
-      .send({ message: dto.userName + ' is now channel admin' });
+      .send({ message: dto.username + ' is now channel admin' });
   }
 
   @Patch('removeAdmin')
@@ -131,13 +154,13 @@ export class ChannelController {
   @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
   async handleRemoveAdmin(
     @GetUser() user: User,
-    @Body() dto: adminDTO,
+    @Body() dto: AdminDTO,
     @Res() res: Response,
   ) {
     await this.channelService.removeAdmin(user, dto);
     return res
       .status(200)
-      .send({ message: dto.userName + ' is removed from channel admins' });
+      .send({ message: dto.username + ' is removed from channel admins' });
   }
 
   @Get('members')

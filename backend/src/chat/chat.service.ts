@@ -64,17 +64,17 @@ export class ChatService {
   getEmailFromJWT(client: Socket) {
     const jwt = client.handshake.headers.authorization;
 
-    if (jwt === undefined || jwt === null) {
+    const jwtData:
+      | { sub: string; email: string; iat: string; exp: string }
+      | any = this.jwtService.decode(jwt);
+
+    if (jwtData) return jwtData.email;
+    else {
       client.emit('accessDenied', {
         message: 'Authentification failed, please log in again.',
       });
       client.disconnect();
       return;
-    } else {
-      const jwtData:
-        | { sub: string; email: string; iat: string; exp: string }
-        | any = this.jwtService.decode(jwt);
-      return jwtData.email;
     }
   }
 
@@ -624,7 +624,6 @@ export class ChatService {
     const userInRoom = await user.rooms.find((roomUser: UserInRoom) => {
       return roomUser.roomID === room.name;
     });
-
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
@@ -640,9 +639,11 @@ export class ChatService {
           "You have been banned from this channel, so don't even try...",
         );
     } else {
-      // check if user has been blocked.
-      // not sure if I shouldn't save the message when sender has been blocked
-      // because the subject says we have to 'hide' messages of blocked users
+      // check if sender is blocked
+      if (userInRoom.isBlocked)
+        throw new ForbiddenException(
+          "Can't send message because your are blocked. Sorry... (not sorry)",
+        );
     }
   }
 }

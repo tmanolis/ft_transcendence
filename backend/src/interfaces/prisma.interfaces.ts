@@ -11,6 +11,11 @@ export interface UserWithRooms extends User {
 export interface RoomWithMessages extends Room {
   rooms: Message[];
 }
+
+export interface UserInRoomWithUser extends UserInRoom {
+  user: User;
+}
+
 export interface UserWithGames {
   userName: string;
   avatar: string;
