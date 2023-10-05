@@ -38,7 +38,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
       // If the channel is set to public, send a request to change it to public
       try {
         const response = await changeChanneltoPublic();
-        console.log(response.data);
+        console.log(response?.data);
       } catch (error) {
         console.log(error);
       }
@@ -49,7 +49,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
     const updateDTO = {
       channel: chatRoom.name,
     };
-    console.log(updateDTO)
     try {
       const response = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/channel/toPublic`,
@@ -66,7 +65,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
     if (isPrivate) {
       try {
         const response = await changeChanneltoPrivate();
-        console.log(response.data);
+        console.log(response?.data);
       } catch (error) {
         console.log(error);
       }
