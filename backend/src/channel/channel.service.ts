@@ -58,34 +58,6 @@ export class ChannelService {
     return userInRoom;
   }
 
-  async getRooms(user: User) {
-    const userRooms = await this.prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .rooms({
-        select: {
-          room: {
-            select: {
-              name: true,
-              status: true,
-            },
-          },
-          role: true,
-        },
-      });
-
-    const roomData = userRooms.map((userRoom) => ({
-      name: userRoom.room.name,
-      status: userRoom.room.status,
-      role: userRoom.role,
-    }));
-
-    return roomData;
-  }
-
   async getChannelMembers(dto: channelDTO) {
     const room = await this.prisma.room.findUnique({
       where: {
@@ -114,6 +86,22 @@ export class ChannelService {
 
     return usernames;
   }
+
+	async getAllRooms() {
+    const allRooms = await this.prisma.room.findMany({
+      where: {
+        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
+      },
+      select: {
+        name: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+    return allRooms;
+  }
+
+
 
   /****************************************************************************/
   /* get history									 			                                      */

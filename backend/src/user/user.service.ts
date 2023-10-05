@@ -231,4 +231,32 @@ export class UserService {
       },
     });
   }
+
+  async getRooms(user: User) {
+    const userRooms = await this.prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .rooms({
+        select: {
+          room: {
+            select: {
+              name: true,
+              status: true,
+            },
+          },
+          role: true,
+        },
+      });
+
+    const roomData = userRooms.map((userRoom) => ({
+      name: userRoom.room.name,
+      status: userRoom.room.status,
+      role: userRoom.role,
+    }));
+
+    return roomData;
+  }
 }

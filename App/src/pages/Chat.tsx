@@ -3,15 +3,15 @@ import PageContainer from "../components/PageContainer";
 import ChatNavigation from "../components/chat_components/ChatNavigation";
 import { ChatWrapper } from "../components/chat_components/styles/ChatWrapper.styled";
 import Landing from "../pages/Landing";
-import ConversationWindow from "../components/chat_components/Conversation_component/ConversationWindow";
-import { ConversationWindowWrapper } from "../components/chat_components/Conversation_component/styles/ConversationWindow.styled";
+import ConversationWindow from "../components/chat_components/Conversation_components/ConversationWindow";
+import { ConversationWindowWrapper } from "../components/chat_components/Conversation_components/styles/ConversationWindow.styled";
 import { Socket, io } from "socket.io-client";
 import Cookies from "js-cookie";
 
 export interface Room {
 	name: string,
   status: string,
-  role: string,
+  role?: string,
 }
 
 const Chat = () => {
@@ -23,10 +23,10 @@ const Chat = () => {
     },
   });
 
-  const [chatName, setChatName] = useState("");
+  const [chatRoom, setChatRoom] = useState<Room | null>(null);
 
   const openChat = (room: Room) => {
-    setChatName(room.name);
+    setChatRoom(room);
   }
 
 	useEffect(() => {
@@ -42,12 +42,12 @@ const Chat = () => {
     <>
       <Landing />
       <PageContainer type="other">
-      <ChatWrapper>
-        <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
-        <ConversationWindowWrapper>
-          {chatName && <ConversationWindow chatName={chatName} />}
-        </ConversationWindowWrapper>
-      </ChatWrapper >
+        <ChatWrapper>
+          <ChatNavigation openChat={openChat} socket_chat={socket_chat}/>
+          <ConversationWindowWrapper>
+            {chatRoom && <ConversationWindow chatRoom={chatRoom} />}
+          </ConversationWindowWrapper>
+        </ChatWrapper >
       </PageContainer>
     </>
   )
