@@ -40,7 +40,7 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
   const isAdminOrOwner = chatRoom.role === "ADMIN" || chatRoom.role === "OWNER";
 
   return (
-    <ChanMenuBar isAdminOrOwner={isAdminOrOwner}>
+    <ChanMenuBar $isAdminOrOwner={isAdminOrOwner}>
       <ChanMenuElement onClick={handleUsersButtonClick}>&gt; Users</ChanMenuElement>
       {isAdminOrOwner && (
         <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
@@ -51,7 +51,7 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
           chatRoom={chatRoom}
           userName={userName}
           onClose={closeSettingsModal}
-          />, document.body
+        />, document.body
       )}
       {isUsersListModalVisible && createPortal(
         <UsersListModal
