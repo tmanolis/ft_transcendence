@@ -17,7 +17,7 @@ export const NewChatModal: React.FC<NewChatModalProps> = ({ onCancel, socket_cha
 			<PopUpWrapper>
 				<div className="header">
 					<h2>&gt; New Chat</h2>
-					<img src={iconSrc} alt="settings_icon" onClick={onCancel} />
+					<img src={iconSrc} alt="cross_icon" onClick={onCancel} />
 				</div>
 				<div className="lists_container">
 					<JoinDirectMessage onCancel={onCancel} socket_chat={socket_chat} />
