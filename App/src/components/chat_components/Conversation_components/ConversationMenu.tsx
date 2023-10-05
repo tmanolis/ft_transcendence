@@ -46,12 +46,12 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
         <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
       )}
       <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
-      {isSettingsModalVisible && (
+      {isSettingsModalVisible && createPortal(
         <SettingsModal
           chatRoom={chatRoom}
           userName={userName}
           onClose={closeSettingsModal}
-        />
+          />, document.body
       )}
       {isUsersListModalVisible && createPortal(
         <UsersListModal
