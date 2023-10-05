@@ -38,6 +38,7 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
   useEffect(() => {
     const handleleaveChannelSuccess = () => {
       onCloseMenu();
+      window.location.reload();
     };
 
     const handleleaveChannelError = () => {
@@ -62,7 +63,7 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
 
     socket_chat.emit("leaveChannel", updateDTO);
   };
-  
+
   const isAdminOrOwner = chatRoom.role === "ADMIN" || chatRoom.role === "OWNER";
 
   return (
