@@ -22,12 +22,14 @@ import {
   UserInRoomWithUser,
 } from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     private prisma: PrismaService,
     private readonly chatService: ChatService,
+    private readonly userService: UserService,
   ) {}
 
   /****************************************************************************/
@@ -176,11 +178,17 @@ export class ChannelService {
   async getChannelHistory(user: User, dto: channelDTO): Promise<RoomHistory> {
     const room: RoomWithUsers = await this.checkRoom(dto);
     const userInRoom: UserInRoom = await this.allowedToReceive(user, room);
+    const blocked: string[] = await this.userService.getBlocklist(user);
 
     if (userInRoom) {
       const messages: Message[] = await this.prisma.message.findMany({
         where: {
           roomID: room.name,
+          NOT: {
+            sender: {
+              in: blocked,
+            },
+          },
         },
       });
       return { room: room.name, messages };
@@ -189,6 +197,8 @@ export class ChannelService {
   }
 
   async getFullHistory(user: User): Promise<RoomHistory[]> {
+    const blocked: string[] = await this.userService.getBlocklist(user);
+
     const userRooms: UserWithRooms | null = await this.prisma.user.findUnique({
       where: {
         email: user.email,
@@ -208,6 +218,11 @@ export class ChannelService {
       const messages = await this.prisma.message.findMany({
         where: {
           roomID: room.roomID,
+          NOT: {
+            sender: {
+              in: blocked,
+            },
+          },
         },
       });
 
@@ -250,8 +265,8 @@ export class ChannelService {
         throw new ForbiddenException(
           'Too bad, you have been banned from this channel...',
         );
-    } 
-		
+    }
+
     return userInRoom;
   }
 
