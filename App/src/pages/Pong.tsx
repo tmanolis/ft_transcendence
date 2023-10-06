@@ -74,6 +74,8 @@ const Pong = () => {
       GameSocket?.off("error");
       GameSocket?.off("updatePaddlePosition");
       GameSocket?.off("updateBallPosition");
+      GameSocket?.off("endWaitingState");
+      GameSocket?.off("invitationAccepted");
     };
   }, [isWaiting]);
 

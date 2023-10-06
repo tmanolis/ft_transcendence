@@ -126,6 +126,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const gameRoom: string = currentPlayer.gameID;
     let gameData: Game;
+    this.server.to(gameRoom).emit('endWaitingState');
 
     const gameInterval = setInterval(async () => {
       gameData = await this.gameService.gameLogic(client);
@@ -277,19 +278,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     } catch (error) {
       throw error;
     }
-    client.join(invitingPlayer.gameID);
+    const gameRoom = invitingPlayer.gameID;
+    client.join(gameRoom);
 
     const inviteGameStarted = await this.gameService.joinGame(
       invitedPlayer,
       invitingPlayer.gameID,
     );
-    console.log(inviteGameStarted);
     if (inviteGameStarted) {
-      this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
-      this.server.to(invitingPlayer.socketID).emit('gameReady');
-      this.server.to(invitedPlayer.socketID).emit('gameReady');
-      this.server.to(invitingPlayer.socketID).emit('endWaitigState');
-      this.server.to(invitedPlayer.socketID).emit('endWaitingState');
+      await this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
+      await this.server.to(gameRoom).emit('gameReady');
+      await this.server.to(gameRoom).emit('endWaitingState');
     } else {
       this.server
         .to(invitedPlayer.socketID)
@@ -386,6 +385,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     const gameRoom: string = currentPlayer.gameID;
     let gameData: Game;
+    if (gameRoom)
+      this.server.to(gameRoom).emit('endWaitingState');
 
     const gameInterval = setInterval(async () => {
       gameData = await this.retroGameService.gameLogic(client);
