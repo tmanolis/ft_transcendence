@@ -13,7 +13,7 @@ import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:8080'],
+    origin: [`${process.env.FRONTEND_URL}`],
   },
   namespace: 'chat',
 })
