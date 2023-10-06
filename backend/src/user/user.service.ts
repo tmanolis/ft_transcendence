@@ -244,7 +244,7 @@ export class UserService {
   }
 
 	async block(user: User, dto: UsernameDTO){
-		const subject: User = await this.getSubject(user, dto.userName);
+		const subject: User = await this.getSubject(user, dto.userName, 'block');
 		const userWithBlock = await this.getUserWithBlocklist(user);
 		const blockedUser = this.checkBlock(userWithBlock, subject);
 
@@ -257,12 +257,10 @@ export class UserService {
 				blockedBy: user.id,
 			},
 		});
-
-		const blockeduser = this.checkBlock(userWithBlock, subject);
 	}
 
 	async unblock(user: User, dto: UsernameDTO){
-		const subject: User = await this.getSubject(user, dto.userName);
+		const subject: User = await this.getSubject(user, dto.userName, 'unblock');
 		const userWithBlock = await this.getUserWithBlocklist(user);
 		const blockedUser = this.checkBlock(userWithBlock, subject);
 
@@ -274,12 +272,9 @@ export class UserService {
 				id: blockedUser.id,
 			},
 		});
-		
-		const blockeduser = this.checkBlock(userWithBlock, subject);
-		console.log(blockeduser)
 	}
 
-	async getSubject(user: User, userName: string): Promise<User>{
+	async getSubject(user: User, userName: string, action: string): Promise<User>{
 		// return subject if it exists
 		const subject: User = await this.prisma.user.findUnique({
 			where: {
@@ -289,8 +284,8 @@ export class UserService {
 
 		if (!subject) throw new NotFoundException('User not found');
 
-		if (subject.id === user.id) throw new ForbiddenException('Can not unblock yourself');
-		
+		if (subject.id === user.id) throw new ForbiddenException(`Can not ${action} yourself`);
+
 		return subject;
 	}
 
@@ -300,8 +295,8 @@ export class UserService {
 			where: {
 				id: user.id,
 			}, include: {
-				blockList: true,
-				blockedList: true,
+				blockedUsers: true,
+				usersBlockedMe: true,
 			},
 		});
 
@@ -312,7 +307,7 @@ export class UserService {
 
 	checkBlock(user: UserWithBlocklist, subject: User){
 		// check if subject has been blocked
-		const blockedSubject: BlockedUser = user.blockedList.find(
+		const blockedSubject: BlockedUser = user.blockedUsers.find(
 			(blockedUser: BlockedUser) => blockedUser.blocked === subject.id,
 		);
 		
@@ -320,10 +315,21 @@ export class UserService {
 	}
 
 	async getBlocklist(user: User){
-		const userWithBlock: UserWithBlocklist = await this.getUserWithBlocklist(user);
+		const userWithBlock = await this.getUserWithBlocklist(user);
+		let blocklist: string[] = [];
 
-		console.log('blocklist', userWithBlock.blockList);
-		console.log('blockedlist', userWithBlock.blockedList);
+		for (const blockedUser of userWithBlock.blockedUsers){
+			const blockedUserRecord = await this.prisma.user.findUnique({
+				where: {
+					id: blockedUser.blocked,
+				}
+			})
 
+			if (blockedUserRecord) {
+				blocklist.push(blockedUserRecord.userName);
+			}		
+		}
+
+		return blocklist;
 	}
 }

@@ -17,14 +17,16 @@ export interface UserInRoomWithUser extends UserInRoom {
 }
 
 export interface UserWithBlocklist extends User {
-	blockList: BlockedUser[];
-	blockedList: BlockedUser[];
+	blockedUsers: BlockedUser[];
 }
 
-export interface BlockedUserWithUser extends BlockedUser {
-		blockedUser: User;
-		blockedByUser: User;
-}
+// export interface BlockedUserWithUsername extends BlockedUser {
+// 	blockedUser: User & { userName: string };
+// }
+
+// export interface UserWithNamedBlocklist extends BlockedUserWithUser {
+// 	blockedUsers: BlockedUserWithUser[];
+// }
 
 export interface UserWithGames {
   userName: string;

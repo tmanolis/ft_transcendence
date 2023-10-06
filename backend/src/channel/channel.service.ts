@@ -478,7 +478,7 @@ export class ChannelService {
 
   relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
     if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
-      throw new ForbiddenException('Can not ' + action + ' other admin');
+      throw new ForbiddenException(`Can not ${action} other admin`);
     } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
       throw new ForbiddenException('Can not ' + action + ' owner');
     }
