@@ -11,6 +11,7 @@ import {
 import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled";
 import { Room } from "../../../pages/Chat";
 import iconSrc from "/icon/Cross.svg";
+import axios from "axios";
 
 interface SettingsModalProps {
   onClose: () => void; // Callback to close the menu
@@ -22,15 +23,76 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
   const [newPassword, setNewPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(chatRoom.status === "PRIVATE");
 
+  const isConfirmButtonDisabled = newPassword.trim() === "";
+
   const handleButtonClick = () => {
     onClose();
+    window.location.reload();
   }
 
-  const handleCheckboxChange = () => {
+  const toggleChannelPrivacy = async () => {
     setIsPrivate(!isPrivate);
     const newStatus = isPrivate ? "PUBLIC" : "PRIVATE";
 
     console.log("New Status:", newStatus);
+
+    if (newStatus === "PUBLIC") {
+      // If the channel is set to public, send a request to change it to public
+      try {
+        const response = await changeChanneltoPublic();
+        console.log(response?.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const changeChanneltoPublic = async () => {
+    const updateDTO = {
+      channel: chatRoom.name,
+    };
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/toPublic`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleConfirmButtonClick = async () => {
+    if (isPrivate && !isConfirmButtonDisabled) {
+      try {
+        const response = await changeChanneltoPrivate();
+        console.log(response?.data);
+      } catch (error) {
+        console.log(error);
+      }
+    
+      onClose();
+      window.location.reload();
+    }
+  };
+
+  const changeChanneltoPrivate = async () => {
+    const updateDTO = {
+      channel: chatRoom.name,
+      password: newPassword,
+    };
+
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/toPrivate`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -49,7 +111,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
             <input
               type="checkbox"
               checked={isPrivate}
-              onChange={handleCheckboxChange}
+              onChange={toggleChannelPrivacy}
             />
             <p className="infos">Enable Password</p>
           </div>
@@ -67,7 +129,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
                   placeholder="<type name here>"
                 />
                 <ConfirmButton>
-                  <ButtonStyled>Confirm</ButtonStyled>
+                  <ButtonStyled
+                    onClick={handleConfirmButtonClick}
+                    disabled={isConfirmButtonDisabled}
+                  >
+                    Confirm
+                  </ButtonStyled>
                 </ConfirmButton>
               </Input>
             </PrivateInfo>
