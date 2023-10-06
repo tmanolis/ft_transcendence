@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { io, Socket } from "socket.io-client";
 import { useNavigate } from "react-router";
-import Cookies from "js-cookie";
 
 import Landing from "../pages/Landing";
 import PageContainer from "../components/auth_components/styles/AuthContainer.styled";
+import { GameSocket } from "../components/GameSocket";
 
 // Connect to the socket from outside of the component
 // avoid reconnection when ever the states changed
-const access_token: string = Cookies.get("jwt")!;
-const socket: Socket = io(`${import.meta.env.VITE_BACKEND_URL}/game`, {
-  extraHeaders: {
-    Authorization: access_token,
-  },
-});
 
 interface Position {
   x: number;
@@ -35,49 +28,25 @@ const Pong = () => {
   );
   const [ball, setBall] = useState<Position>({ x: 0, y: 0 });
   const [isWaiting, setIsWaiting] = useState<boolean>(true);
-  const [countdown, setCountdown] = useState<number>(0);
   const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
   const [gameID, setGameID] = useState<string>("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.connect();
-    socket?.emit("findGame");
-    return () => {
-      socket.disconnect();
-    }
-  }, [])
-  useEffect(() => {
-    socket.on("connect", () => {
-      console.log("connected: ", socket?.id);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("disconnected: ", socket?.id);
-    });
-
-    socket.on("error", (error: string) => {
+    GameSocket.on("error", (error: string) => {
       console.log("Websocket connection error: ", error);
     });
 
-    socket.on("updateLeftPaddle", (newPosition: string) => {
+    GameSocket.on("updateLeftPaddle", (newPosition: string) => {
       setLeftPaddleY(parseInt(newPosition));
     });
 
-    socket.on("updateRightPaddle", (newPosition: string) => {
+    GameSocket.on("updateRightPaddle", (newPosition: string) => {
       setRightPaddleY(parseInt(newPosition));
     });
 
-    socket.on("updateBall", (newPosition: Position) => {
-      setBall(newPosition);
-    });
-
-    socket.on("updateScore", (newScore: Record<number, number>) => {
-      setScore(newScore);
-    });
-
-    socket.on("rejoinGame", (gameData: any) => {
+    GameSocket.on("rejoinGame", (gameData: any) => {
       setIsWaiting(false);
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
@@ -86,36 +55,26 @@ const Pong = () => {
     });
 
 
-    if (!isWaiting && countdown < 1) {
-      socket.emit("startGame");
+    if (!isWaiting) {
+      GameSocket.emit("startGame");
     }
 
-    socket.on("endWaitingState", () => {
+    GameSocket.on("endWaitingState", () => {
       setIsWaiting(false);
       console.log("waiting ENDED!!!");
-      const interval = setInterval(() => {
-        setCountdown((prevCountdown: number) => {
-          if (prevCountdown <= 1) {
-            clearInterval(interval);
-            return 0;
-          } else {
-            return prevCountdown - 1;
-          }
-        });
-      }, 1000);
     });
 
-    socket.emit("setCanvas", { canvasHeight, paddleHeight, leftPaddleY });
+    GameSocket.emit("setCanvas", { canvasHeight, paddleHeight, leftPaddleY });
 
     return () => {
-      socket?.off("error");
-      socket?.off("updatePaddlePosition");
-      socket?.off("updateBallPosition");
+      GameSocket?.off("error");
+      GameSocket?.off("updatePaddlePosition");
+      GameSocket?.off("updateBallPosition");
     };
-  }, [isWaiting, countdown]);
+  }, [isWaiting]);
 
   useEffect(() => {
-    socket.on("updateGame", (gameData: any) => {
+    GameSocket.on("updateGame", (gameData: any) => {
       if (gameData.status === "ended") {
         navigate("/play");
       }
@@ -131,9 +90,9 @@ const Pong = () => {
       console.log(event.key);
       if (!isWaiting) {
         if (event.key === "ArrowUp") {
-          socket?.emit("movePaddle", { key: "up", gameID: gameID });
+          GameSocket?.emit("movePaddle", { key: "up", gameID: gameID });
         } else if (event.key === "ArrowDown") {
-          socket?.emit("movePaddle", { key: "down", gameID: gameID });
+          GameSocket?.emit("movePaddle", { key: "down", gameID: gameID });
         }
       }
     };
@@ -182,7 +141,7 @@ const Pong = () => {
         );
 
         // draw the ball
-        if (!isWaiting && countdown < 1) {
+        if (!isWaiting) {
           context.fillStyle = "white";
           context.fillRect(
             ball.x - paddleWidth / 2,
@@ -211,19 +170,9 @@ const Pong = () => {
           canvas.width / 2,
           canvas.height / 2,
         );
-      } else if (context && countdown > 0) {
-        context.font = "90px 'JetBrains Mono', monospace";
-        context.fillStyle = "white";
-        context.textAlign = "center";
-        context.textBaseline = "middle";
-        context.fillText(
-          countdown.toString(),
-          canvas.width / 2,
-          canvas.height / 2,
-        );
-      }
+      } 
     }
-  }, [leftPaddleY, rightPaddleY, ball, isWaiting, countdown, score]);
+  }, [leftPaddleY, rightPaddleY, ball, isWaiting, score]);
 
   return (
     <>
