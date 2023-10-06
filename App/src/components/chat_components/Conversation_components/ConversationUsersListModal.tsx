@@ -28,7 +28,7 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose, chatRoom }) =>
     const fetchUserData = async () => {
       try {
         // Replace "%23" with "#"
-        const formattedRoomName = encodeURIComponent(chatRoom.name.replace('%23', /#/g));
+        const formattedRoomName = encodeURIComponent(chatRoom.name.replace('%23', '#'));
         const response = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/channel/members?name=${formattedRoomName}`,
           {

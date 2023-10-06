@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const UserBannerStyled = styled.div`
   width: 90%;
-  height: 40px;
+  height: 55px;
   flex-shrink: 0;
   border-top: 1px solid #fff;
   border-left: 1px solid #fff;
@@ -21,7 +21,7 @@ export const UserDetails = styled.div`
   align-items: center;
 
   img {
-    max-width: 30px;
+    max-width: 13%;
     height: auto;
     border-radius: 50%;
     margin-right: 10px; /* Increase margin for more spacing */
@@ -29,6 +29,8 @@ export const UserDetails = styled.div`
 
   p {
     margin: 0;
-    font-size: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    padding-left: 1%;
   }
 `;
