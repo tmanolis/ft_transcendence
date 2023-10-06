@@ -27,77 +27,81 @@ import { ChannelService } from './channel.service';
 export class ChannelController {
   constructor(private channelService: ChannelService) {}
 
-  @Patch('block')
-  @ApiOkResponse({ description: 'User is blocked' })
-  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
-  async handleBlock(
-    @GetUser() user: User,
-    @Body() dto: dmDTO,
-    @Res() res: Response,
-  ) {
-    await this.channelService.block(user, dto);
-    return res.status(200).send({ message: 'User has been blocked' });
+  /****************************************************************************/
+  /* channel info											                                        */
+  /****************************************************************************/
+
+  @Get('allChannels')
+  @ApiOkResponse({
+    description: 'Returns all available public and private channels',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetAllRooms(@Res() res: Response) {
+    const allRooms = await this.channelService.getAllRooms();
+    return res.status(200).send({ allRooms });
   }
 
-  @Patch('unblock')
-  @ApiOkResponse({ description: 'User is blocked' })
-  @ApiUnauthorizedResponse({ description: 'Room modification not possible' })
-  async handleUnblock(
+  @Get('otherUser')
+  @ApiOkResponse({
+    description: 'Returns username of other user in DM room',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetOtherUser(
     @GetUser() user: User,
-    @Body() dto: dmDTO,
+    @Query() dto: channelDTO,
     @Res() res: Response,
   ) {
-    await this.channelService.unblock(user, dto);
-    return res.status(200).send({ message: 'User has been unblocked' });
+    const userName = await this.channelService.getOtherUser(user, dto);
+    return res.status(200).send({ userName });
   }
 
-  @Patch('mute')
-  @ApiOkResponse({ description: 'User has been muted for the coming hour' })
-  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
-  async handleMute(
-    @GetUser() user: User,
-    @Body() dto: AdminDTO,
+  @Get('members')
+  @ApiOkResponse({
+    description: 'Returns usernames of users connected to a room',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetChannelMembers(
+    @Query() dto: channelDTO,
     @Res() res: Response,
   ) {
-    await this.channelService.mute(user, dto);
-    return res.status(200).send({ message: 'User muted for 30 minutes' });
+    const membersList = await this.channelService.getChannelMembers(dto);
+    return res.status(200).send({ membersList });
   }
 
-  @Patch('ban')
-  @ApiOkResponse({ description: 'User banned from channel' })
-  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
-  async handleBan(
+  /****************************************************************************/
+  /* channel history									                                        */
+  /****************************************************************************/
+
+  @Get('history')
+  @ApiOkResponse({
+    description: 'Returns message history channel',
+  })
+  @ApiOkResponse({ description: 'Authentification failed' })
+  async handleGetChannelHistory(
     @GetUser() user: User,
-    @Body() dto: AdminDTO,
+    @Query() dto: channelDTO,
     @Res() res: Response,
   ) {
-    await this.channelService.ban(user, dto);
-    return res.status(200).send({ message: 'User banned from channel' });
+    const channelHistory = await this.channelService.getChannelHistory(
+      user,
+      dto,
+    );
+    return res.status(200).send({ channelHistory });
   }
 
-  @Patch('unban')
-  @ApiOkResponse({ description: 'Usr ban llifted' })
-  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
-  async handleUnban(
-    @GetUser() user: User,
-    @Body() dto: AdminDTO,
-    @Res() res: Response,
-  ) {
-    await this.channelService.unban(user, dto);
-    return res.status(200).send({ message: 'User ban lifted' });
+  @Get('fullHistory')
+  @ApiOkResponse({
+    description: 'Returns message history channel',
+  })
+  @ApiOkResponse({ description: 'Authentification failed' })
+  async handleGetFullHistory(@GetUser() user: User, @Res() res: Response) {
+    const fullHistory = await this.channelService.getFullHistory(user);
+    return res.status(200).send({ fullHistory });
   }
 
-  @Patch('kick')
-  @ApiOkResponse({ description: 'User kicked from channel' })
-  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
-  async handleKick(
-    @GetUser() user: User,
-    @Body() dto: AdminDTO,
-    @Res() res: Response,
-  ) {
-    await this.channelService.kick(user, dto);
-    return res.status(200).send({ message: 'User kicked from channel' });
-  }
+  /****************************************************************************/
+  /* owner options										                                        */
+  /****************************************************************************/
 
   @Patch('toPublic')
   @ApiOkResponse({ description: 'Channel has been set to public' })
@@ -163,42 +167,55 @@ export class ChannelController {
       .send({ message: dto.username + ' is removed from channel admins' });
   }
 
-  @Get('members')
-  @ApiOkResponse({
-    description: 'Returns usernames of users connected to a room',
-  })
-  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetChannelMembers(@Query() dto: channelDTO) {
-    return await this.channelService.getChannelMembers(dto);
-  }
+  /****************************************************************************/
+  /* admin options										                                        */
+  /****************************************************************************/
 
-  @Get('history')
-  @ApiOkResponse({
-    description: 'Returns message history channel',
-  })
-  @ApiOkResponse({ description: 'Authentification failed' })
-  async handleGetChannelHistory(
+  @Patch('mute')
+  @ApiOkResponse({ description: 'User has been muted for the coming hour' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleMute(
     @GetUser() user: User,
-    @Query() dto: channelDTO,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
   ) {
-    return await this.channelService.getChannelHistory(user, dto);
+    await this.channelService.mute(user, dto);
+    return res.status(200).send({ message: 'User muted for 30 minutes' });
   }
 
-  @Get('fullHistory')
-  @ApiOkResponse({
-    description: 'Returns message history channel',
-  })
-  @ApiOkResponse({ description: 'Authentification failed' })
-  async handleGetFullHistory(@GetUser() user: User) {
-    return await this.channelService.getFullHistory(user);
+  @Patch('ban')
+  @ApiOkResponse({ description: 'User banned from channel' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleBan(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.channelService.ban(user, dto);
+    return res.status(200).send({ message: 'User banned from channel' });
   }
 
-	@Get('allChannels')
-  @ApiOkResponse({
-    description: 'Returns all available public and private channels',
-  })
-  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetAllRooms(@GetUser() user: User) {
-    return await this.channelService.getAllRooms();
+  @Patch('unban')
+  @ApiOkResponse({ description: 'Usr ban llifted' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleUnban(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.channelService.unban(user, dto);
+    return res.status(200).send({ message: 'User ban lifted' });
+  }
+
+  @Patch('kick')
+  @ApiOkResponse({ description: 'User kicked from channel' })
+  @ApiUnauthorizedResponse({ description: 'Channel modification not possible' })
+  async handleKick(
+    @GetUser() user: User,
+    @Body() dto: AdminDTO,
+    @Res() res: Response,
+  ) {
+    await this.channelService.kick(user, dto);
+    return res.status(200).send({ message: 'User kicked from channel' });
   }
 }
