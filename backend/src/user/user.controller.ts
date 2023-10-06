@@ -16,6 +16,7 @@ import { UserService } from './user.service';
 import { GetUserByEmailDTO, GetUserByUsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { UserWithGames } from 'src/interfaces';
 
 @ApiTags('User')
 @Controller('user')
@@ -32,6 +33,7 @@ export class UserController {
   handleGetMe(@GetUser() user: User) {
     return user;
   }
+
 
   // update user data
   @Patch('update')
@@ -103,5 +105,11 @@ export class UserController {
   })
   async handleGetUserByEmail(@Query() dto: GetUserByEmailDTO) {
     return await this.userService.getUserByEmail(dto);
+  }
+
+  @Get('myRooms')
+  @ApiOkResponse({ description: 'Returns rooms that user is connected to' })
+  async handleGetRooms(@GetUser() user: User) {
+    return this.userService.getRooms(user);
   }
 }

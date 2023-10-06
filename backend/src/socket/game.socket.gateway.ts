@@ -1,18 +1,18 @@
 import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
 } from '@nestjs/websockets';
 import { Inject } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from 'nestjs-prisma';
 import { Cache } from 'cache-manager';
-import { Game, GameStatus, Player } from '../dto/game.dto';
-import { User, Game as prismaGame } from '@prisma/client';
 
+import { User, Game as prismaGame } from '@prisma/client';
+import { Game, GameStatus, Player } from '../dto/game.dto';
 import { GameService } from '../game/game.service';
 
 @WebSocketGateway({
@@ -21,12 +21,11 @@ import { GameService } from '../game/game.service';
   },
   namespace: 'game',
 })
-export class GameGateway implements OnGatewayConnection {
+export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private readonly gameService: GameService,
-    private readonly jwtService: JwtService,
     private prisma: PrismaService,
   ) {}
   @WebSocketServer()
@@ -52,9 +51,18 @@ export class GameGateway implements OnGatewayConnection {
     await this.gameService.cancelPendingGame(client);
     await this.gameService.updateUserDisconnectStatus(client);
     await this.gameService.clearData(client);
-    console.log(
-      `\x1b[31m Socket: ${client.id} disconnect from Game Socket! \x1b[0m`,
-    );
+    console.log(`\x1b[31m ${client.id} disconnect from Game Socket!\x1b[0m`);
+  }
+
+
+  @SubscribeMessage('enterGamePage')
+  async handleEnterGamePage(client: Socket) {
+    console.log(`\x1b[31m ${client.id} enter game page!\x1b[0m`);
+  }
+
+  @SubscribeMessage('leaveGamePage')
+  async handleLeaveGamePage(client: Socket) {
+    console.log(`\x1b[31m ${client.id} leave game page!\x1b[0m`);
   }
 
   /****************************************************************************/
@@ -123,9 +131,8 @@ export class GameGateway implements OnGatewayConnection {
       }
 
       if (gameData.status === GameStatus.Ended) {
-        this.gameService.endGame(gameData);
-        clearInterval(gameInterval);
         await this.gameService.endGame(gameData);
+        clearInterval(gameInterval);
       }
     }, 1000 / 30);
 

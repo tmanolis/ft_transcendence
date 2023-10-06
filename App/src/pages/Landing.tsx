@@ -10,14 +10,19 @@ const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);
   const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
   const [avatarPath, setAvatarPath] = useState<string>("");
+  const [userName, setUserName] = useState<string>("");
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/me`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/me`,
+          {
+            withCredentials: true,
+          }
+        );
         setAvatarPath(response.data.avatar);
+        setUserName(response.data.userName);
       } catch (error) {
         console.error(error);
       }
@@ -49,7 +54,7 @@ const Landing: React.FC = () => {
         />
       </LandingContainer>
       {menuBarIsShown && <NavBar />}
-      {avatarBarIsShown && <AvatarBar />}
+      {avatarBarIsShown && <AvatarBar userName={userName} />}
     </>
   );
 };

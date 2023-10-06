@@ -110,6 +110,21 @@ export class FriendController {
       .send({ status: result.status, message: result.message });
   }
 
+  // unfriend directly(Don't care if he/she wants~~~)
+  @Patch('unfriend')
+  @ApiOperation({
+    description: 'unfriend by providing and object like { userName: abc }',
+  })
+  async handleUnfriend(
+    @GetUser() user: User,
+    @Body() payload: { userName: string },
+    @Res() res: Response,
+  ) {
+    const result = await this.friendService.unfriend(user, payload, res);
+    res
+      .status(result.statusCode)
+      .send({ status: result.status, message: result.message });
+  }
   /*****************************************************************************/
   // DELETE
   /*****************************************************************************/
@@ -142,19 +157,6 @@ export class FriendController {
       payload,
       res,
     );
-    res
-      .status(result.statusCode)
-      .send({ status: result.status, message: result.message });
-  }
-
-  // Unfriend
-  @Delete('unfriend')
-  async handleUnfriend(
-    @GetUser() user: User,
-    @Body() payload: { userEmail: string },
-    @Res() res: Response,
-  ) {
-    const result = await this.friendService.unfriend(user, payload, res);
     res
       .status(result.statusCode)
       .send({ status: result.status, message: result.message });

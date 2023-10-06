@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link as RouterLink } from 'react-router-dom'; // Import Link from react-router-dom
 
 export const FriendsListWrapper = styled.div`
 	margin: 15px;
@@ -66,17 +67,43 @@ export const Avatar = styled.img`
 	border-radius: 58px;
 `;
 
-export const UserInfos = styled.div`
-	width: 200px;
+const statusColors = {
+	online: "green",
+	offline: "red",
+	playing: "blue",
+	away: "orange",
+  };
 
+  interface StyledUserInfosProps {
+	$status: string; // Use $status with the dollar sign prefix
+	children?: React.ReactNode;
+  }
+  
+  const StyledUserInfos = styled.div<StyledUserInfosProps>`
+	width: 200px;
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
-
+  
 	span {
-		font-size: 12px;
+	  font-size: 12px;
+	  color: ${(props) =>
+		statusColors[props.$status as keyof typeof statusColors] || 'white'};
 	}
-`;
+  `;
+  
+  interface UserInfosProps {
+	status: string;
+	children: React.ReactNode;
+  }
+  
+  export const UserInfos: React.FC<UserInfosProps> = ({ status, children }) => {
+	return (
+	  <StyledUserInfos $status={status}>
+		{children}
+	  </StyledUserInfos>
+	);
+  };
 
 export const ProfileButton = styled.button`
 	padding: 5px;
@@ -92,4 +119,9 @@ export const ProfileButton = styled.button`
 	font-style: normal;
 	font-weight: 400;
 	letter-spacing: 0.2px;
+`;
+
+export const CustomLink = styled(RouterLink)`
+  text-decoration: none;
+  color: inherit;
 `;
