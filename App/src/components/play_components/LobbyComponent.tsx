@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from 'react-router';
 
 import { ClassicPongButton } from "./styles/ClassicPongButton.styled";
@@ -11,10 +11,18 @@ const LobbyComponent: React.FC = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    GameSocket.on('gameReady', () => {
+      navigate("/pong");
+    });
+    return () => {
+      GameSocket.off('gameReady');
+    }
+  }, []);
+
   const handlePlayClassicPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     await GameSocket.emit("findGame");
-    navigate("/pong");
   };
 
   const handlePlayRetroPong = async (event: React.MouseEvent<HTMLElement>) => {
