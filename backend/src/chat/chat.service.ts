@@ -24,7 +24,6 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
-
 @Injectable()
 export class ChatService {
   constructor(
@@ -258,7 +257,7 @@ export class ChatService {
         roomDTO.name,
         prismaUser,
       );
-      roomName = this.uniqueRoomName(prismaUser.email, otherPrismaUser.email);
+      roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
       await this.securityCheckCreateChannel(prismaUser, roomDTO);
     } catch (error) {
@@ -318,10 +317,30 @@ export class ChatService {
     return roomName;
   }
 
-  uniqueRoomName(email1: string, email2: string) {
-    const sortedIDs = [email1, email2].sort();
-    const concatenatedIDs = sortedIDs.join('/');
-    return concatenatedIDs;
+  async uniqueRoomName(): Promise<string> {
+    let name: string;
+    let room: Room;
+
+    do {
+      name = this.generateRandomString(10);
+      room = await this.prisma.room.findUnique({
+        where: {
+          name: name,
+        },
+      });
+    } while (room);
+
+    return name;
+  }
+
+  generateRandomString(length: number): string {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+      randomString += characters[Math.floor(Math.random() * characters.length)];
+    }
+    return randomString;
   }
 
   async prismaCheckOtherUser(
@@ -637,12 +656,6 @@ export class ChatService {
       if (userInRoom.isBanned)
         throw new ForbiddenException(
           "You have been banned from this channel, so don't even try...",
-        );
-    } else {
-      // check if sender is blocked
-      if (userInRoom.isBlocked)
-        throw new ForbiddenException(
-          "Can't send message because your are blocked. Sorry... (not sorry)",
         );
     }
   }
