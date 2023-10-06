@@ -129,7 +129,7 @@ export const Input = styled.div`
   button{
     margin-top: 35%;
     margin-left: 10%;
-
+    
     cursor: pointer;
   }
 
@@ -139,6 +139,8 @@ export const Input = styled.div`
 `;
 
 export const ConfirmButton = styled.div`
-  /* margin-top: 6.5%;
-  margin-left: 4%; */
+  button[disabled] {
+    cursor: not-allowed;
+    opacity: 1;
+  }
 `;
