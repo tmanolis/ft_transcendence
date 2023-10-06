@@ -10,10 +10,7 @@ export const UserBannerStyled = styled.div`
   box-shadow: 2px 2px 0px 0px rgba(157, 157, 157, 0.25);
   margin-bottom: 5px;
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center; /* Center content vertically */
-  padding: 0 10px; /* Add padding to adjust spacing */
+  padding: 0 10px; /* Add padding to adjust spacing */  
 `;
 
 export const UserDetails = styled.div`
@@ -24,7 +21,11 @@ export const UserDetails = styled.div`
     width: 100%;
     height: auto;
     border-radius: 50%;
-    margin-right: 10px; /* Increase margin for more spacing */
+    margin-right: 10px;
+    @media screen and (max-width: 500px) {
+      width: 80%;
+      margin-right: 5px;
+    }
   }
 
   p {
@@ -32,6 +33,14 @@ export const UserDetails = styled.div`
     font-size: 16px;
     font-weight: bold;
     padding-left: 1%;
+
+      @media screen and (max-width: 500px) {
+        font-size: 12px;
+    }
+  }
+
+  @media screen and (max-width: 500px) {
+    justify-content: flex-start;
   }
 `;
 
@@ -41,12 +50,20 @@ export const SocialActions = styled.div`
   align-items: center;
   height: 50px;
   padding-left: 8%;
+  @media screen and (max-width: 500px) {
+    padding-left: 0;
+  }
 
     img {
       width: 18%;
       border-radius: 0;
       margin-right: 5%;
       margin-left: 5%;
+        @media screen and (max-width: 500px) {
+        width: 10%;
+        margin-right: 0;
+        margin-left: 3%;
+      }
     }
 `;
 
