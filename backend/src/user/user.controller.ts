@@ -34,7 +34,6 @@ export class UserController {
     return user;
   }
 
-
   // update user data
   @Patch('update')
   @ApiOkResponse({

@@ -193,7 +193,7 @@ export class ChannelController {
     return await this.channelService.getFullHistory(user);
   }
 
-	@Get('allChannels')
+  @Get('allChannels')
   @ApiOkResponse({
     description: 'Returns all available public and private channels',
   })

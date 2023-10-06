@@ -24,7 +24,6 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
-
 @Injectable()
 export class ChatService {
   constructor(
@@ -548,13 +547,10 @@ export class ChatService {
       throw error;
     }
 
-    const newMessage = new ChatMessage(
-      message.room,
-      'PongStoryShort',
-      message.text,
-    );
-
-    this.server.to(message.room).emit('newMessage', JSON.stringify(newMessage));
+    // ping for update
+    this.server
+      .to(message.room)
+      .emit('channelUpdated', 'please GET channel/history');
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
@@ -592,6 +588,11 @@ export class ChatService {
           },
         },
       });
+
+      // ping for update
+      this.server
+        .to(room.name)
+        .emit('channelUpdated', 'please GET channel/history');
     } catch (error) {
       throw error;
     }
