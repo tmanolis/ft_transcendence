@@ -66,6 +66,6 @@ See Swagger at http://localhost:3000/api
 | leaveChannelError			| messageBody			|	error leaving channel														|
 | sendMessageSuccess		| messageBody			|	message has been saved in the database					|
 | sendMessageError			| messageBody			|	error sending message														|
-| updateChannel					| messageBody			|	a new message has been sent, please get history	|
+| channelUpdated				| messageBody			|	a new message has been sent, please get history	|
 | --------------------- | ---------------	| ----------------------------------------------- |
 
