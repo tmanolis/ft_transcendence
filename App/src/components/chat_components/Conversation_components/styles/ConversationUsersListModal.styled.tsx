@@ -50,3 +50,13 @@ export const Head = styled.div`
     right: 3%;
   }
 `;
+
+export const UsersList = styled.div`
+  display: flex;
+  width: 456px;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  overflow-y: scroll;
+  max-height: 300px;
+`;
