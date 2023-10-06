@@ -144,8 +144,12 @@ export class ChannelController {
     description: 'Returns usernames of users connected to a room',
   })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetChannelMembers(@Query() dto: channelDTO) {
-    return await this.channelService.getChannelMembers(dto);
+  async handleGetChannelMembers(
+		@Query() dto: channelDTO,
+		@Res() res: Response,
+	) {
+    const membersList = await this.channelService.getChannelMembers(dto);
+    return res.status(200).send({ membersList });
   }
 
   @Get('history')
@@ -156,8 +160,10 @@ export class ChannelController {
   async handleGetChannelHistory(
     @GetUser() user: User,
     @Query() dto: channelDTO,
+		@Res() res: Response,
   ) {
-    return await this.channelService.getChannelHistory(user, dto);
+    const channelHistory = await this.channelService.getChannelHistory(user, dto);
+		return res.status(200).send({ channelHistory });
   }
 
   @Get('fullHistory')
@@ -165,8 +171,12 @@ export class ChannelController {
     description: 'Returns message history channel',
   })
   @ApiOkResponse({ description: 'Authentification failed' })
-  async handleGetFullHistory(@GetUser() user: User) {
-    return await this.channelService.getFullHistory(user);
+  async handleGetFullHistory(
+		@GetUser() user: User,
+		@Res() res: Response,
+		) {
+    const fullHistory = await this.channelService.getFullHistory(user);
+		return res.status(200).send({ fullHistory });
   }
 
 	@Get('allChannels')
@@ -174,8 +184,11 @@ export class ChannelController {
     description: 'Returns all available public and private channels',
   })
   @ApiUnauthorizedResponse({ description: 'Authentification failed' })
-  async handleGetAllRooms(@GetUser() user: User) {
-    return await this.channelService.getAllRooms();
+  async handleGetAllRooms(
+		@Res() res: Response,
+		) {
+    const allRooms = await this.channelService.getAllRooms();
+		return res.status(200).send({ allRooms });
   }
 
 	@Get('otherUser')
@@ -186,8 +199,10 @@ export class ChannelController {
   async handleGetOtherUser(
 		@GetUser() user: User,
 		@Query() dto: channelDTO,
+		@Res() res: Response,
 	){
-    return await this.channelService.getOtherUser(user, dto);
+    const userName = await this.channelService.getOtherUser(user, dto);
+		return res.status(200).send({ userName });
   }
 
 }
