@@ -22,6 +22,11 @@ const LobbyComponent: React.FC = () => {
 
   const handlePlayClassicPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
+    console.log(GameSocket.connected);
+    if (!GameSocket.connected) {
+      console.log("not connected to socket");
+      GameSocket.connect();
+    }
     await GameSocket.emit("findGame");
   };
 
