@@ -50,6 +50,7 @@ export class GameService {
       return 'failed';
     }
     await this.cacheManager.set(client.id, user.email);
+    await this.cacheManager.set(user.email, client.id);
     return 'OK';
   }
 
@@ -59,6 +60,20 @@ export class GameService {
       user = await this.prisma.user.findUnique({
         where: {
           email: email,
+        },
+      });
+    } catch (error) {
+      throw error;
+    }
+    return user;
+  }
+
+  async getUserByUsername(username: string): Promise<User> {
+    let user: User;
+    try {
+      user = await this.prisma.user.findUnique({
+        where: {
+          userName: username,
         },
       });
     } catch (error) {

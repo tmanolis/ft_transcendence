@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import BarCodeImg from "../../assets/code-barre.png";
 import {
   ProfileAvatarStyled,
@@ -9,6 +10,7 @@ import {
   SocialOption,
 } from "./styles/ProfileAvatar.styled";
 import axios from "axios";
+import { GameSocket } from "../GameSocket";
 
 type ProfileAvatarProps = {
   avatarPath: string;
@@ -45,6 +47,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
   const isOwnProfile = username === userName;
   const isFriend = FriendsList.some((friend) => friend.userName === username);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -61,6 +65,19 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     };
 
     fetchUserData();
+
+    GameSocket.on('errorGameInvite', (message) => {
+      console.log(message);
+    })
+
+    GameSocket.on('invitationSent', (message) => {
+      navigate("/pong");
+      console.log(message);
+    })
+
+    return () => {
+      GameSocket.off('errorGameInvite');
+    }
   }, []);
 
   useEffect(() => {
@@ -128,6 +145,11 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     }
   };
 
+  const handleChallenge = async () => {
+    console.log("challenge me!!!", username);
+    GameSocket.emit("inviteUserToPlay", username);
+  }
+
   return (
     <ProfileAvatarStyled>
       <AvatarImage src={userImageSrc} />
@@ -143,7 +165,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
                 <button onClick={handleAddFriend}>+ Add</button>
               )}
               <button>x Block</button>
-              <button>
+              <button onClick={handleChallenge}>
                 <span className="icon-before" /> Challenge Player
               </button>
             </SocialOption>
