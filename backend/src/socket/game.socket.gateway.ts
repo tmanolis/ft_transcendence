@@ -36,8 +36,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    console.log(`\x1b[32m ${client.id} connect to Game Socket! \x1b[0m`,);
+    console.log(`\x1b[96m ${client.id} connect to Game Socket! \x1b[0m`,);
     if ((await this.gameService.identifyUser(client)) === 'failed') {
+      this.server.to(client.id).emit('error', "Forbidden.");
       client.disconnect();
     }
   }
@@ -47,20 +48,35 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
   async handleDisconnect(client: Socket) {
     await this.gameService.cancelPendingGame(client);
-    await this.gameService.updateUserDisconnectStatus(client);
     await this.gameService.clearData(client);
+    await this.gameService.updateUserDisconnectStatus(client);
     console.log(`\x1b[31m ${client.id} disconnect from Game Socket!\x1b[0m`);
   }
 
-
+  /****************************************************************************/
+  // handle enter game page 
+  /****************************************************************************/
   @SubscribeMessage('enterGamePage')
-  async handleEnterGamePage(client: Socket) {
-    console.log(`\x1b[31m ${client.id} enter game page!\x1b[0m`);
+  async handleEnterGamePage(client:Socket) {
+    console.log(`\x1b[96m ${client.id} enter game page!\x1b[0m`);
+    const existPlayer: Player = await this.gameService.getSocketPlayer(client);
+    if (!existPlayer) {
+      this.server.to(client.id).emit('error', "Can't enter game page.");
+    }
+    const pausedGameID = await this.gameService.findPausedGame(client);
+    if (pausedGameID === '') {
+      this.server.to(client.id).emit('error', "Can't enter game page.");
+    }
   }
 
+  /****************************************************************************/
+  // handle leave game page 
+  /****************************************************************************/
   @SubscribeMessage('leaveGamePage')
-  async handleLeaveGamePage(client: Socket) {
-    console.log(`\x1b[31m ${client.id} leave game page!\x1b[0m`);
+  async handleLeaveGamePage(client:Socket) {
+    await this.gameService.cancelPendingGame(client);
+    await this.gameService.clearData(client);
+    console.log(`\x1b[95m ${client.id} leave game page!\x1b[0m`);
   }
 
   /****************************************************************************/
@@ -77,13 +93,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let newGame: Game = await this.gameService.createGame(client);
     if (newGame) currentPlayer.gameID = newGame.gameID;
 
-    const startGame: [boolean, string] =
+    const gameInfo: [boolean, string] =
       await this.gameService.findMatchingGame(currentPlayer);
-    const gameRoom: string = startGame[1];
-    client.join(gameRoom);
+    if (gameInfo) {
+      const gameRoom: string = gameInfo[1];
+      client.join(gameRoom);
+      this.server.to(gameRoom).emit('gameReady');
 
-    if (startGame[0]) {
-      this.server.to(gameRoom).emit('endWaitingState');
+      if (gameInfo[0]) {
+        this.server.to(gameRoom).emit('endWaitingState');
+      }
     }
   }
 
@@ -117,8 +136,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       if (gameData.status === GameStatus.Pause) {
         this.server.to(gameRoom).emit('pause', this.pauseCounter);
         this.pauseCounter--;
+        console.log(this.pauseCounter);
         if (this.pauseCounter === 0) {
           gameData.status = GameStatus.Ended;
+          this.server.to(gameRoom).emit('updateGame', gameData);
+          this.server.to(gameRoom).emit('ended', gameData);
+          console.log("Player left too long:", gameData)
+          await this.gameService.endGame(gameData);
+          clearInterval(gameInterval);
+          return;
         }
       } else if (gameData.status === GameStatus.Ended) {
         this.server.to(gameRoom).emit('updateGame', gameData);
@@ -161,7 +187,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server
       .to(gameData.currentGame.leftPlayer.socketID)
       .emit(updateSide, gameData.currentPlayer.paddlePosition);
-    console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
   }
 
@@ -205,7 +230,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const invitingGame: Game = await this.gameService.createInvitingGame(
       invitingPlayer,
     );
-    console.log(invitingGame);
     if (invitingGame) {
       client.join(invitingGame.gameID);
       const invitedUserSocketID: string = await this.cacheManager.get(invitedUserEmail);
@@ -214,7 +238,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         .to(invitedUserSocketID)
         .emit('gameInvite', { invitedBy: invitingPlayer.email });
 
-      this.server.to(client.id).emit('gameReady');
     }
   }
 
@@ -251,13 +274,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     client.join(invitingPlayer.gameID);
 
-    const inviteGameStarted = await this.gameService.joinGameAndLaunch(
+    const inviteGameStarted = await this.gameService.joinGame(
       invitedPlayer,
       invitingPlayer.gameID,
     );
     console.log(inviteGameStarted);
     if (inviteGameStarted) {
       this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
+      this.server.to(invitingPlayer.socketID).emit('gameReady');
+      this.server.to(invitedPlayer.socketID).emit('gameReady');
+      this.server.to(invitingPlayer.socketID).emit('endWaitigState');
+      this.server.to(invitedPlayer.socketID).emit('endWaitingState');
     } else {
       this.server
         .to(invitedPlayer.socketID)

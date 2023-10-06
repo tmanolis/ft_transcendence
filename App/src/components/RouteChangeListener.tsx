@@ -11,6 +11,13 @@ export const RouteChangeListener = () => {
     } else {
       GameSocket.emit('leaveGamePage');
     }
+
+    GameSocket.on('disconnect',  () => {
+      GameSocket.emit('leaveGamePage');
+    });
+    return () => {
+      GameSocket.off('disconnect');
+    }
   }, [isPongMatch]);
 
   return null;

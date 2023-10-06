@@ -15,15 +15,23 @@ const LobbyComponent: React.FC = () => {
     GameSocket.on("gameInvite", (message) => {
       console.log(message.invitedBy);
       GameSocket.emit('acceptInvitation', message.invitedBy);
-      navigate("/pong")
     });
-    GameSocket.on("gameReady", () => {
-      navigate("/pong")
+    GameSocket.on('gameReady', () => {
+      navigate("/pong");
     });
-  }, [])
+    return () => {
+      GameSocket.off("gameInvite");
+      GameSocket.off('gameReady');
+    }
+  }, []);
 
   const handlePlayClassicPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
+    console.log(GameSocket.connected);
+    if (!GameSocket.connected) {
+      console.log("not connected to socket");
+      GameSocket.connect();
+    }
     await GameSocket.emit("findGame");
   };
 

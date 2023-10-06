@@ -35,7 +35,8 @@ const Pong = () => {
 
   useEffect(() => {
     GameSocket.on("error", (error: string) => {
-      console.log("Websocket connection error: ", error);
+      console.log("Game socket error: ", error);
+      navigate("/play");
     });
 
     GameSocket.on("updateLeftPaddle", (newPosition: string) => {
