@@ -17,7 +17,7 @@ export interface UserInRoomWithUser extends UserInRoom {
 }
 
 export interface UserWithBlocklist extends User {
-	blockedUsers: BlockedUser[];
+  blockedUsers: BlockedUser[];
 }
 
 // export interface BlockedUserWithUsername extends BlockedUser {

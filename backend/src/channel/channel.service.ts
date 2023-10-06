@@ -34,6 +34,89 @@ export class ChannelService {
   /* channel info											                                        */
   /****************************************************************************/
 
+  async getChannelMembers(dto: channelDTO) {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.name,
+      },
+    });
+    if (!room) throw new NotFoundException('Room not found');
+
+    const usersInRoom: UserInRoomWithUser[] =
+      await this.prisma.userInRoom.findMany({
+        where: {
+          room: {
+            name: dto.name,
+          },
+          isBanned: false,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+    const channelMembers = usersInRoom.map(
+      (userInRoom: UserInRoomWithUser) => ({
+        userName: userInRoom.user.userName,
+        isBanned: userInRoom.isBanned,
+        isMuted: userInRoom.isMuted,
+        isBlocked: userInRoom.isBlocked,
+      }),
+    );
+
+    return channelMembers;
+  }
+
+  async getOtherUser(user: User, dto: channelDTO) {
+    const room = await this.getRoomWithUsers(dto.name);
+
+    if (room.status !== RoomStatus.DIRECT) {
+      throw new ForbiddenException('This is not a private room');
+    }
+
+    const usersInRoom: UserInRoomWithUser[] =
+      await this.prisma.userInRoom.findMany({
+        where: {
+          room: {
+            name: dto.name,
+          },
+          isBanned: false,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+    let otherUser: string | null = null;
+
+    for (const userInRoom of usersInRoom) {
+      if (userInRoom.user.id !== user.id) {
+        otherUser = userInRoom.user.userName;
+        break;
+      }
+    }
+
+    if (otherUser === null) {
+      throw new NotFoundException('You seem to be alone in this room');
+    }
+
+    return otherUser;
+  }
+
+  async getAllRooms() {
+    const allRooms = await this.prisma.room.findMany({
+      where: {
+        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
+      },
+      select: {
+        name: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+    return allRooms;
+  }
+
   async getRoomUserWithUsername(
     username: string,
     room: RoomWithUsers,
@@ -86,121 +169,8 @@ export class ChannelService {
     return room;
   }
 
-	async getOtherUser(user: User, dto: channelDTO){
-		const room = await this.getRoomWithUsers(dto.name);
-
-    if (room.status !== RoomStatus.DIRECT) {
-			throw new ForbiddenException('This is not a private room')
-		}
-
-		const usersInRoom: UserInRoomWithUser[] =
-		await this.prisma.userInRoom.findMany({
-			where: {
-				room: {
-					name: dto.name,
-				},
-				isBanned: false,
-			},
-			include: {
-				user: true,
-			},
-		});
-
-		let otherUser: string | null = null;
-
-		for (const userInRoom of usersInRoom) {
-			if (userInRoom.user.id !== user.id) {
-				otherUser = userInRoom.user.userName;
-				break;
-			}
-		}
-
-	  if (otherUser === null) {
-			throw new NotFoundException('You seem to be alone in this room');
-		}
-
-		return otherUser;
-	}
-
-  async getRooms(user: User) {
-    const userRooms = await this.prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .rooms({
-        select: {
-          room: {
-            select: {
-              name: true,
-              status: true,
-            },
-          },
-          role: true,
-        },
-      });
-
-    const roomData = userRooms.map((userRoom) => ({
-      name: userRoom.room.name,
-      status: userRoom.room.status,
-      role: userRoom.role,
-    }));
-
-    return roomData;
-  }
-
-  async getChannelMembers(dto: channelDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.name,
-      },
-    });
-    if (!room) throw new NotFoundException('Room not found');
-
-    const usersInRoom: UserInRoomWithUser[] =
-      await this.prisma.userInRoom.findMany({
-        where: {
-          room: {
-            name: dto.name,
-          },
-          isBanned: false,
-        },
-        include: {
-          user: true,
-        },
-      });
-
-    const channelMembers = usersInRoom.map(
-      (userInRoom: UserInRoomWithUser) => ({
-        userName: userInRoom.user.userName,
-        isBanned: userInRoom.isBanned,
-        isMuted: userInRoom.isMuted,
-        isBlocked: userInRoom.isBlocked,
-      }),
-    );
-
-    return channelMembers;
-  }
-
-	async getAllRooms() {
-    const allRooms = await this.prisma.room.findMany({
-      where: {
-        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
-      },
-      select: {
-        name: true,
-        status: true,
-        createdAt: true,
-      },
-    });
-    return allRooms;
-  }
-
-
-
   /****************************************************************************/
-  /* get history									 			                                      */
+  /* channel history									 			                                  */
   /****************************************************************************/
 
   async getChannelHistory(user: User, dto: channelDTO): Promise<RoomHistory> {

@@ -6,10 +6,10 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFiles,
-	Res,
+  Res,
   Query,
-	Delete,
-	Post,
+  Delete,
+  Post,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser } from 'src/decorator';
@@ -19,7 +19,6 @@ import { UsernameDTO, UpdateDto } from 'src/dto';
 import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
-
 
 @ApiTags('User')
 @Controller('user')
@@ -36,7 +35,6 @@ export class UserController {
   handleGetMe(@GetUser() user: User) {
     return user;
   }
-
 
   // update user data
   @Patch('update')
@@ -95,10 +93,7 @@ export class UserController {
   @ApiOkResponse({
     description: 'Returns game history of one user',
   })
-  async handleGetGameHistory(
-    @Query() dto: UsernameDTO,
-    @GetUser() user: User,
-  ) {
+  async handleGetGameHistory(@Query() dto: UsernameDTO, @GetUser() user: User) {
     return await this.userService.getGameHistory(dto, user);
   }
 
@@ -130,8 +125,8 @@ export class UserController {
     return res.status(200).send({ message: 'User has been unblocked' });
   }
 
-	@Get('blockList')
-	@ApiOkResponse({ description: 'Returns usernames of blocked users' })
+  @Get('blockList')
+  @ApiOkResponse({ description: 'Returns usernames of blocked users' })
   async handleGetBlocklist(@GetUser() user: User) {
     return this.userService.getBlocklist(user);
   }

@@ -1,15 +1,19 @@
-import { Injectable, ForbiddenException, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Game, User, BlockedUser } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import {
-  UsernameDTO,
-  UpdateDto,
-  SecureUser,
-} from 'src/dto';
+import { UsernameDTO, UpdateDto, SecureUser } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
-import { UserWithBlocklist, UserWithGames } from 'src/interfaces/prisma.interfaces';
+import {
+  UserWithBlocklist,
+  UserWithGames,
+} from 'src/interfaces/prisma.interfaces';
 
 @Injectable()
 export class UserService {
@@ -243,93 +247,101 @@ export class UserService {
     return roomData;
   }
 
-	async block(user: User, dto: UsernameDTO){
-		const subject: User = await this.getSubject(user, dto.userName, 'block');
-		const userWithBlock = await this.getUserWithBlocklist(user);
-		const blockedUser = this.checkBlock(userWithBlock, subject);
+  async block(user: User, dto: UsernameDTO) {
+    const subject: User = await this.getSubject(user, dto.userName, 'block');
+    const userWithBlock = await this.getUserWithBlocklist(user);
+    const blockedUser = this.checkBlock(userWithBlock, subject);
 
-		if (blockedUser) throw new BadRequestException('You have already blocked this person')
+    if (blockedUser)
+      throw new BadRequestException('You have already blocked this person');
 
-		// add subject to block list user  
-		await this.prisma.blockedUser.create({
-			data: {
-				blocked: subject.id,
-				blockedBy: user.id,
-			},
-		});
-	}
+    // add subject to block list user
+    await this.prisma.blockedUser.create({
+      data: {
+        blocked: subject.id,
+        blockedBy: user.id,
+      },
+    });
+  }
 
-	async unblock(user: User, dto: UsernameDTO){
-		const subject: User = await this.getSubject(user, dto.userName, 'unblock');
-		const userWithBlock = await this.getUserWithBlocklist(user);
-		const blockedUser = this.checkBlock(userWithBlock, subject);
+  async unblock(user: User, dto: UsernameDTO) {
+    const subject: User = await this.getSubject(user, dto.userName, 'unblock');
+    const userWithBlock = await this.getUserWithBlocklist(user);
+    const blockedUser = this.checkBlock(userWithBlock, subject);
 
-		if (!blockedUser) throw new BadRequestException('You have not blocked this person')
+    if (!blockedUser)
+      throw new BadRequestException('You have not blocked this person');
 
-		// remove subject from block list user
-		await this.prisma.blockedUser.delete({
-			where: {
-				id: blockedUser.id,
-			},
-		});
-	}
+    // remove subject from block list user
+    await this.prisma.blockedUser.delete({
+      where: {
+        id: blockedUser.id,
+      },
+    });
+  }
 
-	async getSubject(user: User, userName: string, action: string): Promise<User>{
-		// return subject if it exists
-		const subject: User = await this.prisma.user.findUnique({
-			where: {
-				userName: userName,
-			}
-		})
+  async getSubject(
+    user: User,
+    userName: string,
+    action: string,
+  ): Promise<User> {
+    // return subject if it exists
+    const subject: User = await this.prisma.user.findUnique({
+      where: {
+        userName: userName,
+      },
+    });
 
-		if (!subject) throw new NotFoundException('User not found');
+    if (!subject) throw new NotFoundException('User not found');
 
-		if (subject.id === user.id) throw new ForbiddenException(`Can not ${action} yourself`);
+    if (subject.id === user.id)
+      throw new ForbiddenException(`Can not ${action} yourself`);
 
-		return subject;
-	}
+    return subject;
+  }
 
-	async getUserWithBlocklist(user: User): Promise<UserWithBlocklist>{
-		// return user with block list
-		const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
-			where: {
-				id: user.id,
-			}, include: {
-				blockedUsers: true,
-				usersBlockedMe: true,
-			},
-		});
+  async getUserWithBlocklist(user: User): Promise<UserWithBlocklist> {
+    // return user with block list
+    const userWithBlock: UserWithBlocklist = await this.prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: {
+        blockedUsers: true,
+        usersBlockedMe: true,
+      },
+    });
 
-		if (!userWithBlock) throw new NotFoundException('Please register again');
-		
-		return userWithBlock;
-	}
+    if (!userWithBlock) throw new NotFoundException('Please register again');
 
-	checkBlock(user: UserWithBlocklist, subject: User){
-		// check if subject has been blocked
-		const blockedSubject: BlockedUser = user.blockedUsers.find(
-			(blockedUser: BlockedUser) => blockedUser.blocked === subject.id,
-		);
-		
-		return blockedSubject;
-	}
+    return userWithBlock;
+  }
 
-	async getBlocklist(user: User){
-		const userWithBlock = await this.getUserWithBlocklist(user);
-		let blocklist: string[] = [];
+  checkBlock(user: UserWithBlocklist, subject: User) {
+    // check if subject has been blocked
+    const blockedSubject: BlockedUser = user.blockedUsers.find(
+      (blockedUser: BlockedUser) => blockedUser.blocked === subject.id,
+    );
 
-		for (const blockedUser of userWithBlock.blockedUsers){
-			const blockedUserRecord = await this.prisma.user.findUnique({
-				where: {
-					id: blockedUser.blocked,
-				}
-			})
+    return blockedSubject;
+  }
 
-			if (blockedUserRecord) {
-				blocklist.push(blockedUserRecord.userName);
-			}		
-		}
+  async getBlocklist(user: User) {
+    const userWithBlock = await this.getUserWithBlocklist(user);
+    let blocklist: string[] = [];
 
-		return blocklist;
-	}
+    for (const blockedUser of userWithBlock.blockedUsers) {
+      const blockedUserRecord = await this.prisma.user.findUnique({
+        where: {
+          id: blockedUser.blocked,
+        },
+      });
+
+      if (blockedUserRecord) {
+        blocklist.push(blockedUserRecord.userName);
+      }
+    }
+
+    return blocklist;
+  }
 }

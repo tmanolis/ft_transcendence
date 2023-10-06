@@ -24,7 +24,6 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
-
 @Injectable()
 export class ChatService {
   constructor(
@@ -319,29 +318,30 @@ export class ChatService {
   }
 
   async uniqueRoomName(): Promise<string> {
-		let name: string;
-		let room: Room;
+    let name: string;
+    let room: Room;
 
-		do {
-			name = this.generateRandomString(10);
-			room = await this.prisma.room.findUnique({
-				where: {
-					name: name,
-				}
-			})
-		} while (room);
+    do {
+      name = this.generateRandomString(10);
+      room = await this.prisma.room.findUnique({
+        where: {
+          name: name,
+        },
+      });
+    } while (room);
 
-		return name;
+    return name;
   }
 
-	generateRandomString(length: number): string {
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		let randomString = '';
-		for (let i = 0; i < length; i++) {
-			randomString += characters[Math.floor(Math.random() * characters.length)];
-		}
-		return randomString;
-	}
+  generateRandomString(length: number): string {
+    const characters =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let randomString = '';
+    for (let i = 0; i < length; i++) {
+      randomString += characters[Math.floor(Math.random() * characters.length)];
+    }
+    return randomString;
+  }
 
   async prismaCheckOtherUser(
     username: string,
