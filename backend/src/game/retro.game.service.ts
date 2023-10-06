@@ -394,7 +394,7 @@ export class RetroGameService {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
         }
       } else if (payload.key === 'down') {
-        if (currentPlayer.paddlePosition + 5 < 325) {
+        if (currentPlayer.paddlePosition + 5 < 255) {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
         }
       }
@@ -430,10 +430,40 @@ export class RetroGameService {
       currentGame.ballPosition.x <= 54 &&
       currentGame.ballPosition.x >= 50 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
-        -5 &&
+        - 5 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
         this.canvas.paddleHeight + 5
     ) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+
+    // ball hits paddle
+    // right
+    if (
+      currentGame.ballPosition.x >= 748 &&
+      currentGame.ballPosition.x <= 752 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+
+    // ball pass the paddles
+    if (currentGame.ballPosition.x <= 10) {
       if (Math.random() < 0.5) {
         currentGame.ballAngle += (Math.random() / 2) % 6;
       } else {
@@ -457,15 +487,7 @@ export class RetroGameService {
       );
       return currentGame;
     }
-
-    if (
-      currentGame.ballPosition.x >= 748 &&
-      currentGame.ballPosition.x <= 752 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
-        -5 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
-        this.canvas.paddleHeight + 5
-    ) {
+    if (currentGame.ballPosition.x >= 790) {
       if (Math.random() < 0.5) {
         currentGame.ballAngle += (Math.random() / 2) % 6;
       } else {
@@ -488,26 +510,6 @@ export class RetroGameService {
         JSON.stringify(currentGame),
       );
       return currentGame;
-    }
-
-    // ball pass the paddles
-    if (currentGame.ballPosition.x <= 10) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[1] += 1;
-      currentGame.ballAngle = this.generateAngle(
-        currentGame.ballPosition.x,
-        currentGame.ballPosition.y,
-      );
-    }
-    if (currentGame.ballPosition.x >= 790) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[0] += 1;
-      currentGame.ballAngle = this.generateAngle(
-        currentGame.ballPosition.x,
-        currentGame.ballPosition.y,
-      );
     }
 
     if (currentGame.ballPosition.y < 7 || currentGame.ballPosition.y >= 793) {

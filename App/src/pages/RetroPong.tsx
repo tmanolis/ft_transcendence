@@ -18,7 +18,7 @@ const RetroPong = () => {
   const canvasWidth = 800;
   const canvasHeight = 400;
 
-  const paddleHeight = 75;
+  const paddleHeight = 150;
   const paddleWidth = 10;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
     canvasHeight / 2 - paddleHeight / 2,
