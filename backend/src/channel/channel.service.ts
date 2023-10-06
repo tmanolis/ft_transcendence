@@ -250,8 +250,8 @@ export class ChannelService {
         throw new ForbiddenException(
           'Too bad, you have been banned from this channel...',
         );
-    }
-
+    } 
+		
     return userInRoom;
   }
 
