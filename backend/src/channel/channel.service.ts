@@ -111,7 +111,7 @@ export class ChannelService {
 		for (const userInRoom of usersInRoom) {
 			if (userInRoom.user.id !== user.id) {
 				otherUser = userInRoom.user.userName;
-				break; // Exit the loop once the other user is found
+				break;
 			}
 		}
 
