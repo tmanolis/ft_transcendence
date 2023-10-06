@@ -40,7 +40,7 @@ export const SocialActions = styled.div`
   justify-content: flex-start;
   align-items: center;
   height: 50px;
-  padding-left: 6%;
+  padding-left: 8%;
 
     img {
       width: 18%;
@@ -61,3 +61,29 @@ export const ActionButtons = styled.img`
     filter: invert(100%);
   }
 `
+
+const statusColors = {
+  ONLINE: "green",
+  OFFLINE: "red",
+  PLAYING: "blue",
+  AWAY: "orange",
+};
+
+export const UserStatus = styled.div`
+  display: flex;
+  align-items: center; /* Align children vertically */
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 466.667% */
+  letter-spacing: 0.4px;
+  margin-right: 3%;
+  color: ${(props) =>
+    statusColors[props.$userstatus as keyof typeof statusColors] || "white"};
+
+  /* Add space between bullet and status */
+  &::before {
+    content: "•"; /* Add bullet point */
+    margin-right: 4px; /* Adjust the space */
+  }
+`;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"
-import { UserBannerStyled, UserDetails, SocialActions, ActionButtons } from "./styles/ConversationUserInfo.styled";
+import { UserBannerStyled, UserDetails, SocialActions, ActionButtons, UserStatus } from "./styles/ConversationUserInfo.styled";
 import banIcon from "../../../assets/icon/BanUser.png";
 import kickIcon from "../../../assets/icon/KickUser.png";
 import muteIcon from "../../../assets/icon/MuteUser.png";
@@ -14,9 +14,17 @@ interface UserInfoProps {
   };
 }
 
+function toTitleCase(input: string) {
+  return `${input
+    .toLowerCase()
+    .split(" ")
+    .join(" ")}`;
+}
+
 const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
   const [avatarPath, setAvatarPath] = useState("");
   const [status, setStatus] = useState("");
+  const EditedUserStatus = toTitleCase(status);
 
   console.log(avatarPath, status);
   useEffect(() => {
@@ -76,7 +84,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
           // onClick={onMuteClick}
           />
         </SocialActions>
-        <p>{status}</p>
+        <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
       </UserDetails>
     </UserBannerStyled>
   );
