@@ -129,7 +129,6 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
                   placeholder="<type name here>"
                 />
                 <ConfirmButton>
-                  {console.log("isConfirmButtonDisabled:", isConfirmButtonDisabled)}
                   <ButtonStyled
                     onClick={handleConfirmButtonClick}
                     disabled={isConfirmButtonDisabled}
