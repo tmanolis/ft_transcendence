@@ -53,7 +53,7 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose, chatRoom }) =>
         </Head>
         <UsersList>
           {usersList.map((user, index) => (
-            <UserInfo key={index} user={user} />
+            <UserInfo key={index} user={user} chatRoom={chatRoom} />
           ))}
         </UsersList>
       </ModalWrapper>

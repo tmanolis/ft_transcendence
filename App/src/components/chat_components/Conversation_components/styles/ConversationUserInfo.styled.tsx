@@ -67,17 +67,21 @@ export const SocialActions = styled.div`
     }
 `;
 
-export const ActionButtons = styled.img`
+type SocialIconProps = {
+  $isactive?: boolean;
+};
+
+export const ActionButtons = styled.img<SocialIconProps>`
   height: auto;
   cursor: pointer;
   transition: filter 0.2s ease-in-out;
 
-  filter: ${(props) => (props.isActive ? "invert(100%)" : "invert(30%)")};
+  filter: ${(props) => (props.$isactive ? "invert(100%)" : "invert(30%)")};
 
   &:hover {
     filter: invert(100%);
   }
-`
+`;
 
 const statusColors = {
   ONLINE: "green",
@@ -86,7 +90,7 @@ const statusColors = {
   AWAY: "orange",
 };
 
-export const UserStatus = styled.div`
+export const UserStatus = styled.img<{ $userstatus?: string }>`
   display: flex;
   align-items: center; /* Align children vertically */
   font-size: 12px;
