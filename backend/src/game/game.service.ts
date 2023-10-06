@@ -20,7 +20,6 @@ export class GameService {
     private readonly jwtService: JwtService,
   ) {}
 
-  // this should all be stored in the cache:
   private canvas: {
     canvasHeight: number;
     paddleHeight: number;
@@ -35,16 +34,13 @@ export class GameService {
   // User Validation and query
   /****************************************************************************/
   async identifyUser(client: Socket): Promise<string> {
-    // check JWT
     const jwt = client.handshake.headers.authorization;
     let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    if (jwt === 'undefined' || jwt === null) {
+    if (jwt === undefined || jwt === null)
       return 'failed';
-    }
     jwtData = this.jwtService.decode(jwt);
-    if (!jwtData || typeof jwtData !== 'object') {
+    if (!jwtData || typeof jwtData !== 'object')
       return 'failed';
-    }
     const user: User = await this.getUserByEmail(jwtData.email);
     if (!user) {
       return 'failed';
