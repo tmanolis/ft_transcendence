@@ -1,5 +1,5 @@
 import { ConversationHeaderWrapper, RoomName } from "./styles/ConversationHeader.styled";
-import iconSrc from "../../../../public/icon/Settings.svg";
+import iconSrc from "/src/assets/icon/Settings.svg";
 import { Room } from "../../../pages/Chat";
 import ChannelMenu from "./ConversationMenu";
 import { useState, useEffect } from "react";
