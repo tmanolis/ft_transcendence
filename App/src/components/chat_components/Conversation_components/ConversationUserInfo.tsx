@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"
-import { UserBannerStyled, UserDetails } from "./styles/ConversationUserInfo.styled";
+import { UserBannerStyled, UserDetails, SocialActions, ActionButtons } from "./styles/ConversationUserInfo.styled";
+import banIcon from "../../../assets/icon/BanUser.png";
+import kickIcon from "../../../assets/icon/KickUser.png";
+import muteIcon from "../../../assets/icon/MuteUser.png";
 
 interface UserInfoProps {
   user: {
@@ -36,6 +39,18 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
     fetchUserData();
   }, [user]);
 
+  // onBanClick(() => {
+
+  // });
+
+  // onKickClick(() => {
+
+  // });
+
+  // onMuteClick(() => {
+
+  // });
+
   return (
     <UserBannerStyled>
       <UserDetails>
@@ -44,9 +59,23 @@ const UserInfo: React.FC<UserInfoProps> = ({ user }) => {
           alt={`Avatar of ${user.userName}`}
         />
         <p>{user.userName}</p>
-        <p>Banned: {user.isBanned ? "Yes" : "No"}</p>
-        <p>Muted: {user.isMuted ? "Yes" : "No"}</p>
-        <p>Blocked: {user.isBlocked ? "Yes" : "No"}</p>
+        <SocialActions>
+          <ActionButtons isActive={user.isBanned}
+            src={banIcon}
+            alt="Ban"
+          // onClick={onBanClick}
+          />
+          <ActionButtons isActive={user.isKick}
+            src={kickIcon}
+            alt="Kick"
+          // onClick={onKickClick}
+          />
+          <ActionButtons isActive={user.isMute}
+            src={muteIcon}
+            alt="Mute"
+          // onClick={onMuteClick}
+          />
+        </SocialActions>
         <p>{status}</p>
       </UserDetails>
     </UserBannerStyled>
