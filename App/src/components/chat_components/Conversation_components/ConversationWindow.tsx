@@ -14,7 +14,7 @@ const ConversationWindow: React.FC<ConversationWindowProps> = ({ chatRoom, socke
 	return (
 		<>
 			<ConversationHeader chatRoom={chatRoom} socket_chat={socket_chat} />
-			<Loukoum chatRoom={chatRoom} />
+			<Loukoum chatRoom={chatRoom}socket_chat={socket_chat} />
 			<ConversationFooter chatRoom={chatRoom} socket_chat={socket_chat} />
 		</>
 	)
