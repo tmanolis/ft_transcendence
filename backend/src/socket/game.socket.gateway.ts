@@ -36,9 +36,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    console.log(
-      `\x1b[32m Socket: ${client.id} connect to Game Socket! \x1b[0m`,
-    );
+    console.log(`\x1b[32m ${client.id} connect to Game Socket! \x1b[0m`,);
     if ((await this.gameService.identifyUser(client)) === 'failed') {
       client.disconnect();
     }
@@ -144,11 +142,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client: Socket,
     payload: { key: string; gameID: string },
   ): Promise<object> {
-    console.log('got moveP event!');
     const gameData = await this.gameService.movePaddle(client, payload);
     if (!gameData) return;
     let updateSide = '';
-    console.log('game Data to sent: ', gameData);
 
     if (
       gameData.currentGame.leftPlayer.socketID ===
@@ -165,7 +161,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server
       .to(gameData.currentGame.leftPlayer.socketID)
       .emit(updateSide, gameData.currentPlayer.paddlePosition);
-    console.log(payload);
     console.log('Paddle movinnnnn!!!');
     return { event: 'player paddle move', socketID: client.id };
   }
@@ -199,7 +194,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     // create the game and wait
-    console.log('create inviting game and wait');
     const invitingPlayer: Player = await this.gameService.createPlayer(client);
     const invitingGame: Game = await this.gameService.createInvitingGame(
       invitingPlayer,
@@ -260,7 +254,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('declineInvitation')
   async handleDeclineInvitation(client: Socket, payload: string) {
-    console.log('invitation declined!');
     if (!payload) {
       return;
     }
@@ -277,16 +270,5 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.cacheManager.del(`invite${invitingPlayer.email}`);
       }
     }
-  }
-
-  /****************************************************************************/
-  /* CHAT                                                                     */
-  /****************************************************************************/
-
-  @SubscribeMessage('message')
-  handleMessageReceived(client: Socket, payload: Object): Object {
-    console.log(payload);
-    console.log('Message received!!!');
-    return { event: 'player message receivedt ', socketID: client.id };
   }
 }

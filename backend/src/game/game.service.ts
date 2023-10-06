@@ -85,18 +85,16 @@ export class GameService {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
     const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    console.log('DISCONNECT PENDING P:   ', pendingPlayer);
     if (pendingPlayer) {
       try {
         const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
         if (pendingPlayerObject.email === playerEmail) {
-          console.log('CLEARING THE PENDING PLAYER AND GAME!!!!');
           await this.cacheManager.del('pendingPlayer');
           await this.cacheManager.del(`game${playerEmail}`);
           await this.cacheManager.del(pendingPlayerObject.gameID);
         }
       } catch (error) {
-        console.log(error);
+        throw error;
       }
     }
   }
@@ -117,14 +115,13 @@ export class GameService {
             status: 'AWAY',
           },
         });
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        throw error;
       }
     }
   }
 
   async clearData(client: Socket) {
-    console.log('cleaning!!');
     const player = await this.getSocketPlayer(client);
     if (!player) return;
 
@@ -157,7 +154,7 @@ export class GameService {
       try {
         player = JSON.parse(playerString);
       } catch (error) {
-        console.log(error);
+        throw error;
       }
     }
     return player;
@@ -175,7 +172,6 @@ export class GameService {
 
   async createPlayer(client: Socket): Promise<Player> {
     const pausingPlayer = await this.updatePausingPlayer(client);
-    console.log('has pausing player: ', pausingPlayer);
     if (pausingPlayer) return pausingPlayer;
 
     const user: User = await this.getSocketUser(client);
@@ -232,15 +228,9 @@ export class GameService {
           `game${user.email}`,
           JSON.stringify(pausingPlayerObject),
         );
-        console.log(pausingPlayerObject);
-        console.log(
-          'Socket: existing player updated: ',
-          pausingPlayerObject.email,
-        );
         gameID = pausingPlayerObject.gameID;
       }
     }
-    console.log('has paused game: ', gameID);
     return gameID;
   }
 
@@ -249,15 +239,13 @@ export class GameService {
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
     // continue to joinGame if there is a pendingPlayer
     let pausedGameID: string = await this.findPausedGame(client);
-    console.log('paused game in create game: ', pausedGameID);
     if (!pendingPlayer && !pausedGameID) {
       let player: Player = await this.getSocketPlayer(client);
       if (player) {
-        console.log('create a pending game');
         newGame = await this.createWaitingGame(player);
       }
     }
-    console.log('game CREATEEEDDDD!!!!!!');
+    this.debugPrintCache();
     return newGame;
   }
 
@@ -284,8 +272,8 @@ export class GameService {
           status: 'WAITING',
         },
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      throw error;
     }
     this.cacheManager.set(gameID, JSON.stringify(newGame));
     this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
@@ -297,7 +285,6 @@ export class GameService {
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
     // Check if pending player exists, is available and is not current player
     if (pendingPlayer) {
-      console.log('pending player existeddddddddddddddddddddddddd!');
       const otherPlayer = JSON.parse(pendingPlayer);
       const user: User = await this.prisma.user.findUnique({
         where: {
@@ -309,7 +296,6 @@ export class GameService {
         pendingPlayer = undefined;
       }
       if (otherPlayer.userName === player.userName) {
-        console.log('It is the same Player:', player);
         this.cacheManager.set('pendingPlayer', JSON.stringify(player));
         return [false, player.gameID];
       }
@@ -332,7 +318,6 @@ export class GameService {
     const game = await this.getGameByID(gameID);
 
     if (game) {
-      console.log('join game:', game);
       player.gameID = gameID;
       this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
       if (
@@ -412,8 +397,8 @@ export class GameService {
           status: 'WAITING',
         },
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      throw error;
     }
     this.cacheManager.set(gameID, JSON.stringify(newGame));
     this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
@@ -441,9 +426,7 @@ export class GameService {
 
   async movePaddle(client: Socket, payload: { key: string; gameID: string }) {
     const currentGame = await this.getGameByClient(client);
-    console.log('move currG', client.id);
     if (!currentGame) return;
-    console.log('move currG', currentGame);
 
     const currentPlayer =
       currentGame.leftPlayer.socketID === client.id
@@ -454,7 +437,6 @@ export class GameService {
       return;
     } else {
       if (!currentPlayer.paddlePosition) {
-        console.log('no pad pos');
         currentPlayer.paddlePosition = 165;
       }
       if (payload.key === 'up') {
@@ -502,7 +484,6 @@ export class GameService {
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
         this.canvas.paddleHeight + 5
     ) {
-      console.log('hit left paddle');
       if (Math.random() < 0.5) {
         currentGame.ballAngle += (Math.random() / 2) % 6;
       } else {
@@ -589,7 +570,6 @@ export class GameService {
       Math.sin(currentGame.ballAngle) * currentGame.ballDirection.y;
 
     if (currentGame.score[0] === 11 || currentGame.score[1] === 11) {
-      console.log('end');
       currentGame.status = GameStatus.Ended;
     }
 
@@ -604,10 +584,8 @@ export class GameService {
   /* GAME END                                                                 */
   /****************************************************************************/
   async endGame(game: Game) {
-    console.log('Game finished! Clean up!');
     await this.deletePlayers(game);
     await this.saveGameStats(game);
-    console.log('end Game: ', game);
     await this.deleteGame(game.gameID);
   }
 
@@ -615,7 +593,6 @@ export class GameService {
     const game = await this.getGameByID(gameID);
 
     if (game) {
-      console.log('deleting game: ', game);
       await this.prisma.user.updateMany({
         where: {
           email: {
@@ -669,7 +646,6 @@ export class GameService {
     });
     const winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
     const loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
-    console.log('this games is won by', winner.id, winner.userName);
 
     const dbGame = await this.prisma.game.create({
       data: {
@@ -686,7 +662,6 @@ export class GameService {
   }
 
   async updatePlayerStats(player: User, dbGame: prismaGame) {
-    console.log(player.achievements);
     if (
       player.id === dbGame.winnerId &&
       !player.achievements.includes('WINNER')
@@ -702,8 +677,8 @@ export class GameService {
             },
           },
         });
-      } catch (err) {
-        console.log(err);
+      } catch (error) {
+        throw error;
       }
     }
 
@@ -718,8 +693,8 @@ export class GameService {
           gamesWon: player.gamesWon,
         },
       });
-    } catch (err) {
-      console.log(err);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -728,7 +703,6 @@ export class GameService {
   /****************************************************************************/
   generateAngle = (x: number, y: number) => {
     let angle = Math.random() * Math.PI * 2;
-    console.log('init angle: ', angle);
     angle = this.modifyAngle(angle);
     if (x > 0 && y > 0) {
       return angle;
@@ -758,4 +732,12 @@ export class GameService {
     }
     return Math.abs(angle);
   }
+
+  async debugPrintCache() {
+    const keys = await this.cacheManager.store.keys();
+    for (const key of keys) {
+      console.log(`\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(key)}\x1b[0m`);
+    }
+  }
+
 }
