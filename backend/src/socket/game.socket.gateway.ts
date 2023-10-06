@@ -60,8 +60,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleEnterGamePage(client:Socket) {
     console.log(`\x1b[96m ${client.id} enter game page!\x1b[0m`);
     const existPlayer: Player = await this.gameService.getSocketPlayer(client);
+    if (!existPlayer) {
+      this.server.to(client.id).emit('error', "Can't enter game page.");
+    }
     const pausedGameID = await this.gameService.findPausedGame(client);
-    if (!existPlayer && pausedGameID === '') {
+    if (pausedGameID === '') {
       this.server.to(client.id).emit('error', "Can't enter game page.");
     }
   }
@@ -139,6 +142,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           this.server.to(gameRoom).emit('updateGame', gameData);
           this.server.to(gameRoom).emit('ended', gameData);
           console.log("Player left too long:", gameData)
+          await this.gameService.endGame(gameData);
+          clearInterval(gameInterval);
+          return;
         }
       } else if (gameData.status === GameStatus.Ended) {
         this.server.to(gameRoom).emit('updateGame', gameData);
