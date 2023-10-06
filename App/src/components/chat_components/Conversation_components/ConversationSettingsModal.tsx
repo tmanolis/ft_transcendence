@@ -23,6 +23,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
   const [newPassword, setNewPassword] = useState("");
   const [isPrivate, setIsPrivate] = useState(chatRoom.status === "PRIVATE");
 
+  const isConfirmButtonDisabled = newPassword.trim() === "";
+
   const handleButtonClick = () => {
     onClose();
     window.location.reload();
@@ -62,16 +64,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
   };
 
   const handleConfirmButtonClick = async () => {
-    if (isPrivate) {
+    if (isPrivate && !isConfirmButtonDisabled) {
       try {
         const response = await changeChanneltoPrivate();
         console.log(response?.data);
       } catch (error) {
         console.log(error);
       }
+    
+      onClose();
+      window.location.reload();
     }
-    onClose();
-    window.location.reload();
   };
 
   const changeChanneltoPrivate = async () => {
@@ -126,7 +129,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
                   placeholder="<type name here>"
                 />
                 <ConfirmButton>
-                  <ButtonStyled onClick={handleConfirmButtonClick}>Confirm</ButtonStyled>
+                  {console.log("isConfirmButtonDisabled:", isConfirmButtonDisabled)}
+                  <ButtonStyled
+                    onClick={handleConfirmButtonClick}
+                    disabled={isConfirmButtonDisabled}
+                  >
+                    Confirm
+                  </ButtonStyled>
                 </ConfirmButton>
               </Input>
             </PrivateInfo>
