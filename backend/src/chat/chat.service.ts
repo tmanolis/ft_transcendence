@@ -24,7 +24,6 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 
-
 @Injectable()
 export class ChatService {
   constructor(
@@ -592,6 +591,8 @@ export class ChatService {
           },
         },
       });
+
+      this.server.to(room.name).emit('channelUpdated');
     } catch (error) {
       throw error;
     }

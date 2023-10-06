@@ -29,6 +29,7 @@ See Swagger at http://localhost:3000/api
 |	sendMessage			 |	messageDTO				| save message in the database												|
 | createChannel		 |	createRoomDTO			| create a public or private channel, or a DM room	  |
 |	joinChannel			 |	joinRoomDTO				|	join a public or private channel										|
+|	leaveChannel		 |	channelDTO				|	leave a public or private channel										|
 | ---------------- | ------------------ | --------------------------------------------------- |
 
 
@@ -47,7 +48,8 @@ See Swagger at http://localhost:3000/api
 |	joinRoomDTO		| name					|	channel name 																				|
 | 							|	password?			|	mandatory for private rooms								  				|
 | ------------- |	-------------	| --------------------------------------------------- |
-
+|	channelDTO		| name					|	channel name 																				|
+| ------------- |	-------------	| --------------------------------------------------- |
 
 
 ### Emit
@@ -64,5 +66,6 @@ See Swagger at http://localhost:3000/api
 | leaveChannelError			| messageBody			|	error leaving channel														|
 | sendMessageSuccess		| messageBody			|	message has been saved in the database					|
 | sendMessageError			| messageBody			|	error sending message														|
+| updateChannel					| messageBody			|	a new message has been sent, please get history	|
 | --------------------- | ---------------	| ----------------------------------------------- |
 
