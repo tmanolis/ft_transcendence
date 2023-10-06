@@ -86,29 +86,41 @@ export class ChannelService {
     return room;
   }
 
-  // async getDMRoomWithUsers(
-  //   user: User,
-  //   username: string,
-  // ): Promise<RoomWithUsers> {
-  //   const otherUser: User = await this.prisma.user.findUnique({
-  //     where: {
-  //       userName: username,
-  //     },
-  //   });
-  //   if (!otherUser) throw new NotFoundException('User not found');
+	async getOtherUser(user: User, dto: channelDTO){
+		const room = await this.getRoomWithUsers(dto.name);
 
-  //   const roomName: string = this.chatService.uniqueRoomName(
-  //     user.email,
-  //     otherUser.email,
-  //   );
+    if (room.status !== RoomStatus.DIRECT) {
+			throw new ForbiddenException('This is not a private room')
+		}
 
-  //   const room: RoomWithUsers = await this.getRoomWithUsers(roomName);
+		const usersInRoom: UserInRoomWithUser[] =
+		await this.prisma.userInRoom.findMany({
+			where: {
+				room: {
+					name: dto.name,
+				},
+				isBanned: false,
+			},
+			include: {
+				user: true,
+			},
+		});
 
-  //   if (!room)
-  //     throw new NotFoundException('There is no active DM room with this user');
+		let otherUser: string | null = null;
 
-  //   return room;
-  // }
+		for (const userInRoom of usersInRoom) {
+			if (userInRoom.user.id !== user.id) {
+				otherUser = userInRoom.user.userName;
+				break; // Exit the loop once the other user is found
+			}
+		}
+
+	  if (otherUser === null) {
+			throw new NotFoundException('You seem to be alone in this room');
+		}
+
+		return otherUser;
+	}
 
   async getRooms(user: User) {
     const userRooms = await this.prisma.user

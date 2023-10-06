@@ -177,4 +177,17 @@ export class ChannelController {
   async handleGetAllRooms(@GetUser() user: User) {
     return await this.channelService.getAllRooms();
   }
+
+	@Get('otherUser')
+  @ApiOkResponse({
+    description: 'Returns username of other user in DM room',
+  })
+  @ApiUnauthorizedResponse({ description: 'Authentification failed' })
+  async handleGetOtherUser(
+		@GetUser() user: User,
+		@Query() dto: channelDTO,
+	){
+    return await this.channelService.getOtherUser(user, dto);
+  }
+
 }
