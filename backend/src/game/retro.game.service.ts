@@ -12,7 +12,7 @@ import { Game, GameStatus, Player } from '../dto/game.dto';
 import { User, Game as prismaGame } from '@prisma/client';
 
 @Injectable()
-export class GameService {
+export class RetroGameService {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
@@ -31,43 +31,8 @@ export class GameService {
   private startPaddle: number = 165;
 
   /****************************************************************************/
-  // User Validation and query
+  // User query
   /****************************************************************************/
-  async identifyUser(client: Socket): Promise<string> {
-    const jwt = client.handshake.headers.authorization;
-    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    if (jwt === undefined || jwt === null)
-      return 'failed';
-    jwtData = this.jwtService.decode(jwt);
-    if (!jwtData || typeof jwtData !== 'object')
-      return 'failed';
-    const user: User = await this.getUserByEmail(jwtData.email);
-    if (!user)
-      return 'failed';
-    await this.cacheManager.set(client.id, user.email);
-    await this.cacheManager.set(user.email, client.id);
-    await this.updateUserConnectStatus(client);
-    return 'OK';
-  }
-
-  async updateUserConnectStatus(client: Socket) {
-    const user: User = await this.getSocketUser(client);
-    if (!user)
-      return;
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: user.email,
-        },
-        data: {
-          status: 'ONLINE',
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async getUserByEmail(email: string): Promise<User> {
     let user: User;
     try {
@@ -111,14 +76,14 @@ export class GameService {
   async cancelPendingGame(client: Socket) {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
-    const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    if (pendingPlayer) {
+    const pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    if (pendingRetroPlayer) {
       try {
-        const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
-        if (pendingPlayerObject.email === playerEmail) {
-          await this.cacheManager.del('pendingPlayer');
-          await this.cacheManager.del(`game${playerEmail}`);
-          await this.cacheManager.del(pendingPlayerObject.gameID);
+        const pendingRetroPlayerObject: Player = JSON.parse(pendingRetroPlayer);
+        if (pendingRetroPlayerObject.email === playerEmail) {
+          await this.cacheManager.del('pendingRetroPlayer');
+          await this.cacheManager.del(`retrogame${playerEmail}`);
+          await this.cacheManager.del(pendingRetroPlayerObject.gameID);
         }
       } catch (error) {
         throw error;
@@ -154,10 +119,10 @@ export class GameService {
 
     const game: Game = await this.getGameByID(player.gameID);
     if (game && game.status === GameStatus.Ended) {
-      await this.cacheManager.del(`game${game.gameID}`);
+      await this.cacheManager.del(`retrogame${game.gameID}`);
     }
     if (player.gameID === '') {
-      await this.cacheManager.del(`game${player.email}`);
+      await this.cacheManager.del(`retrogame${player.email}`);
     } else {
       await this.pauseGame(player);
     }
@@ -189,7 +154,7 @@ export class GameService {
       this.startPaddle,
     );
     // save the new Player in redis
-    await this.cacheManager.set(`game${user.email}`, JSON.stringify(newPlayer));
+    await this.cacheManager.set(`retrogame${user.email}`, JSON.stringify(newPlayer));
     return newPlayer;
   }
 
@@ -199,7 +164,7 @@ export class GameService {
     if (player && player.gameID !== '') {
       player.socketID = client.id;
       await this.cacheManager.set(
-        `game${player.email}`,
+        `retrogame${player.email}`,
         JSON.stringify(player),
       );
       pausingPlayer = player;
@@ -208,13 +173,13 @@ export class GameService {
   }
 
   async getPendingPlayer(): Promise<Player> {
-    let pendingPlayer: Player;
-    return pendingPlayer;
+    let pendingRetroPlayer: Player;
+    return pendingRetroPlayer;
   }
 
   async getPlayerByEmail(email: string): Promise<Player> {
     let player: Player;
-    const playerString: string = await this.cacheManager.get(`game${email}`);
+    const playerString: string = await this.cacheManager.get(`retrogame${email}`);
     if (playerString) {
       try {
         player = JSON.parse(playerString);
@@ -229,7 +194,7 @@ export class GameService {
     let player: Player;
     const playerEmail: string = await this.cacheManager.get(client.id);
     const playerString: string = await this.cacheManager.get(
-      `game${playerEmail}`,
+      `retrogame${playerEmail}`,
     );
     if (playerString) player = JSON.parse(playerString);
     return player;
@@ -239,20 +204,20 @@ export class GameService {
   // find, create, join game
   /****************************************************************************/
   async findMatchingGame(player: Player): Promise<[boolean, string]> {
-    let pendingPlayerString: string = await this.cacheManager.get('pendingPlayer');
-    let pendingPlayer: Player;
-    if (pendingPlayerString) {
-      pendingPlayer = JSON.parse(pendingPlayerString);
+    let pendingRetroPlayerString: string = await this.cacheManager.get('pendingRetroPlayer');
+    let pendingRetroPlayer: Player;
+    if (pendingRetroPlayerString) {
+      pendingRetroPlayer = JSON.parse(pendingRetroPlayerString);
       try {
         const user: User = await this.prisma.user.findUnique({
           where: {
-            email: pendingPlayer.email,
+            email: pendingRetroPlayer.email,
           },
         });
         if (user.status !== 'WAITING')
-          this.cacheManager.del('pendingPlayer');
-        if (pendingPlayer.userName === player.userName) {
-          this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+          this.cacheManager.del('pendingRetroPlayer');
+        if (pendingRetroPlayer.userName === player.userName) {
+          this.cacheManager.set('pendingRetroPlayer', JSON.stringify(player));
           return [false, player.gameID];
         }
       } catch (error) {
@@ -268,10 +233,10 @@ export class GameService {
         return [true, player.gameID];
       }
     } else {
-      this.cacheManager.del('pendingPlayer');
-      const gameID = pendingPlayer.gameID;
+      this.cacheManager.del('pendingRetroPlayer');
+      const gameID = pendingRetroPlayer.gameID;
       this.joinGame(player, gameID);
-      return [true, pendingPlayer.gameID];
+      return [true, pendingRetroPlayer.gameID];
     }
   }
 
@@ -282,14 +247,14 @@ export class GameService {
       return '';
     }
     const pausingPlayer: string = await this.cacheManager.get(
-      `game${user.email}`,
+      `retrogame${user.email}`,
     );
     if (pausingPlayer) {
       let pausingPlayerObject: Player = JSON.parse(pausingPlayer);
       if (pausingPlayerObject.gameID !== '') {
         pausingPlayerObject.socketID = client.id;
         await this.cacheManager.set(
-          `game${user.email}`,
+          `retrogame${user.email}`,
           JSON.stringify(pausingPlayerObject),
         );
         gameID = pausingPlayerObject.gameID;
@@ -300,10 +265,10 @@ export class GameService {
 
   async createGame(client: Socket): Promise<Game> {
     let newGame: Game;
-    let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    // continue to joinGame if there is a pendingPlayer
+    let pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    // continue to joinGame if there is a pendingRetroPlayer
     let pausedGameID: string = await this.findPausedGame(client);
-    if (!pendingPlayer && !pausedGameID) {
+    if (!pendingRetroPlayer && !pausedGameID) {
       let player: Player = await this.getSocketPlayer(client);
       if (player) {
         newGame = await this.createWaitingGame(player);
@@ -314,7 +279,7 @@ export class GameService {
   }
 
   async createWaitingGame(player: Player): Promise<Game> {
-    const gameID = `game${player.socketID}`;
+    const gameID = `retrogame${player.socketID}`;
     const newGame = new Game(
       gameID,
       1,
@@ -327,7 +292,7 @@ export class GameService {
       GameStatus.Waiting,
       '',
       '',
-      'classic',
+      'retro',
     );
     player.gameID = gameID;
     try {
@@ -343,8 +308,8 @@ export class GameService {
       throw error;
     }
     this.cacheManager.set(gameID, JSON.stringify(newGame));
-    this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
-    await this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+    this.cacheManager.set(`retrogame${player.email}`, JSON.stringify(player));
+    await this.cacheManager.set('pendingRetroPlayer', JSON.stringify(player));
     return newGame;
   }
 
@@ -354,7 +319,7 @@ export class GameService {
 
     if (game) {
       player.gameID = gameID;
-      this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
+      this.cacheManager.set(`retrogame${player.email}`, JSON.stringify(player));
       if (
         game.rightPlayer === null ||
         game.rightPlayer.email === player.email
@@ -392,68 +357,6 @@ export class GameService {
     const gameString: string = await this.cacheManager.get(gameID);
     if (gameString && gameString !== '') game = JSON.parse(gameString);
     return game;
-  }
-
-  /****************************************************************************/
-  // INVITE
-  /****************************************************************************/
-  async checkInvitedUserStatus(
-    client: Socket,
-    userEmail: string,
-  ): Promise<string> {
-    let result: string;
-    const invitingUser: User = await this.getSocketUser(client);
-    const invitedUser: User = await this.getUserByEmail(userEmail);
-    if (invitedUser && invitingUser) {
-      if (invitedUser.email === invitingUser.email) {
-        result = 'Can not invite your self.';
-      } else if (invitedUser.status === 'ONLINE') {
-        result = invitedUser.status;
-      } else {
-        result = 'User not available.';
-      }
-    } else {
-      result = 'User not found.';
-    }
-    return result;
-  }
-
-  async createInvitingGame(player: Player): Promise<Game> {
-    const gameID = `game${player.socketID}`;
-    const newGame = new Game(
-      gameID,
-      1,
-      player,
-      null,
-      [8, 8],
-      { x: 400, y: 400 },
-      { x: 3, y: 3 },
-      this.generateAngle(1, 1),
-      GameStatus.Waiting,
-      '',
-      player.email,
-      'classic',
-    );
-    player.gameID = gameID;
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: player.email,
-        },
-        data: {
-          status: 'WAITING',
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-    this.cacheManager.set(gameID, JSON.stringify(newGame));
-    this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
-    await this.cacheManager.set(
-      `invite${player.email}`,
-      JSON.stringify(player),
-    );
-    return newGame;
   }
 
   /****************************************************************************/
@@ -654,14 +557,14 @@ export class GameService {
   }
 
   async deletePlayers(game: Game) {
-    await this.cacheManager.del(`game${game.leftPlayer.email}`);
-    await this.cacheManager.del(`game${game.rightPlayer.email}`);
+    await this.cacheManager.del(`retrogame${game.leftPlayer.email}`);
+    await this.cacheManager.del(`retrogame${game.rightPlayer.email}`);
   }
 
   async getGameByClient(client: Socket): Promise<Game> {
     const userEmail = await this.cacheManager.get(client.id);
     const playerString: string = await this.cacheManager.get(
-      `game${userEmail}`,
+      `retrogame${userEmail}`,
     );
     if (!playerString) return null;
     const player: Player = JSON.parse(playerString);

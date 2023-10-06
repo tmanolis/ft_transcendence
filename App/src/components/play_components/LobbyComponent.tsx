@@ -19,17 +19,19 @@ const LobbyComponent: React.FC = () => {
     GameSocket.on('gameReady', () => {
       navigate("/pong");
     });
+    GameSocket.on('retroGameReady', () => {
+      navigate("/retropong");
+    });
     return () => {
       GameSocket.off("gameInvite");
       GameSocket.off('gameReady');
+      GameSocket.off('retroGameReady');
     }
   }, []);
 
   const handlePlayClassicPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
-    console.log(GameSocket.connected);
     if (!GameSocket.connected) {
-      console.log("not connected to socket");
       GameSocket.connect();
     }
     await GameSocket.emit("findGame");
@@ -37,6 +39,9 @@ const LobbyComponent: React.FC = () => {
 
   const handlePlayRetroPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
+    if (!GameSocket.connected) {
+      GameSocket.connect();
+    }
     await GameSocket.emit("findRetroGame");
   };
 

@@ -33,5 +33,6 @@ export class Game {
     public status: GameStatus,
     public pausedBy: string,
     public inviting: string,
+    public type: string,
   ) {}
 }
