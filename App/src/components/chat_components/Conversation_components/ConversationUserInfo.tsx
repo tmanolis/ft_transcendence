@@ -287,6 +287,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           )}
         </SocialActions>
       )}
+      <button>
+        <span className="icon-before" />
+      </button>
       <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
     </UserDetails>
   );
