@@ -35,7 +35,7 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose, chatRoom }) =>
             withCredentials: true,
           }
         );
-        setUsersList(response.data);
+        setUsersList(response.data.membersList);
       } catch (error) {
         console.error(error);
       }

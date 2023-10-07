@@ -22,7 +22,7 @@ const AllChannelsList: React.FC<AllChannelsListProps> = ({ getChannel }) => {
         { withCredentials: true }
       );
       console.log(response);
-      setAllChannelList(response.data);
+      setAllChannelList(response.data.allRooms);
     } catch (error) {
       console.log(error);
     }
