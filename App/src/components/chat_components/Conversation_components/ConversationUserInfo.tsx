@@ -28,7 +28,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   const [status, setStatus] = useState("");
   const EditedUserStatus = toTitleCase(status);
 
-  console.log(avatarPath, status);
+  console.log(user);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -65,7 +66,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       console.log(error);
     }
   };
-
+  console.log
   const unBanUser = async () => {
     const updateDTO = {
       username: user.userName,
