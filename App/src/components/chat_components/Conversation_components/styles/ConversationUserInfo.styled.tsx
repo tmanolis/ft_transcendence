@@ -90,7 +90,7 @@ const statusColors = {
   AWAY: "orange",
 };
 
-export const UserStatus = styled.div`
+export const UserStatus = styled.div<{ $userstatus?: string }>`
   display: flex;
   align-items: center; /* Align children vertically */
   font-size: 12px;
