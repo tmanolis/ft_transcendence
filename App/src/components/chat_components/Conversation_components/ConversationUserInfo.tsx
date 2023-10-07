@@ -31,7 +31,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   const [status, setStatus] = useState("");
   const [isBanActive, setIsBanActive] = useState(user.isBanned);
   const [isMuteActive, setIsMuteActive] = useState(user.isMuted);
-  const [isAdminActive, setIsAdminActive] = useState(user.isAdmin);
+  const [isAdminActive, setIsAdminActive] = useState(user.role === "ADMIN");
   const EditedUserStatus = toTitleCase(status);
   console.log(user);
 
@@ -172,7 +172,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
-    setIsMuted(true);
   };
 
   const handleMuteClick = async () => {
