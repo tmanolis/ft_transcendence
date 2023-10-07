@@ -23,6 +23,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
+import { isAlphanumeric } from 'class-validator';
 
 @Injectable()
 export class ChatService {
@@ -197,13 +198,15 @@ export class ChatService {
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
-    // check naming conventions
+    // check naming convention
     if (
       roomDTO.name &&
-      roomDTO.name.includes('@') &&
-      roomDTO.status !== RoomStatus.DIRECT
+      roomDTO.status !== RoomStatus.DIRECT &&
+      !roomDTO.name.match(/^[a-zA-Z0-9]+$/)
     )
-      throw new BadRequestException('Room name has invalid character (@)');
+      throw new BadRequestException(
+        'Room names can only have alphanumeric characters',
+      );
 
     // check if user exists
     if (!prismaUser)

@@ -792,8 +792,11 @@ export class GameService {
   async debugPrintCache() {
     const keys = await this.cacheManager.store.keys();
     for (const key of keys) {
-      console.log(`\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(key)}\x1b[0m`);
+      console.log(
+        `\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(
+          key,
+        )}\x1b[0m`,
+      );
     }
   }
-
 }
