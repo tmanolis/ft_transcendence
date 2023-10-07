@@ -204,7 +204,9 @@ export class ChatService {
       roomDTO.status !== RoomStatus.DIRECT &&
       !roomDTO.name.match(/^[a-zA-Z0-9]+$/)
     )
-      throw new BadRequestException('Room names can only have alphanumeric characters');
+      throw new BadRequestException(
+        'Room names can only have alphanumeric characters',
+      );
 
     // check if user exists
     if (!prismaUser)
