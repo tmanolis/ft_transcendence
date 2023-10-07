@@ -36,7 +36,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    console.log(`\x1b[32m ${client.id} connect to Game Socket! \x1b[0m`,);
+    console.log(`\x1b[32m ${client.id} connect to Game Socket! \x1b[0m`);
     if ((await this.gameService.identifyUser(client)) === 'failed') {
       client.disconnect();
     }
@@ -51,7 +51,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.gameService.clearData(client);
     console.log(`\x1b[31m ${client.id} disconnect from Game Socket!\x1b[0m`);
   }
-
 
   @SubscribeMessage('enterGamePage')
   async handleEnterGamePage(client: Socket) {
