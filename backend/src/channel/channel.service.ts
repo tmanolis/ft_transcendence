@@ -165,6 +165,7 @@ export class ChannelService {
         isBanned: userInRoom.isBanned,
         isMuted: userInRoom.isMuted,
         isBlocked: userInRoom.isBlocked,
+        role: userInRoom.role,
       }),
     );
 

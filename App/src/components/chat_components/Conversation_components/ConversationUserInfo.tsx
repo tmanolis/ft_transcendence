@@ -5,6 +5,7 @@ import { Room } from "../../../pages/Chat";
 import banIcon from "../../../assets/icon/BanUser.png";
 import kickIcon from "../../../assets/icon/KickUser.png";
 import muteIcon from "../../../assets/icon/MuteUser.png";
+import adminIcon from "../../../assets/icon/AdminUser.png";
 
 interface UserInfoProps {
   user: {
@@ -66,7 +67,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       console.log(error);
     }
   };
-  console.log
+
   const unBanUser = async () => {
     const updateDTO = {
       username: user.userName,
@@ -83,7 +84,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       console.log(error);
     }
   };
-  
+
   const handleBanClick = async () => {
     if (user.isBanned) {
       try {
@@ -154,6 +155,58 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     }
   };
 
+  const setAdminUser = async () => {
+    const updateDTO = {
+      username: user.userName,
+      channel: chatRoom.name,
+    };
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/addAdmin`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const unsetAdminUser = async () => {
+    const updateDTO = {
+      username: user.userName,
+      channel: chatRoom.name,
+    };
+    try {
+      const response = await axios.patch(
+        `${import.meta.env.VITE_BACKEND_URL}/channel/removeAdmin`,
+        updateDTO,
+        { withCredentials: true }
+      );
+      return response;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleAdminClick = async () => {
+    if (user.isBanned) {
+      try {
+        const response = await setAdminUser();
+        console.log(response?.data);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      try {
+        const response = await unsetAdminUser();
+        console.log(response?.data);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
   return (
     <UserBannerStyled>
       <UserDetails>
@@ -162,25 +215,32 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           alt={`Avatar of ${user.userName}`}
         />
         <p>{user.userName}</p>
-        <SocialActions>
-          <ActionButtons 
-            $isactive ={user.isBanned}
-            src={banIcon}
-            alt="Ban"
-            onClick={handleBanClick}
-          />
-          <ActionButtons 
-            src={kickIcon}
-            alt="Kick"
-            onClick={handleKickClick}
-          />
-          <ActionButtons 
-            $isactive ={user.isMuted}
-            src={muteIcon}
-            alt="Mute"
-            onClick={handleMuteClick}
-          />
-        </SocialActions>
+        {chatRoom.role !== "USER" && (
+          <SocialActions>
+            <ActionButtons
+              $isactive={user.isBanned}
+              src={banIcon}
+              alt="Ban"
+              onClick={handleBanClick}
+            />
+            <ActionButtons
+              src={kickIcon}
+              alt="Kick"
+              onClick={handleKickClick}
+            />
+            <ActionButtons
+              $isactive={user.isMuted}
+              src={muteIcon}
+              alt="Mute"
+              onClick={handleMuteClick}
+            />
+            <ActionButtons
+              src={adminIcon}
+              alt="Admin"
+              onClick={handleAdminClick}
+            />
+          </SocialActions>
+        )}
         <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
       </UserDetails>
     </UserBannerStyled>
