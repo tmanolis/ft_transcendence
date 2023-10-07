@@ -13,6 +13,7 @@ interface UserInfoProps {
     isBanned: boolean;
     isMuted: boolean;
     isBlocked: boolean;
+    role: string;
   };
   chatRoom: Room;
 }
@@ -25,12 +26,32 @@ function toTitleCase(input: string) {
 }
 
 const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
+  const [loggedUsername, setLoggedUsername] = useState("");
   const [avatarPath, setAvatarPath] = useState("");
   const [status, setStatus] = useState("");
+  const [isBanned, setIsBanned] = useState(user.isBanned);
+  const [isMuted, setIsMuted] = useState(user.isMuted);
+  const [isAdmin, setIsAdmin] = useState(user.role === "ADMIN");
   const EditedUserStatus = toTitleCase(status);
-
   console.log(user);
 
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/user/me`,
+          {
+            withCredentials: true,
+          }
+        );
+        setLoggedUsername(response.data.userName);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUserData();
+  }, [user]);
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -66,6 +87,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsBanned(true);
   };
 
   const unBanUser = async () => {
@@ -83,6 +105,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsBanned(false);
   };
 
   const handleBanClick = async () => {
@@ -144,6 +167,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsMuted(true);
   };
 
   const handleMuteClick = async () => {
@@ -170,6 +194,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsAdmin(true);
   };
 
   const unsetAdminUser = async () => {
@@ -187,10 +212,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     } catch (error) {
       console.log(error);
     }
+    setIsAdmin(false);
   };
 
   const handleAdminClick = async () => {
-    if (user.isBanned) {
+    if (user.role !== "ADMIN") {
       try {
         const response = await setAdminUser();
         console.log(response?.data);
@@ -207,6 +233,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     }
   };
 
+  if (loggedUsername === user.userName) {
+    return null; // Hide the entire element
+  }
+
   return (
       <UserDetails>
         <img
@@ -217,7 +247,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         {chatRoom.role !== "USER" && (
           <SocialActions>
             <ActionButtons
-              $isactive={user.isBanned}
+              $isactive={isBanned}
               src={banIcon}
               alt="Ban"
               onClick={handleBanClick}
@@ -228,12 +258,13 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
               onClick={handleKickClick}
             />
             <ActionButtons
-              $isactive={user.isMuted}
+              $isactive={isMuted}
               src={muteIcon}
               alt="Mute"
               onClick={handleMuteClick}
             />
             <ActionButtons
+              $isactive={isAdmin}
               src={adminIcon}
               alt="Admin"
               onClick={handleAdminClick}
