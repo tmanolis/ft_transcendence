@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const ChatListWrapper = styled.div`
+export const MessagesListWrapper = styled.div`
 	height: 485px;
 	overflow: auto; // Add overflow to allow scrolling if content overflows
 	font-family: "JetBrains Mono",monospace;
@@ -23,57 +23,38 @@ export const ChatListWrapper = styled.div`
   }
 `;
 
-interface StyledChatContainerProps {
-	selected?: boolean;
+interface StyledMessageContainerProps {
+	$isCurrentUser: boolean;
+	children?: React.ReactNode;
   }
   
-export const StyledChatContainer = styled.div<StyledChatContainerProps>`
+export const StyledMessageContainer = styled.div<StyledMessageContainerProps>`
 	margin: 5px;
-	padding: 10px; /* Add padding to create space between the content and the border */
+	padding: 5px; /* Add padding to create space between the content and the border */
 
-	border-top: 1px solid #FFF;
-	/* border-left: 1px solid #FFF;
-	background: #000;
-	box-shadow: -1px -1px 0px 0px #5A5A5A inset; */
-
-	display: flex; // Align children horizontally
-  	align-items: center; // Vertically center-align children
-	gap: 15px; /* Add the gap property to control spacing between components */
-
-	font-size: 18px;
+	font-size: 14px;
 	font-style: normal;
 	font-weight: 500;
 	letter-spacing: 0.36px;
 
-	border: ${(props) => (props.selected ? '2px solid #FFFFFF' : 'none')};
-  	background: ${(props) =>
-    props.selected ? 'rgba(255, 255, 255, 0.50)' : 'transparent'};
+	color: ${(props) => (props.$isCurrentUser ? '#71e679' : '#FFF')};
 
-	img {
-		margin-left: auto;
-	}
 `;
 
-interface ChatContainerProps {
-	onClick?: () => void;
-	selected?: boolean;
+interface MessageContainerProps {
+	key?: number;
+	isCurrentUser: boolean;
 	children?: React.ReactNode;
  }
 
-export const ChatContainer: React.FC<ChatContainerProps> = ({ onClick, selected, children }) => {
+export const MessageContainer: React.FC<MessageContainerProps> = ({ isCurrentUser, children }) => {
 	return (
-	  <StyledChatContainer selected={selected} onClick={onClick}>
+	  <StyledMessageContainer $isCurrentUser={isCurrentUser} >
 		{children}
-	  </StyledChatContainer>
+	  </StyledMessageContainer>
 	);
   };
 
-export const Avatar = styled.img`
-	width: 45px;
-	height: 45px;
-	border-radius: 45px;
-`;
-
 export const Username = styled.div`
-	width: 150px;
+	font-size: 14px;
 `;

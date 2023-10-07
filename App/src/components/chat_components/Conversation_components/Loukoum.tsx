@@ -1,8 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { ChatContainer, ChatListWrapper, Username } from './styles/Loukoum.styled';
 import { Room } from '../../../pages/Chat';
 import { Socket } from 'socket.io-client';
+import { MessageContainer, MessagesListWrapper } from './styles/Loukoum.styled';
 
 interface Message {
   id: number;
@@ -51,24 +51,43 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
   }, [chatRoom, socket_chat]); // Dependency array with chatRoom and socket_chat to re-run the effect when they change
 
   return (
-    <ChatListWrapper>
+    <MessagesListWrapper>
       {Item(messagesList)}
-    </ChatListWrapper>
+    </MessagesListWrapper>
   );
 }
 
 function Item(data: Message[]) {
-  return (
-    <>
-      {data.map((value, index) => (
-        <ChatContainer key={index}>
-          <Username>
+    const [userName, setUserName] = useState("");
+  
+    useEffect(() => {
+      const getUser = async () => {
+        try {
+          const response = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/user/me`,
+            { withCredentials: true }
+          );
+          setUserName(response.data.userName);
+        } catch (error) {
+          console.log(error);
+        }
+      };
+  
+      getUser();
+    }, []); // Empty dependency array ensures that effect runs only once after initial render
+  
+    return (
+      <>
+        {data.map((value, index) => (
+          <MessageContainer
+            key={index}
+            isCurrentUser={value.sender === userName} // Pass the prop based on the condition
+          >
             {value.sender}: {value.text}
-          </Username>
-        </ChatContainer>
-      ))}
-    </>
-  );
+          </MessageContainer>
+        ))}
+      </>
+    );
 }
 
 export default Loukoum;
