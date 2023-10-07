@@ -29,11 +29,17 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   const [loggedUsername, setLoggedUsername] = useState("");
   const [avatarPath, setAvatarPath] = useState("");
   const [status, setStatus] = useState("");
-  const [isBanned, setIsBanned] = useState(user.isBanned);
-  const [isMuted, setIsMuted] = useState(user.isMuted);
-  const [isAdmin, setIsAdmin] = useState(user.role === "ADMIN");
+  const [isBanActive, setIsBanActive] = useState(user.isBanned);
+  const [isKickActive, setIsKickActive] = useState(false);
+  const [isMuteActive, setIsMuteActive] = useState(user.isMuted);
+  const [isAdminActive, setIsAdminActive] = useState(user.isAdmin);
   const EditedUserStatus = toTitleCase(status);
   console.log(user);
+
+  const toggleButtonActiveState = (buttonStateFunction: React.Dispatch<React.SetStateAction<boolean>>) => {
+    buttonStateFunction((prevState) => !prevState);
+  };
+
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -83,6 +89,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsBanActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -101,6 +108,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsBanActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -137,6 +145,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsKickActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -163,6 +172,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsMuteActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -191,6 +201,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
+      toggleButtonActiveState(setIsAdminActive); // Toggle the active state
     } catch (error) {
       console.log(error);
     }
@@ -208,6 +219,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsAdminActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -234,47 +246,55 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   };
 
   if (loggedUsername === user.userName) {
-    return null; // Hide the entire element
+    return null;
   }
 
   return (
-    <CustomLink to={`/profile/${user.userName}`}>
-      <UserDetails>
+    <UserDetails>
+      <CustomLink to={`/profile/${user.userName}`}>
         <img
           src={`data:image/png;base64,${avatarPath}`}
           alt={`Avatar of ${user.userName}`}
         />
-        <p>{user.userName}</p>
-        {chatRoom.role !== "USER" && (
-          <SocialActions>
+      </CustomLink>
+      <p>{user.userName}</p>
+      {chatRoom.role !== "USER" && (
+        <SocialActions>
+          {user.role !== "OWNER" && (
             <ActionButtons
-              $isactive={isBanned}
+              $isactive={isBanActive}
               src={banIcon}
               alt="Ban"
               onClick={handleBanClick}
             />
+          )}
+          {user.role !== "OWNER" && (
             <ActionButtons
               src={kickIcon}
               alt="Kick"
               onClick={handleKickClick}
             />
+          )}
+          {user.role !== "OWNER" && (
             <ActionButtons
-              $isactive={isMuted}
+              $isactive={isMuteActive}
               src={muteIcon}
               alt="Mute"
               onClick={handleMuteClick}
             />
+          )}
+          {user.role !== "OWNER" && (
             <ActionButtons
-              $isactive={isAdmin}
+              $isactive={isAdminActive}
               src={adminIcon}
               alt="Admin"
               onClick={handleAdminClick}
             />
-          </SocialActions>
-        )}
-        <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
-      </UserDetails>
-    </CustomLink>
+          )}
+        </SocialActions>
+      )}
+      <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
+    </UserDetails>
   );
 };
 
