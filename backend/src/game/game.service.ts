@@ -264,6 +264,7 @@ export class GameService {
     if (player && player.gameID !== '') {
       const pausingGame: Game = await this.getGameByID(player.gameID);
       if (pausingGame && pausingGame.status === GameStatus.Pause) {
+        pausingGame.pausedBy = "";
         this.joinGame(player, player.gameID);
         return [true, player.gameID];
       }
@@ -697,12 +698,12 @@ export class GameService {
     }
     let winner: User;
     let loser: User;
-    if (game.pausedBy && game.pausedBy !== '') {
-      winner = (game.pausedBy === leftPlayer.email) ? rightPlayer : leftPlayer;
-      loser = (game.pausedBy === leftPlayer.email) ? leftPlayer : rightPlayer;
-    } else {
+    if (game.score[0] === 11 || game.score[1] === 11) {
       winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
       loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
+    } else {
+      winner = (game.pausedBy === leftPlayer.email) ? rightPlayer : leftPlayer;
+      loser = (game.pausedBy === leftPlayer.email) ? leftPlayer : rightPlayer;
     }
 
     const dbGame = await this.prisma.game.create({
@@ -794,7 +795,11 @@ export class GameService {
   async debugPrintCache() {
     const keys = await this.cacheManager.store.keys();
     for (const key of keys) {
-      console.log(`\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(key)}\x1b[0m`);
+      console.log(
+        `\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(
+          key,
+        )}\x1b[0m`,
+      );
     }
   }
 }
