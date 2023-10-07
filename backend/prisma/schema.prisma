@@ -82,7 +82,6 @@ model UserInRoom {
   roomID   	String
   isMuted  	Boolean @default(false)
   isBanned 	Boolean @default(false)
-	isBlocked	Boolean @default(false)
   role     	Role    @default(USER)
 }
 
