@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Link as RouterLink } from 'react-router-dom'; // Import Link from react-router-dom
 
 export const UserDetails = styled.div`
   display: flex;
@@ -111,4 +112,9 @@ export const UserStatus = styled.div<{ $userstatus?: string }>`
     content: "•"; /* Add bullet point */
     margin-right: 4px; /* Adjust the space */
   }
+`;
+
+export const CustomLink = styled(RouterLink)`
+  text-decoration: none;
+  color: inherit;
 `;

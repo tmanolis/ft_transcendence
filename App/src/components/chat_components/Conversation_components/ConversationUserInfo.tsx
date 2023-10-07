@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"
-import { UserDetails, SocialActions, ActionButtons, UserStatus } from "./styles/ConversationUserInfo.styled";
+import { UserDetails, SocialActions, ActionButtons, UserStatus, CustomLink } from "./styles/ConversationUserInfo.styled";
 import { Room } from "../../../pages/Chat";
 import banIcon from "../../../assets/icon/BanUser.png";
 import kickIcon from "../../../assets/icon/KickUser.png";
@@ -51,7 +51,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     };
     fetchUserData();
   }, [user]);
-  
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -238,6 +238,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   }
 
   return (
+    <CustomLink to={`/profile/${user.userName}`}>
       <UserDetails>
         <img
           src={`data:image/png;base64,${avatarPath}`}
@@ -273,6 +274,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         )}
         <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
       </UserDetails>
+    </CustomLink>
   );
 };
 
