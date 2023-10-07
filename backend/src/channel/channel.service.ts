@@ -63,6 +63,7 @@ export class ChannelService {
         isBanned: userInRoom.isBanned,
         isMuted: userInRoom.isMuted,
         isBlocked: userInRoom.isBlocked,
+        role: userInRoom.role,
       }),
     );
 
@@ -170,108 +171,6 @@ export class ChannelService {
 
     return room;
   }
-
-  async getDMRoomWithUsers(
-    user: User,
-    username: string,
-  ): Promise<RoomWithUsers> {
-    const otherUser: User = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-    });
-    if (!otherUser) throw new NotFoundException('User not found');
-
-    const roomName: string = this.chatService.uniqueRoomName(
-      user.email,
-      otherUser.email,
-    );
-
-    const room: RoomWithUsers = await this.getRoomWithUsers(roomName);
-
-    if (!room)
-      throw new NotFoundException('There is no active DM room with this user');
-
-    return room;
-  }
-
-  async getRooms(user: User) {
-    const userRooms = await this.prisma.user
-      .findUnique({
-        where: {
-          id: user.id,
-        },
-      })
-      .rooms({
-        select: {
-          room: {
-            select: {
-              name: true,
-              status: true,
-            },
-          },
-          role: true,
-        },
-      });
-
-    const roomData = userRooms.map((userRoom) => ({
-      name: userRoom.room.name,
-      status: userRoom.room.status,
-      role: userRoom.role,
-    }));
-
-    return roomData;
-  }
-
-  async getChannelMembers(dto: channelDTO) {
-    const room = await this.prisma.room.findUnique({
-      where: {
-        name: dto.name,
-      },
-    });
-    if (!room) throw new NotFoundException('Room not found');
-
-    const usersInRoom: UserInRoomWithUser[] =
-      await this.prisma.userInRoom.findMany({
-        where: {
-          room: {
-            name: dto.name,
-          },
-          isBanned: false,
-        },
-        include: {
-          user: true,
-        },
-      });
-
-    const channelMembers = usersInRoom.map(
-      (userInRoom: UserInRoomWithUser) => ({
-        userName: userInRoom.user.userName,
-        isBanned: userInRoom.isBanned,
-        isMuted: userInRoom.isMuted,
-        isBlocked: userInRoom.isBlocked,
-        role: userInRoom.role,
-      }),
-    );
-
-    return channelMembers;
-  }
-
-	async getAllRooms() {
-    const allRooms = await this.prisma.room.findMany({
-      where: {
-        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
-      },
-      select: {
-        name: true,
-        status: true,
-        createdAt: true,
-      },
-    });
-    return allRooms;
-  }
-
-
 
   /****************************************************************************/
   /* channel history									 			                                  */
