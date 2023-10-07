@@ -11,7 +11,7 @@ export const SettingsModalStyled = styled.div`
   justify-content: center;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(1.5px);
-
+  z-index:999;
 `;
 
 export const ModalWrapper = styled.div`
@@ -129,7 +129,7 @@ export const Input = styled.div`
   button{
     margin-top: 35%;
     margin-left: 10%;
-
+    
     cursor: pointer;
   }
 
@@ -139,6 +139,8 @@ export const Input = styled.div`
 `;
 
 export const ConfirmButton = styled.div`
-  /* margin-top: 6.5%;
-  margin-left: 4%; */
+  button[disabled] {
+    cursor: not-allowed;
+    opacity: 1;
+  }
 `;

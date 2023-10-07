@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
 import Register from "./pages/Register";
 import Pong from "./pages/Pong";
@@ -14,12 +14,15 @@ import Friends from "./pages/Friends";
 import Home from "./pages/Home";
 import PrivateRoute from "./components/PrivateRoute";
 import Chat from "./pages/Chat";
+import { RouteChangeListener } from "./components/RouteChangeListener";
 
 const App = () => {
+
+  // This part is for detecting if user is on /pong page
   return (
     <>
       <GlobalStyle />
-      <Router>
+      <RouteChangeListener />
         <Routes>
           <Route path="/" element={React.createElement(Home)} />
           <Route path="/auth" element={React.createElement(Authentification)} />
@@ -58,7 +61,6 @@ const App = () => {
             element={<PrivateRoute component={React.createElement(Friends)} />}
           />
         </Routes>
-      </Router>
     </>
   );
 };

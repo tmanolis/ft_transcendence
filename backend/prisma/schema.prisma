@@ -12,13 +12,15 @@ generator client {
 
 model User {
   /// basic info
-  id                 String   @id @unique @default(uuid())
-  createdAt          DateTime @default(now())
-  email              String   @unique
-  userName           String   @unique
-  avatar             String   @default("defaultAvatar.jpg")
-  isFourtyTwoStudent Boolean  @default(false)
-  status             Status   @default(ONLINE)
+  id                 String   			@id @unique @default(uuid())
+  createdAt          DateTime 			@default(now())
+  email              String   			@unique
+  userName           String   			@unique
+  avatar             String   			@default("defaultAvatar.jpg")
+  isFourtyTwoStudent Boolean  			@default(false)
+  status             Status   			@default(ONLINE)
+	blockedUsers			 BlockedUser[]	@relation("user blocking")
+	usersBlockedMe		 BlockedUser[]	@relation("user being blocked")
 
   /// authentification
   password       String
@@ -26,10 +28,10 @@ model User {
   twoFASecret    String?
 
   /// community
-  friends               String[]
+  friends                String[]
   friendRequestsSent     String[]
   friendRequestsReceived String[]
-  rooms                 UserInRoom[] @relation("connecting User to UserInRoom")
+  rooms                  UserInRoom[] @relation("connecting User to UserInRoom")
 
   /// statistics
   gamesWon    	Int		@default(0)
@@ -38,6 +40,14 @@ model User {
 
   ///historics
   games Game[] @relation("player")
+}
+
+model BlockedUser {
+  id             Int   		@id @unique @default(autoincrement())
+  blocked				 String
+  blockedBy			 String
+  blockedUser    User     @relation("user being blocked", fields: [blocked], references: [id])
+  blockedByUser  User     @relation("user blocking", fields: [blockedBy], references: [id])
 }
 
 model jwtBlacklist {

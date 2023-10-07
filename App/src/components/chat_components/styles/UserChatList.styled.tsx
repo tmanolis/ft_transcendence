@@ -22,6 +22,12 @@ export const ChatListWrapper = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+  
+  @media screen and (max-width: 1480px) {
+		height: 30%;
+		display: flex;
+		flex-direction: row;
+	}
 `;
 
 interface StyledChatContainerProps {
@@ -53,6 +59,13 @@ export const StyledChatContainer = styled.div<StyledChatContainerProps>`
 	img {
 		margin-left: auto;
 	}
+
+	@media screen and (max-width: 1480px) {
+		width: fit-content;
+		height: 20%;
+		width: auto;
+		font-size: 15px;
+	}
 `;
 
 interface ChatContainerProps {
@@ -76,5 +89,11 @@ export const Avatar = styled.img`
 `;
 
 export const Username = styled.div`
-	width: 150px;
+	width: 150px;	
+	
+	@media screen and (max-width: 1480px) {
+		height: 20%;
+		width: auto;
+		font-size: 15px;
+  }
 `;

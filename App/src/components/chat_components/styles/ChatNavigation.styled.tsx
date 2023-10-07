@@ -12,6 +12,13 @@ export const ChatNavigationStyled = styled.div`
 		margin-top: 10px;
 		display: flex;
 		justify-content: space-between; /* Horizontally justify the children */
+	
+		@media screen and (max-width: 1480px) {
+			justify-content: flex-start;
+			height: 80%;
+			width: 80%;
+			font-size: 12px;
+  		}
 	}
 
 	${StyledConfirmButton} {
@@ -22,5 +29,18 @@ export const ChatNavigationStyled = styled.div`
 		font-style: normal;
 		font-weight: 500;
 		letter-spacing: 0.36px;
+
+			@media screen and (max-width: 1480px) {
+			height: 80%;
+			width: 80%;
+			font-size: 12px;
+  		}
 	}
+
+	@media screen and (max-width: 1480px) {
+		display: flex;
+		flex-direction : column;
+		height: 20%;
+		width: auto;
+  }
 `;

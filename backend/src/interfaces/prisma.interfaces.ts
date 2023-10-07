@@ -1,4 +1,4 @@
-import { Room, User, UserInRoom, Message } from '@prisma/client';
+import { Room, User, UserInRoom, Message, BlockedUser } from '@prisma/client';
 
 export interface RoomWithUsers extends Room {
   users: UserInRoom[];
@@ -15,6 +15,18 @@ export interface RoomWithMessages extends Room {
 export interface UserInRoomWithUser extends UserInRoom {
   user: User;
 }
+
+export interface UserWithBlocklist extends User {
+  blockedUsers: BlockedUser[];
+}
+
+// export interface BlockedUserWithUsername extends BlockedUser {
+// 	blockedUser: User & { userName: string };
+// }
+
+// export interface UserWithNamedBlocklist extends BlockedUserWithUser {
+// 	blockedUsers: BlockedUserWithUser[];
+// }
 
 export interface UserWithGames {
   userName: string;

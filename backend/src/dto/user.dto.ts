@@ -4,7 +4,6 @@ import {
   IsString,
   Matches,
   MinLength,
-  IsEmail,
   IsAlphanumeric,
 } from 'class-validator';
 import { Game, Status } from '@prisma/client';
@@ -46,17 +45,10 @@ export class UpdateDto {
   twoFAActivated: boolean;
 }
 
-export class GetUserByUsernameDTO {
+export class UsernameDTO {
   @ApiProperty({ description: 'Requested username' })
   @IsString()
   userName: string;
-}
-
-export class GetUserByEmailDTO {
-  @ApiProperty({ description: 'Requested email' })
-  @IsString()
-  @IsEmail()
-  email: string;
 }
 
 export class SecureUser {

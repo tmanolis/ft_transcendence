@@ -1,5 +1,5 @@
 import { ConversationHeaderWrapper, RoomName } from "./styles/ConversationHeader.styled";
-import iconSrc from "../../../../public/icon/Settings.svg";
+import iconSrc from "/src/assets/icon/Settings.svg";
 import { Room } from "../../../pages/Chat";
 import ChannelMenu from "./ConversationMenu";
 import { useState, useEffect } from "react";
@@ -11,7 +11,7 @@ interface ConversationHeaderProps {
   socket_chat: Socket
 }
 
-const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom }) => {
+const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, socket_chat }) => {
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [username, setUsername] = useState<string>("");
@@ -41,7 +41,7 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom }) => 
     <ConversationHeaderWrapper>
       <RoomName>{chatRoom.name}</RoomName>
       <img src={iconSrc} alt="settings_icon" onClick={openCloseMenu} />
-      {isMenuVisible && <ChannelMenu onCloseMenu={openCloseMenu} chatRoom={chatRoom} userName={username} />}
+      {isMenuVisible && <ChannelMenu onCloseMenu={openCloseMenu} chatRoom={chatRoom} userName={username} socket_chat={socket_chat} />}
     </ConversationHeaderWrapper>
   )
 };

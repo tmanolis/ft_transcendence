@@ -1,6 +1,6 @@
 import React from "react";
 import { ModalContainer, PopUpWrapper } from "./styles/NewChatModal.styled";
-import iconSrc from "../../../../public/icon/Cross.svg";
+import iconSrc from "/icon/Cross.svg";
 import { Socket } from "socket.io-client";
 import JoinChannel from "./JoinChannel";
 import JoinDirectMessage from "./JoinDirectMessage";
