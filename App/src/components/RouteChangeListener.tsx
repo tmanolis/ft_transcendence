@@ -25,7 +25,7 @@ export const RouteChangeListener = () => {
     return () => {
       GameSocket.off('disconnect');
     }
-  }, [isPongMatch]);
+  }, [isPongMatch, isRetroPongMatch]);
 
   return null;
 }
