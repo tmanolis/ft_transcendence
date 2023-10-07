@@ -117,7 +117,7 @@ export class FriendService {
     if (checkData !== '') {
       throw new BadRequestException(checkData);
     }
-    console.log("unfriend")
+    console.log('unfriend');
     const sender: User = user;
     const receiver: User = await this.getUserByUsername(payload.userName);
     if (!receiver) {

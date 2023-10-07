@@ -13,7 +13,7 @@ import { RoomStatus } from '@prisma/client';
 
 @WebSocketGateway({
   cors: {
-    origin: ['http://localhost:3000', 'http://localhost:8080'],
+    origin: [`${process.env.FRONTEND_URL}`],
   },
   namespace: 'chat',
 })
@@ -34,8 +34,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {
-    // not sure if we have to do anything here...
-    // maybe save all chat history if we decide to use the cache
     console.log('chatuser disconnected: ', client.id);
   }
 

@@ -22,17 +22,102 @@ import {
   UserInRoomWithUser,
 } from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     private prisma: PrismaService,
     private readonly chatService: ChatService,
+    private readonly userService: UserService,
   ) {}
 
   /****************************************************************************/
   /* channel info											                                        */
   /****************************************************************************/
+
+  async getChannelMembers(dto: channelDTO) {
+    const room = await this.prisma.room.findUnique({
+      where: {
+        name: dto.name,
+      },
+    });
+    if (!room) throw new NotFoundException('Room not found');
+
+    const usersInRoom: UserInRoomWithUser[] =
+      await this.prisma.userInRoom.findMany({
+        where: {
+          room: {
+            name: dto.name,
+          },
+          isBanned: false,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+    const channelMembers = usersInRoom.map(
+      (userInRoom: UserInRoomWithUser) => ({
+        userName: userInRoom.user.userName,
+        isBanned: userInRoom.isBanned,
+        isMuted: userInRoom.isMuted,
+        isBlocked: userInRoom.isBlocked,
+      }),
+    );
+
+    return channelMembers;
+  }
+
+  async getOtherUser(user: User, dto: channelDTO) {
+    const room = await this.getRoomWithUsers(dto.name);
+
+    if (room.status !== RoomStatus.DIRECT) {
+      throw new ForbiddenException('This is not a private room');
+    }
+
+    const usersInRoom: UserInRoomWithUser[] =
+      await this.prisma.userInRoom.findMany({
+        where: {
+          room: {
+            name: dto.name,
+          },
+          isBanned: false,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+    let otherUser: string | null = null;
+
+    for (const userInRoom of usersInRoom) {
+      if (userInRoom.user.id !== user.id) {
+        otherUser = userInRoom.user.userName;
+        break;
+      }
+    }
+
+    if (otherUser === null) {
+      throw new NotFoundException('You seem to be alone in this room');
+    }
+
+    return otherUser;
+  }
+
+  async getAllRooms() {
+    const allRooms = await this.prisma.room.findMany({
+      where: {
+        OR: [{ status: 'PUBLIC' }, { status: 'PRIVATE' }],
+      },
+      select: {
+        name: true,
+        status: true,
+        createdAt: true,
+      },
+    });
+    return allRooms;
+  }
 
   async getRoomUserWithUsername(
     username: string,
@@ -189,17 +274,23 @@ export class ChannelService {
 
 
   /****************************************************************************/
-  /* get history									 			                                      */
+  /* channel history									 			                                  */
   /****************************************************************************/
 
   async getChannelHistory(user: User, dto: channelDTO): Promise<RoomHistory> {
     const room: RoomWithUsers = await this.checkRoom(dto);
     const userInRoom: UserInRoom = await this.allowedToReceive(user, room);
+    const blocked: string[] = await this.userService.getBlocklist(user);
 
     if (userInRoom) {
       const messages: Message[] = await this.prisma.message.findMany({
         where: {
           roomID: room.name,
+          NOT: {
+            sender: {
+              in: blocked,
+            },
+          },
         },
       });
       return { room: room.name, messages };
@@ -208,6 +299,8 @@ export class ChannelService {
   }
 
   async getFullHistory(user: User): Promise<RoomHistory[]> {
+    const blocked: string[] = await this.userService.getBlocklist(user);
+
     const userRooms: UserWithRooms | null = await this.prisma.user.findUnique({
       where: {
         email: user.email,
@@ -227,6 +320,11 @@ export class ChannelService {
       const messages = await this.prisma.message.findMany({
         where: {
           roomID: room.roomID,
+          NOT: {
+            sender: {
+              in: blocked,
+            },
+          },
         },
       });
 
@@ -272,52 +370,6 @@ export class ChannelService {
     }
 
     return userInRoom;
-  }
-
-  /****************************************************************************/
-  /* dm options												                                        */
-  /****************************************************************************/
-
-  async block(user: User, dto: dmDTO) {
-    const room: RoomWithUsers = await this.getDMRoomWithUsers(
-      user,
-      dto.userName,
-    );
-    const subject = await this.getRoomUserWithUsername(dto.userName, room);
-
-    if (subject.isBlocked)
-      throw new BadRequestException('You have already blocked this person');
-
-    // unban room user
-    await this.prisma.userInRoom.update({
-      where: {
-        id: subject.id,
-      },
-      data: {
-        isBlocked: true,
-      },
-    });
-  }
-
-  async unblock(user: User, dto: dmDTO) {
-    const room: RoomWithUsers = await this.getDMRoomWithUsers(
-      user,
-      dto.userName,
-    );
-    const subject = await this.getRoomUserWithUsername(dto.userName, room);
-
-    if (!subject.isBlocked)
-      throw new BadRequestException('This user is not blocked');
-
-    // unban room user
-    await this.prisma.userInRoom.update({
-      where: {
-        id: subject.id,
-      },
-      data: {
-        isBlocked: false,
-      },
-    });
   }
 
   /****************************************************************************/
@@ -525,7 +577,7 @@ export class ChannelService {
 
   relationCheck(admin: UserInRoom, otherUser: UserInRoom, action: string) {
     if (admin.role === 'ADMIN' && otherUser.role === 'ADMIN') {
-      throw new ForbiddenException('Can not ' + action + ' other admin');
+      throw new ForbiddenException(`Can not ${action} other admin`);
     } else if (admin.role === 'ADMIN' && otherUser.role === 'OWNER') {
       throw new ForbiddenException('Can not ' + action + ' owner');
     }
