@@ -30,7 +30,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   const [avatarPath, setAvatarPath] = useState("");
   const [status, setStatus] = useState("");
   const [isBanActive, setIsBanActive] = useState(user.isBanned);
-  const [isKickActive, setIsKickActive] = useState(false);
   const [isMuteActive, setIsMuteActive] = useState(user.isMuted);
   const [isAdminActive, setIsAdminActive] = useState(user.isAdmin);
   const EditedUserStatus = toTitleCase(status);
@@ -89,12 +88,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      toggleButtonActiveState(setIsBanActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
     }
-    setIsBanned(true);
   };
 
   const unBanUser = async () => {
@@ -108,12 +105,10 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      toggleButtonActiveState(setIsBanActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
     }
-    setIsBanned(false);
   };
 
   const handleBanClick = async () => {
@@ -121,6 +116,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       try {
         const response = await unBanUser();
         console.log(response?.data);
+        toggleButtonActiveState(setIsBanActive);
       } catch (error) {
         console.log(error);
       }
@@ -128,6 +124,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       try {
         const response = await banUser();
         console.log(response?.data);
+        toggleButtonActiveState(setIsBanActive);
       } catch (error) {
         console.log(error);
       }
@@ -145,7 +142,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      toggleButtonActiveState(setIsKickActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -172,7 +168,6 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      toggleButtonActiveState(setIsMuteActive); // Toggle the active state
       return response;
     } catch (error) {
       console.log(error);
@@ -184,6 +179,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     try {
       const response = await MuteUser();
       console.log(response?.data);
+      toggleButtonActiveState(setIsMuteActive);
     } catch (error) {
       console.log(error);
     }
@@ -200,12 +196,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
+      toggleButtonActiveState(setIsAdminActive);
       return response;
-      toggleButtonActiveState(setIsAdminActive); // Toggle the active state
     } catch (error) {
       console.log(error);
     }
-    setIsAdmin(true);
   };
 
   const unsetAdminUser = async () => {
@@ -219,12 +214,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         updateDTO,
         { withCredentials: true }
       );
-      toggleButtonActiveState(setIsAdminActive); // Toggle the active state
+      toggleButtonActiveState(setIsAdminActive);
       return response;
     } catch (error) {
       console.log(error);
     }
-    setIsAdmin(false);
   };
 
   const handleAdminClick = async () => {
