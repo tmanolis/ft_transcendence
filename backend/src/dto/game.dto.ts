@@ -31,5 +31,6 @@ export class Game {
     public ballDirection: Position,
     public ballAngle: number,
     public status: GameStatus,
+    public pausedBy: string,
   ) {}
 }

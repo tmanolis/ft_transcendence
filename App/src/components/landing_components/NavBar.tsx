@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import NavBarStyled from "./styles/NavBar.styled";
+import { GameSocket } from "../GameSocket";
 import axios from "axios";
 
 type NavButtonProps = {
@@ -22,6 +23,7 @@ const NavBar: React.FC = () => {
 
   const handleLogout = async () => {
     console.log("Logout button clicked");
+    GameSocket.disconnect();
 
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/auth/logout`, {
