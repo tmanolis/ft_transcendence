@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import Input from "./styles/Input.styled";
 import { ModalContainer, PopUpWrapper } from "./styles/Modal2FA.styled";
 import Button from "./styles/Button.styled";
+import { GameSocket } from "../GameSocket";
 
 interface Modal2FAProps {
 	onCancel: () => void;
@@ -32,6 +33,7 @@ interface Modal2FAProps {
 		{ withCredentials: true }
 		);
 		console.log(response);
+    GameSocket.connect();
 		navigate("/landing");
 		
 	} catch (error) {
