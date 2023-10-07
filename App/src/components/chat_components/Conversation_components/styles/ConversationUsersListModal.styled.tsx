@@ -53,10 +53,14 @@ export const Head = styled.div`
 
 export const UsersList = styled.div`
   display: flex;
-  width: 456px;
+  width: 550px;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
   overflow-y: scroll;
-  max-height: 300px;
+  max-height: 500px;
+
+  @media screen and (max-width: 500px) {
+    align-items: flex-start;
+	}
 `;
