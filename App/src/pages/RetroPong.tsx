@@ -19,7 +19,7 @@ const RetroPong = () => {
   const canvasHeight = 400;
 
   const paddleHeight = 150;
-  const paddleWidth = 10;
+  const paddleWidth = 20;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
     canvasHeight / 2 - paddleHeight / 2,
   );
@@ -64,7 +64,7 @@ const RetroPong = () => {
       console.log("waiting ENDED!!!");
     });
 
-    GameSocket.emit("setRetroCanvas", { canvasHeight, paddleHeight, leftPaddleY });
+    GameSocket.emit("setRetroCanvas", { canvasHeight, paddleHeight, leftPaddleY, rightPaddleY });
 
     return () => {
       GameSocket?.off("error");
@@ -141,7 +141,7 @@ const RetroPong = () => {
         );
 
         // draw the ball
-        if (!isWaiting && Math.random() < 0.3) {
+        if (!isWaiting && (ball.x < 325 || ball.x > 475)) {
           context.fillStyle = "pink";
           context.fillRect(
             ball.x - paddleWidth / 2,
