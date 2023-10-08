@@ -49,11 +49,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle disconnection
   /****************************************************************************/
   async handleDisconnect(client: Socket) {
+
     await this.gameService.cancelPendingGame(client);
-    await this.retroGameService.cancelPendingGame(client);
     await this.gameService.clearData(client);
-    await this.retroGameService.clearData(client);
     await this.gameService.updateUserDisconnectStatus(client);
+
+    await this.retroGameService.cancelPendingGame(client);
+    await this.retroGameService.clearData(client);
     await this.retroGameService.updateUserDisconnectStatus(client);
     console.log(`\x1b[31m ${client.id} disconnect from Game Socket!\x1b[0m`);
   }
@@ -64,6 +66,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('enterGamePage')
   async handleEnterGamePage(client:Socket) {
     console.log(`\x1b[96m ${client.id} enter game page!\x1b[0m`);
+    
     const existPlayer: Player = await this.gameService.getSocketPlayer(client);
     if (!existPlayer) {
       this.server.to(client.id).emit('error', "Can't enter game page.");

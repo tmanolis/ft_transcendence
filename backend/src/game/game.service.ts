@@ -131,19 +131,17 @@ export class GameService {
     const user: User = await this.getSocketUser(client);
     if (!user)
       return;
-    if (user.status === 'WAITING' || user.status === 'PLAYING') {
-      try {
-        await this.prisma.user.update({
-          where: {
-            email: user.email,
-          },
-          data: {
-            status: 'AWAY',
-          },
-        });
-      } catch (error) {
-        throw error;
-      }
+    try {
+      await this.prisma.user.update({
+        where: {
+          email: user.email,
+        },
+        data: {
+          status: 'AWAY',
+        },
+      });
+    } catch (error) {
+      throw error;
     }
     await this.cacheManager.del(client.id);
   }
