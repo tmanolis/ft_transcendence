@@ -55,6 +55,9 @@ const Pong = () => {
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
+    GameSocket.on("invitationAccepted", () => {
+      setIsWaiting(false);
+    });
 
     if (!isWaiting) {
       GameSocket.emit("startGame");

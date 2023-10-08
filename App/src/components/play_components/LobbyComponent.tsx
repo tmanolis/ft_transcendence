@@ -12,10 +12,15 @@ const LobbyComponent: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    GameSocket.on("gameInvite", (message) => {
+      console.log(message.invitedBy);
+      GameSocket.emit('acceptInvitation', message.invitedBy);
+    });
     GameSocket.on('gameReady', () => {
       navigate("/pong");
     });
     return () => {
+      GameSocket.off("gameInvite");
       GameSocket.off('gameReady');
     }
   }, []);
@@ -33,7 +38,6 @@ const LobbyComponent: React.FC = () => {
   const handlePlayRetroPong = async (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
     await GameSocket.emit("findRetroGame");
-    navigate("/pong");
   };
 
   return (

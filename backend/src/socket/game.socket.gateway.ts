@@ -197,7 +197,14 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('inviteUserToPlay')
   async handleInvitePlayer(client: Socket, payload: string) {
     // find and check the "invited" user
-    const invitedUserEmail: string = payload;
+    if (!payload) {
+      return;
+    }
+    const invitedUser : User = await this.gameService.getUserByUsername(payload);
+    if (!invitedUser) {
+      return;
+    }
+    const invitedUserEmail: string = invitedUser.email;
     const user: User = await this.gameService.getSocketUser(client);
     if (!invitedUserEmail || invitedUserEmail === '') {
       this.server
@@ -210,7 +217,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (invitedUserStatus === 'ONLINE') {
       this.server
         .to(client.id)
-        .emit('invitationSent', { invitedUserEmail: payload });
+        .emit('invitationSent', { invitedUserEmail: invitedUserEmail });
     } else {
       this.server
         .to(client.id)
@@ -225,12 +232,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     );
     if (invitingGame) {
       client.join(invitingGame.gameID);
-      const invitedUserSocketID: string = await this.cacheManager.get(
-        `game${invitedUserEmail}`,
-      );
+      const invitedUserSocketID: string = await this.cacheManager.get(invitedUserEmail);
+      console.log("invited user: ", invitedUserSocketID, invitedUserEmail);
       this.server
         .to(invitedUserSocketID)
         .emit('gameInvite', { invitedBy: invitingPlayer.email });
+
     }
   }
 
@@ -250,16 +257,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return;
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: invitingPlayer.email,
-      },
-    });
-    if (user.status !== 'WAITING') {
-      this.server
-        .to(invitedPlayer.socketID)
-        .emit('errorGameInvite', { error: 'Player not available anymore' });
-      return;
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: invitingPlayer.email,
+        },
+      });
+      if (user.status !== 'WAITING') {
+        this.server
+          .to(invitedPlayer.socketID)
+          .emit('errorGameInvite', { error: 'Player not available anymore' });
+        return;
+      }
+    } catch (error) {
+      throw error;
     }
     client.join(invitingPlayer.gameID);
 
@@ -267,8 +278,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       invitedPlayer,
       invitingPlayer.gameID,
     );
+    console.log(inviteGameStarted);
     if (inviteGameStarted) {
       this.server.to(invitingPlayer.socketID).emit('invitationAccepted');
+      this.server.to(invitingPlayer.socketID).emit('gameReady');
+      this.server.to(invitedPlayer.socketID).emit('gameReady');
+      this.server.to(invitingPlayer.socketID).emit('endWaitigState');
+      this.server.to(invitedPlayer.socketID).emit('endWaitingState');
     } else {
       this.server
         .to(invitedPlayer.socketID)

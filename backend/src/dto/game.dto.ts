@@ -32,5 +32,6 @@ export class Game {
     public ballAngle: number,
     public status: GameStatus,
     public pausedBy: string,
+    public inviting: string,
   ) {}
 }
