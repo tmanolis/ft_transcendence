@@ -81,6 +81,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleLeaveGamePage(client:Socket) {
     await this.gameService.cancelPendingGame(client);
     await this.gameService.clearData(client);
+    await this.gameService.updateUserConnectStatus(client);
     console.log(`\x1b[95m ${client.id} leave game page!\x1b[0m`);
   }
 
