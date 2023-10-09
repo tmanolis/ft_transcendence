@@ -144,10 +144,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       // also need to ubpdate the paddle for both sides.
       if (gameData.status === GameStatus.Pause) {
-        this.server.to(gameRoom).emit('pause', this.pauseCounter);
         this.pauseCounter--;
         console.log(this.pauseCounter);
-        if (this.pauseCounter === 0) {
+        if (this.pauseCounter <= 0) {
           gameData.status = GameStatus.Ended;
           this.server.to(gameRoom).emit('updateGame', gameData);
           this.server.to(gameRoom).emit('ended', gameData);
@@ -404,10 +403,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       }
       // also need to ubpdate the paddle for both sides.
       if (gameData.status === GameStatus.Pause) {
-        this.server.to(gameRoom).emit('pause', this.pauseCounter);
         this.pauseCounter--;
         console.log(this.pauseCounter);
-        if (this.pauseCounter === 0) {
+        if (this.pauseCounter <= 0) {
           gameData.status = GameStatus.Ended;
           this.server.to(gameRoom).emit('updateGame', gameData);
           this.server.to(gameRoom).emit('ended', gameData);
