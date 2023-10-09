@@ -21,14 +21,14 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
   const [messagesList, setMessagesList] = useState<Message[]>([]);
 
   const getMessagesList = async () => {
-    const nameRefacto = chatRoom.name.replace(/#/g, '%23');
 
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/channel/history?name=${nameRefacto}`,
+        `${import.meta.env.VITE_BACKEND_URL}/channel/history?name=${chatRoom.name}`,
         { withCredentials: true }
       );
-      setMessagesList(response.data.messages);
+      console.log(response.data.channelHistory.messages);
+      setMessagesList(response.data.channelHistory.messages);
     } catch (error) {
       console.log(error);
     }
