@@ -43,7 +43,7 @@ export const CreateChannelModal: React.FC<CreateChannelModalProps> = ({ onCancel
 			status = 'PRIVATE';
 		
 		const updateDTO = {
-			name: "#" + channelName,
+			name: channelName,
 			status: status,
 			password: password
 		};
