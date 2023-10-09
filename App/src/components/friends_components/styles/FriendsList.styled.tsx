@@ -57,7 +57,7 @@ export const FriendContainer = styled.div`
 	letter-spacing: 0.36px;
 
 	@media screen and (max-width: 920px) {
-	width : 70%;
+		width : 70%;
 	}
 
 	@media screen and (max-width: 450px) {
