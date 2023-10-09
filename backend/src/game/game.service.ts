@@ -10,6 +10,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { JwtService } from '@nestjs/jwt';
 import { Game, GameStatus, Player } from '../dto/game.dto';
 import { User, Game as prismaGame } from '@prisma/client';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class GameService {
@@ -18,6 +19,7 @@ export class GameService {
     private readonly cacheManager: Cache,
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly userService: UserService,
   ) {}
 
   private canvas: {
@@ -719,25 +721,6 @@ export class GameService {
   }
 
   async updatePlayerStats(player: User, dbGame: prismaGame) {
-    if (
-      player.id === dbGame.winnerId &&
-      !player.achievements.includes('WINNER')
-    ) {
-      try {
-        await this.prisma.user.update({
-          where: {
-            email: player.email,
-          },
-          data: {
-            achievements: {
-              push: 'WINNER',
-            },
-          },
-        });
-      } catch (error) {
-        throw error;
-      }
-    }
 
     player.id === dbGame.winnerId ? player.gamesWon++ : player.gamesLost++;
     try {
@@ -752,6 +735,47 @@ export class GameService {
       });
     } catch (error) {
       throw error;
+    }
+
+    if (player.id === dbGame.winnerId) {
+      if (!player.achievements.includes('WINNER')) {
+        try {
+          await this.prisma.user.update({
+            where: {
+              email: player.email,
+            },
+            data: {
+              achievements: {
+                push: 'WINNER',
+              },
+            },
+          });
+        } catch (error) {
+          throw error;
+        }
+      }
+
+      if (!player.achievements.includes('FIRST')) {
+        const leaderboard = await this.userService.getLeaderboard();
+        const firstPlaceUserName = leaderboard[0].userName;
+        if (player.userName === firstPlaceUserName) {
+          try {
+            await this.prisma.user.update({
+              where: {
+                email: player.email,
+              },
+              data: {
+                achievements: {
+                  push: 'FIRST',
+                },
+              },
+            });
+          } catch (error) {
+            throw error;
+          }
+        }
+      }
+
     }
   }
 

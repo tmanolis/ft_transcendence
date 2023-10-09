@@ -194,6 +194,25 @@ export class ChatService {
       text: 'Congratulations! You have successfully created a channel.',
     });
 
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
+
     return roomDTO.name;
   }
 
@@ -411,6 +430,24 @@ export class ChatService {
       room: roomDTO.name,
       text: `Please welcome ${prismaUser.userName} to this channel!`,
     });
+
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
