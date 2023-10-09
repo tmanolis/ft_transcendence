@@ -8,10 +8,11 @@ import { Socket } from "socket.io-client";
 
 interface ConversationHeaderProps {
   chatRoom: Room;
+  roomName: string | null;
   socket_chat: Socket
 }
 
-const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, socket_chat }) => {
+const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, roomName, socket_chat }) => {
 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const [username, setUsername] = useState<string>("");
@@ -39,7 +40,7 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, socke
 
   return (
     <ConversationHeaderWrapper>
-      <RoomName>{chatRoom.name}</RoomName>
+      <RoomName>{roomName}</RoomName>
       <img src={iconSrc} alt="settings_icon" onClick={openCloseMenu} />
       {isMenuVisible && <ChannelMenu onCloseMenu={openCloseMenu} chatRoom={chatRoom} userName={username} socket_chat={socket_chat} />}
     </ConversationHeaderWrapper>
