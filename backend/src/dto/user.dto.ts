@@ -61,3 +61,13 @@ export class SecureUser {
     public achievements: string[],
   ) {}
 }
+
+export class LeaderboardUser {
+  constructor(
+    public userName: string,
+    public avatar: string,
+    public place: number,
+    public gamesWon: number,
+    public gamesPlayed: number,
+  ) {}
+}
