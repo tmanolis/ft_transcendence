@@ -187,7 +187,7 @@ const Pong = () => {
         <h1>Pong</h1>
         <canvas ref={canvasRef} />
         <p>Use the arrow keys to play the game</p>
-        <p>Return to <a href="/play">Lobby</a> to rejoin a game.</p>
+        <p>Return to <a href="/play">Lobby</a> to rejoin/reconnect a game.</p>
       </PageContainer>
     </>
   );

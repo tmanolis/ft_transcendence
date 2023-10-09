@@ -180,7 +180,8 @@ const RetroPong = () => {
       <PageContainer>
         <h1>Retro Pong</h1>
         <canvas ref={canvasRef} />
-        <p>Use the arrow keys to play the game</p>
+        <p>Use the arrow keys to dodge the ball ^_^</p>
+        <p>Return to <a href="/play">Lobby</a> to rejoin/reconnect a game.</p>
       </PageContainer>
     </>
   );
