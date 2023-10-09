@@ -10,5 +10,6 @@ import { PrismaService } from 'nestjs-prisma';
   imports: [JwtModule],
   providers: [GameService, PrismaService, JwtService, RetroGameService, UserService],
   exports: [GameService, RetroGameService],
+
 })
 export class GameModule {}

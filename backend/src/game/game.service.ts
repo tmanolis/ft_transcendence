@@ -38,14 +38,11 @@ export class GameService {
   async identifyUser(client: Socket): Promise<string> {
     const jwt = client.handshake.headers.authorization;
     let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    if (jwt === undefined || jwt === null)
-      return 'failed';
+    if (jwt === undefined || jwt === null) return 'failed';
     jwtData = this.jwtService.decode(jwt);
-    if (!jwtData || typeof jwtData !== 'object')
-      return 'failed';
+    if (!jwtData || typeof jwtData !== 'object') return 'failed';
     const user: User = await this.getUserByEmail(jwtData.email);
-    if (!user)
-      return 'failed';
+    if (!user) return 'failed';
     await this.cacheManager.set(client.id, user.email);
     await this.cacheManager.set(user.email, client.id);
     await this.updateUserConnectStatus(client);
@@ -54,8 +51,7 @@ export class GameService {
 
   async updateUserConnectStatus(client: Socket) {
     const user: User = await this.getSocketUser(client);
-    if (!user)
-      return;
+    if (!user) return;
     try {
       await this.prisma.user.update({
         where: {
@@ -101,8 +97,7 @@ export class GameService {
   async getSocketUser(client: Socket): Promise<User> {
     // only works after {socketID, userEmail} stored into cache
     const userEmail: string = await this.cacheManager.get(client.id);
-    if (!userEmail)
-      return null;
+    if (!userEmail) return null;
     const user: User = await this.getUserByEmail(userEmail);
     return user;
   }
@@ -164,7 +159,7 @@ export class GameService {
   }
 
   async pauseGame(player: Player) {
-    console.log("gamePaused!!!!");
+    console.log('gamePaused!!!!');
     const game = await this.getGameByID(player.gameID);
     if (!game) return;
     game.status = GameStatus.Pause;
@@ -239,7 +234,9 @@ export class GameService {
   // find, create, join game
   /****************************************************************************/
   async findMatchingGame(player: Player): Promise<[boolean, string]> {
-    let pendingPlayerString: string = await this.cacheManager.get('pendingPlayer');
+    let pendingPlayerString: string = await this.cacheManager.get(
+      'pendingPlayer',
+    );
     let pendingPlayer: Player;
     if (pendingPlayerString) {
       pendingPlayer = JSON.parse(pendingPlayerString);
@@ -249,8 +246,7 @@ export class GameService {
             email: pendingPlayer.email,
           },
         });
-        if (user.status !== 'WAITING')
-          this.cacheManager.del('pendingPlayer');
+        if (user.status !== 'WAITING') this.cacheManager.del('pendingPlayer');
         if (pendingPlayer.userName === player.userName) {
           this.cacheManager.set('pendingPlayer', JSON.stringify(player));
           return [false, player.gameID];
@@ -264,7 +260,7 @@ export class GameService {
     if (player && player.gameID !== '') {
       const pausingGame: Game = await this.getGameByID(player.gameID);
       if (pausingGame && pausingGame.status === GameStatus.Pause) {
-        pausingGame.pausedBy = "";
+        pausingGame.pausedBy = '';
         this.joinGame(player, player.gameID);
         return [true, player.gameID];
       }
@@ -348,7 +344,6 @@ export class GameService {
     await this.cacheManager.set('pendingPlayer', JSON.stringify(player));
     return newGame;
   }
-
 
   async joinGame(player: Player, gameID: string): Promise<boolean> {
     const game = await this.getGameByID(gameID);
@@ -702,8 +697,8 @@ export class GameService {
       winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
       loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
     } else {
-      winner = (game.pausedBy === leftPlayer.email) ? rightPlayer : leftPlayer;
-      loser = (game.pausedBy === leftPlayer.email) ? leftPlayer : rightPlayer;
+      winner = game.pausedBy === leftPlayer.email ? rightPlayer : leftPlayer;
+      loser = game.pausedBy === leftPlayer.email ? leftPlayer : rightPlayer;
     }
 
     const dbGame = await this.prisma.game.create({
@@ -721,7 +716,6 @@ export class GameService {
   }
 
   async updatePlayerStats(player: User, dbGame: prismaGame) {
-
     player.id === dbGame.winnerId ? player.gamesWon++ : player.gamesLost++;
     try {
       await this.prisma.user.update({
@@ -775,7 +769,6 @@ export class GameService {
           }
         }
       }
-
     }
   }
 
