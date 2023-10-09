@@ -22,6 +22,10 @@ const GlobalStyle = createGlobalStyle`
     font-style: normal;
     flex-shrink: 0;
   }
+  a {
+    color: #224488;
+    text-decoration:none;
+  }
 `;
 
 export default GlobalStyle;

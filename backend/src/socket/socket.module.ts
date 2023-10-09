@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { GameService } from '../game/game.service';
+import { RetroGameService } from '../game/retro.game.service';
 import { GameModule } from '../game/game.module';
 import { UserService } from '../user/user.service';
 import { UserModule } from '../user/user.module';
@@ -17,6 +18,7 @@ import { NotificationsModule } from 'src/notifications/notifications.module';
     ChatGateway,
     NotificationsGateway,
     GameService,
+    RetroGameService,
     JwtService,
     PrismaService,
     UserService,

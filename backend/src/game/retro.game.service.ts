@@ -10,16 +10,14 @@ import { PrismaService } from 'nestjs-prisma';
 import { JwtService } from '@nestjs/jwt';
 import { Game, GameStatus, Player } from '../dto/game.dto';
 import { User, Game as prismaGame } from '@prisma/client';
-import { UserService } from '../user/user.service';
 
 @Injectable()
-export class GameService {
+export class RetroGameService {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly userService: UserService,
   ) {}
 
   private canvas: {
@@ -33,39 +31,8 @@ export class GameService {
   private startPaddle: number = 165;
 
   /****************************************************************************/
-  // User Validation and query
+  // User query
   /****************************************************************************/
-  async identifyUser(client: Socket): Promise<string> {
-    const jwt = client.handshake.headers.authorization;
-    let jwtData: { sub: string; email: string; iat: string; exp: string } | any;
-    if (jwt === undefined || jwt === null) return 'failed';
-    jwtData = this.jwtService.decode(jwt);
-    if (!jwtData || typeof jwtData !== 'object') return 'failed';
-    const user: User = await this.getUserByEmail(jwtData.email);
-    if (!user) return 'failed';
-    await this.cacheManager.set(client.id, user.email);
-    await this.cacheManager.set(user.email, client.id);
-    await this.updateUserConnectStatus(client);
-    return 'OK';
-  }
-
-  async updateUserConnectStatus(client: Socket) {
-    const user: User = await this.getSocketUser(client);
-    if (!user) return;
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: user.email,
-        },
-        data: {
-          status: 'ONLINE',
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
   async getUserByEmail(email: string): Promise<User> {
     let user: User;
     try {
@@ -97,7 +64,8 @@ export class GameService {
   async getSocketUser(client: Socket): Promise<User> {
     // only works after {socketID, userEmail} stored into cache
     const userEmail: string = await this.cacheManager.get(client.id);
-    if (!userEmail) return null;
+    if (!userEmail)
+      return null;
     const user: User = await this.getUserByEmail(userEmail);
     return user;
   }
@@ -108,14 +76,14 @@ export class GameService {
   async cancelPendingGame(client: Socket) {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
-    const pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    if (pendingPlayer) {
+    const pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    if (pendingRetroPlayer) {
       try {
-        const pendingPlayerObject: Player = JSON.parse(pendingPlayer);
-        if (pendingPlayerObject.email === playerEmail) {
-          await this.cacheManager.del('pendingPlayer');
-          await this.cacheManager.del(`game${playerEmail}`);
-          await this.cacheManager.del(pendingPlayerObject.gameID);
+        const pendingRetroPlayerObject: Player = JSON.parse(pendingRetroPlayer);
+        if (pendingRetroPlayerObject.email === playerEmail) {
+          await this.cacheManager.del('pendingRetroPlayer');
+          await this.cacheManager.del(`retrogame${playerEmail}`);
+          await this.cacheManager.del(pendingRetroPlayerObject.gameID);
         }
       } catch (error) {
         throw error;
@@ -128,17 +96,19 @@ export class GameService {
     const user: User = await this.getSocketUser(client);
     if (!user)
       return;
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: user.email,
-        },
-        data: {
-          status: 'AWAY',
-        },
-      });
-    } catch (error) {
-      throw error;
+    if (user.status === 'WAITING' || user.status === 'PLAYING') {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: user.email,
+          },
+          data: {
+            status: 'AWAY',
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
     }
     await this.cacheManager.del(client.id);
   }
@@ -149,17 +119,17 @@ export class GameService {
 
     const game: Game = await this.getGameByID(player.gameID);
     if (game && game.status === GameStatus.Ended) {
-      await this.cacheManager.del(`game${game.gameID}`);
+      await this.cacheManager.del(`retrogame${game.gameID}`);
     }
     if (player.gameID === '') {
-      await this.cacheManager.del(`game${player.email}`);
+      await this.cacheManager.del(`retrogame${player.email}`);
     } else {
       await this.pauseGame(player);
     }
   }
 
   async pauseGame(player: Player) {
-    console.log('gamePaused!!!!');
+    console.log("gamePaused!!!!");
     const game = await this.getGameByID(player.gameID);
     if (!game) return;
     game.status = GameStatus.Pause;
@@ -184,7 +154,7 @@ export class GameService {
       this.startPaddle,
     );
     // save the new Player in redis
-    await this.cacheManager.set(`game${user.email}`, JSON.stringify(newPlayer));
+    await this.cacheManager.set(`retrogame${user.email}`, JSON.stringify(newPlayer));
     return newPlayer;
   }
 
@@ -194,7 +164,7 @@ export class GameService {
     if (player && player.gameID !== '') {
       player.socketID = client.id;
       await this.cacheManager.set(
-        `game${player.email}`,
+        `retrogame${player.email}`,
         JSON.stringify(player),
       );
       pausingPlayer = player;
@@ -203,13 +173,13 @@ export class GameService {
   }
 
   async getPendingPlayer(): Promise<Player> {
-    let pendingPlayer: Player;
-    return pendingPlayer;
+    let pendingRetroPlayer: Player;
+    return pendingRetroPlayer;
   }
 
   async getPlayerByEmail(email: string): Promise<Player> {
     let player: Player;
-    const playerString: string = await this.cacheManager.get(`game${email}`);
+    const playerString: string = await this.cacheManager.get(`retrogame${email}`);
     if (playerString) {
       try {
         player = JSON.parse(playerString);
@@ -224,7 +194,7 @@ export class GameService {
     let player: Player;
     const playerEmail: string = await this.cacheManager.get(client.id);
     const playerString: string = await this.cacheManager.get(
-      `game${playerEmail}`,
+      `retrogame${playerEmail}`,
     );
     if (playerString) player = JSON.parse(playerString);
     return player;
@@ -234,21 +204,20 @@ export class GameService {
   // find, create, join game
   /****************************************************************************/
   async findMatchingGame(player: Player): Promise<[boolean, string]> {
-    let pendingPlayerString: string = await this.cacheManager.get(
-      'pendingPlayer',
-    );
-    let pendingPlayer: Player;
-    if (pendingPlayerString) {
-      pendingPlayer = JSON.parse(pendingPlayerString);
+    let pendingRetroPlayerString: string = await this.cacheManager.get('pendingRetroPlayer');
+    let pendingRetroPlayer: Player;
+    if (pendingRetroPlayerString) {
+      pendingRetroPlayer = JSON.parse(pendingRetroPlayerString);
       try {
         const user: User = await this.prisma.user.findUnique({
           where: {
-            email: pendingPlayer.email,
+            email: pendingRetroPlayer.email,
           },
         });
-        if (user.status !== 'WAITING') this.cacheManager.del('pendingPlayer');
-        if (pendingPlayer.userName === player.userName) {
-          this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+        if (user.status !== 'WAITING')
+          this.cacheManager.del('pendingRetroPlayer');
+        if (pendingRetroPlayer.userName === player.userName) {
+          this.cacheManager.set('pendingRetroPlayer', JSON.stringify(player));
           return [false, player.gameID];
         }
       } catch (error) {
@@ -260,15 +229,14 @@ export class GameService {
     if (player && player.gameID !== '') {
       const pausingGame: Game = await this.getGameByID(player.gameID);
       if (pausingGame && pausingGame.status === GameStatus.Pause) {
-        pausingGame.pausedBy = '';
         this.joinGame(player, player.gameID);
         return [true, player.gameID];
       }
     } else {
-      this.cacheManager.del('pendingPlayer');
-      const gameID = pendingPlayer.gameID;
+      this.cacheManager.del('pendingRetroPlayer');
+      const gameID = pendingRetroPlayer.gameID;
       this.joinGame(player, gameID);
-      return [true, pendingPlayer.gameID];
+      return [true, pendingRetroPlayer.gameID];
     }
   }
 
@@ -279,14 +247,14 @@ export class GameService {
       return '';
     }
     const pausingPlayer: string = await this.cacheManager.get(
-      `game${user.email}`,
+      `retrogame${user.email}`,
     );
     if (pausingPlayer) {
       let pausingPlayerObject: Player = JSON.parse(pausingPlayer);
       if (pausingPlayerObject.gameID !== '') {
         pausingPlayerObject.socketID = client.id;
         await this.cacheManager.set(
-          `game${user.email}`,
+          `retrogame${user.email}`,
           JSON.stringify(pausingPlayerObject),
         );
         gameID = pausingPlayerObject.gameID;
@@ -297,10 +265,10 @@ export class GameService {
 
   async createGame(client: Socket): Promise<Game> {
     let newGame: Game;
-    let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    // continue to joinGame if there is a pendingPlayer
+    let pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    // continue to joinGame if there is a pendingRetroPlayer
     let pausedGameID: string = await this.findPausedGame(client);
-    if (!pendingPlayer && !pausedGameID) {
+    if (!pendingRetroPlayer && !pausedGameID) {
       let player: Player = await this.getSocketPlayer(client);
       if (player) {
         newGame = await this.createWaitingGame(player);
@@ -311,7 +279,7 @@ export class GameService {
   }
 
   async createWaitingGame(player: Player): Promise<Game> {
-    const gameID = `game${player.socketID}`;
+    const gameID = `retrogame${player.socketID}`;
     const newGame = new Game(
       gameID,
       1,
@@ -324,7 +292,7 @@ export class GameService {
       GameStatus.Waiting,
       '',
       '',
-      'classic',
+      'retro',
     );
     player.gameID = gameID;
     try {
@@ -340,17 +308,18 @@ export class GameService {
       throw error;
     }
     this.cacheManager.set(gameID, JSON.stringify(newGame));
-    this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
-    await this.cacheManager.set('pendingPlayer', JSON.stringify(player));
+    this.cacheManager.set(`retrogame${player.email}`, JSON.stringify(player));
+    await this.cacheManager.set('pendingRetroPlayer', JSON.stringify(player));
     return newGame;
   }
+
 
   async joinGame(player: Player, gameID: string): Promise<boolean> {
     const game = await this.getGameByID(gameID);
 
     if (game) {
       player.gameID = gameID;
-      this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
+      this.cacheManager.set(`retrogame${player.email}`, JSON.stringify(player));
       if (
         game.rightPlayer === null ||
         game.rightPlayer.email === player.email
@@ -391,68 +360,6 @@ export class GameService {
   }
 
   /****************************************************************************/
-  // INVITE
-  /****************************************************************************/
-  async checkInvitedUserStatus(
-    client: Socket,
-    userEmail: string,
-  ): Promise<string> {
-    let result: string;
-    const invitingUser: User = await this.getSocketUser(client);
-    const invitedUser: User = await this.getUserByEmail(userEmail);
-    if (invitedUser && invitingUser) {
-      if (invitedUser.email === invitingUser.email) {
-        result = 'Can not invite your self.';
-      } else if (invitedUser.status === 'ONLINE') {
-        result = invitedUser.status;
-      } else {
-        result = 'User not available.';
-      }
-    } else {
-      result = 'User not found.';
-    }
-    return result;
-  }
-
-  async createInvitingGame(player: Player): Promise<Game> {
-    const gameID = `game${player.socketID}`;
-    const newGame = new Game(
-      gameID,
-      1,
-      player,
-      null,
-      [8, 8],
-      { x: 400, y: 400 },
-      { x: 3, y: 3 },
-      this.generateAngle(1, 1),
-      GameStatus.Waiting,
-      '',
-      player.email,
-      'classic',
-    );
-    player.gameID = gameID;
-    try {
-      await this.prisma.user.update({
-        where: {
-          email: player.email,
-        },
-        data: {
-          status: 'WAITING',
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-    this.cacheManager.set(gameID, JSON.stringify(newGame));
-    this.cacheManager.set(`game${player.email}`, JSON.stringify(player));
-    await this.cacheManager.set(
-      `invite${player.email}`,
-      JSON.stringify(player),
-    );
-    return newGame;
-  }
-
-  /****************************************************************************/
   /* GAMEPLAY                                                                 */
   /****************************************************************************/
   setCanvas({
@@ -487,7 +394,7 @@ export class GameService {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition - 5;
         }
       } else if (payload.key === 'down') {
-        if (currentPlayer.paddlePosition + 5 < 325) {
+        if (currentPlayer.paddlePosition + 5 < 255) {
           currentPlayer.paddlePosition = currentPlayer.paddlePosition + 5;
         }
       }
@@ -523,10 +430,40 @@ export class GameService {
       currentGame.ballPosition.x <= 54 &&
       currentGame.ballPosition.x >= 50 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
-        -5 &&
+        - 5 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
         this.canvas.paddleHeight + 5
     ) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[1] += 1;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+
+    // ball hits paddle
+    // right
+    if (
+      currentGame.ballPosition.x >= 748 &&
+      currentGame.ballPosition.x <= 752 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
+        -5 &&
+      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
+        this.canvas.paddleHeight + 5
+    ) {
+      currentGame.ballPosition.x = 400;
+      currentGame.ballPosition.y = 400;
+      currentGame.score[0] += 1;
+      currentGame.ballAngle = this.generateAngle(
+        currentGame.ballPosition.x,
+        currentGame.ballPosition.y,
+      );
+    }
+
+    // ball pass the paddles
+    if (currentGame.ballPosition.x <= 10) {
       if (Math.random() < 0.5) {
         currentGame.ballAngle += (Math.random() / 2) % 6;
       } else {
@@ -550,15 +487,7 @@ export class GameService {
       );
       return currentGame;
     }
-
-    if (
-      currentGame.ballPosition.x >= 748 &&
-      currentGame.ballPosition.x <= 752 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition >=
-        -5 &&
-      currentGame.ballPosition.y / 2 - currentGame.rightPlayer.paddlePosition <=
-        this.canvas.paddleHeight + 5
-    ) {
+    if (currentGame.ballPosition.x >= 790) {
       if (Math.random() < 0.5) {
         currentGame.ballAngle += (Math.random() / 2) % 6;
       } else {
@@ -581,26 +510,6 @@ export class GameService {
         JSON.stringify(currentGame),
       );
       return currentGame;
-    }
-
-    // ball pass the paddles
-    if (currentGame.ballPosition.x <= 10) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[1] += 1;
-      currentGame.ballAngle = this.generateAngle(
-        currentGame.ballPosition.x,
-        currentGame.ballPosition.y,
-      );
-    }
-    if (currentGame.ballPosition.x >= 790) {
-      currentGame.ballPosition.x = 400;
-      currentGame.ballPosition.y = 400;
-      currentGame.score[0] += 1;
-      currentGame.ballAngle = this.generateAngle(
-        currentGame.ballPosition.x,
-        currentGame.ballPosition.y,
-      );
     }
 
     if (currentGame.ballPosition.y < 7 || currentGame.ballPosition.y >= 793) {
@@ -650,14 +559,14 @@ export class GameService {
   }
 
   async deletePlayers(game: Game) {
-    await this.cacheManager.del(`game${game.leftPlayer.email}`);
-    await this.cacheManager.del(`game${game.rightPlayer.email}`);
+    await this.cacheManager.del(`retrogame${game.leftPlayer.email}`);
+    await this.cacheManager.del(`retrogame${game.rightPlayer.email}`);
   }
 
   async getGameByClient(client: Socket): Promise<Game> {
     const userEmail = await this.cacheManager.get(client.id);
     const playerString: string = await this.cacheManager.get(
-      `game${userEmail}`,
+      `retrogame${userEmail}`,
     );
     if (!playerString) return null;
     const player: Player = JSON.parse(playerString);
@@ -693,12 +602,12 @@ export class GameService {
     }
     let winner: User;
     let loser: User;
-    if (game.score[0] === 11 || game.score[1] === 11) {
+    if (game.pausedBy && game.pausedBy !== '') {
+      winner = (game.pausedBy === leftPlayer.email) ? rightPlayer : leftPlayer;
+      loser = (game.pausedBy === leftPlayer.email) ? leftPlayer : rightPlayer;
+    } else {
       winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
       loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
-    } else {
-      winner = game.pausedBy === leftPlayer.email ? rightPlayer : leftPlayer;
-      loser = game.pausedBy === leftPlayer.email ? leftPlayer : rightPlayer;
     }
 
     const dbGame = await this.prisma.game.create({
@@ -716,6 +625,26 @@ export class GameService {
   }
 
   async updatePlayerStats(player: User, dbGame: prismaGame) {
+    if (
+      player.id === dbGame.winnerId &&
+      !player.achievements.includes('WINNER')
+    ) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: player.email,
+          },
+          data: {
+            achievements: {
+              push: 'WINNER',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
     player.id === dbGame.winnerId ? player.gamesWon++ : player.gamesLost++;
     try {
       await this.prisma.user.update({
@@ -729,46 +658,6 @@ export class GameService {
       });
     } catch (error) {
       throw error;
-    }
-
-    if (player.id === dbGame.winnerId) {
-      if (!player.achievements.includes('WINNER')) {
-        try {
-          await this.prisma.user.update({
-            where: {
-              email: player.email,
-            },
-            data: {
-              achievements: {
-                push: 'WINNER',
-              },
-            },
-          });
-        } catch (error) {
-          throw error;
-        }
-      }
-
-      if (!player.achievements.includes('FIRST')) {
-        const leaderboard = await this.userService.getLeaderboard();
-        const firstPlaceUserName = leaderboard[0].userName;
-        if (player.userName === firstPlaceUserName) {
-          try {
-            await this.prisma.user.update({
-              where: {
-                email: player.email,
-              },
-              data: {
-                achievements: {
-                  push: 'FIRST',
-                },
-              },
-            });
-          } catch (error) {
-            throw error;
-          }
-        }
-      }
     }
   }
 
@@ -810,11 +699,7 @@ export class GameService {
   async debugPrintCache() {
     const keys = await this.cacheManager.store.keys();
     for (const key of keys) {
-      console.log(
-        `\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(
-          key,
-        )}\x1b[0m`,
-      );
+      console.log(`\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(key)}\x1b[0m`);
     }
   }
 }

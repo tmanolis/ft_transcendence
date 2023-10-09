@@ -13,13 +13,13 @@ interface Position {
   y: number;
 }
 
-const Pong = () => {
+const RetroPong = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const canvasWidth = 800;
   const canvasHeight = 400;
 
-  const paddleHeight = 75;
-  const paddleWidth = 10;
+  const paddleHeight = 150;
+  const paddleWidth = 20;
   const [leftPaddleY, setLeftPaddleY] = useState<number>(
     canvasHeight / 2 - paddleHeight / 2,
   );
@@ -47,7 +47,7 @@ const Pong = () => {
       setRightPaddleY(parseInt(newPosition));
     });
 
-    GameSocket.on("rejoinGame", (gameData: any) => {
+    GameSocket.on("rejoinRetroGame", (gameData: any) => {
       setIsWaiting(false);
       setBall(gameData.ballPosition);
       setGameID(gameData.gameID);
@@ -55,12 +55,8 @@ const Pong = () => {
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
-    GameSocket.on("invitationAccepted", () => {
-      setIsWaiting(false);
-    });
-
     if (!isWaiting) {
-      GameSocket.emit("startGame");
+      GameSocket.emit("startRetroGame");
     }
 
     GameSocket.on("endWaitingState", () => {
@@ -68,14 +64,12 @@ const Pong = () => {
       console.log("waiting ENDED!!!");
     });
 
-    GameSocket.emit("setCanvas", { canvasHeight, paddleHeight, leftPaddleY });
+    GameSocket.emit("setRetroCanvas", { canvasHeight, paddleHeight, leftPaddleY, rightPaddleY });
 
     return () => {
       GameSocket?.off("error");
       GameSocket?.off("updatePaddlePosition");
       GameSocket?.off("updateBallPosition");
-      GameSocket?.off("endWaitingState");
-      GameSocket?.off("invitationAccepted");
     };
   }, [isWaiting]);
 
@@ -96,9 +90,9 @@ const Pong = () => {
       console.log(event.key);
       if (!isWaiting) {
         if (event.key === "ArrowUp") {
-          GameSocket?.emit("movePaddle", { key: "up", gameID: gameID });
+          GameSocket?.emit("moveRetroPaddle", { key: "up", gameID: gameID });
         } else if (event.key === "ArrowDown") {
-          GameSocket?.emit("movePaddle", { key: "down", gameID: gameID });
+          GameSocket?.emit("moveRetroPaddle", { key: "down", gameID: gameID });
         }
       }
     };
@@ -124,7 +118,7 @@ const Pong = () => {
         context.fillRect(0, 0, canvas.width, canvas.height);
 
         // draw a white border
-        context.strokeStyle = "white";
+        context.strokeStyle = "pink";
         context.lineWidth = 3;
         context.setLineDash([]);
         context.strokeRect(0, 0, canvas.width, canvas.height);
@@ -137,7 +131,7 @@ const Pong = () => {
         context.stroke();
 
         // draw both paddles
-        context.fillStyle = "white";
+        context.fillStyle = "pink";
         context.fillRect(40, leftPaddleY, paddleWidth, paddleHeight);
         context.fillRect(
           canvasWidth - paddleWidth - 40,
@@ -147,8 +141,8 @@ const Pong = () => {
         );
 
         // draw the ball
-        if (!isWaiting) {
-          context.fillStyle = "white";
+        if (!isWaiting && (ball.x < 325 || ball.x > 475)) {
+          context.fillStyle = "pink";
           context.fillRect(
             ball.x - paddleWidth / 2,
             ball.y / 2 - paddleWidth / 2,
@@ -159,7 +153,7 @@ const Pong = () => {
 
         // add score
         context.font = "60px 'JetBrains Mono', monospace";
-        context.fillStyle = "white";
+        context.fillStyle = "pink";
         context.textAlign = "center";
         context.textBaseline = "top";
         context.fillText(score[0].toString(), canvas.width * 0.25, 20);
@@ -168,7 +162,7 @@ const Pong = () => {
 
       if (context && isWaiting) {
         context.font = "30px 'JetBrains Mono', monospace";
-        context.fillStyle = "white";
+        context.fillStyle = "pink";
         context.textAlign = "center";
         context.textBaseline = "middle";
         context.fillText(
@@ -184,13 +178,13 @@ const Pong = () => {
     <>
       <Landing />
       <PageContainer>
-        <h1>Pong</h1>
+        <h1>Retro Pong</h1>
         <canvas ref={canvasRef} />
-        <p>Use the arrow keys to play the game</p>
+        <p>Use the arrow keys to dodge the ball ^_^</p>
         <p>Return to <a href="/play">Lobby</a> to rejoin/reconnect a game.</p>
       </PageContainer>
     </>
   );
 };
 
-export default Pong;
+export default RetroPong;
