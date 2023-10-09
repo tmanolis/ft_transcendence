@@ -41,7 +41,8 @@ const Landing: React.FC = () => {
       GameSocket.emit('acceptInvitation', message.invitedBy);
     });
     GameSocket.on('gameReady', () => {
-      navigate("/pong");
+      if (location.pathname !== "/pong")
+        navigate("/pong");
     });
     GameSocket.on('retroGameReady', () => {
       navigate("/retropong");
