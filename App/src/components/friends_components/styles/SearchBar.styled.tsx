@@ -6,7 +6,7 @@ export const SearchBarWrapper = styled.div`
 	flex-direction: column; /* Arrange children vertically */
 	align-items: center;
 	
-	@media screen and (max-width: 940px) {
+	@media screen and (max-width: 1300px) {
 		align-items: flex-start;
 	}
 
