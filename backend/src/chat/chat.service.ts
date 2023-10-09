@@ -16,6 +16,7 @@ import {
   joinRoomDTO,
   ChatMessage,
   channelDTO,
+  SecureChannelDTO,
 } from 'src/dto';
 import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
@@ -155,21 +156,25 @@ export class ChatService {
     const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       chatuser.email,
     );
+    let secureChannel: SecureChannelDTO;
 
     try {
-      await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
 
     // join socket to room
-    client.join(roomDTO.name);
+    client.join(secureChannel.name);
 
     // create new room
     try {
       await this.prisma.room.create({
         data: {
-          ...roomDTO,
+          ...secureChannel,
           users: {
             create: [
               {
@@ -190,7 +195,7 @@ export class ChatService {
 
     // send a little welcome message
     await this.sendServerMessage({
-      room: roomDTO.name,
+      room: secureChannel.name,
       text: 'Congratulations! You have successfully created a channel.',
     });
 
@@ -212,11 +217,13 @@ export class ChatService {
       }
     }
 
-
-    return roomDTO.name;
+    return secureChannel.name;
   }
 
-  async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
+  async securityCheckCreateChannel(
+    prismaUser: User,
+    roomDTO: createRoomDTO,
+  ): Promise<SecureChannelDTO> {
     // check naming convention
     if (
       roomDTO.name &&
@@ -250,14 +257,24 @@ export class ChatService {
     // check if room exists
     if (existingRoom) throw new ConflictException('Room already exists');
 
-    // check password for private room
+    // check password for private room and create secure object
+    let secureChannel: SecureChannelDTO;
     if (roomDTO.status === RoomStatus.PRIVATE) {
       if (!roomDTO.password)
         throw new ForbiddenException('Password mandatory for private channel');
       else {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
+      secureChannel = new SecureChannelDTO(
+        roomDTO.name,
+        roomDTO.status,
+        roomDTO.password,
+      );
+    } else {
+      secureChannel = new SecureChannelDTO(roomDTO.name, roomDTO.status);
     }
+
+    return secureChannel;
   }
 
   /****************************************************************************/
@@ -273,6 +290,7 @@ export class ChatService {
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
     let otherPrismaUser: User;
     let roomName: string;
+    let secureChannel: SecureChannelDTO;
 
     try {
       otherPrismaUser = await this.prismaCheckOtherUser(
@@ -281,7 +299,10 @@ export class ChatService {
       );
       roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
-      await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
@@ -290,7 +311,7 @@ export class ChatService {
     try {
       await this.prisma.room.create({
         data: {
-          ...roomDTO,
+          ...secureChannel,
           name: roomName,
           users: {
             create: [
@@ -332,7 +353,7 @@ export class ChatService {
 
     // send a little welcome message
     await this.sendServerMessage({
-      room: roomDTO.name,
+      room: secureChannel.name,
       text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
     });
 

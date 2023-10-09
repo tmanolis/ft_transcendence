@@ -48,14 +48,13 @@ function Item(data: User[], getUser: (name: string) => void) {
 	const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
 	const selectChannel = (user: User) => {
-    
     setSelectedChat(user.userName);
     getUser(user.userName);
 	}
 
   return (
     <>
-      {data.map((value, index) => (
+      {data && data.map((value, index) => (
         <ChatContainer 
         key={index} 
         onClick={() => selectChannel(value)}
