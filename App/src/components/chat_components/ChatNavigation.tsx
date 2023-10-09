@@ -1,15 +1,15 @@
 import { createPortal } from "react-dom";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
-import ChatList from "./UserChatList";
 import { ChatNavigationStyled } from "./styles/ChatNavigation.styled";
 import { CreateChannelModal } from "./CreateChannelModal";
 import { useState } from "react";
 import { Socket } from "socket.io-client";
 import { Room } from "../../pages/Chat";
 import { NewChatModal } from "./NewChat_components/NewChatModal";
+import UserChatList from "./UserChatList";
 
 interface ChatNavigationProps {
-	openChat: (room: Room) => void;
+	openChat: (room: Room, roomName: string | null) => void;
 	socket_chat: Socket
 }
 
@@ -32,7 +32,7 @@ const ChatNavigation: React.FC<ChatNavigationProps> = ({ openChat, socket_chat }
 
 	return (
 		<ChatNavigationStyled>
-			<ChatList openChat={openChat}/>
+			<UserChatList openChat={openChat}/>
 			<div className="buttons">
 				<ConfirmButton type="button" onClick={handleNewChat} >New Chat</ConfirmButton>
 				<ConfirmButton type="button" onClick={handleCreateChannel}>Create Channel</ConfirmButton>
