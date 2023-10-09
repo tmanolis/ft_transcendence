@@ -50,7 +50,6 @@ export class ChannelService {
           room: {
             name: dto.name,
           },
-          isBanned: false,
         },
         include: {
           user: true,
@@ -83,7 +82,6 @@ export class ChannelService {
           room: {
             name: dto.name,
           },
-          isBanned: false,
         },
         include: {
           user: true,

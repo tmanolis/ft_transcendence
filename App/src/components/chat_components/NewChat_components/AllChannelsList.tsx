@@ -45,14 +45,13 @@ function Item(data: Channel[], getChannel: (name: string) => void) {
 	const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
 	const selectChannel = (channel: Channel) => {
-    
     setSelectedChat(channel.name);
     getChannel(channel.name);
 	}
 
   return (
     <>
-      {data.map((value, index) => (
+      {data && data.map((value, index) => (
         <ChatContainer 
         key={index} 
         onClick={() => selectChannel(value)}

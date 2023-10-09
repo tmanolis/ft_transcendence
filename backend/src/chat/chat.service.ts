@@ -16,6 +16,7 @@ import {
   joinRoomDTO,
   ChatMessage,
   channelDTO,
+  SecureChannelDTO,
 } from 'src/dto';
 import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
 import * as argon from 'argon2';
@@ -23,6 +24,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
+import { isAlphanumeric } from 'class-validator';
 
 @Injectable()
 export class ChatService {
@@ -154,21 +156,25 @@ export class ChatService {
     const prismaUser: UserWithRooms = await this.fetchPrismaUserWithRooms(
       chatuser.email,
     );
+    let secureChannel: SecureChannelDTO;
 
     try {
-      await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
 
     // join socket to room
-    client.join(roomDTO.name);
+    client.join(secureChannel.name);
 
     // create new room
     try {
       await this.prisma.room.create({
         data: {
-          ...roomDTO,
+          ...secureChannel,
           users: {
             create: [
               {
@@ -189,21 +195,44 @@ export class ChatService {
 
     // send a little welcome message
     await this.sendServerMessage({
-      room: roomDTO.name,
+      room: secureChannel.name,
       text: 'Congratulations! You have successfully created a channel.',
     });
 
-    return roomDTO.name;
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    return secureChannel.name;
   }
 
-  async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
-    // check naming conventions
+  async securityCheckCreateChannel(
+    prismaUser: User,
+    roomDTO: createRoomDTO,
+  ): Promise<SecureChannelDTO> {
+    // check naming convention
     if (
       roomDTO.name &&
-      roomDTO.name.includes('@') &&
-      roomDTO.status !== RoomStatus.DIRECT
+      roomDTO.status !== RoomStatus.DIRECT &&
+      !roomDTO.name.match(/^[a-zA-Z0-9]+$/)
     )
-      throw new BadRequestException('Room name has invalid character (@)');
+      throw new BadRequestException(
+        'Room names can only have alphanumeric characters',
+      );
 
     // check if user exists
     if (!prismaUser)
@@ -228,14 +257,24 @@ export class ChatService {
     // check if room exists
     if (existingRoom) throw new ConflictException('Room already exists');
 
-    // check password for private room
+    // check password for private room and create secure object
+    let secureChannel: SecureChannelDTO;
     if (roomDTO.status === RoomStatus.PRIVATE) {
       if (!roomDTO.password)
         throw new ForbiddenException('Password mandatory for private channel');
       else {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
+      secureChannel = new SecureChannelDTO(
+        roomDTO.name,
+        roomDTO.status,
+        roomDTO.password,
+      );
+    } else {
+      secureChannel = new SecureChannelDTO(roomDTO.name, roomDTO.status);
     }
+
+    return secureChannel;
   }
 
   /****************************************************************************/
@@ -251,6 +290,7 @@ export class ChatService {
     const prismaUser = await this.fetchPrismaUser(chatuser.email);
     let otherPrismaUser: User;
     let roomName: string;
+    let secureChannel: SecureChannelDTO;
 
     try {
       otherPrismaUser = await this.prismaCheckOtherUser(
@@ -259,7 +299,10 @@ export class ChatService {
       );
       roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
-      await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
@@ -268,7 +311,7 @@ export class ChatService {
     try {
       await this.prisma.room.create({
         data: {
-          ...roomDTO,
+          ...secureChannel,
           name: roomName,
           users: {
             create: [
@@ -310,7 +353,7 @@ export class ChatService {
 
     // send a little welcome message
     await this.sendServerMessage({
-      room: roomDTO.name,
+      room: secureChannel.name,
       text: `Welcome to this conversation, ${prismaUser.userName} and ${otherPrismaUser.userName}`,
     });
 
@@ -408,6 +451,24 @@ export class ChatService {
       room: roomDTO.name,
       text: `Please welcome ${prismaUser.userName} to this channel!`,
     });
+
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {
