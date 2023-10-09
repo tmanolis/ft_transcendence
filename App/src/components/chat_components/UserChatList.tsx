@@ -76,17 +76,25 @@ interface ItemProps {
 
 function Item({ room, openChat }: ItemProps) {
   const [directMessageName, setDirectMessageName] = useState<string | null>(null);
+  const [avatarPath, setAvatarPath] = useState("/src/assets/img/Web_img.jpg");
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserName = async () => {
       if (room.status === 'DIRECT') {
         try {
-          const response = await axios.get(
+          const response1 = await axios.get(
             `${import.meta.env.VITE_BACKEND_URL}/channel/otherUser?name=${room.name}`, // Update this endpoint accordingly
             { withCredentials: true }
           );
-          setDirectMessageName(response.data.userName);
+          setDirectMessageName(response1.data.userName);
+
+          const response2 = await axios.get(
+            `${import.meta.env.VITE_BACKEND_URL}/user/userByUsername?userName=${response1.data.userName}`,
+            { withCredentials: true }
+          );
+          setAvatarPath(`data:image/png;base64,${response2.data.avatar}`)
+
         } catch (error) {
           console.error('Error fetching user data:', error);
           // Handle errors if needed
@@ -113,7 +121,7 @@ function Item({ room, openChat }: ItemProps) {
       selected={selectedChat === room.name}
     >
       <div className="avatar">
-        <Avatar src="/src/assets/img/Web_img.jpg" alt="room_avatar" />
+        <Avatar src={avatarPath} alt="room_avatar" />
       </div>
       <Username>{directMessageName || room.name}</Username>
       {room.status === 'PRIVATE' && <img src="/src/assets/icon/Lock.svg" alt="lock_icon" />}
