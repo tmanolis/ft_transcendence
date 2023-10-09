@@ -61,7 +61,6 @@ export class ChannelService {
         userName: userInRoom.user.userName,
         isBanned: userInRoom.isBanned,
         isMuted: userInRoom.isMuted,
-        // isBlocked: userInRoom.isBlocked,
         role: userInRoom.role,
       }),
     );
