@@ -88,10 +88,10 @@ export class ChatRoom {
   ) {}
 }
 
-  export class SecureChannelDTO {
-    constructor(
-      public name: string,
-      public status: RoomStatus,
-      public password?: string,
-    ) {}
+export class SecureChannelDTO {
+  constructor(
+    public name: string,
+    public status: RoomStatus,
+    public password?: string,
+  ) {}
 }

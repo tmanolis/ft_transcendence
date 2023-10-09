@@ -7,7 +7,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 @Module({
   imports: [JwtModule],
-  providers: [GameService, PrismaService, JwtService, UserService ],
+  providers: [GameService, PrismaService, JwtService, UserService],
   exports: [GameService],
 })
 export class GameModule {}

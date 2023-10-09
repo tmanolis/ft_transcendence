@@ -159,7 +159,10 @@ export class ChatService {
     let secureChannel: SecureChannelDTO;
 
     try {
-      secureChannel = await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
@@ -217,7 +220,10 @@ export class ChatService {
     return secureChannel.name;
   }
 
-  async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO): Promise<SecureChannelDTO> {
+  async securityCheckCreateChannel(
+    prismaUser: User,
+    roomDTO: createRoomDTO,
+  ): Promise<SecureChannelDTO> {
     // check naming convention
     if (
       roomDTO.name &&
@@ -251,7 +257,6 @@ export class ChatService {
     // check if room exists
     if (existingRoom) throw new ConflictException('Room already exists');
 
-    
     // check password for private room and create secure object
     let secureChannel: SecureChannelDTO;
     if (roomDTO.status === RoomStatus.PRIVATE) {
@@ -260,7 +265,11 @@ export class ChatService {
       else {
         roomDTO.password = await argon.hash(roomDTO.password);
       }
-      secureChannel = new SecureChannelDTO(roomDTO.name, roomDTO.status, roomDTO.password);
+      secureChannel = new SecureChannelDTO(
+        roomDTO.name,
+        roomDTO.status,
+        roomDTO.password,
+      );
     } else {
       secureChannel = new SecureChannelDTO(roomDTO.name, roomDTO.status);
     }
@@ -290,7 +299,10 @@ export class ChatService {
       );
       roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
-      secureChannel = await this.securityCheckCreateChannel(prismaUser, roomDTO);
+      secureChannel = await this.securityCheckCreateChannel(
+        prismaUser,
+        roomDTO,
+      );
     } catch (error) {
       throw error;
     }
