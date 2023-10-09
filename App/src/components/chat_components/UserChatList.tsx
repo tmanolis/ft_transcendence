@@ -72,12 +72,12 @@ import { Room } from '../../pages/Chat';
 interface ItemProps {
   room: Room;
   openChat: (room: Room, roomName: string | null) => void;
+  isSelected: boolean;
 }
 
-function Item({ room, openChat }: ItemProps) {
+function Item({ room, openChat, isSelected }: ItemProps) {
   const [directMessageName, setDirectMessageName] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState("/src/assets/img/Web_img.jpg");
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserName = async () => {
@@ -112,13 +112,12 @@ function Item({ room, openChat }: ItemProps) {
       roomName = directMessageName;
 
     openChat(room, roomName);
-    setSelectedChat(room.name);
   };
 
   return (
     <ChatContainer
       onClick={openConversation}
-      selected={selectedChat === room.name}
+      selected={isSelected}
     >
       <div className="avatar">
         <Avatar src={avatarPath} alt="room_avatar" />
@@ -135,6 +134,12 @@ interface UserChatListProps {
 
 const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
   const [chatList, setChatList] = useState<Room[]>([]);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null); // Lifted state for selected item
+
+  const handleOpenChat = (room: Room, roomName: string | null) => {
+    openChat(room, roomName);
+    setSelectedChat(room.name); // Update the selected chat in the parent component
+  };
 
   useEffect(() => {
     const getChatList = async () => {
@@ -156,7 +161,12 @@ const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
   return (
     <div>
       {chatList.map((room, index) => (
-        <Item key={index} room={room} openChat={openChat} />
+        <Item
+        key={index}
+        room={room}
+        openChat={handleOpenChat}
+        isSelected={selectedChat === room.name} // Pass isSelected prop to Item component
+        />
       ))}
     </div>
   );
