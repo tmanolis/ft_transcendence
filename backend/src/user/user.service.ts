@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Game, User, BlockedUser } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
-import { UsernameDTO, UpdateDto, SecureUser } from 'src/dto';
+import { UsernameDTO, UpdateDto, SecureUser, LeaderboardUser } from 'src/dto';
 import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 import * as argon from 'argon2';
@@ -47,8 +47,20 @@ export class UserService {
     if (dto.twoFAActivated) {
       const otpauthUrl = await this.generate2FASecret(user);
       if (!user.achievements.includes('TWOFA')) {
-        user.achievements.push('TWOFA');
-        // emit notification achievement?
+        try {
+          await this.prisma.user.update({
+            where: {
+              email: user.email,
+            },
+            data: {
+              achievements: {
+                push: 'TWOFA',
+              },
+            },
+          });
+        } catch (error) {
+          throw error;
+        }
       }
       return await toDataURL(otpauthUrl);
     } else if (dto.twoFAActivated === false) {
@@ -59,6 +71,7 @@ export class UserService {
         data: {
           twoFASecret: null,
           twoFAActivated: false,
+
         },
       });
     }
@@ -118,7 +131,7 @@ export class UserService {
     return usernames;
   }
 
-  async getLeaderboard() {
+  async getLeaderboard(): Promise<LeaderboardUser[]> {
     const allUsers: SecureUser[] = await this.getAllUsers();
 
     const sortedUsers = allUsers.sort((a, b) => {
@@ -138,7 +151,7 @@ export class UserService {
 
     let currentWinRate = null;
     let currentPlace = 0;
-    const leaderboard = sortedUsers.map((user, index) => {
+    const leaderboard: LeaderboardUser[] = sortedUsers.map((user, index) => {
       const winRate =
         user.gamesWon + user.gamesLost === 0
           ? 0
@@ -149,13 +162,15 @@ export class UserService {
         currentPlace = index + 1;
       }
 
-      return {
+      const leaderboardUser: LeaderboardUser = {
         place: currentPlace,
         userName: user.userName,
         avatar: user.avatar,
         gamesWon: user.gamesWon,
         gamesPlayed: user.gamesWon + user.gamesLost,
-      };
+      }
+
+      return (leaderboardUser);
     });
     return leaderboard;
   }

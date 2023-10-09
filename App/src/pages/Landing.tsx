@@ -5,6 +5,7 @@ import LandingButton from "../components/landing_components/LandingButton";
 import NavBar from "../components/landing_components/NavBar";
 import AvatarBar from "../components/landing_components/AvatarBar";
 import LandingContainer from "../components/landing_components/styles/LandingContainer.styled";
+import { GameSocket } from "../components/GameSocket";
 
 const Landing: React.FC = () => {
   const [menuBarIsShown, setMenuBarIsShown] = useState(false);
@@ -29,6 +30,8 @@ const Landing: React.FC = () => {
     };
 
     fetchUserData();
+
+    GameSocket.connect();
   }, []);
 
   const handleLandingClick = () => {

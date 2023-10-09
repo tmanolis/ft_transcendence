@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import AvatarBarStyled from "./styles/AvatarBar.styled";
+import { GameSocket } from "../GameSocket";
 import axios from "axios";
 
 type AvatarMenuProps = {
@@ -28,6 +29,7 @@ const AvatarNavButton: React.FC<AvatarMenuProps> = ({
 const AvatarBar: React.FC<AvatarBarProps> = ({ userName }) => {
   const handleLogout = async () => {
     console.log("Logout button clicked");
+    GameSocket.disconnect();
 
     try {
       const response = await axios.get(

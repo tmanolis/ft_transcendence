@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { RoomStatus } from '@prisma/client';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsAlphanumeric, IsNotEmpty, IsString } from 'class-validator';
 
 export class messageDTO {
   room: string;
@@ -22,6 +22,7 @@ export class channelDTO {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
+  @IsAlphanumeric()
   name: string;
 }
 

@@ -23,6 +23,7 @@ import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
+import { isAlphanumeric } from 'class-validator';
 
 @Injectable()
 export class ChatService {
@@ -193,17 +194,38 @@ export class ChatService {
       text: 'Congratulations! You have successfully created a channel.',
     });
 
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
+
+
     return roomDTO.name;
   }
 
   async securityCheckCreateChannel(prismaUser: User, roomDTO: createRoomDTO) {
-    // check naming conventions
+    // check naming convention
     if (
       roomDTO.name &&
-      roomDTO.name.includes('@') &&
-      roomDTO.status !== RoomStatus.DIRECT
+      roomDTO.status !== RoomStatus.DIRECT &&
+      !roomDTO.name.match(/^[a-zA-Z0-9]+$/)
     )
-      throw new BadRequestException('Room name has invalid character (@)');
+      throw new BadRequestException(
+        'Room names can only have alphanumeric characters',
+      );
 
     // check if user exists
     if (!prismaUser)
@@ -408,6 +430,24 @@ export class ChatService {
       room: roomDTO.name,
       text: `Please welcome ${prismaUser.userName} to this channel!`,
     });
+
+    // add the JOIN achievement
+    if (!prismaUser.achievements.includes('JOIN')) {
+      try {
+        await this.prisma.user.update({
+          where: {
+            email: prismaUser.email,
+          },
+          data: {
+            achievements: {
+              push: 'JOIN',
+            },
+          },
+        });
+      } catch (error) {
+        throw error;
+      }
+    }
   }
 
   async securityCheckJoinChannel(prismaUser: User, roomDTO: joinRoomDTO) {

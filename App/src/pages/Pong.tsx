@@ -35,7 +35,8 @@ const Pong = () => {
 
   useEffect(() => {
     GameSocket.on("error", (error: string) => {
-      console.log("Websocket connection error: ", error);
+      console.log("Game socket error: ", error);
+      navigate("/play");
     });
 
     GameSocket.on("updateLeftPaddle", (newPosition: string) => {
@@ -54,6 +55,9 @@ const Pong = () => {
       setScore({ 0: gameData.score[0], 1: gameData.score[1] });
     });
 
+    GameSocket.on("invitationAccepted", () => {
+      setIsWaiting(false);
+    });
 
     if (!isWaiting) {
       GameSocket.emit("startGame");
