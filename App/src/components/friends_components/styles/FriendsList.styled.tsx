@@ -56,9 +56,15 @@ export const FriendContainer = styled.div`
 	font-weight: 500;
 	letter-spacing: 0.36px;
 
-	@media screen and (max-width: 640px) {
-		width : 20%;
-  }
+	@media screen and (max-width: 920px) {
+	width : 70%;
+	}
+
+	@media screen and (max-width: 450px) {
+		overflow: scroll;
+		width : 50%;
+		margin: 2%;
+ 	}
 `;
 
 export const Avatar = styled.img`
@@ -72,14 +78,14 @@ const statusColors = {
 	offline: "red",
 	playing: "blue",
 	away: "orange",
-  };
+};
 
-  interface StyledUserInfosProps {
+interface StyledUserInfosProps {
 	$status: string; // Use $status with the dollar sign prefix
 	children?: React.ReactNode;
-  }
-  
-  const StyledUserInfos = styled.div<StyledUserInfosProps>`
+}
+
+const StyledUserInfos = styled.div<StyledUserInfosProps>`
 	width: 200px;
 	display: flex;
 	flex-direction: column;
@@ -90,20 +96,24 @@ const statusColors = {
 	  color: ${(props) =>
 		statusColors[props.$status as keyof typeof statusColors] || 'white'};
 	}
+
+	@media screen and (max-width: 940px) {
+		width: fit-content;
+  	}
   `;
-  
-  interface UserInfosProps {
+
+interface UserInfosProps {
 	status: string;
 	children: React.ReactNode;
-  }
-  
-  export const UserInfos: React.FC<UserInfosProps> = ({ status, children }) => {
+}
+
+export const UserInfos: React.FC<UserInfosProps> = ({ status, children }) => {
 	return (
-	  <StyledUserInfos $status={status}>
-		{children}
-	  </StyledUserInfos>
+		<StyledUserInfos $status={status}>
+			{children}
+		</StyledUserInfos>
 	);
-  };
+};
 
 export const ProfileButton = styled.button`
 	padding: 5px;
