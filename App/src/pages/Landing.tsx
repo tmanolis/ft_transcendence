@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router';
 import axios from "axios";
 import AvatarButton from "../components/landing_components/AvatarButton";
 import LandingButton from "../components/landing_components/LandingButton";
@@ -12,6 +13,8 @@ const Landing: React.FC = () => {
   const [avatarBarIsShown, setAvatarBarIsShown] = useState(false);
   const [avatarPath, setAvatarPath] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -32,6 +35,23 @@ const Landing: React.FC = () => {
     fetchUserData();
 
     GameSocket.connect();
+
+    GameSocket.on("gameInvite", (message) => {
+      console.log(message.invitedBy);
+      GameSocket.emit('acceptInvitation', message.invitedBy);
+    });
+    GameSocket.on('gameReady', () => {
+      if (location.pathname !== "/pong")
+        navigate("/pong");
+    });
+    GameSocket.on('retroGameReady', () => {
+      navigate("/retropong");
+    });
+    return () => {
+      GameSocket.off("gameInvite");
+      GameSocket.off('gameReady');
+      GameSocket.off('retroGameReady');
+    }
   }, []);
 
   const handleLandingClick = () => {

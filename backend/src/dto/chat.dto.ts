@@ -87,3 +87,11 @@ export class ChatRoom {
     public muted: ChatUser[],
   ) {}
 }
+
+export class SecureChannelDTO {
+  constructor(
+    public name: string,
+    public status: RoomStatus,
+    public password?: string,
+  ) {}
+}

@@ -3,6 +3,7 @@ import { Route, Routes } from "react-router-dom";
 import Authentification from "./pages/Authentification";
 import Register from "./pages/Register";
 import Pong from "./pages/Pong";
+import RetroPong from "./pages/RetroPong";
 import Landing from "./pages/Landing";
 import Leaderboard from "./pages/Leaderboard";
 import Settings from "./pages/Settings";
@@ -47,6 +48,10 @@ const App = () => {
           <Route 
             path="/pong" 
             element={<PrivateRoute component={React.createElement(Pong)} />}
+          />
+          <Route 
+            path="/retropong" 
+            element={<PrivateRoute component={React.createElement(RetroPong)} />}
           />
           <Route
             path="/leaderboard"

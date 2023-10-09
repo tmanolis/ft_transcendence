@@ -71,7 +71,6 @@ export class UserService {
         data: {
           twoFASecret: null,
           twoFAActivated: false,
-
         },
       });
     }
@@ -168,9 +167,9 @@ export class UserService {
         avatar: user.avatar,
         gamesWon: user.gamesWon,
         gamesPlayed: user.gamesWon + user.gamesLost,
-      }
+      };
 
-      return (leaderboardUser);
+      return leaderboardUser;
     });
     return leaderboard;
   }
