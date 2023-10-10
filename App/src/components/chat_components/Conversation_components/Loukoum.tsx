@@ -42,14 +42,14 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
     socket_chat.on('channelUpdated', (payload: any) => {
       console.log(payload);
       // When the event is triggered, fetch the updated messages
-      // getMessagesList();
+      getMessagesList(payload.room);
     });
 
     // Clean up Socket.IO event listener when component is unmounted
     return () => {
       socket_chat.off('ChannelUpdated');
     };
-  }, [chatRoom, socket_chat]); // Dependency array with chatRoom and socket_chat to re-run the effect when they change
+  }, [chatRoom]); // Dependency array with chatRoom and socket_chat to re-run the effect when they change
 
   return (
     <MessagesListWrapper>
