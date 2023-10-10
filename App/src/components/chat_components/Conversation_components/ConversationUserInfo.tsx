@@ -52,7 +52,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         );
         setLoggedUsername(response.data.userName);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       }
     };
     fetchUserData();
@@ -72,7 +72,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           setStatus(response.data.status);
         }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       }
     };
     fetchUserData();
