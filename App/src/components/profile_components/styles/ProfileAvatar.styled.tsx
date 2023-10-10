@@ -73,6 +73,10 @@ export const ProfileInfoBlock = styled.div`
     letter-spacing: 0.6px;
     margin: 0;
   }
+
+  @media screen and (max-width: 1150px) {
+    align-items: center;
+  }
 `;
 
 export const CodeBar = styled.img`
@@ -86,6 +90,10 @@ export const SocialOption = styled.div`
   align-items: flex-start;
   flex-shrink: 0;
   margin-top: 2%;
+
+  @media screen and (max-width: 1150px) {
+    justify-content: center;
+  }
 
   button {
     display: flex;

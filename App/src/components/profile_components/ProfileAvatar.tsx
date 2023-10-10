@@ -43,12 +43,15 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
   const userImageSrc = `data:image/png;base64,${avatarPath}`;
   const EditedUserStatus = toTitleCase(userstatus);
   const [FriendsList, setFriendsList] = useState<Friend[]>([]);
-
+  const [BlockList, setBlockList] = useState<string[]>([]);
+  
   const isOwnProfile = username === userName;
   const isFriend = FriendsList.some((friend) => friend.userName === username);
+  const isBlocked = BlockList.some((blockeduser) => blockeduser === username);
 
   const navigate = useNavigate();
 
+  console.log("My Blocked user : ", BlockList)
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -145,6 +148,69 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
     }
   };
 
+  useEffect(() => {
+    getBlockList();
+  }, []);
+
+  const getBlockList = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/user/blockList`,
+        { withCredentials: true }
+      );
+      console.log(response);
+      setBlockList(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleBlock = async () => {
+
+    const updateDTO = {
+      userName: username
+    };
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/user/block`,
+        updateDTO,
+        { withCredentials: true },
+      );
+      console.log(response);
+      console.log(username + " succesfully blocked.");
+
+      setBlockList([...BlockList, username]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleUnblock = async () => {
+    const updateDTO = {
+      userName: username
+    };
+  
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/user/unblock`,
+        {
+          data: updateDTO,
+          withCredentials: true,
+        }
+      );
+      console.log(response);
+      if (response.status === 200) {
+        console.log(`${username} successfully unblocked.`);
+        setBlockList(BlockList.filter((blockeduser) => blockeduser !== username));
+      } else {
+        console.error(`Failed to unblock ${username}. Status code: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('An error occurred while unblocking:', error);
+    }
+  };
+  
   const handleChallenge = async () => {
     console.log("challenge me!!!", username);
     GameSocket.emit("inviteUserToPlay", username);
@@ -164,7 +230,11 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
               ) : (
                 <button onClick={handleAddFriend}>+ Add</button>
               )}
-              <button>x Block</button>
+              {isBlocked ? (
+                <button onClick={handleUnblock}>o UnBlock</button>
+              ) : (
+                <button onClick={handleBlock}>x Block</button>
+              )}
               <button onClick={handleChallenge}>
                 <span className="icon-before" /> Challenge Player
               </button>
