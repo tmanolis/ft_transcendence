@@ -72,8 +72,9 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
       {isAdminOrOwner && (
         <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
       )}
-      <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
-      {isSettingsModalVisible && createPortal(
+      {chatRoom.status !== "DIRECT" && (
+        <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
+      )}      {isSettingsModalVisible && createPortal(
         <SettingsModal
           chatRoom={chatRoom}
           userName={userName}

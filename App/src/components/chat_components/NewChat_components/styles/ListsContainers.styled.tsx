@@ -21,6 +21,10 @@ export const ChatListWrapper = styled.div`
   &::-webkit-scrollbar-thumb:hover {
     background: #555;
   }
+
+  @media screen and (max-width: 900px) {
+	height: 50%;
+  }
 `;
 
 interface StyledChatContainerProps {
