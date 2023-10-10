@@ -25,6 +25,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 import { isAlphanumeric } from 'class-validator';
+import { RouterModule } from '@nestjs/core';
 
 @Injectable()
 export class ChatService {
@@ -236,7 +237,7 @@ export class ChatService {
 
     // check if user exists
     if (!prismaUser)
-      throw new BadRequestException(
+      throw new NotFoundException(
         'Your account has been deleted. Please register again.',
       );
 
@@ -299,10 +300,7 @@ export class ChatService {
       );
       roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
-      secureChannel = await this.securityCheckCreateChannel(
-        prismaUser,
-        roomDTO,
-      );
+      secureChannel = new SecureChannelDTO(roomName, roomDTO.status);
     } catch (error) {
       throw error;
     }
@@ -393,6 +391,11 @@ export class ChatService {
     if (username === currentUser.userName)
       throw new BadRequestException('Can not open chat with yourself');
 
+    // check if current user exists
+    if (!currentUser)
+      throw new NotFoundException('Connection error, please register again.');
+
+    // check if other user exists
     const otherPrismaUser = await this.prisma.user.findUnique({
       where: {
         userName: username,
@@ -401,6 +404,36 @@ export class ChatService {
     if (!otherPrismaUser) {
       throw new BadRequestException('Other user not found');
     }
+
+    // check if they already have a DM room together
+    const dmRoom = await this.prisma.room.findFirst({
+      where: {
+        AND: [
+          {
+            status: RoomStatus.DIRECT,
+          },
+          {
+            users: {
+              some: {
+                email: currentUser.email,
+              },
+            },
+          },
+          {
+            users: {
+              some: {
+                email: otherPrismaUser.email,
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    if (dmRoom)
+      throw new BadRequestException(
+        'You already have a conversation with them!',
+      );
 
     return otherPrismaUser;
   }
