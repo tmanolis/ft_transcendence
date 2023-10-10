@@ -32,7 +32,6 @@ const QRCodePopup: React.FC<QRCodePopupProps> = ({ QRCode}) => {
         updateDTO,
         { withCredentials: true },
       );
-      console.log(response);
       window.location.reload();
     } catch (error) {
       handleUpdateError(error as AxiosError);
