@@ -37,8 +37,8 @@ const EditUsername: React.FC<EditUsernameProps> = ({ onError }) => {
   const handleUpdateError = (error: AxiosError) => {
     if (error.response) {
       const status = error.response.status;
-      if (status === 500) {
-        onError("Username is already used");
+      if (status === 400) {
+        onError("Username is already used or incorrect");
       }
     } else {
       onError("Update failed. Please try again!");
