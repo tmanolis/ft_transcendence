@@ -46,7 +46,7 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser, isMyProf
 					setVersusAvatar(response.data.avatar);
 				}
 			} catch (error) {
-				console.log(error);
+				console.error(error);
 			}
 		};
 		fetchUserData();
