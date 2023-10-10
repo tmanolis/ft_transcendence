@@ -30,8 +30,24 @@ const Pong = () => {
   const [isWaiting, setIsWaiting] = useState<boolean>(true);
   const [score, setScore] = useState<Record<number, number>>({ 0: 0, 1: 0 });
   const [gameID, setGameID] = useState<string>("");
+  const [width, setWidth] = useState<number>(window.innerWidth);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (width < 800)
+      navigate("/play");
+
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+      if (width < 800)
+        navigate("/play");
+    }
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    }
+  }, [width]);
 
   useEffect(() => {
     GameSocket.on("error", (error: string) => {
