@@ -25,6 +25,7 @@ import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
 import { isAlphanumeric } from 'class-validator';
+import { RouterModule } from '@nestjs/core';
 
 @Injectable()
 export class ChatService {
@@ -129,10 +130,8 @@ export class ChatService {
     // update socketID or create new cache user
     if (chatUser) {
       chatUser.socketID = socket.id;
-      console.log('update existing chat user:', email);
     } else {
       chatUser = new ChatUser(prismaUser.email, socket.id, prismaUser.userName);
-      console.log('creating new chat user:', email);
     }
 
     // rejoin all rooms
@@ -236,7 +235,7 @@ export class ChatService {
 
     // check if user exists
     if (!prismaUser)
-      throw new BadRequestException(
+      throw new NotFoundException(
         'Your account has been deleted. Please register again.',
       );
 
@@ -277,6 +276,17 @@ export class ChatService {
     return secureChannel;
   }
 
+  async callForReconnection(email: string) {
+    const prismaUser: User = await this.fetchPrismaUser(email);
+
+    const chatUser: ChatUser = await this.fetchChatuser(email);
+    if (prismaUser.status === 'ONLINE' && chatUser) {
+      this.server.to(chatUser.socketID).emit('reconnectNeeded', {
+        message: `Please refresh page to reconnect socket`,
+      });
+    }
+  }
+
   /****************************************************************************/
   /* create dm room									                                          */
   /****************************************************************************/
@@ -299,10 +309,7 @@ export class ChatService {
       );
       roomName = await this.uniqueRoomName();
       roomDTO.name = roomName;
-      secureChannel = await this.securityCheckCreateChannel(
-        prismaUser,
-        roomDTO,
-      );
+      secureChannel = new SecureChannelDTO(roomName, roomDTO.status);
     } catch (error) {
       throw error;
     }
@@ -344,12 +351,7 @@ export class ChatService {
     client.join(roomName);
 
     // notify other chatuser
-    const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
-    if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
-      this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-        message: `DM ${roomName} created with user ${otherPrismaUser.userName}`,
-      });
-    }
+    this.callForReconnection(otherPrismaUser.email);
 
     // send a little welcome message
     await this.sendServerMessage({
@@ -393,14 +395,56 @@ export class ChatService {
     if (username === currentUser.userName)
       throw new BadRequestException('Can not open chat with yourself');
 
-    const otherPrismaUser = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-    });
+    // check if current user exists
+    if (!currentUser)
+      throw new NotFoundException('Connection error, please register again.');
+
+    // check if other user exists
+    let otherPrismaUser: User;
+    try {
+      otherPrismaUser = await this.prisma.user.findUnique({
+        where: {
+          userName: username,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Room creation failed. Did you send the right variables?',
+      );
+    }
     if (!otherPrismaUser) {
       throw new BadRequestException('Other user not found');
     }
+
+    // check if they already have a DM room together
+    const dmRoom = await this.prisma.room.findFirst({
+      where: {
+        AND: [
+          {
+            status: RoomStatus.DIRECT,
+          },
+          {
+            users: {
+              some: {
+                email: currentUser.email,
+              },
+            },
+          },
+          {
+            users: {
+              some: {
+                email: otherPrismaUser.email,
+              },
+            },
+          },
+        ],
+      },
+    });
+
+    if (dmRoom)
+      throw new BadRequestException(
+        'You already have a conversation with them!',
+      );
 
     return otherPrismaUser;
   }
@@ -597,6 +641,10 @@ export class ChatService {
     });
     if (!userInRoom) throw new BadRequestException('You are not in this room');
 
+    // banned user should stay in member list room
+    if (userInRoom.isBanned)
+      throw new BadRequestException('You are banned from this room');
+
     // check if user can leave this room
     if (room.status === RoomStatus.DIRECT)
       throw new ForbiddenException(
@@ -627,11 +675,6 @@ export class ChatService {
     } catch (error) {
       throw error;
     }
-
-    // ping for update
-    this.server
-      .to(message.room)
-      .emit('channelUpdated', 'please GET channel/history');
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
@@ -646,6 +689,9 @@ export class ChatService {
 
       // check if user is allowed to send a message to this channel
       await this.allowedToSend(room, prismaUser);
+
+      // check if message is not empty
+      if (message.text === '') return;
 
       // check message format and add sender name
       const checkedMessage = new ChatMessage(
@@ -671,9 +717,14 @@ export class ChatService {
       });
 
       // ping for update
+      // ping for update
+      const payload = {
+        room: message.room,
+        message: 'please GET channel/history',
+      };
       this.server
-        .to(room.name)
-        .emit('channelUpdated', 'please GET channel/history');
+        .to(message.room)
+        .emit(`channelUpdated/${message.room}`, payload);
     } catch (error) {
       throw error;
     }
@@ -709,16 +760,16 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
-      // check if sender is muted
-      if (userInRoom.isMuted)
-        throw new ForbiddenException(
-          'You have been temporarily muted by a channel admin. Retry sending your message later.',
-        );
-
       // check if sender is banned
       if (userInRoom.isBanned)
         throw new ForbiddenException(
           "You have been banned from this channel, so don't even try...",
+        );
+
+      // check if sender is muted
+      if (userInRoom.isMuted)
+        throw new ForbiddenException(
+          'You have been temporarily muted by a channel admin. Retry sending your message later.',
         );
     }
   }

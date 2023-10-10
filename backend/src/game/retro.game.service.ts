@@ -64,8 +64,7 @@ export class RetroGameService {
   async getSocketUser(client: Socket): Promise<User> {
     // only works after {socketID, userEmail} stored into cache
     const userEmail: string = await this.cacheManager.get(client.id);
-    if (!userEmail)
-      return null;
+    if (!userEmail) return null;
     const user: User = await this.getUserByEmail(userEmail);
     return user;
   }
@@ -76,7 +75,9 @@ export class RetroGameService {
   async cancelPendingGame(client: Socket) {
     const playerEmail: string = await this.cacheManager.get(client.id);
 
-    const pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    const pendingRetroPlayer: string = await this.cacheManager.get(
+      'pendingRetroPlayer',
+    );
     if (pendingRetroPlayer) {
       try {
         const pendingRetroPlayerObject: Player = JSON.parse(pendingRetroPlayer);
@@ -94,8 +95,7 @@ export class RetroGameService {
   async updateUserDisconnectStatus(client: Socket) {
     // find the user in database
     const user: User = await this.getSocketUser(client);
-    if (!user)
-      return;
+    if (!user) return;
     if (user.status === 'WAITING' || user.status === 'PLAYING') {
       try {
         await this.prisma.user.update({
@@ -129,7 +129,6 @@ export class RetroGameService {
   }
 
   async pauseGame(player: Player) {
-    console.log("gamePaused!!!!");
     const game = await this.getGameByID(player.gameID);
     if (!game) return;
     game.status = GameStatus.Pause;
@@ -154,7 +153,10 @@ export class RetroGameService {
       this.startPaddle,
     );
     // save the new Player in redis
-    await this.cacheManager.set(`retrogame${user.email}`, JSON.stringify(newPlayer));
+    await this.cacheManager.set(
+      `retrogame${user.email}`,
+      JSON.stringify(newPlayer),
+    );
     return newPlayer;
   }
 
@@ -179,7 +181,9 @@ export class RetroGameService {
 
   async getPlayerByEmail(email: string): Promise<Player> {
     let player: Player;
-    const playerString: string = await this.cacheManager.get(`retrogame${email}`);
+    const playerString: string = await this.cacheManager.get(
+      `retrogame${email}`,
+    );
     if (playerString) {
       try {
         player = JSON.parse(playerString);
@@ -204,7 +208,9 @@ export class RetroGameService {
   // find, create, join game
   /****************************************************************************/
   async findMatchingGame(player: Player): Promise<[boolean, string]> {
-    let pendingRetroPlayerString: string = await this.cacheManager.get('pendingRetroPlayer');
+    let pendingRetroPlayerString: string = await this.cacheManager.get(
+      'pendingRetroPlayer',
+    );
     let pendingRetroPlayer: Player;
     if (pendingRetroPlayerString) {
       pendingRetroPlayer = JSON.parse(pendingRetroPlayerString);
@@ -265,7 +271,9 @@ export class RetroGameService {
 
   async createGame(client: Socket): Promise<Game> {
     let newGame: Game;
-    let pendingRetroPlayer: string = await this.cacheManager.get('pendingRetroPlayer');
+    let pendingRetroPlayer: string = await this.cacheManager.get(
+      'pendingRetroPlayer',
+    );
     // continue to joinGame if there is a pendingRetroPlayer
     let pausedGameID: string = await this.findPausedGame(client);
     if (!pendingRetroPlayer && !pausedGameID) {
@@ -274,7 +282,6 @@ export class RetroGameService {
         newGame = await this.createWaitingGame(player);
       }
     }
-    this.debugPrintCache();
     return newGame;
   }
 
@@ -285,9 +292,9 @@ export class RetroGameService {
       1,
       player,
       null,
-      [8, 8],
+      [0, 0],
       { x: 400, y: 400 },
-      { x: 3, y: 3 },
+      { x: 2, y: 2 },
       this.generateAngle(1, 1),
       GameStatus.Waiting,
       '',
@@ -312,7 +319,6 @@ export class RetroGameService {
     await this.cacheManager.set('pendingRetroPlayer', JSON.stringify(player));
     return newGame;
   }
-
 
   async joinGame(player: Player, gameID: string): Promise<boolean> {
     const game = await this.getGameByID(gameID);
@@ -344,7 +350,6 @@ export class RetroGameService {
       }
       game.status = GameStatus.Playing;
       game.nbPlayers = 2;
-      console.log(game);
       this.cacheManager.set(gameID, JSON.stringify(game));
       return true;
     } else {
@@ -430,7 +435,7 @@ export class RetroGameService {
       currentGame.ballPosition.x <= 54 &&
       currentGame.ballPosition.x >= 50 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition >=
-        - 5 &&
+        -5 &&
       currentGame.ballPosition.y / 2 - currentGame.leftPlayer.paddlePosition <=
         this.canvas.paddleHeight + 5
     ) {
@@ -603,8 +608,8 @@ export class RetroGameService {
     let winner: User;
     let loser: User;
     if (game.pausedBy && game.pausedBy !== '') {
-      winner = (game.pausedBy === leftPlayer.email) ? rightPlayer : leftPlayer;
-      loser = (game.pausedBy === leftPlayer.email) ? leftPlayer : rightPlayer;
+      winner = game.pausedBy === leftPlayer.email ? rightPlayer : leftPlayer;
+      loser = game.pausedBy === leftPlayer.email ? leftPlayer : rightPlayer;
     } else {
       winner = game.score[0] > game.score[1] ? leftPlayer : rightPlayer;
       loser = game.score[1] > game.score[0] ? leftPlayer : rightPlayer;
@@ -699,7 +704,11 @@ export class RetroGameService {
   async debugPrintCache() {
     const keys = await this.cacheManager.store.keys();
     for (const key of keys) {
-      console.log(`\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(key)}\x1b[0m`);
+      console.log(
+        `\x1b[33m ${key}:\n\t\x1b[4m\x1b[34m${await this.cacheManager.get(
+          key,
+        )}\x1b[0m`,
+      );
     }
   }
 }

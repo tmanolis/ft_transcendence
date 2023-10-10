@@ -3,6 +3,8 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  ServiceUnavailableException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -65,7 +67,6 @@ export class AuthService {
 
     // Maybe set up a "compound unique constraint" can avoid repeatetive requests.
     // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#unique-1
-
     if (!user) {
       try {
         user = await this.prisma.user.create({
@@ -126,14 +127,18 @@ export class AuthService {
   }
 
   async fourtyTwoFirstLogin(user: User, res: any) {
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        status: 'ONLINE',
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          status: 'ONLINE',
+        },
+      });
+    } catch (error) {
+      throw new ServiceUnavailableException("Can't login with 42 API");
+    }
 
     const token = await this.signToken(user.id, user.email);
     return res
@@ -143,14 +148,18 @@ export class AuthService {
   }
 
   async updateAfterLogin(user: User, res: any) {
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        status: 'ONLINE',
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          status: 'ONLINE',
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException("Can't update user.");
+    }
 
     const token = await this.signToken(user.id, user.email);
     if (user.isFourtyTwoStudent && !user.twoFAActivated) {
@@ -168,14 +177,18 @@ export class AuthService {
   /****************************************************************************/
 
   async handleLogout(user: User, res: any, req: any) {
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        status: 'OFFLINE',
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          status: 'OFFLINE',
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException("Can't update user.");
+    }
 
     const token = req.cookies.jwt;
     if (token) {
@@ -186,11 +199,15 @@ export class AuthService {
   }
 
   async addToBlacklist(userID: string, token: string): Promise<void> {
-    await this.prisma.jwtBlacklist.upsert({
-      where: { userID },
-      update: { token },
-      create: { token, userID },
-    });
+    try {
+      await this.prisma.jwtBlacklist.upsert({
+        where: { userID },
+        update: { token },
+        create: { token, userID },
+      });
+    } catch (error) {
+      throw new ForbiddenException("Can't update user.");
+    }
   }
 
   /****************************************************************************/
@@ -221,7 +238,7 @@ export class AuthService {
         return this.updateAfterLogin(user, res);
       }
     } catch (error) {
-      throw new Error(error.message);
+      throw new BadRequestException('Bad request');
     }
   }
 
@@ -241,7 +258,7 @@ export class AuthService {
       }
       return res.status(200).json({ event: '2fa ok' });
     } catch (error) {
-      throw new Error(error.message);
+      throw new BadRequestException('Bad request');
     }
   }
 
@@ -296,7 +313,7 @@ export class AuthService {
       const imageBase64 = Buffer.from(imageBuffer).toString('base64');
       return imageBase64;
     } catch (error) {
-      throw new Error('Error reading image file: ${error.message}');
+      throw new NotFoundException('Error reading image file: ${error.message}');
     }
   }
 }

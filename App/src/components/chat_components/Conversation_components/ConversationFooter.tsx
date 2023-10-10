@@ -10,40 +10,42 @@ interface ConversationFooterProps {
 }
 
 const ConversationFooter: React.FC<ConversationFooterProps> = ({ chatRoom, socket_chat }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
-	useEffect(() => {
-	const handleSendMessageSuccess = () => {
-		// onCancel();
-		// window.location.reload();
-    console.log("J'AI ENVOYE MON MESSAGE");
-	};
+  useEffect(() => {
+    const handleSendMessageSuccess = () => {
+    };
 
-	const handleSendMessageError = (error: any) => {
-		console.log("error when joining channel");
-		setErrorResponse(error.message); // Assuming error.message contains the error message
-	};
+    const handleSendMessageError = (error: any) => {
+      console.log("error when joining channel");
+      setErrorResponse(error.message); // Assuming error.message contains the error message
+    };
 
-	socket_chat.on("sendMessageSuccess", handleSendMessageSuccess);
-	socket_chat.on("sendMessageError", handleSendMessageError);
+    socket_chat.on("sendMessageSuccess", handleSendMessageSuccess);
+    socket_chat.on("sendMessageError", handleSendMessageError);
 
-	// Clean up event listeners when the component is unmounted
-	return () => {
-		socket_chat.off("sendMessageSuccess", handleSendMessageSuccess);
-		socket_chat.off("sendMessageError", handleSendMessageError);
-	};
-	}, [socket_chat]); // not sure
+    // Clean up event listeners when the component is unmounted
+    return () => {
+      socket_chat.off("sendMessageSuccess", handleSendMessageSuccess);
+      socket_chat.off("sendMessageError", handleSendMessageError);
+    };
+  }, [socket_chat]); // not sure
+
+  useEffect(() => {
+    setInputValue("");
+    setErrorResponse("");
+  }, [chatRoom]);
 
   const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevents the form from submitting the traditional way
 
     const updateDTO = {
       room: chatRoom.name,
-			text: inputValue,
-		};
+      text: inputValue,
+    };
 
-		socket_chat.emit("sendMessage", updateDTO);
+    socket_chat.emit("sendMessage", updateDTO);
     setInputValue("");
   };
 
@@ -59,7 +61,7 @@ const ConversationFooter: React.FC<ConversationFooterProps> = ({ chatRoom, socke
         <ConfirmButton type="submit">Send</ConfirmButton>
       </form>
       {errorResponse && (
-			<div style={{ color: "red", fontSize: "12px", padding: "5px" }}>{errorResponse}</div>)}
+        <div style={{ color: "red", fontSize: "12px", padding: "5px" }}>{errorResponse}</div>)}
     </ConversationFooterWrapper>
   );
 };

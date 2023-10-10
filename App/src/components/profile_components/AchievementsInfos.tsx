@@ -27,7 +27,7 @@ const AchievementsInfos: React.FC<AchievementInfosProps> = ({
       name: "FRIEND",
       imagePath1: "/icon/Friend_Lock.svg",
       imagePath2: "/icon/Friend_Unlock.svg",
-      message: "Invite your first friend",
+      message: "Get your first friend on PongStoryShort",
     },
     {
       id: 2,

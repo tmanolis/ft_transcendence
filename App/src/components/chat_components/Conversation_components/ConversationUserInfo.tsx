@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"
+import axios, { AxiosError } from "axios";
 import { UserDetails, SocialActions, ActionButtons, UserStatus, CustomLink } from "./styles/ConversationUserInfo.styled";
 import { Room } from "../../../pages/Chat";
 import banIcon from "../../../assets/icon/BanUser.png";
 import kickIcon from "../../../assets/icon/KickUser.png";
 import muteIcon from "../../../assets/icon/MuteUser.png";
 import adminIcon from "../../../assets/icon/AdminUser.png";
+import { GameSocket } from "../../GameSocket";
 
-interface UserInfoProps {
+export interface UserInfoProps {
   user: {
     userName: string;
     isBanned: boolean;
@@ -39,6 +40,9 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     buttonStateFunction((prevState) => !prevState);
   };
 
+  const handleUpdateError = (error: AxiosError) => {
+    console.log(error.response?.data)
+  };
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -90,7 +94,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -107,7 +111,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -144,7 +148,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -153,7 +157,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       const response = await KickUser();
       console.log(response?.data);
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -170,7 +174,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -180,7 +184,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       console.log(response?.data);
       toggleButtonActiveState(setIsMuteActive);
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -198,7 +202,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       toggleButtonActiveState(setIsAdminActive);
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -216,7 +220,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       toggleButtonActiveState(setIsAdminActive);
       return response;
     } catch (error) {
-      console.log(error);
+      handleUpdateError(error as AxiosError);
     }
   };
 
@@ -237,6 +241,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       }
     }
   };
+
+  const handleChallenge = async () => {
+    console.log("challenge me!!!", user.userName);
+    GameSocket.emit("inviteUserToPlay", user.userName);
+  }
 
   if (loggedUsername === user.userName) {
     return null;
@@ -286,7 +295,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           )}
         </SocialActions>
       )}
-      <button>
+      <button onClick={handleChallenge}>
         <span className="icon-before" />
       </button>
       <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>

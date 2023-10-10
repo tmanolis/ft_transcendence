@@ -29,13 +29,9 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
   async handleConnection(@ConnectedSocket() client: Socket) {
     this.chatService.newConnection(client);
-    // const chatHistory = this.chatService.userMessageHistory(user)
-    // client.emit('updateChatHistory', chatHistory);
   }
 
-  async handleDisconnect(@ConnectedSocket() client: Socket) {
-    console.log('chatuser disconnected: ', client.id);
-  }
+  async handleDisconnect(@ConnectedSocket() client: Socket) {}
 
   /****************************************************************************/
   /* messages											                											      */
@@ -83,7 +79,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() joinDTO: joinRoomDTO,
   ) {
-    console.log('dto join channel:', joinDTO);
     try {
       await this.chatService.joinChannel(client, joinDTO);
       client.emit('joinChannelSuccess', {

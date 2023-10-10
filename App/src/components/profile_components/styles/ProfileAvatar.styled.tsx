@@ -15,9 +15,11 @@ export const ProfileAvatarStyled = styled.div`
   margin: 50px;
   margin-bottom: 5px;
 
+  @media (max-width: 1480px) {
+    flex-direction: column; /* Switch to a column layout */
+  }
   /* Media query for screens less than 400px wide */
   @media (max-width: 1150px) {
-    flex-direction: column; /* Switch to a column layout */
     align-items: center; /* Center items horizontally */
     margin: 5%;
   }
@@ -73,6 +75,10 @@ export const ProfileInfoBlock = styled.div`
     letter-spacing: 0.6px;
     margin: 0;
   }
+
+  @media screen and (max-width: 1150px) {
+    align-items: center;
+  }
 `;
 
 export const CodeBar = styled.img`
@@ -86,6 +92,10 @@ export const SocialOption = styled.div`
   align-items: flex-start;
   flex-shrink: 0;
   margin-top: 2%;
+
+  @media screen and (max-width: 1150px) {
+    justify-content: center;
+  }
 
   button {
     display: flex;

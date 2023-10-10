@@ -5,11 +5,11 @@ import { Room } from '../../pages/Chat';
 
 interface ItemProps {
   room: Room;
-  openChat: (room: Room, roomName: string | null) => void;
+  handleOpenChat: (room: Room, roomName: string | null) => void;
   isSelected: boolean;
 }
 
-function Item({ room, openChat, isSelected }: ItemProps) {
+function Item({ room, handleOpenChat, isSelected }: ItemProps) {
   const [directMessageName, setDirectMessageName] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState("/src/assets/img/Web_img.jpg");
 
@@ -45,7 +45,7 @@ function Item({ room, openChat, isSelected }: ItemProps) {
     if (room.status === 'DIRECT')
       roomName = directMessageName;
 
-    openChat(room, roomName);
+      handleOpenChat(room, roomName);
   };
 
   return (
@@ -98,7 +98,7 @@ const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
         <Item
         key={index}
         room={room}
-        openChat={handleOpenChat}
+        handleOpenChat={handleOpenChat}
         isSelected={selectedChat === room.name} // Pass isSelected prop to Item component
         />
       ))}
@@ -107,3 +107,69 @@ const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
 };
 
 export default UserChatList;
+
+// import axios from 'axios';
+// import React, { useState, useEffect } from 'react';
+// import { Avatar, ChatContainer, ChatListWrapper, Username } from './styles/UserChatList.styled';
+// import { Room } from '../../pages/Chat';
+
+// interface UserChatListProps {
+//   openChat: (room: Room, roomName: string | null) => void;
+// }
+
+// const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
+//   const [ChatList, setChatList] = useState<Room[]>([]);
+
+//   const getChatList = async () => {
+//     try {
+//       const response = await axios.get(
+//         `${import.meta.env.VITE_BACKEND_URL}/user/myRooms`, // using friends list to test front: /chat/rooms
+//         { withCredentials: true }
+//       );
+//       console.log(response);
+//       setChatList(response.data);
+//     } catch (error) {
+//       console.log(error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     getChatList();
+//   }, []); // Add an empty dependency array to run this effect only once
+
+//   return (
+//     <ChatListWrapper>
+//         {Item(ChatList, openChat)}
+//     </ChatListWrapper>
+//   );
+// }
+
+// export default UserChatList;
+
+// function Item(data: Room[], openChat: (room: Room, roomName: string | null) => void) {
+//   const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+//   const openConversation = (room: Room) => {
+//     console.log(room + ": j'ai click pour ouvrir une conv");
+//     setSelectedChat(room.name);
+//     openChat(room, room.name); // I CHANGED HERE TO ADAPT
+//   }
+
+//   return (
+//     <>
+//       {data.map((value, index) => (
+//         <ChatContainer 
+//         key={index} 
+//         onClick={() => openConversation(value)}
+//         selected={selectedChat === value.name}
+//         >
+//           <div className="avatar">
+//             <Avatar src="/src/assets/img/Web_img.jpg" alt="room_avatar" />
+//           </div>
+//           <Username>{value.name}</Username>
+//           {value.status === 'PRIVATE' && <img src="/src/assets/icon/Lock.svg" alt="lock_icon" />}
+//         </ChatContainer>
+//       ))}
+//     </>
+//   );
+// }
