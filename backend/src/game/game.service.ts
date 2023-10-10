@@ -158,7 +158,6 @@ export class GameService {
   }
 
   async pauseGame(player: Player) {
-    console.log('gamePaused!!!!');
     const game = await this.getGameByID(player.gameID);
     if (!game) return;
     game.status = GameStatus.Pause;
@@ -305,7 +304,6 @@ export class GameService {
         newGame = await this.createWaitingGame(player);
       }
     }
-    this.debugPrintCache();
     return newGame;
   }
 
@@ -374,7 +372,6 @@ export class GameService {
       }
       game.status = GameStatus.Playing;
       game.nbPlayers = 2;
-      console.log(game);
       this.cacheManager.set(gameID, JSON.stringify(game));
       return true;
     } else {

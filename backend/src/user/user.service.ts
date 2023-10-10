@@ -223,10 +223,7 @@ export class UserService {
 
     // Calculate userWon for each game based on the requesting user's username
     user.games = user.games.map((game) => {
-      console.log(requestingUser.id);
-      console.log(game.winnerId);
       const isWinner = game.winnerId === requestingUser.id;
-      console.log('is winner', isWinner);
       return { ...game, userWon: isWinner };
     });
 
