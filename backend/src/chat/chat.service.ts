@@ -130,10 +130,8 @@ export class ChatService {
     // update socketID or create new cache user
     if (chatUser) {
       chatUser.socketID = socket.id;
-      console.log('update existing chat user:', email);
     } else {
       chatUser = new ChatUser(prismaUser.email, socket.id, prismaUser.userName);
-      console.log('creating new chat user:', email);
     }
 
     // rejoin all rooms
@@ -283,7 +281,6 @@ export class ChatService {
 
     const chatUser: ChatUser = await this.fetchChatuser(email);
     if (prismaUser.status === 'ONLINE' && chatUser) {
-      console.log(chatUser.socketID);
       this.server.to(chatUser.socketID).emit('reconnectNeeded', {
         message: `Please refresh page to reconnect socket`,
       });
@@ -678,15 +675,6 @@ export class ChatService {
     } catch (error) {
       throw error;
     }
-
-    // ping for update
-		const payload = {
-			room: message.room,
-			message: 'please GET channel/history',
-		}
-    this.server
-      .to(message.room)
-      .emit(`channelUpdated/${message.room}`, payload);
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
