@@ -29,8 +29,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
   async handleConnection(@ConnectedSocket() client: Socket) {
     this.chatService.newConnection(client);
-    // const chatHistory = this.chatService.userMessageHistory(user)
-    // client.emit('updateChatHistory', chatHistory);
   }
 
   async handleDisconnect(@ConnectedSocket() client: Socket) {

@@ -167,7 +167,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.gameService.endGame(gameData);
         clearInterval(gameInterval);
       }
-    }, 1000 / 30);
+    }, 1000 / 60);
 
     return { event: 'start game', socketID: client.id };
   }
@@ -428,7 +428,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.retroGameService.endGame(gameData);
         clearInterval(gameInterval);
       }
-    }, 1000 / 30);
+    }, 1000 / 60);
 
     return { event: 'start game', socketID: client.id };
   }

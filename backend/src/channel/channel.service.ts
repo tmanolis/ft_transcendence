@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  GatewayTimeoutException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -12,8 +13,9 @@ import {
   changePassDTO,
   toPublicDTO,
   dmDTO,
+  ChatUser,
 } from 'src/dto';
-import { User, UserInRoom, RoomStatus, Message } from '@prisma/client';
+import { User, UserInRoom, RoomStatus, Message, Status } from '@prisma/client';
 import * as argon from 'argon2';
 import {
   RoomHistory,
@@ -23,6 +25,7 @@ import {
 } from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
+import { TimeoutError } from 'rxjs';
 
 @Injectable()
 export class ChannelService {
@@ -284,6 +287,12 @@ export class ChannelService {
         password: '',
       },
     });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: dto.channel,
+      text: `This channel is now public`,
+    });
   }
 
   async toPrivate(user: User, dto: changePassDTO) {
@@ -299,6 +308,12 @@ export class ChannelService {
         password: hash,
       },
     });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: dto.channel,
+      text: `This channel is now private`,
+    });
   }
 
   async changePass(user: User, dto: changePassDTO) {
@@ -312,6 +327,12 @@ export class ChannelService {
       data: {
         password: hash,
       },
+    });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: dto.channel,
+      text: `The password of this channel has been updated`,
     });
   }
 
@@ -333,6 +354,12 @@ export class ChannelService {
         role: 'ADMIN',
       },
     });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: dto.channel,
+      text: `${dto.username} has been added to channel admins`,
+    });
   }
 
   async removeAdmin(user: User, dto: AdminDTO) {
@@ -351,6 +378,12 @@ export class ChannelService {
       data: {
         role: 'USER',
       },
+    });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: room.name,
+      text: `${dto.username} has been removed as channel admin`,
     });
   }
 
@@ -388,14 +421,20 @@ export class ChannelService {
 
     const thirtyMinutes: number = 1800000;
     setTimeout(async () => {
-      const unmuted = await this.prisma.userInRoom.update({
-        where: {
-          id: subject.id,
-        },
-        data: {
-          isMuted: false,
-        },
-      });
+      try {
+        const unmuted = await this.prisma.userInRoom.update({
+          where: {
+            id: subject.id,
+          },
+          data: {
+            isMuted: false,
+          },
+        });
+      } catch (error) {
+        throw new BadRequestException(
+          'User has left the channel, unmute not needed',
+        );
+      }
     }, thirtyMinutes);
   }
 
@@ -416,6 +455,12 @@ export class ChannelService {
       data: {
         isBanned: true,
       },
+    });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: room.name,
+      text: `${dto.username} has been banned from this channel`,
     });
   }
 
@@ -453,6 +498,12 @@ export class ChannelService {
       where: {
         id: subject.id,
       },
+    });
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: room.name,
+      text: `${dto.username} has been kicked from this channel`,
     });
   }
 

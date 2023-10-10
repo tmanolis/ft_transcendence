@@ -5,6 +5,8 @@ import UsersListModal from "./ConversationUsersListModal";
 import { Room } from "../../../pages/Chat";
 import { createPortal } from "react-dom";
 import { Socket } from "socket.io-client";
+import { UserInfoProps } from "./ConversationUserInfo"
+import axios from "axios"
 
 interface ChannelMenuProps {
   onCloseMenu: () => void;
@@ -64,17 +66,46 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
     socket_chat.emit("leaveChannel", updateDTO);
   };
 
-  const isAdminOrOwner = chatRoom.role === "ADMIN" || chatRoom.role === "OWNER";
+  const isOwner = chatRoom.role === "OWNER";
+
+  const [usersList, setUsersList] = useState<UserInfoProps['user'][]>([]);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        // Replace "%23" with "#"
+        const formattedRoomName = encodeURIComponent(chatRoom.name.replace('%23', '#'));
+        const response = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/channel/members?name=${formattedRoomName}`,
+          {
+            withCredentials: true,
+          }
+        );
+        setUsersList(response.data.membersList);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchUserData();
+  }, [chatRoom]);
+
+  const user = usersList.find(user => user.userName === userName);
+  const isUserBanned = user && user.isBanned;
 
   return (
-    <ChanMenuBar $isAdminOrOwner={isAdminOrOwner}>
+    <ChanMenuBar $isOwner={isOwner}>
       <ChanMenuElement onClick={handleUsersButtonClick}>&gt; Users</ChanMenuElement>
-      {isAdminOrOwner && (
+      {isOwner && (
         <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
       )}
       {chatRoom.status !== "DIRECT" && (
-        <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
-      )}      {isSettingsModalVisible && createPortal(
+        isUserBanned ? (
+          <RedTextButton disabled>{'! You are Banned !'}</RedTextButton>
+        ) : (
+          <RedTextButton onClick={handleLeaveButtonClick}>&gt; Leave Channel</RedTextButton>
+        )
+      )}
+      {isSettingsModalVisible && createPortal(
         <SettingsModal
           chatRoom={chatRoom}
           userName={userName}

@@ -6,8 +6,9 @@ import banIcon from "../../../assets/icon/BanUser.png";
 import kickIcon from "../../../assets/icon/KickUser.png";
 import muteIcon from "../../../assets/icon/MuteUser.png";
 import adminIcon from "../../../assets/icon/AdminUser.png";
+import { GameSocket } from "../../GameSocket";
 
-interface UserInfoProps {
+export interface UserInfoProps {
   user: {
     userName: string;
     isBanned: boolean;
@@ -238,6 +239,11 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     }
   };
 
+  const handleChallenge = async () => {
+    console.log("challenge me!!!", user.userName);
+    GameSocket.emit("inviteUserToPlay", user.userName);
+  }
+
   if (loggedUsername === user.userName) {
     return null;
   }
@@ -286,7 +292,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           )}
         </SocialActions>
       )}
-      <button>
+      <button onClick={handleChallenge}>
         <span className="icon-before" />
       </button>
       <UserStatus $userstatus={status}>{EditedUserStatus}</UserStatus>
