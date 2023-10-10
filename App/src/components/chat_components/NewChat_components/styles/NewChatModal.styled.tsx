@@ -51,6 +51,13 @@ export const PopUpWrapper = styled.div`
   .lists_container {
     display: flex;
     justify-content: space-around;
+
+    @media screen and (max-width: 900px) {
+      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+    }
+
   }
 
   .channel_container {
@@ -59,6 +66,10 @@ export const PopUpWrapper = styled.div`
 
     margin: 15px;
     border: 1px solid #FFF;
+
+    @media screen and (max-width: 900px) {
+      height: 50%
+  }
   }
 
   .channel_container p {
@@ -90,4 +101,8 @@ export const PopUpWrapper = styled.div`
     margin: 15px;
   }
 
+  @media screen and (max-width: 900px) {
+		overflow: scroll;
+		width : 70%;
+ 	}
 `;

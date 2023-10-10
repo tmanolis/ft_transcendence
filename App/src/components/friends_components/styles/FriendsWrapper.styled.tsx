@@ -6,6 +6,6 @@ export const FriendsWrapper = styled.div`
 	
 	@media screen and (max-width: 940px) {
 		overflow: hidden;
-		width: 70%;
+		width: 100%;
 	}
 `;
