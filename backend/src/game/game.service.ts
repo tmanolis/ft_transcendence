@@ -2,6 +2,9 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  BadRequestException,
+  NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Socket } from 'socket.io';
@@ -62,7 +65,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new BadRequestException("Can't update status");
     }
   }
 
@@ -75,7 +78,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new NotFoundException("Can not found user");
     }
     return user;
   }
@@ -89,7 +92,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new NotFoundException("Can not find user");
     }
     return user;
   }
@@ -118,7 +121,7 @@ export class GameService {
           await this.cacheManager.del(pendingPlayerObject.gameID);
         }
       } catch (error) {
-        throw error;
+        throw new ServiceUnavailableException("Data error");
       }
     }
   }
@@ -137,7 +140,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new BadRequestException("Can't update status");
     }
     await this.cacheManager.del(client.id);
   }
@@ -212,7 +215,7 @@ export class GameService {
       try {
         player = JSON.parse(playerString);
       } catch (error) {
-        throw error;
+        throw new NotFoundException("Can not find player");
       }
     }
     return player;
@@ -250,7 +253,7 @@ export class GameService {
           return [false, player.gameID];
         }
       } catch (error) {
-        throw error;
+        throw new NotFoundException("Can not find player");
       }
     }
 
