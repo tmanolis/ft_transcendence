@@ -38,6 +38,9 @@ const Landing: React.FC = () => {
 
     fetchUserData();
 
+  }, []);
+
+  useEffect(() => {
     GameSocket.connect();
 
     GameSocket.on("gameInvite", (message) => {
@@ -46,19 +49,19 @@ const Landing: React.FC = () => {
       console.log(message.invitedBy);
       // GameSocket.emit('acceptInvitation', message.invitedBy);
     });
-    GameSocket.on('gameReady', () => {
-      if (location.pathname !== "/pong")
-        navigate("/pong");
-    });
-    GameSocket.on('retroGameReady', () => {
-      navigate("/retropong");
-    });
+    // GameSocket.on('gameReady', () => {
+    //   if (location.pathname !== "/pong")
+    //     navigate("/pong");
+    // });
+    // GameSocket.on('retroGameReady', () => {
+    //   navigate("/retropong");
+    // });
     return () => {
       GameSocket.off("gameInvite");
-      GameSocket.off('gameReady');
-      GameSocket.off('retroGameReady');
+      // GameSocket.off('gameReady');
+      // GameSocket.off('retroGameReady');
     }
-  }, []);
+  }, [GameSocket]) // pas sure de cet ajout de dependence
 
   const handleLandingClick = () => {
     setMenuBarIsShown((current) => !current);
@@ -90,7 +93,7 @@ const Landing: React.FC = () => {
       {avatarBarIsShown && <AvatarBar userName={userName} />}
       {challengePopUpOpen &&
 			createPortal(
-			<ChallengePopUp invitedBy={invitedBy} onCancel={handleCancelClick} />,
+			<ChallengePopUp invitedBy={invitedBy} onCancel={handleCancelClick} socket_game={GameSocket} />,
 			document.body
 			)}
     </>
