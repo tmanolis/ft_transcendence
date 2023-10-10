@@ -32,12 +32,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
   @WebSocketServer()
   server: Server;
-  pauseCounter = 300;
+  pauseCounter = 500;
 
   /****************************************************************************/
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
+
     if ((await this.gameService.identifyUser(client)) === 'failed') {
       this.server.to(client.id).emit('error', 'Forbidden.');
       client.disconnect();
@@ -152,7 +153,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(gameRoom).emit('updateGame', gameData);
         this.server.to(gameRoom).emit('ended', gameData);
       } else {
-        this.pauseCounter = 300;
+        this.pauseCounter = 500;
         this.server.to(gameRoom).emit('updateGame', gameData);
       }
 
