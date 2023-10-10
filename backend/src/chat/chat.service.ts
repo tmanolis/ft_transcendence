@@ -279,8 +279,11 @@ export class ChatService {
   }
 
 	async callForReconnection(email: string){
+		const prismaUser: User = await this.fetchPrismaUser(email);
+
 		const chatUser: ChatUser = await this.fetchChatuser(email);
-		if (chatUser) {
+		if (prismaUser.status === 'ONLINE' && chatUser) {
+			console.log(chatUser.socketID);
 			this.server.to(chatUser.socketID).emit('reconnectNeeded', {
 				message: `Please refresh page to reconnect socket`,
 			});

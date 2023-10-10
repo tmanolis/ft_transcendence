@@ -287,6 +287,12 @@ export class ChannelService {
         password: '',
       },
     });
+
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: dto.channel,
+			text: `This channel is now public`,
+		});
   }
 
   async toPrivate(user: User, dto: changePassDTO) {
@@ -302,6 +308,12 @@ export class ChannelService {
         password: hash,
       },
     });
+
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: dto.channel,
+			text: `This channel is now private`,
+		});
   }
 
   async changePass(user: User, dto: changePassDTO) {
@@ -316,6 +328,12 @@ export class ChannelService {
         password: hash,
       },
     });
+
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: dto.channel,
+			text: `The password of this channel has been updated`,
+		});
   }
 
   async addAdmin(user: User, dto: AdminDTO) {
@@ -336,6 +354,12 @@ export class ChannelService {
         role: 'ADMIN',
       },
     });
+
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: dto.channel,
+			text: `${dto.username} has been added to channel admins`,
+		});
   }
 
   async removeAdmin(user: User, dto: AdminDTO) {
@@ -355,6 +379,12 @@ export class ChannelService {
         role: 'USER',
       },
     });
+
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: room.name,
+			text: `${dto.username} has been removed as channel admin`,
+		});
   }
 
   async ownerCheck(user: User, dto: toPublicDTO): Promise<RoomWithUsers> {
@@ -425,8 +455,11 @@ export class ChannelService {
       },
     });
 
-		// ask for reconnect if user is online
-		this.chatService.callForReconnection(subject.email);
+		// update channel
+		await this.chatService.sendServerMessage({
+			room: room.name,
+			text: `${dto.username} has been banned from this channel`,
+		});
   }
 
   async unban(user: User, dto: AdminDTO) {
@@ -447,9 +480,6 @@ export class ChannelService {
         isBanned: false,
       },
     });
-
-		// ask for reconnect if user is online
-		this.chatService.callForReconnection(subject.email);
   }
 
   async kick(user: User, dto: AdminDTO) {
@@ -468,8 +498,11 @@ export class ChannelService {
       },
     });
 
-		// ask for reconnect if user is online
-		this.chatService.callForReconnection(subject.email);
+		// update channel
+    await this.chatService.sendServerMessage({
+      room: room.name,
+      text: `${dto.username} has been kicked from this channel`,
+    });
   }
 
   async adminCheck(user: User, room: RoomWithUsers): Promise<UserInRoom> {
