@@ -296,7 +296,7 @@ export class RetroGameService {
       null,
       [8, 8],
       { x: 400, y: 400 },
-      { x: 3, y: 3 },
+      { x: 2, y: 2 },
       this.generateAngle(1, 1),
       GameStatus.Waiting,
       '',
