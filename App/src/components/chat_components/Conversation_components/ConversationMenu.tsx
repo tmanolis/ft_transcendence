@@ -5,6 +5,7 @@ import UsersListModal from "./ConversationUsersListModal";
 import { Room } from "../../../pages/Chat";
 import { createPortal } from "react-dom";
 import { Socket } from "socket.io-client";
+import { UserInfoProps } from "./ConversationUserInfo"
 import axios from "axios"
 
 interface ChannelMenuProps {
@@ -67,8 +68,8 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
 
   const isOwner = chatRoom.role === "OWNER";
 
-  const [usersList, setUsersList] = useState([]);
-
+  const [usersList, setUsersList] = useState<UserInfoProps['user'][]>([]);
+  
   useEffect(() => {
     const fetchUserData = async () => {
       try {
