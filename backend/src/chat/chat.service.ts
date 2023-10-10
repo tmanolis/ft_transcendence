@@ -403,11 +403,16 @@ export class ChatService {
       throw new NotFoundException('Connection error, please register again.');
 
     // check if other user exists
-    const otherPrismaUser = await this.prisma.user.findUnique({
-      where: {
-        userName: username,
-      },
-    });
+		let otherPrismaUser: User;
+		try{
+			otherPrismaUser = await this.prisma.user.findUnique({
+				where: {
+					userName: username,
+				},
+			});
+		} catch (error){
+			throw new BadRequestException('Room creation failed. Did you send the right variables?')
+		}
     if (!otherPrismaUser) {
       throw new BadRequestException('Other user not found');
     }
