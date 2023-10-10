@@ -27,7 +27,6 @@ const Chat = () => {
   const [chatRoomName, setChatRoomName] = useState<string | null>(null);
 
   const openChat = (room: Room, roomName: string | null) => {
-    console.log("JE SUIS DANS OPENCHAT");
     setChatRoom(room);
     setChatRoomName(roomName);
   }

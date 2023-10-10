@@ -668,7 +668,7 @@ export class ChatService {
 		}
     this.server
       .to(message.room)
-      .emit('channelUpdated', payload);
+      .emit(`channelUpdated/${message.room}`, payload);
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
@@ -715,7 +715,7 @@ export class ChatService {
 		}
     this.server
       .to(message.room)
-      .emit('channelUpdated', payload);
+      .emit(`channelUpdated/${message.room}`, payload);
     } catch (error) {
       throw error;
     }

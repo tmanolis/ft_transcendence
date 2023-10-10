@@ -39,7 +39,7 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
     getMessagesList(chatRoom.name);
     
     // Listen for "ChannelUpdated" event
-    socket_chat.on('channelUpdated', (payload: any) => {
+    socket_chat.on(`channelUpdated/${chatRoom.name}`, (payload: any) => {
       console.log(payload);
       // When the event is triggered, fetch the updated messages
       getMessagesList(payload.room);
@@ -47,7 +47,7 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
 
     // Clean up Socket.IO event listener when component is unmounted
     return () => {
-      socket_chat.off('ChannelUpdated');
+      socket_chat.off(`channelUpdated/${chatRoom.name}`);
     };
   }, [chatRoom]); // Dependency array with chatRoom and socket_chat to re-run the effect when they change
 
@@ -155,7 +155,6 @@ export default Loukoum;
 // }
 
 // export default Loukoum;
-
 
 
 
