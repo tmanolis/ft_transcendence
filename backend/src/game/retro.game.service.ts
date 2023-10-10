@@ -294,7 +294,7 @@ export class RetroGameService {
       1,
       player,
       null,
-      [8, 8],
+      [0, 0],
       { x: 400, y: 400 },
       { x: 2, y: 2 },
       this.generateAngle(1, 1),
