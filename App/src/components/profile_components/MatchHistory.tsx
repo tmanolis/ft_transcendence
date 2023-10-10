@@ -35,7 +35,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ gameList, profileUser }) =>
         );
         setLoggedUserName(response.data.userName);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
