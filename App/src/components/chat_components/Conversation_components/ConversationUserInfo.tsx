@@ -8,7 +8,7 @@ import muteIcon from "../../../assets/icon/MuteUser.png";
 import adminIcon from "../../../assets/icon/AdminUser.png";
 import { GameSocket } from "../../GameSocket";
 
-interface UserInfoProps {
+export interface UserInfoProps {
   user: {
     userName: string;
     isBanned: boolean;
