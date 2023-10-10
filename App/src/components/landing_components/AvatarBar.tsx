@@ -37,7 +37,7 @@ const AvatarBar: React.FC<AvatarBarProps> = ({ userName }) => {
           withCredentials: true,
         }
       );
-      console.log(response);
+      console.log(response.data.status);
     } catch (error) {
       console.log(error);
     }

@@ -27,7 +27,6 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
         `${import.meta.env.VITE_BACKEND_URL}/channel/history?name=${room_name}`,
         { withCredentials: true }
       );
-      console.log(response.data.channelHistory.messages);
       setMessagesList(response.data.channelHistory.messages);
       setErrorResponse("");
     } catch (error) {
@@ -43,7 +42,6 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
     
     // Listen for "ChannelUpdated" event
     socket_chat.on(`channelUpdated/${chatRoom.name}`, (payload: any) => {
-      console.log(payload);
       // When the event is triggered, fetch the updated messages
       getMessagesList(payload.room);
     });

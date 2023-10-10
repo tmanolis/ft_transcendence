@@ -21,7 +21,6 @@ const AllChannelsList: React.FC<AllChannelsListProps> = ({ getChannel }) => {
         `${import.meta.env.VITE_BACKEND_URL}/channel/allChannels`, // using friends list to test front: /chat/Channels
         { withCredentials: true }
       );
-      console.log(response);
       setAllChannelList(response.data.allRooms);
     } catch (error) {
       console.log(error);

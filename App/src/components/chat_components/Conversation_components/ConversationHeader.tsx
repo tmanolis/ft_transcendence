@@ -35,8 +35,6 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, roomN
     fetchUserData();
   }, [username]);
 
-  console.log(chatRoom);
-
   return (
     <ConversationHeaderWrapper>
       <RoomName>{roomName}</RoomName>

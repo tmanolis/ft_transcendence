@@ -30,8 +30,6 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
     const newCheckedValue = event.target.checked;
 
     setIsChecked(newCheckedValue);
-    console.log("state: " + newCheckedValue);
-    console.log("isChecked during handleCheckbox: " + isChecked);
 
     const updateDTO = {
       twoFAActivated: newCheckedValue,
@@ -43,7 +41,6 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
         updateDTO,
         { withCredentials: true },
       );
-      console.log(response.data);
       if (newCheckedValue) {
         QRcode(response.data);
       }
