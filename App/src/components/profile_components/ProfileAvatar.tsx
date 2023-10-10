@@ -9,7 +9,8 @@ import {
   CodeBar,
   SocialOption,
 } from "./styles/ProfileAvatar.styled";
-import axios from "axios";import { GameSocket } from "../GameSocket";
+import axios from "axios";
+import { GameSocket } from "../GameSocket";
 
 type ProfileAvatarProps = {
   avatarPath: string;
