@@ -1,4 +1,5 @@
-import axios from "axios";import { LostBadge, MarginContainer, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
+import axios from "axios";
+import { LostBadge, MarginContainer, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
 import React, { useEffect, useState } from "react";
 
 export interface GameListInter {
