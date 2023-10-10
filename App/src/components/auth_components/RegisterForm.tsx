@@ -28,7 +28,7 @@ export default function RegisterForm() {
         signupDTO,
 				{ withCredentials: true }
       );
-      console.log(response);
+      console.log(response.data.status);
       navigate("/landing");
     } catch (error) {
       handleLoginError(error as AxiosError);

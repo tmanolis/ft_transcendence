@@ -33,14 +33,12 @@ const LoginForm: React.FC<LoginFormProps> = ({ openModal2FA }) => {
         { withCredentials: true },
       );
 
-      console.log(response);
       if (response.data.event === "2fa needed")
       {
         openModal2FA(response.data.nonce);
       }
       else
         navigate("/landing");
-      console.log("response other", response);
       // Logging response for now, should redirect when React routing is implemented
     } catch (error) {
       handleLoginError(error as AxiosError);
