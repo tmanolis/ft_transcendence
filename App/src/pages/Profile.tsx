@@ -6,8 +6,7 @@ import MatchHistory from "../components/profile_components/MatchHistory";
 import AchievementsInfos from "../components/profile_components/AchievementsInfos";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import axios, { AxiosError } from "axios";
-import { useParams } from "react-router";
+import axios from "axios";import { useParams } from "react-router";
 import { GameListInter } from "../components/profile_components/MatchElement";
 
 interface Profile {
@@ -89,8 +88,8 @@ const Profile: React.FC = () => {
           matchHistory: userData.games,
         }));
 
-      } catch (error: AxiosError) {
-        console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     };
     fetchUserData();
@@ -103,8 +102,8 @@ const Profile: React.FC = () => {
         { withCredentials: true }
       );
       setProfilesList(response.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 

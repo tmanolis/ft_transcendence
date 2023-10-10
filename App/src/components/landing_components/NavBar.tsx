@@ -2,8 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import NavBarStyled from "./styles/NavBar.styled";
 import { GameSocket } from "../GameSocket";
-import axios, { AxiosError } from "axios";
-
+import axios from "axios";
 type NavButtonProps = {
   to: string;
   iconSrc: string;
@@ -30,8 +29,8 @@ const NavBar: React.FC = () => {
         withCredentials: true,
       });
       console.log(response);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 

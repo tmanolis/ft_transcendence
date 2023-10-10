@@ -9,8 +9,7 @@ import {
   CodeBar,
   SocialOption,
 } from "./styles/ProfileAvatar.styled";
-import axios, { AxiosError } from "axios";
-import { GameSocket } from "../GameSocket";
+import axios from "axios";import { GameSocket } from "../GameSocket";
 
 type ProfileAvatarProps = {
   avatarPath: string;
@@ -62,8 +61,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
           }
         );
         setUserName(response.data.userName);
-      } catch (error: AxiosError) {
-        console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     };
 
@@ -95,8 +94,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       );
       console.log(response);
       setFriendsList(response.data.friendList);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -123,8 +122,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       };
 
       setFriendsList([...FriendsList, newFriend]);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -143,8 +142,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       console.log(response);
       console.log(username + " succesfully unfriended.");
       setFriendsList(FriendsList.filter((friend) => friend.userName !== username));
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -160,8 +159,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       );
       console.log(response);
       setBlockList(response.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -181,8 +180,8 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
       console.log(username + " succesfully blocked.");
 
       setBlockList([...BlockList, username]);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 

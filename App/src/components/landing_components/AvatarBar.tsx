@@ -2,8 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import AvatarBarStyled from "./styles/AvatarBar.styled";
 import { GameSocket } from "../GameSocket";
-import axios, { AxiosError } from "axios";
-
+import axios from "axios";
 type AvatarMenuProps = {
   to: string;
   buttonName: string;
@@ -39,8 +38,8 @@ const AvatarBar: React.FC<AvatarBarProps> = ({ userName }) => {
         }
       );
       console.log(response);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 

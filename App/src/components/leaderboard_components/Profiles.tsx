@@ -1,14 +1,14 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import React, { useState, useEffect } from 'react';
 import backgroundImg from "../../assets/code-barre.png";
 import { Avatar, CodeBar, GamesPlayed, GamesWinned, ProfileContainer, ProfilesListWrapper, Rank, Username, CustomLink } from './styles/Profiles.styled';
 
 interface Profile {
-	avatar: string;
-	gamesPlayed: number;
-	gamesWon: number;
-	place: number;
-	userName: string;
+  avatar: string;
+  gamesPlayed: number;
+  gamesWon: number;
+  place: number;
+  userName: string;
 }
 
 const Profiles: React.FC = () => {
@@ -22,8 +22,8 @@ const Profiles: React.FC = () => {
       );
       console.log(response);
       setProfilesList(response.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -33,7 +33,7 @@ const Profiles: React.FC = () => {
 
   return (
     <ProfilesListWrapper>
-        {Item(profilesList)}
+      {Item(profilesList)}
     </ProfilesListWrapper>
   );
 }

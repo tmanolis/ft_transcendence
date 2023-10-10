@@ -1,5 +1,4 @@
-import axios, { AxiosError } from "axios";
-import { LostBadge, MarginContainer, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
+import axios from "axios";import { LostBadge, MarginContainer, MatchElementStyled, VersusInfo, WinBadge } from "./styles/MatchElement.styled";
 import React, { useEffect, useState } from "react";
 
 export interface GameListInter {
@@ -45,8 +44,8 @@ const MatchElement: React.FC<MatchElementProps> = ({ game, profileUser, isMyProf
 					);
 					setVersusAvatar(response.data.avatar);
 				}
-			} catch (error: AxiosError) {
-				console.error(error.message);
+			} catch (error) {
+				console.log(error);
 			}
 		};
 		fetchUserData();

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import { UserDetails, SocialActions, ActionButtons, UserStatus, CustomLink } from "./styles/ConversationUserInfo.styled";
 import { Room } from "../../../pages/Chat";
 import banIcon from "../../../assets/icon/BanUser.png";
@@ -51,8 +51,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           }
         );
         setLoggedUsername(response.data.userName);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
       }
     };
     fetchUserData();
@@ -71,8 +71,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           setAvatarPath(response.data.avatar);
           setStatus(response.data.status);
         }
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
       }
     };
     fetchUserData();
@@ -90,8 +90,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error: AxiosError) {
-      console.log(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -107,8 +107,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -118,16 +118,16 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         const response = await unBanUser();
         console.log(response?.data);
         toggleButtonActiveState(setIsBanActive);
-      } catch (error: AxiosError) {
-        console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     } else {
       try {
         const response = await banUser();
         console.log(response?.data);
         toggleButtonActiveState(setIsBanActive);
-      } catch (error: AxiosError) {
-        console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     }
   };
@@ -144,8 +144,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -153,8 +153,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
     try {
       const response = await KickUser();
       console.log(response?.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -170,8 +170,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -180,8 +180,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       const response = await MuteUser();
       console.log(response?.data);
       toggleButtonActiveState(setIsMuteActive);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -198,8 +198,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       toggleButtonActiveState(setIsAdminActive);
       return response;
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -216,8 +216,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       );
       toggleButtonActiveState(setIsAdminActive);
       return response;
-    } catch (error: AxiosError) {
-      console.error(error.message);
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -226,15 +226,15 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
       try {
         const response = await setAdminUser();
         console.log(response?.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     } else {
       try {
         const response = await unsetAdminUser();
         console.log(response?.data);
-    } catch (error: AxiosError) {
-      console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     }
   };

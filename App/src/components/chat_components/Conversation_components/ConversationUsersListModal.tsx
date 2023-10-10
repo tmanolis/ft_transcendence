@@ -1,5 +1,5 @@
 import React, { useState , useEffect} from "react";
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import {
   UsersListModalStyled,
   ModalWrapper,
@@ -36,8 +36,8 @@ const UsersListModal: React.FC<UsersListModalProps> = ({ onClose, chatRoom }) =>
           }
         );
         setUsersList(response.data.membersList);
-      } catch (error: AxiosError) {
-        console.error(error.message);
+      } catch (error) {
+        console.log(error);
       }
     };
     fetchUserData();
