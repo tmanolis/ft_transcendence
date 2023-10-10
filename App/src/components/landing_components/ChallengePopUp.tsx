@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ModalContainer, PopUpWrapper } from "./styles/ChallengePopUp.styled";
 import iconSrc from "/icon/Cross.svg";
 import ConfirmButton from "../settings_components/styles/ConfirmButton.styled";
+import axios from "axios";
 
 interface ChallengePopUpProps {
 	onCancel: () => void;
@@ -9,6 +10,7 @@ interface ChallengePopUpProps {
 }
   
 export const ChallengePopUp: React.FC<ChallengePopUpProps> = ({ onCancel, invitedBy }) => {
+	// const [challengerName, setChallengerName] = useState("");
 
 	const handleDeclineClick = () => {
 		// add socket emit for decline
@@ -18,6 +20,24 @@ export const ChallengePopUp: React.FC<ChallengePopUpProps> = ({ onCancel, invite
 	const handleAcceptClick = () => {
 
 	}
+
+	// const getUsername = async () => {
+
+	// 	try {
+	// 	  const response = await axios.get(
+	// 		`${import.meta.env.VITE_BACKEND_URL}user/userByEmail?email=${invitedBy}`, // need to create this endpoint in the back
+	// 		{ withCredentials: true }
+	// 	  );
+	// 	  console.log(response);
+	// 	  setChallengerName(response.data);
+	// 	} catch (error) {
+	// 	  console.log(error);
+	// 	}
+	//   };
+	
+	//   useEffect(() => {
+	// 	getUsername();
+	//   }, []);
 
 	return (
 		<ModalContainer>
