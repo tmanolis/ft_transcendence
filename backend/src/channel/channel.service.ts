@@ -445,8 +445,7 @@ export class ChannelService {
       throw new ForbiddenException('Error updating database');
     }
 
-    const thirtyMinutes: number = 1800000;
-    const oneMinute: number = 15000;
+    const fifteenMinutes: number = 900000;
     setTimeout(async () => {
       try {
         const unmuted = await this.prisma.userInRoom.update({
@@ -458,7 +457,7 @@ export class ChannelService {
           },
         });
       } catch (error) {}
-    }, oneMinute);
+    }, fifteenMinutes);
   }
 
   async ban(user: User, dto: AdminDTO) {
