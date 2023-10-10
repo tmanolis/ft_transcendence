@@ -680,6 +680,9 @@ export class ChatService {
       // check if user is allowed to send a message to this channel
       await this.allowedToSend(room, prismaUser);
 
+			// check if message is not empty
+			if (message.text === '') return
+
       // check message format and add sender name
       const checkedMessage = new ChatMessage(
         room.name,
