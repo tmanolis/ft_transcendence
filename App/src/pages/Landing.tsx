@@ -27,7 +27,7 @@ const Landing: React.FC = () => {
         setAvatarPath(response.data.avatar);
         setUserName(response.data.userName);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
