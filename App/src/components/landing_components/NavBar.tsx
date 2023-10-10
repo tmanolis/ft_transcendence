@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import NavBarStyled from "./styles/NavBar.styled";
 import { GameSocket } from "../GameSocket";
 import axios from "axios";
+
 type NavButtonProps = {
   to: string;
   iconSrc: string;
