@@ -5,7 +5,7 @@ export const ProfilesListWrapper = styled.div`
 	margin: 15px;
 	padding: 15px;
 	height: 477px;
-	overflow: auto; // Add overflow to allow scrolling if content overflows
+	overflow: scroll; // Add overflow to allow scrolling if content overflows
 	font-family: "JetBrains Mono",monospace;
 
 	/* Add scrollbar styles for WebKit browsers */
@@ -46,11 +46,11 @@ export const ProfileContainer = styled.div`
 	font-weight: 500;
 	letter-spacing: 0.36px;
 
-	@media (max-width: 960px) {
+	@media (max-width: 1400px) {
   	display: flex;
     justify-content: flex-start;
-	overflow: auto; /* Hide content that overflows the container */
-	font-size: 18px;
+	overflow: scroll;
+	font-size: 15px;
   }
 `;
 
@@ -99,7 +99,7 @@ export const Rank = styled.div`
 	font-style: normal;
 	font-weight: 550; /* Set the font weight to make it bold */
 
-	@media (max-width: 960px) {
-	font-size: 25px;
+	@media (max-width: 1400px) {
+	font-size: 15px;
   }
 `;
