@@ -630,6 +630,10 @@ export class ChatService {
     });
     if (!userInRoom) throw new BadRequestException('You are not in this room');
 
+    // banned user should stay in member list room
+    if (userInRoom.isBanned)
+      throw new BadRequestException('You are banned from this room');
+
     // check if user can leave this room
     if (room.status === RoomStatus.DIRECT)
       throw new ForbiddenException(
