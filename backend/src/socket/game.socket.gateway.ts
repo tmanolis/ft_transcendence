@@ -38,7 +38,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-    // console.log(`\x1b[96m ${client.id} connect to Game Socket! \x1b[0m`);
+
     if ((await this.gameService.identifyUser(client)) === 'failed') {
       this.server.to(client.id).emit('error', 'Forbidden.');
       client.disconnect();
@@ -56,7 +56,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.retroGameService.cancelPendingGame(client);
     await this.retroGameService.clearData(client);
     await this.retroGameService.updateUserDisconnectStatus(client);
-    // console.log(`\x1b[31m ${client.id} disconnect from Game Socket!\x1b[0m`);
   }
 
   /****************************************************************************/
@@ -64,8 +63,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
   @SubscribeMessage('enterGamePage')
   async handleEnterGamePage(client: Socket) {
-    // console.log(`\x1b[96m ${client.id} enter game page!\x1b[0m`);
-
     const existPlayer: Player = await this.gameService.getSocketPlayer(client);
     if (!existPlayer) {
       this.server.to(client.id).emit('error', "Can't enter game page.");
@@ -84,7 +81,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
     await this.gameService.cancelPendingGame(client);
     await this.gameService.clearData(client);
     await this.gameService.updateUserConnectStatus(client);
-    // console.log(`\x1b[95m ${client.id} leave game page!\x1b[0m`);
   }
 
   /****************************************************************************/
@@ -149,7 +145,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
           gameData.status = GameStatus.Ended;
           this.server.to(gameRoom).emit('updateGame', gameData);
           this.server.to(gameRoom).emit('ended', gameData);
-          console.log('Player left too long:', gameData);
           await this.gameService.endGame(gameData);
           clearInterval(gameInterval);
           return;
@@ -243,7 +238,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       const invitedUserSocketID: string = await this.cacheManager.get(
         invitedUserEmail,
       );
-      // console.log('invited user: ', invitedUserSocketID, invitedUserEmail);
       this.server
         .to(invitedUserSocketID)
         .emit('gameInvite', { invitedBy: invitingPlayer.email });
@@ -327,7 +321,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   /****************************************************************************/
   @SubscribeMessage('enterRetroGamePage')
   async handleEnterRetroGamePage(client: Socket) {
-    // console.log(`\x1b[96m ${client.id} enter retro game page!\x1b[0m`);
     const existPlayer: Player = await this.retroGameService.getSocketPlayer(
       client,
     );
@@ -347,7 +340,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   async handleLeaveRetroGamePage(client: Socket) {
     await this.retroGameService.cancelPendingGame(client);
     await this.retroGameService.clearData(client);
-    // console.log(`\x1b[95m ${client.id} leave retro game page!\x1b[0m`);
   }
   /****************************************************************************/
   // Find Retro Game
@@ -405,12 +397,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
       // also need to ubpdate the paddle for both sides.
       if (gameData.status === GameStatus.Pause) {
         this.pauseCounter--;
-        // console.log(this.pauseCounter);
         if (this.pauseCounter <= 0) {
           gameData.status = GameStatus.Ended;
           this.server.to(gameRoom).emit('updateGame', gameData);
           this.server.to(gameRoom).emit('ended', gameData);
-          // console.log('Player left too long:', gameData);
           await this.retroGameService.endGame(gameData);
           clearInterval(gameInterval);
           return;
