@@ -17,7 +17,7 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
         });
         setIsChecked(response.data.twoFAActivated);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
@@ -45,7 +45,7 @@ const CheckBox2FA: React.FC<CheckBox2FAProps> = ({ QRcode }) => {
         QRcode(response.data);
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
