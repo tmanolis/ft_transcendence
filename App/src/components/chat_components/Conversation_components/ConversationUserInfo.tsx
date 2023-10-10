@@ -41,7 +41,7 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
   };
 
   const handleUpdateError = (error: AxiosError) => {
-    console.log(error.response.data)
+    console.log(error.response?.data)
   };
 
   useEffect(() => {
