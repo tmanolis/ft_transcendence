@@ -12,8 +12,9 @@ import {
   changePassDTO,
   toPublicDTO,
   dmDTO,
+	ChatUser,
 } from 'src/dto';
-import { User, UserInRoom, RoomStatus, Message } from '@prisma/client';
+import { User, UserInRoom, RoomStatus, Message, Status } from '@prisma/client';
 import * as argon from 'argon2';
 import {
   RoomHistory,
@@ -417,6 +418,9 @@ export class ChannelService {
         isBanned: true,
       },
     });
+
+		// ask for reconnect if user is online
+		this.chatService.callForReconnection(subject.email);
   }
 
   async unban(user: User, dto: AdminDTO) {
@@ -437,6 +441,9 @@ export class ChannelService {
         isBanned: false,
       },
     });
+
+		// ask for reconnect if user is online
+		this.chatService.callForReconnection(subject.email);
   }
 
   async kick(user: User, dto: AdminDTO) {
@@ -454,6 +461,9 @@ export class ChannelService {
         id: subject.id,
       },
     });
+
+		// ask for reconnect if user is online
+		this.chatService.callForReconnection(subject.email);
   }
 
   async adminCheck(user: User, room: RoomWithUsers): Promise<UserInRoom> {

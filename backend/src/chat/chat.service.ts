@@ -278,6 +278,15 @@ export class ChatService {
     return secureChannel;
   }
 
+	async callForReconnection(email: string){
+		const chatUser: ChatUser = await this.fetchChatuser(email);
+		if (chatUser) {
+			this.server.to(chatUser.socketID).emit('reconnectNeeded', {
+				message: `Please refresh page to reconnect socket`,
+			});
+		}	
+	}
+
   /****************************************************************************/
   /* create dm room									                                          */
   /****************************************************************************/
@@ -342,12 +351,7 @@ export class ChatService {
     client.join(roomName);
 
     // notify other chatuser
-    const otherChatUser = await this.fetchChatuser(otherPrismaUser.email);
-    if (otherPrismaUser.status === Status.ONLINE && otherChatUser) {
-      this.server.to(otherChatUser.socketID).emit('reconnectNeeded', {
-        message: `DM ${roomName} created with user ${otherPrismaUser.userName}`,
-      });
-    }
+		this.callForReconnection(otherPrismaUser.email);
 
     // send a little welcome message
     await this.sendServerMessage({
