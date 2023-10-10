@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import AvatarBarStyled from "./styles/AvatarBar.styled";
 import { GameSocket } from "../GameSocket";
 import axios from "axios";
+
 type AvatarMenuProps = {
   to: string;
   buttonName: string;
