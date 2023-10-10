@@ -78,7 +78,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw new NotFoundException("Can not found user");
+      throw new NotFoundException('Can not found user');
     }
     return user;
   }
@@ -92,7 +92,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw new NotFoundException("Can not find user");
+      throw new NotFoundException('Can not find user');
     }
     return user;
   }
@@ -121,7 +121,7 @@ export class GameService {
           await this.cacheManager.del(pendingPlayerObject.gameID);
         }
       } catch (error) {
-        throw new ServiceUnavailableException("Data error");
+        throw new ServiceUnavailableException('Data error');
       }
     }
   }
@@ -215,7 +215,7 @@ export class GameService {
       try {
         player = JSON.parse(playerString);
       } catch (error) {
-        throw new NotFoundException("Can not find player");
+        throw new NotFoundException('Can not find player');
       }
     }
     return player;
@@ -253,7 +253,7 @@ export class GameService {
           return [false, player.gameID];
         }
       } catch (error) {
-        throw new NotFoundException("Can not find player");
+        throw new NotFoundException('Can not find player');
       }
     }
 

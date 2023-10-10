@@ -45,7 +45,7 @@ export class UserService {
         data: otherFields,
       });
     } catch (error) {
-        throw new BadRequestException("Can not update user");
+      throw new BadRequestException('Can not update user');
     }
 
     if (dto.twoFAActivated) {
@@ -63,7 +63,7 @@ export class UserService {
             },
           });
         } catch (error) {
-          throw new BadRequestException("Can not add achivement");
+          throw new BadRequestException('Can not add achivement');
         }
       }
       return await toDataURL(otpauthUrl);
@@ -78,8 +78,8 @@ export class UserService {
             twoFAActivated: false,
           },
         });
-      } catch(error) {
-          throw new BadRequestException("Can not deactivate two fa");
+      } catch (error) {
+        throw new BadRequestException('Can not deactivate two fa');
       }
     }
     return 'OK';
@@ -95,8 +95,8 @@ export class UserService {
           password: hashNewPassword,
         },
       });
-    } catch(error) {
-      throw new BadRequestException("Can not update password");
+    } catch (error) {
+      throw new BadRequestException('Can not update password');
     }
   }
 
@@ -112,7 +112,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new BadRequestException("Can generate two fa secret");
+      throw new BadRequestException('Can generate two fa secret');
     }
     const otpauthUrl = authenticator.keyuri(
       user.email,

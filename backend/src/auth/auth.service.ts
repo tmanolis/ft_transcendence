@@ -126,7 +126,6 @@ export class AuthService {
     return await this.updateAfterLogin(user, res);
   }
 
-  
   async fourtyTwoFirstLogin(user: User, res: any) {
     try {
       await this.prisma.user.update({
@@ -239,7 +238,7 @@ export class AuthService {
         return this.updateAfterLogin(user, res);
       }
     } catch (error) {
-      throw new BadRequestException("Bad request");
+      throw new BadRequestException('Bad request');
     }
   }
 
@@ -259,7 +258,7 @@ export class AuthService {
       }
       return res.status(200).json({ event: '2fa ok' });
     } catch (error) {
-      throw new BadRequestException("Bad request");
+      throw new BadRequestException('Bad request');
     }
   }
 
