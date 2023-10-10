@@ -64,12 +64,12 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
     socket_chat.emit("leaveChannel", updateDTO);
   };
 
-  const isAdminOrOwner = chatRoom.role === "ADMIN" || chatRoom.role === "OWNER";
+  const isOwner = chatRoom.role === "OWNER";
 
   return (
-    <ChanMenuBar $isAdminOrOwner={isAdminOrOwner}>
+    <ChanMenuBar $isOwner={isOwner}>
       <ChanMenuElement onClick={handleUsersButtonClick}>&gt; Users</ChanMenuElement>
-      {isAdminOrOwner && (
+      {isOwner && (
         <ChanMenuElement onClick={handleSettingsButtonClick}>&gt; Settings</ChanMenuElement>
       )}
       {chatRoom.status !== "DIRECT" && (
