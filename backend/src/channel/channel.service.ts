@@ -278,19 +278,19 @@ export class ChannelService {
   async toPublic(user: User, dto: toPublicDTO) {
     await this.ownerCheck(user, dto);
 
-		try{
-			await this.prisma.room.update({
-				where: {
-					name: dto.channel,
-				},
-				data: {
-					status: 'PUBLIC',
-					password: '',
-				},
-			});
-		} catch (error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PUBLIC',
+          password: '',
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -302,20 +302,20 @@ export class ChannelService {
   async toPrivate(user: User, dto: changePassDTO) {
     await this.ownerCheck(user, dto);
 
-		try{
-			const hash: string = await argon.hash(dto.password);
-			await this.prisma.room.update({
-				where: {
-					name: dto.channel,
-				},
-				data: {
-					status: 'PRIVATE',
-					password: hash,
-				},
-			});
-		} catch(error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      const hash: string = await argon.hash(dto.password);
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          status: 'PRIVATE',
+          password: hash,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -327,19 +327,19 @@ export class ChannelService {
   async changePass(user: User, dto: changePassDTO) {
     await this.ownerCheck(user, dto);
 
-		try{
-			const hash: string = await argon.hash(dto.password);
-			await this.prisma.room.update({
-				where: {
-					name: dto.channel,
-				},
-				data: {
-					password: hash,
-				},
-			});
-		} catch(error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      const hash: string = await argon.hash(dto.password);
+      await this.prisma.room.update({
+        where: {
+          name: dto.channel,
+        },
+        data: {
+          password: hash,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -358,18 +358,18 @@ export class ChannelService {
     if (subject.role === 'ADMIN')
       throw new BadRequestException('User is already admin');
 
-		try{
-			await this.prisma.userInRoom.update({
-				where: {
-					id: subject.id,
-				},
-				data: {
-					role: 'ADMIN',
-				},
-			});
-		} catch (error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      await this.prisma.userInRoom.update({
+        where: {
+          id: subject.id,
+        },
+        data: {
+          role: 'ADMIN',
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -387,18 +387,18 @@ export class ChannelService {
     if (subject.role === 'USER')
       throw new BadRequestException('User is not admin');
 
-		try{
-			await this.prisma.userInRoom.update({
-				where: {
-					id: subject.id,
-				},
-				data: {
-					role: 'USER',
-				},
-			});
-		} catch(error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      await this.prisma.userInRoom.update({
+        where: {
+          id: subject.id,
+        },
+        data: {
+          role: 'USER',
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -430,21 +430,23 @@ export class ChannelService {
     );
     this.relationCheck(admin, subject, 'mute');
 
-		try{
-			await this.prisma.userInRoom.update({
-				where: {
-					id: subject.id,
-				},
-				data: {
-					isMuted: true,
-				},
-			});
-		} catch (error){
-			throw new ForbiddenException('Error updating database');
-		}
+    if (subject.isMuted) throw new BadRequestException('Mute already active');
+
+    try {
+      await this.prisma.userInRoom.update({
+        where: {
+          id: subject.id,
+        },
+        data: {
+          isMuted: true,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     const thirtyMinutes: number = 1800000;
-		const oneMinute: number = 15000;
+    const oneMinute: number = 15000;
     setTimeout(async () => {
       try {
         const unmuted = await this.prisma.userInRoom.update({
@@ -455,7 +457,7 @@ export class ChannelService {
             isMuted: false,
           },
         });
-      } catch (error) { }
+      } catch (error) {}
     }, oneMinute);
   }
 
@@ -468,19 +470,22 @@ export class ChannelService {
     );
     this.relationCheck(admin, subject, 'ban');
 
+    if (subject.isBanned)
+      throw new BadRequestException('This user is already banned');
+
     // set room user to banned to exclude them from channel events
-		try{
-			await this.prisma.userInRoom.update({
-				where: {
-					id: subject.id,
-				},
-				data: {
-					isBanned: true,
-				},
-			});
-		} catch (error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      await this.prisma.userInRoom.update({
+        where: {
+          id: subject.id,
+        },
+        data: {
+          isBanned: true,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
 
     // update channel
     await this.chatService.sendServerMessage({
@@ -498,19 +503,28 @@ export class ChannelService {
     );
     this.relationCheck(admin, subject, 'unban');
 
+    if (!subject.isBanned)
+      throw new BadRequestException('This user is not banned');
+
     // unban room user
-		try{
-			await this.prisma.userInRoom.update({
-				where: {
-					id: subject.id,
-				},
-				data: {
-					isBanned: false,
-				},
-			});
-		} catch (error){
-			throw new ForbiddenException('Error updating database');
-		}
+    try {
+      await this.prisma.userInRoom.update({
+        where: {
+          id: subject.id,
+        },
+        data: {
+          isBanned: false,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating database');
+    }
+
+    // update channel
+    await this.chatService.sendServerMessage({
+      room: room.name,
+      text: `${dto.username} is back after a ban`,
+    });
   }
 
   async kick(user: User, dto: AdminDTO) {
@@ -523,16 +537,16 @@ export class ChannelService {
     this.relationCheck(admin, subject, 'kick');
 
     // remove room user
-		try{
-			await this.prisma.userInRoom.delete({
-				where: {
-					id: subject.id,
-				},
-			});
-		} catch(error){
-			throw new ForbiddenException('Error updating databse');
-		}
-		
+    try {
+      await this.prisma.userInRoom.delete({
+        where: {
+          id: subject.id,
+        },
+      });
+    } catch (error) {
+      throw new ForbiddenException('Error updating databse');
+    }
+
     // update channel
     await this.chatService.sendServerMessage({
       room: room.name,

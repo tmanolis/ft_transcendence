@@ -717,14 +717,14 @@ export class ChatService {
       });
 
       // ping for update
-    // ping for update
-		const payload = {
-			room: message.room,
-			message: 'please GET channel/history',
-		}
-    this.server
-      .to(message.room)
-      .emit(`channelUpdated/${message.room}`, payload);
+      // ping for update
+      const payload = {
+        room: message.room,
+        message: 'please GET channel/history',
+      };
+      this.server
+        .to(message.room)
+        .emit(`channelUpdated/${message.room}`, payload);
     } catch (error) {
       throw error;
     }
