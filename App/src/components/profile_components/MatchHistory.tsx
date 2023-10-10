@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";import {
+import axios from "axios";
+import {
   MatchHistoryStyled,
   HistoryScrollingList,
 } from "./styles/MatchHistory.styled";
