@@ -12,6 +12,7 @@ import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled"
 import { Room } from "../../../pages/Chat";
 import iconSrc from "/icon/Cross.svg";
 import axios from "axios";
+
 interface SettingsModalProps {
   onClose: () => void; // Callback to close the menu
   chatRoom: Room;
