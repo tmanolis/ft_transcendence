@@ -6,7 +6,8 @@ import MatchHistory from "../components/profile_components/MatchHistory";
 import AchievementsInfos from "../components/profile_components/AchievementsInfos";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import axios from "axios";import { useParams } from "react-router";
+import axios from "axios";
+import { useParams } from "react-router";
 import { GameListInter } from "../components/profile_components/MatchElement";
 
 interface Profile {
