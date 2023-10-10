@@ -6,8 +6,7 @@ import { Room } from "../../../pages/Chat";
 import { createPortal } from "react-dom";
 import { Socket } from "socket.io-client";
 import { UserInfoProps } from "./ConversationUserInfo"
-import axios from "axios"
-
+import axios from "axios";
 interface ChannelMenuProps {
   onCloseMenu: () => void;
   chatRoom: Room;

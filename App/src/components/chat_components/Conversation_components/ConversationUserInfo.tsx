@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"
+import axios from "axios";
 import { UserDetails, SocialActions, ActionButtons, UserStatus, CustomLink } from "./styles/ConversationUserInfo.styled";
 import { Room } from "../../../pages/Chat";
 import banIcon from "../../../assets/icon/BanUser.png";
@@ -51,8 +51,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           }
         );
         setLoggedUsername(response.data.userName);
-      } catch (error) {
-        console.error(error);
+    } catch (error) {
+      console.error(error);
       }
     };
     fetchUserData();
@@ -71,8 +71,8 @@ const UserInfo: React.FC<UserInfoProps> = ({ user, chatRoom }) => {
           setAvatarPath(response.data.avatar);
           setStatus(response.data.status);
         }
-      } catch (error) {
-        console.error(error);
+    } catch (error) {
+      console.error(error);
       }
     };
     fetchUserData();

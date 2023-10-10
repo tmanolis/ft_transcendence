@@ -4,11 +4,11 @@ import backgroundImg from "../../assets/code-barre.png";
 import { Avatar, CodeBar, GamesPlayed, GamesWinned, ProfileContainer, ProfilesListWrapper, Rank, Username, CustomLink } from './styles/Profiles.styled';
 
 interface Profile {
-	avatar: string;
-	gamesPlayed: number;
-	gamesWon: number;
-	place: number;
-	userName: string;
+  avatar: string;
+  gamesPlayed: number;
+  gamesWon: number;
+  place: number;
+  userName: string;
 }
 
 const Profiles: React.FC = () => {
@@ -33,7 +33,7 @@ const Profiles: React.FC = () => {
 
   return (
     <ProfilesListWrapper>
-        {Item(profilesList)}
+      {Item(profilesList)}
     </ProfilesListWrapper>
   );
 }
