@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from 'react-router';
+// import { useNavigate } from 'react-router';
 import axios from "axios";
 import AvatarButton from "../components/landing_components/AvatarButton";
 import LandingButton from "../components/landing_components/LandingButton";
@@ -18,7 +18,7 @@ const Landing: React.FC = () => {
   const [avatarPath, setAvatarPath] = useState<string>("");
   const [userName, setUserName] = useState<string>("");
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -61,7 +61,7 @@ const Landing: React.FC = () => {
       // GameSocket.off('gameReady');
       // GameSocket.off('retroGameReady');
     }
-  }, [GameSocket]) // pas sure de cet ajout de dependence
+  }, []) // pas sure de cet ajout de dependence
 
   const handleLandingClick = () => {
     setMenuBarIsShown((current) => !current);
