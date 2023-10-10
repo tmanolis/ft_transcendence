@@ -126,8 +126,7 @@ export class GameService {
   async updateUserDisconnectStatus(client: Socket) {
     // find the user in database
     const user: User = await this.getSocketUser(client);
-    if (!user)
-      return;
+    if (!user) return;
     try {
       await this.prisma.user.update({
         where: {
