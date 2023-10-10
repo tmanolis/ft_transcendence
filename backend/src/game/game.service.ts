@@ -2,6 +2,8 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Socket } from 'socket.io';
@@ -62,7 +64,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new BadRequestException("Can't update status");
     }
   }
 
@@ -75,7 +77,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw error;
+      throw new NotFoundException("Can not found user");
     }
     return user;
   }

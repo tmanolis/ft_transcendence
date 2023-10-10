@@ -37,12 +37,16 @@ export class UserService {
       this.updatePassword(user, hash);
     }
 
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: otherFields,
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: otherFields,
+      });
+    } catch (error) {
+        throw new BadRequestException("Can not update user");
+    }
 
     if (dto.twoFAActivated) {
       const otpauthUrl = await this.generate2FASecret(user);
@@ -59,45 +63,57 @@ export class UserService {
             },
           });
         } catch (error) {
-          throw error;
+          throw new BadRequestException("Can not add achivement");
         }
       }
       return await toDataURL(otpauthUrl);
     } else if (dto.twoFAActivated === false) {
-      await this.prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          twoFASecret: null,
-          twoFAActivated: false,
-        },
-      });
+      try {
+        await this.prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            twoFASecret: null,
+            twoFAActivated: false,
+          },
+        });
+      } catch(error) {
+          throw new BadRequestException("Can not deactivate two fa");
+      }
     }
     return 'OK';
   }
 
   async updatePassword(user: User, hashNewPassword: string) {
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        password: hashNewPassword,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashNewPassword,
+        },
+      });
+    } catch(error) {
+      throw new BadRequestException("Can not update password");
+    }
   }
 
   private async generate2FASecret(user: User): Promise<string> {
     const secret = authenticator.generateSecret();
-    await this.prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        twoFASecret: secret,
-      },
-    });
+    try {
+      await this.prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          twoFASecret: secret,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException("Can generate two fa secret");
+    }
     const otpauthUrl = authenticator.keyuri(
       user.email,
       'PongStoryShort',
