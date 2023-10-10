@@ -19,8 +19,6 @@ interface Modal2FAProps {
 
 	const handleConfirmClick = async () => {
 
-	console.log("inputValue: " + inputValue);
-	console.log("nonceValue: " + nonce);
 	const updateDTO = {
 		code: inputValue,
 		nonce: nonce
@@ -32,7 +30,7 @@ interface Modal2FAProps {
 		updateDTO,
 		{ withCredentials: true }
 		);
-		console.log(response);
+		console.log(response.data.status);
     GameSocket.connect();
 		navigate("/landing");
 		
