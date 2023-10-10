@@ -278,17 +278,17 @@ export class ChatService {
     return secureChannel;
   }
 
-	async callForReconnection(email: string){
-		const prismaUser: User = await this.fetchPrismaUser(email);
+  async callForReconnection(email: string) {
+    const prismaUser: User = await this.fetchPrismaUser(email);
 
-		const chatUser: ChatUser = await this.fetchChatuser(email);
-		if (prismaUser.status === 'ONLINE' && chatUser) {
-			console.log(chatUser.socketID);
-			this.server.to(chatUser.socketID).emit('reconnectNeeded', {
-				message: `Please refresh page to reconnect socket`,
-			});
-		}	
-	}
+    const chatUser: ChatUser = await this.fetchChatuser(email);
+    if (prismaUser.status === 'ONLINE' && chatUser) {
+      console.log(chatUser.socketID);
+      this.server.to(chatUser.socketID).emit('reconnectNeeded', {
+        message: `Please refresh page to reconnect socket`,
+      });
+    }
+  }
 
   /****************************************************************************/
   /* create dm room									                                          */
@@ -354,7 +354,7 @@ export class ChatService {
     client.join(roomName);
 
     // notify other chatuser
-		this.callForReconnection(otherPrismaUser.email);
+    this.callForReconnection(otherPrismaUser.email);
 
     // send a little welcome message
     await this.sendServerMessage({
@@ -403,16 +403,18 @@ export class ChatService {
       throw new NotFoundException('Connection error, please register again.');
 
     // check if other user exists
-		let otherPrismaUser: User;
-		try{
-			otherPrismaUser = await this.prisma.user.findUnique({
-				where: {
-					userName: username,
-				},
-			});
-		} catch (error){
-			throw new BadRequestException('Room creation failed. Did you send the right variables?')
-		}
+    let otherPrismaUser: User;
+    try {
+      otherPrismaUser = await this.prisma.user.findUnique({
+        where: {
+          userName: username,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        'Room creation failed. Did you send the right variables?',
+      );
+    }
     if (!otherPrismaUser) {
       throw new BadRequestException('Other user not found');
     }
@@ -692,8 +694,8 @@ export class ChatService {
       // check if user is allowed to send a message to this channel
       await this.allowedToSend(room, prismaUser);
 
-			// check if message is not empty
-			if (message.text === '') return
+      // check if message is not empty
+      if (message.text === '') return;
 
       // check message format and add sender name
       const checkedMessage = new ChatMessage(
@@ -757,12 +759,12 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
-			// check if sender is banned
-			if (userInRoom.isBanned)
-				throw new ForbiddenException(
-					"You have been banned from this channel, so don't even try...",
-				);
-			
+      // check if sender is banned
+      if (userInRoom.isBanned)
+        throw new ForbiddenException(
+          "You have been banned from this channel, so don't even try...",
+        );
+
       // check if sender is muted
       if (userInRoom.isMuted)
         throw new ForbiddenException(
