@@ -19,7 +19,7 @@ interface LoukoumProps {
 
 const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
   const [messagesList, setMessagesList] = useState<Message[]>([]);
-  const [errorResponse, setErrorResponse] = useState("1");
+  const [errorResponse, setErrorResponse] = useState("");
 
   const getMessagesList = async (room_name: string) => {
     try {
