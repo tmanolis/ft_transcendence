@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
-import axios from "axios";import AvatarButton from "../components/landing_components/AvatarButton";
+import axios from "axios";
+import AvatarButton from "../components/landing_components/AvatarButton";
 import LandingButton from "../components/landing_components/LandingButton";
 import NavBar from "../components/landing_components/NavBar";
 import AvatarBar from "../components/landing_components/AvatarBar";
