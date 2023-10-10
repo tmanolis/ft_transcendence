@@ -375,7 +375,6 @@ export class GameService {
       }
       game.status = GameStatus.Playing;
       game.nbPlayers = 2;
-      console.log(game);
       this.cacheManager.set(gameID, JSON.stringify(game));
       return true;
     } else {
