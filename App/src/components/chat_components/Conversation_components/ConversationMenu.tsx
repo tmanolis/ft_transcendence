@@ -82,7 +82,7 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
         );
         setUsersList(response.data.membersList);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
     fetchUserData();
