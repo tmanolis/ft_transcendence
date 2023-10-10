@@ -38,7 +38,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // handle connection
   /****************************************************************************/
   async handleConnection(client: Socket) {
-
     if ((await this.gameService.identifyUser(client)) === 'failed') {
       this.server.to(client.id).emit('error', 'Forbidden.');
       client.disconnect();
