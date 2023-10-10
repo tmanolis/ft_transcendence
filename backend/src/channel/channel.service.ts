@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  GatewayTimeoutException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -24,6 +25,7 @@ import {
 } from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
+import { TimeoutError } from 'rxjs';
 
 @Injectable()
 export class ChannelService {
@@ -389,14 +391,18 @@ export class ChannelService {
 
     const thirtyMinutes: number = 1800000;
     setTimeout(async () => {
-      const unmuted = await this.prisma.userInRoom.update({
-        where: {
-          id: subject.id,
-        },
-        data: {
-          isMuted: false,
-        },
-      });
+			try{
+				const unmuted = await this.prisma.userInRoom.update({
+					where: {
+						id: subject.id,
+					},
+					data: {
+						isMuted: false,
+					},
+				});
+			} catch(error){
+				throw new BadRequestException('User has left the channel, unmute not needed');
+			}
     }, thirtyMinutes);
   }
 

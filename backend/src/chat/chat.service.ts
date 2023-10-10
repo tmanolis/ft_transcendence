@@ -749,16 +749,16 @@ export class ChatService {
     if (!userInRoom) throw new NotFoundException('You are not in this room');
 
     if (room.status !== RoomStatus.DIRECT) {
+			// check if sender is banned
+			if (userInRoom.isBanned)
+				throw new ForbiddenException(
+					"You have been banned from this channel, so don't even try...",
+				);
+			
       // check if sender is muted
       if (userInRoom.isMuted)
         throw new ForbiddenException(
           'You have been temporarily muted by a channel admin. Retry sending your message later.',
-        );
-
-      // check if sender is banned
-      if (userInRoom.isBanned)
-        throw new ForbiddenException(
-          "You have been banned from this channel, so don't even try...",
         );
     }
   }
