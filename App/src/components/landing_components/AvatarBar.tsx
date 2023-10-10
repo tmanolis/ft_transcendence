@@ -39,7 +39,7 @@ const AvatarBar: React.FC<AvatarBarProps> = ({ userName }) => {
       );
       console.log(response.data.status);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 
