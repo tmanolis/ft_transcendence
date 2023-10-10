@@ -3,7 +3,7 @@ import iconSrc from "/src/assets/icon/Settings.svg";
 import { Room } from "../../../pages/Chat";
 import ChannelMenu from "./ConversationMenu";
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { Socket } from "socket.io-client";
 
 interface ConversationHeaderProps {
@@ -28,8 +28,8 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, roomN
           withCredentials: true,
         });
         setUsername(response.data.userName);
-      } catch (error) {
-        console.error(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     };
 

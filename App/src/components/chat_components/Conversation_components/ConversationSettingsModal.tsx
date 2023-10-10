@@ -11,7 +11,7 @@ import {
 import ButtonStyled from "../../settings_components/styles/ConfirmButton.styled";
 import { Room } from "../../../pages/Chat";
 import iconSrc from "/icon/Cross.svg";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface SettingsModalProps {
   onClose: () => void; // Callback to close the menu
@@ -41,8 +41,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
       try {
         const response = await changeChanneltoPublic();
         console.log(response?.data);
-      } catch (error) {
-        console.log(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     }
   };
@@ -58,8 +58,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error) {
-      console.log(error);
+    } catch (error: AxiosError) {
+      console.error(error.message);
     }
   };
 
@@ -68,8 +68,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
       try {
         const response = await changeChanneltoPrivate();
         console.log(response?.data);
-      } catch (error) {
-        console.log(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     
       onClose();
@@ -90,8 +90,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose, chatRoom }) => {
         { withCredentials: true }
       );
       return response;
-    } catch (error) {
-      console.log(error);
+    } catch (error: AxiosError) {
+      console.error(error.message);
     }
   };
 

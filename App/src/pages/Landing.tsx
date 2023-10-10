@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router';
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import AvatarButton from "../components/landing_components/AvatarButton";
 import LandingButton from "../components/landing_components/LandingButton";
 import NavBar from "../components/landing_components/NavBar";
@@ -27,8 +27,8 @@ const Landing: React.FC = () => {
         );
         setAvatarPath(response.data.avatar);
         setUserName(response.data.userName);
-      } catch (error) {
-        console.error(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     };
 

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from "axios";
 import React, { useState, useEffect } from 'react';
 import backgroundImg from "../../assets/code-barre.png";
 import { Avatar, CodeBar, GamesPlayed, GamesWinned, ProfileContainer, ProfilesListWrapper, Rank, Username, CustomLink } from './styles/Profiles.styled';
@@ -22,8 +22,8 @@ const Profiles: React.FC = () => {
       );
       console.log(response);
       setProfilesList(response.data);
-    } catch (error) {
-      console.log(error);
+    } catch (error: AxiosError) {
+      console.error(error.message);
     }
   };
 

@@ -6,7 +6,7 @@ import { Room } from "../../../pages/Chat";
 import { createPortal } from "react-dom";
 import { Socket } from "socket.io-client";
 import { UserInfoProps } from "./ConversationUserInfo"
-import axios from "axios"
+import axios, { AxiosError } from "axios";
 
 interface ChannelMenuProps {
   onCloseMenu: () => void;
@@ -82,8 +82,8 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ onCloseMenu, chatRoom, userNa
           }
         );
         setUsersList(response.data.membersList);
-      } catch (error) {
-        console.error(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     };
     fetchUserData();

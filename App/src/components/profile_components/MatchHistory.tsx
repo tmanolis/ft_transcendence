@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
   MatchHistoryStyled,
   HistoryScrollingList,
@@ -35,8 +35,8 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ gameList, profileUser }) =>
           }
         );
         setLoggedUserName(response.data.userName);
-      } catch (error) {
-        console.error(error);
+      } catch (error: AxiosError) {
+        console.error(error.message);
       }
     };
 
