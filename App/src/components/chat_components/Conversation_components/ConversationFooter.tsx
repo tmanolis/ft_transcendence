@@ -36,7 +36,7 @@ const ConversationFooter: React.FC<ConversationFooterProps> = ({ chatRoom, socke
   useEffect (() => {
     setInputValue("");
     setErrorResponse("");
-  }, [chatRoom]);
+  }, []);
   
   const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevents the form from submitting the traditional way

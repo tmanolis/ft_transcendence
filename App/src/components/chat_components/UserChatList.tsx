@@ -5,11 +5,11 @@ import { Room } from '../../pages/Chat';
 
 interface ItemProps {
   room: Room;
-  openChat: (room: Room, roomName: string | null) => void;
+  handleOpenChat: (room: Room, roomName: string | null) => void;
   isSelected: boolean;
 }
 
-function Item({ room, openChat, isSelected }: ItemProps) {
+function Item({ room, handleOpenChat, isSelected }: ItemProps) {
   const [directMessageName, setDirectMessageName] = useState<string | null>(null);
   const [avatarPath, setAvatarPath] = useState("/src/assets/img/Web_img.jpg");
 
@@ -37,7 +37,7 @@ function Item({ room, openChat, isSelected }: ItemProps) {
     };
 
     fetchUserName(); // Call the function when the component mounts
-  }, []); // Run the effect whenever `room` prop changes
+  }, [room]); // Run the effect whenever `room` prop changes
 
   const openConversation = () => {
     let roomName: string | null = room.name;
@@ -45,7 +45,7 @@ function Item({ room, openChat, isSelected }: ItemProps) {
     if (room.status === 'DIRECT')
       roomName = directMessageName;
 
-    openChat(room, roomName);
+      handleOpenChat(room, roomName);
   };
 
   return (
@@ -98,7 +98,7 @@ const UserChatList: React.FC<UserChatListProps> = ({ openChat }) => {
         <Item
         key={index}
         room={room}
-        openChat={handleOpenChat}
+        handleOpenChat={handleOpenChat}
         isSelected={selectedChat === room.name} // Pass isSelected prop to Item component
         />
       ))}
