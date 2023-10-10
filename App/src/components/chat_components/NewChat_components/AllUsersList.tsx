@@ -24,7 +24,6 @@ const AllUsersList: React.FC<AllUsersListProps> = ({ getUser }) => {
         `${import.meta.env.VITE_BACKEND_URL}/user/all-users`, // using friends list to test front: /chat/Channels
         { withCredentials: true }
       );
-      console.log(response);
       setAllUsersList(response.data);
     } catch (error) {
       console.log(error);
