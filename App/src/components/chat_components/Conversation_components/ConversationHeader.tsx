@@ -29,7 +29,7 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({ chatRoom, roomN
         });
         setUsername(response.data.userName);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
