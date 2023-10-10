@@ -19,7 +19,7 @@ interface LoukoumProps {
 
 const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
   const [messagesList, setMessagesList] = useState<Message[]>([]);
-  const [errorResponse, setErrorResponse] = useState("");
+  const [errorResponse, setErrorResponse] = useState("1");
 
   const getMessagesList = async (room_name: string) => {
     try {
@@ -29,8 +29,10 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
       );
       console.log(response.data.channelHistory.messages);
       setMessagesList(response.data.channelHistory.messages);
+      setErrorResponse("");
     } catch (error) {
       console.log("You have been banned from this channel error : ", error);
+      setMessagesList([]);
       setErrorResponse("Too bad, you have been banned from this channel...");
     }
   };
