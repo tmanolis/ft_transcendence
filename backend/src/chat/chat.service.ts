@@ -662,9 +662,13 @@ export class ChatService {
     }
 
     // ping for update
+		const payload = {
+			room: message.room,
+			message: 'please GET channel/history',
+		}
     this.server
       .to(message.room)
-      .emit('channelUpdated', 'please GET channel/history');
+      .emit('channelUpdated', payload);
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
