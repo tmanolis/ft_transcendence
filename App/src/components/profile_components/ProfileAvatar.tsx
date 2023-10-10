@@ -63,7 +63,7 @@ const ProfileAvatarBlock: React.FC<ProfileAvatarProps> = ({
         );
         setUserName(response.data.userName);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     };
 
