@@ -21,7 +21,6 @@ const Loukoum: React.FC<LoukoumProps> = ({ chatRoom, socket_chat }) => {
   const [messagesList, setMessagesList] = useState<Message[]>([]);
 
   const getMessagesList = async (room_name: string) => {
-    console.log("GETLIST POUR QUELLE ROOM:" + chatRoom.name);
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/channel/history?name=${room_name}`,
