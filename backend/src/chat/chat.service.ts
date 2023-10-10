@@ -680,9 +680,13 @@ export class ChatService {
     }
 
     // ping for update
+		const payload = {
+			room: message.room,
+			message: 'please GET channel/history',
+		}
     this.server
       .to(message.room)
-      .emit('channelUpdated', 'please GET channel/history');
+      .emit(`channelUpdated/${message.room}`, payload);
   }
 
   async stockMessage(client: Socket, message: messageDTO) {
@@ -725,9 +729,14 @@ export class ChatService {
       });
 
       // ping for update
-      this.server
-        .to(room.name)
-        .emit('channelUpdated', 'please GET channel/history');
+    // ping for update
+		const payload = {
+			room: message.room,
+			message: 'please GET channel/history',
+		}
+    this.server
+      .to(message.room)
+      .emit(`channelUpdated/${message.room}`, payload);
     } catch (error) {
       throw error;
     }

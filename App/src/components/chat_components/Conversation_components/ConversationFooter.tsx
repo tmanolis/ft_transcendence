@@ -10,13 +10,11 @@ interface ConversationFooterProps {
 }
 
 const ConversationFooter: React.FC<ConversationFooterProps> = ({ chatRoom, socket_chat }) => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [errorResponse, setErrorResponse] = useState("");
 
 	useEffect(() => {
 	const handleSendMessageSuccess = () => {
-		// onCancel();
-		// window.location.reload();
     console.log("J'AI ENVOYE MON MESSAGE");
 	};
 
@@ -35,6 +33,11 @@ const ConversationFooter: React.FC<ConversationFooterProps> = ({ chatRoom, socke
 	};
 	}, [socket_chat]); // not sure
 
+  useEffect (() => {
+    setInputValue("");
+    setErrorResponse("");
+  }, []);
+  
   const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); // Prevents the form from submitting the traditional way
 
