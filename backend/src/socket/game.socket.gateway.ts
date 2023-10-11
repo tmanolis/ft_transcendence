@@ -32,7 +32,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {}
   @WebSocketServer()
   server: Server;
-  pauseCounter = 500;
+  pauseCounter = 600;
 
   /****************************************************************************/
   // handle connection
@@ -152,7 +152,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(gameRoom).emit('updateGame', gameData);
         this.server.to(gameRoom).emit('ended', gameData);
       } else {
-        this.pauseCounter = 500;
+        this.pauseCounter = 600;
         this.server.to(gameRoom).emit('updateGame', gameData);
       }
 
@@ -160,7 +160,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.gameService.endGame(gameData);
         clearInterval(gameInterval);
       }
-    }, 1000 / 60);
+    }, 1000 / 110);
 
     return { event: 'start game', socketID: client.id };
   }
@@ -408,7 +408,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.server.to(gameRoom).emit('updateGame', gameData);
         this.server.to(gameRoom).emit('ended', gameData);
       } else {
-        this.pauseCounter = 300;
+        this.pauseCounter = 600;
         this.server.to(gameRoom).emit('updateGame', gameData);
       }
 
@@ -416,7 +416,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
         await this.retroGameService.endGame(gameData);
         clearInterval(gameInterval);
       }
-    }, 1000 / 60);
+    }, 1000 / 110);
 
     return { event: 'start game', socketID: client.id };
   }

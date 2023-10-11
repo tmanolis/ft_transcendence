@@ -789,18 +789,18 @@ export class GameService {
   };
 
   modifyAngle(angle) {
-    if (angle > 3.5 && angle < 5) {
+    if (angle > 3.8 && angle < 5.27) {
       if (angle > (Math.PI / 2) * 3) {
         angle += 1;
       } else {
-        angle -= 1;
+        angle -= 0.7;
       }
     }
-    if (angle > 0.6 && angle < 2.5) {
+    if (angle > 0.7 && angle < 2.5) {
       if (angle > Math.PI / 2) {
         angle += 1;
       } else {
-        angle -= 1;
+        angle -= 0.7;
       }
     }
     return Math.abs(angle);
