@@ -18,14 +18,12 @@ import {
   channelDTO,
   SecureChannelDTO,
 } from 'src/dto';
-import { User, RoomStatus, Room, UserInRoom, Status } from '@prisma/client';
+import { User, RoomStatus, Room, UserInRoom } from '@prisma/client';
 import * as argon from 'argon2';
 import { Socket, Server } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocketServer } from '@nestjs/websockets';
 import { RoomWithUsers, UserWithRooms } from 'src/interfaces';
-import { isAlphanumeric } from 'class-validator';
-import { RouterModule } from '@nestjs/core';
 
 @Injectable()
 export class ChatService {
@@ -716,7 +714,6 @@ export class ChatService {
         },
       });
 
-      // ping for update
       // ping for update
       const payload = {
         room: message.room,

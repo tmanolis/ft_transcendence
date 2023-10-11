@@ -3,7 +3,6 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { GameService } from './game.service';
 import { RetroGameService } from './retro.game.service';
 import { UserService } from '../user/user.service';
-import { UserModule } from '../user/user.module';
 import { PrismaService } from 'nestjs-prisma';
 
 @Module({

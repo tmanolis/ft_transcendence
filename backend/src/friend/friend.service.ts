@@ -1,6 +1,5 @@
 import {
   Injectable,
-  Res,
   BadRequestException,
   ServiceUnavailableException,
 } from '@nestjs/common';
@@ -83,8 +82,6 @@ export class FriendService {
         },
       });
       if (addFriendResult.friends.length === 1) {
-        console.log('Added my first friend.');
-        console.log('Added my first friend.');
         // Add FRIEND achievement.
         await this.prisma.user.update({
           where: {
@@ -104,7 +101,7 @@ export class FriendService {
     return {
       status: 'OK',
       statusCode: 200,
-      message: 'Friend request successufly accepted.',
+      message: 'Friend request successfully accepted.',
     };
   }
 
@@ -219,7 +216,7 @@ export class FriendService {
       receiver.friendRequestsSent.includes(senderEmail) ||
       sender.friendRequestsReceived.includes(receiverEmail)
     ) {
-      throw new BadRequestException('The receiver sent you an request.');
+      throw new BadRequestException('The receiver sent you a request.');
     }
 
     // check if they are already friends
@@ -265,7 +262,7 @@ export class FriendService {
     return {
       status: 'OK',
       statusCode: 200,
-      message: 'Friend request successufly sent.',
+      message: 'Friend request successfully sent.',
     };
   }
 
@@ -315,7 +312,7 @@ export class FriendService {
     return {
       status: 'OK',
       statusCode: 200,
-      message: 'Friend request successufly canceled.',
+      message: 'Friend request successfully canceled.',
     };
   }
 
@@ -382,11 +379,7 @@ export class FriendService {
           },
         },
       });
-      if (addFriendResult.friends.length === 1) {
-        console.log('Added my first friend.');
-        // Add FRIEND achievement.
-        // Should probably create an achievement module for this.
-      }
+      if (addFriendResult.friends.length === 1) {}
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
     }
@@ -403,11 +396,7 @@ export class FriendService {
           },
         },
       });
-      if (addFriendResult.friends.length === 1) {
-        console.log('Added my first friend.');
-        // Add FRIEND achievement.
-        // Should probably create an achievement module for this.
-      }
+      if (addFriendResult.friends.length === 1) {}
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
     }
@@ -594,8 +583,4 @@ export class FriendService {
 
     return friendList;
   }
-
-  /*****************************************************************************/
-  /* add freind achievement */
-  /*****************************************************************************/
 }

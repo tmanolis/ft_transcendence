@@ -4,7 +4,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { Game, User, BlockedUser } from '@prisma/client';
+import { User, BlockedUser } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { UsernameDTO, UpdateDto, SecureUser, LeaderboardUser } from 'src/dto';
 import { authenticator } from 'otplib';

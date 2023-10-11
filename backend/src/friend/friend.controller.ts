@@ -6,14 +6,10 @@ import {
   Patch,
   Delete,
   UseGuards,
-  UseInterceptors,
-  UploadedFiles,
-  BadRequestException,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 import {
-  ApiBadRequestResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,

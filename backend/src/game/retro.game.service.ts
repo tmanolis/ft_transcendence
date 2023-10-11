@@ -412,9 +412,6 @@ export class RetroGameService {
     }
   }
 
-  //checkBallPaddleCollision
-  // moveBall()
-
   async gameLogic(client: Socket): Promise<Game> {
     const currentGame = await this.getGameByClient(client);
 

@@ -20,14 +20,6 @@ export interface UserWithBlocklist extends User {
   blockedUsers: BlockedUser[];
 }
 
-// export interface BlockedUserWithUsername extends BlockedUser {
-// 	blockedUser: User & { userName: string };
-// }
-
-// export interface UserWithNamedBlocklist extends BlockedUserWithUser {
-// 	blockedUsers: BlockedUserWithUser[];
-// }
-
 export interface UserWithGames {
   userName: string;
   avatar: string;

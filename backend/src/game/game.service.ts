@@ -78,7 +78,7 @@ export class GameService {
         },
       });
     } catch (error) {
-      throw new NotFoundException('Can not found user');
+      throw new NotFoundException('Can not find user');
     }
     return user;
   }
@@ -299,7 +299,6 @@ export class GameService {
   async createGame(client: Socket): Promise<Game> {
     let newGame: Game;
     let pendingPlayer: string = await this.cacheManager.get('pendingPlayer');
-    // continue to joinGame if there is a pendingPlayer
     let pausedGameID: string = await this.findPausedGame(client);
     if (!pendingPlayer && !pausedGameID) {
       let player: Player = await this.getSocketPlayer(client);
@@ -498,9 +497,6 @@ export class GameService {
       return { currentGame: currentGame, currentPlayer: currentPlayer };
     }
   }
-
-  //checkBallPaddleCollision
-  // moveBall()
 
   async gameLogic(client: Socket): Promise<Game> {
     const currentGame = await this.getGameByClient(client);

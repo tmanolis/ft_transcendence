@@ -6,17 +6,14 @@ import { UserService } from '../user/user.service';
 import { UserModule } from '../user/user.module';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'nestjs-prisma';
-import { GameGateway, ChatGateway, NotificationsGateway } from './';
+import { GameGateway, ChatGateway } from './';
 import { ChatModule } from 'src/chat/chat.module';
-import { NotificationsModule } from 'src/notifications/notifications.module';
-// import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-  imports: [GameModule, ChatModule, NotificationsModule, JwtModule, UserModule],
+  imports: [GameModule, ChatModule, JwtModule, UserModule],
   providers: [
     GameGateway,
     ChatGateway,
-    NotificationsGateway,
     GameService,
     RetroGameService,
     JwtService,
