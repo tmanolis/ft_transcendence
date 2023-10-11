@@ -65,8 +65,6 @@ export class AuthService {
       },
     });
 
-    // Maybe set up a "compound unique constraint" can avoid repeatetive requests.
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#unique-1
     if (!user) {
       try {
         user = await this.prisma.user.create({

@@ -4,7 +4,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { Game, User, BlockedUser } from '@prisma/client';
+import { User, BlockedUser } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 import { UsernameDTO, UpdateDto, SecureUser, LeaderboardUser } from 'src/dto';
 import { authenticator } from 'otplib';
@@ -63,7 +63,7 @@ export class UserService {
             },
           });
         } catch (error) {
-          throw new BadRequestException('Can not add achivement');
+          throw new BadRequestException('Can not add achievement');
         }
       }
       return await toDataURL(otpauthUrl);
@@ -79,7 +79,7 @@ export class UserService {
           },
         });
       } catch (error) {
-        throw new BadRequestException('Can not deactivate two fa');
+        throw new BadRequestException('Can not deactivate 2FA');
       }
     }
     return 'OK';
@@ -112,7 +112,7 @@ export class UserService {
         },
       });
     } catch (error) {
-      throw new BadRequestException('Can generate two fa secret');
+      throw new BadRequestException('Can not generate 2FA secret');
     }
     const otpauthUrl = authenticator.keyuri(
       user.email,
@@ -300,11 +300,15 @@ export class UserService {
       throw new BadRequestException('You have not blocked this person');
 
     // remove subject from block list user
-    await this.prisma.blockedUser.delete({
-      where: {
-        id: blockedUser.id,
-      },
-    });
+    try {
+      await this.prisma.blockedUser.delete({
+        where: {
+          id: blockedUser.id,
+        },
+      });
+    } catch (error) {
+      throw new NotFoundException('Error interacting with database');
+    }
   }
 
   async getSubject(

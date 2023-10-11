@@ -1,21 +1,13 @@
 import {
   BadRequestException,
   ForbiddenException,
-  GatewayTimeoutException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import {
-  AdminDTO,
-  channelDTO,
-  changePassDTO,
-  toPublicDTO,
-  dmDTO,
-  ChatUser,
-} from 'src/dto';
-import { User, UserInRoom, RoomStatus, Message, Status } from '@prisma/client';
+import { AdminDTO, channelDTO, changePassDTO, toPublicDTO } from 'src/dto';
+import { User, UserInRoom, RoomStatus, Message } from '@prisma/client';
 import * as argon from 'argon2';
 import {
   RoomHistory,
@@ -25,7 +17,6 @@ import {
 } from 'src/interfaces';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
-import { TimeoutError } from 'rxjs';
 
 @Injectable()
 export class ChannelService {
@@ -543,7 +534,7 @@ export class ChannelService {
         },
       });
     } catch (error) {
-      throw new ForbiddenException('Error updating databse');
+      throw new ForbiddenException('Error updating database');
     }
 
     // update channel

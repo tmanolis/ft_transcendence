@@ -12,7 +12,7 @@ import {
   ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { AdminDTO, dmDTO } from '../dto';
+import { AdminDTO } from '../dto';
 import { toPublicDTO, changePassDTO } from '../dto';
 import { JwtGuard } from 'src/auth/guard';
 import { GetUser } from 'src/decorator';

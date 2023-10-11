@@ -67,7 +67,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
         channel = await this.chatService.createChannel(client, createDTO);
       }
       client.emit('createChannelSuccess', {
-        message: 'Channel created with name ' + channel,
+        message: `Channel created with name ${channel}`,
       });
     } catch (error) {
       client.emit('createChannelError', { message: error.message });
