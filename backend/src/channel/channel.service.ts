@@ -6,12 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import {
-  AdminDTO,
-  channelDTO,
-  changePassDTO,
-  toPublicDTO,
-} from 'src/dto';
+import { AdminDTO, channelDTO, changePassDTO, toPublicDTO } from 'src/dto';
 import { User, UserInRoom, RoomStatus, Message } from '@prisma/client';
 import * as argon from 'argon2';
 import {

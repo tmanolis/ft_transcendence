@@ -9,11 +9,7 @@ import {
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
-import {
-  ApiOkResponse,
-  ApiOperation,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from '@prisma/client';
 import { JwtGuard } from 'src/auth/guard';
 import { FriendService } from './friend.service';

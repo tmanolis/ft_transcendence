@@ -300,15 +300,15 @@ export class UserService {
       throw new BadRequestException('You have not blocked this person');
 
     // remove subject from block list user
-		try{
-			await this.prisma.blockedUser.delete({
-				where: {
-					id: blockedUser.id,
-				},
-			});
-		} catch(error){
-			throw new NotFoundException('Error interacting with database');
-		}
+    try {
+      await this.prisma.blockedUser.delete({
+        where: {
+          id: blockedUser.id,
+        },
+      });
+    } catch (error) {
+      throw new NotFoundException('Error interacting with database');
+    }
   }
 
   async getSubject(

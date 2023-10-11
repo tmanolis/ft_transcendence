@@ -379,7 +379,8 @@ export class FriendService {
           },
         },
       });
-      if (addFriendResult.friends.length === 1) {}
+      if (addFriendResult.friends.length === 1) {
+      }
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
     }
@@ -396,7 +397,8 @@ export class FriendService {
           },
         },
       });
-      if (addFriendResult.friends.length === 1) {}
+      if (addFriendResult.friends.length === 1) {
+      }
     } catch (error) {
       throw new ServiceUnavailableException('Server unavailable.');
     }
